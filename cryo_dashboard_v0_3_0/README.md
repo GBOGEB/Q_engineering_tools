@@ -1,35 +1,44 @@
 # Cryo Dashboard v0.3.0
 
-**Status:** Placeholder — ready for dashboard files  
-**Data source:** NIST reference data  
-**Domain:** Cryogenic / Superconducting LINAC systems
+**Status:** Live — fully functional standalone dashboard  
+**Data source:** NIST REFPROP 10 (Helium-4 & Liquid Nitrogen)  
+**Domain:** Cryogenic / Superconducting LINAC systems  
+**Live URL:** https://gbogeb.github.io/Q_engineering_tools/cryo_dashboard_v0_3_0/
 
 ---
 
 ## Overview
 
-This folder holds the **Cryo Dashboard v0.3.0** — an interactive dashboard built
-from NIST cryogenic data. It is hosted as a static site via GitHub Pages at:
+**Cryo Dashboard v0.3.0** is an interactive, standalone browser-based reference tool
+for cryogenic and superconducting LINAC system design. It provides interactive
+visualisation of thermodynamic properties for the two most commonly used cryogenic
+fluids in accelerator facilities:
 
-```
-https://gbogeb.github.io/Q_engineering_tools/cryo_dashboard_v0_3_0/
-```
+- **Helium-4** — cavity cooling at 4.2 K (1 atm) and 2 K (superfluid)
+- **Liquid Nitrogen (LN₂)** — thermal shielding at 77 K
 
-## Adding your dashboard files
+No backend, no build step — a single `index.html` file (with Chart.js via CDN).
 
-1. Copy all your dashboard HTML, JavaScript, and CSS files into this folder.
-2. Ensure the main entry point is named **`index.html`** (it will replace the current placeholder).
-3. Commit and push to `main` — the GitHub Actions workflow will re-deploy automatically.
+## Dashboard tabs
 
-## Expected content (v0.3.0)
-
-| File / folder | Purpose |
+| Tab | Content |
 | --- | --- |
-| `index.html` | Main dashboard entry point |
-| `assets/` | Static assets (images, data files) |
-| `*.js` / `*.css` | Dashboard scripts and styles |
+| **Overview** | KPI stat cards + four summary charts (P–T, density, latent heat, LN₂ P–T) |
+| **Saturation Curve** | Full He-4 P–T log-scale diagram with key operating points + NIST data table |
+| **Property Lookup** | Interactive temperature slider → live property readout for He-4 or LN₂ |
+| **Method Comparison** | NIST tabulated vs Clausius–Clapeyron vs ideal-gas model; error table |
+| **About** | Data sources, critical constants, disclaimer |
 
-## Source
+## Data sources
 
-Originally developed in the `document-organization-system` repository under
-`feature/method-comparison-panel-clean/cryo_dashboard_v0_3_0/`.
+| Fluid | EOS | Reference |
+| --- | --- | --- |
+| He-4 | Helmholtz (Ortiz-Vega *et al.* 2015) | NIST REFPROP 10, Donnelly & Barenghi (1998) |
+| N₂ | Helmholtz (Span *et al.* 2000) | NIST REFPROP 10 / NIST WebBook |
+
+## Files
+
+| File | Purpose |
+| --- | --- |
+| `index.html` | Complete dashboard — HTML + CSS + JavaScript, self-contained |
+| `README.md` | This file |
