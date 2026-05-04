@@ -4,23 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cryo Dashboard v0.3.0 — Q Engineering Tools</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg:      #0d1117;
-      --surface: #161b22;
-      --border:  #30363d;
-      --accent:  #58a6ff;
-      --accent2: #3fb950;
-      --text:    #c9d1d9;
-      --muted:   #8b949e;
-      --cyan:    #79c0ff;
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --surface2: #21262d;
+      --border:   #30363d;
+      --accent:   #58a6ff;
+      --accent2:  #3fb950;
+      --accent3:  #f78166;
+      --accent4:  #d2a8ff;
+      --text:     #c9d1d9;
+      --muted:    #8b949e;
+      --cyan:     #79c0ff;
+      --yellow:   #e3b341;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                   Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       min-height: 100vh;
     }
 
@@ -28,198 +32,1054 @@
     header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 1rem 2rem;
+      padding: 0.85rem 2rem;
       display: flex;
       align-items: center;
       gap: 1rem;
     }
-    header .back {
-      font-size: 0.85rem;
-      color: var(--accent);
-      text-decoration: none;
-    }
-    header .back:hover { text-decoration: underline; }
-    header .title {
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-    header .version {
+    .back { font-size: 0.85rem; color: var(--accent); text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+    .hdr-title { font-size: 1.05rem; font-weight: 600; }
+    .hdr-ver {
       font-size: 0.72rem;
-      background: #21262d;
+      background: var(--surface2);
       border: 1px solid var(--border);
       border-radius: 3px;
       padding: 0.15em 0.6em;
       color: var(--accent2);
     }
+    .hdr-src { margin-left: auto; font-size: 0.78rem; color: var(--muted); }
+    .hdr-src a { color: var(--accent); text-decoration: none; }
+    .hdr-src a:hover { text-decoration: underline; }
 
-    /* ── Placeholder banner ── */
-    .placeholder {
-      max-width: 820px;
-      margin: 4rem auto;
-      padding: 0 1.5rem;
-      text-align: center;
+    /* ── KPI Strip ── */
+    .kpi-strip {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem 2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
     }
-    .placeholder .icon { font-size: 4rem; margin-bottom: 1rem; }
-    .placeholder h1 {
-      font-size: 1.8rem;
-      color: #e6edf3;
-      margin-bottom: 0.75rem;
+    .kpi {
+      flex: 1;
+      min-width: 130px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
     }
-    .placeholder p {
+    .kpi-label { font-size: 0.70rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-value { font-size: 1.35rem; font-weight: 700; color: var(--cyan); margin: 0.15rem 0; }
+    .kpi-sub   { font-size: 0.72rem; color: var(--muted); }
+
+    /* ── Tab Bar ── */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      padding: 0 2rem;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 0.75rem 1.2rem;
+      border: none;
+      background: none;
       color: var(--muted);
-      line-height: 1.7;
-      font-size: 0.95rem;
-      margin-bottom: 1.5rem;
+      font-size: 0.87rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      white-space: nowrap;
+      transition: color 0.15s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+    /* ── Content ── */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    main { max-width: 1200px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
+
+    .section-hd {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.4rem;
+      margin-bottom: 1.2rem;
     }
 
-    .info-box {
+    /* ── Grids ── */
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 1.25rem; }
+
+    /* ── Chart card ── */
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+    }
+    .chart-card h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.35rem; }
+    .chart-card .sub { font-size: 0.77rem; color: var(--muted); margin-bottom: 0.9rem; line-height: 1.5; }
+    .chart-wrap { position: relative; height: 260px; }
+
+    /* ── Method table ── */
+    .method-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; margin-top: 1.25rem; }
+    .method-table th {
+      background: var(--surface2);
+      color: var(--muted);
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.55rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .method-table td {
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .method-table tr:hover td { background: var(--surface2); }
+    .badge-m { display: inline-block; padding: 0.15em 0.55em; border-radius: 3px; font-size: 0.74rem; font-weight: 600; }
+    .badge-blue   { background: #1f3a5c; color: var(--accent); }
+    .badge-green  { background: #1a3a2a; color: var(--accent2); }
+    .badge-orange { background: #3a2a1a; color: var(--yellow); }
+    .badge-purple { background: #2a1a3a; color: var(--accent4); }
+
+    /* ── Parameter sweep ── */
+    .sweep-controls {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .sweep-controls h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem; }
+    .slider-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem; }
+    .slider-label { font-size: 0.83rem; color: var(--text); min-width: 220px; }
+    .slider-label span { color: var(--cyan); font-weight: 600; }
+    input[type=range] { flex: 1; accent-color: var(--accent); cursor: pointer; }
+
+    .results-strip {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .res-kpi { flex: 1; min-width: 110px; }
+    .res-kpi .r-label { font-size: 0.69rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .res-kpi .r-value { font-size: 1.15rem; font-weight: 700; color: var(--accent2); }
+    .res-kpi .r-unit  { font-size: 0.72rem; color: var(--muted); }
+
+    /* ── Data table ── */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.81rem; font-family: "SFMono-Regular", Consolas, monospace; }
+    .data-table th {
+      background: var(--surface2);
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.5rem 0.75rem;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .data-table th:first-child { text-align: left; }
+    .data-table td {
+      padding: 0.42rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+      color: var(--cyan);
+    }
+    .data-table td:first-child { text-align: left; color: var(--text); }
+    .data-table tr:hover td { background: var(--surface2); }
+    .tbl-wrap { overflow-x: auto; }
+
+    /* ── Info panels ── */
+    .info-panel {
       background: var(--surface);
       border: 1px solid var(--border);
       border-left: 4px solid var(--accent);
       border-radius: 6px;
-      padding: 1.25rem 1.5rem;
-      text-align: left;
-      margin-bottom: 2rem;
-    }
-    .info-box h3 {
-      font-size: 0.85rem;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 0.75rem;
-    }
-    .info-box ul {
-      list-style: none;
-      font-size: 0.88rem;
+      padding: 0.9rem 1.2rem;
+      font-size: 0.84rem;
+      margin-bottom: 1.2rem;
+      line-height: 1.65;
       color: var(--text);
-      line-height: 1.8;
     }
-    .info-box ul li::before { content: "→ "; color: var(--accent2); }
+    .info-panel.green { border-left-color: var(--accent2); }
+    .info-panel strong { color: #e6edf3; }
+    .info-panel a { color: var(--accent); text-decoration: none; }
+    .info-panel a:hover { text-decoration: underline; }
 
-    .steps {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 1.25rem 1.5rem;
-      text-align: left;
-      margin-bottom: 2rem;
+    .src-note {
+      font-size: 0.74rem;
+      color: var(--muted);
+      margin-top: 0.75rem;
+      padding: 0.45rem 0.75rem;
+      border-left: 3px solid var(--border);
+      line-height: 1.6;
     }
-    .steps h3 {
-      font-size: 0.85rem;
-      color: var(--accent2);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 0.75rem;
-    }
-    .steps ol {
-      padding-left: 1.3rem;
-      font-size: 0.88rem;
-      color: var(--text);
-      line-height: 2;
-    }
-    code {
-      background: #21262d;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 0.1em 0.45em;
-      font-size: 0.85em;
-      color: var(--cyan);
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-    }
+    .src-note a { color: var(--accent); text-decoration: none; }
 
-    .cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4em;
-      background: var(--accent);
-      color: #0d1117;
-      font-weight: 600;
-      font-size: 0.9rem;
-      padding: 0.6rem 1.4rem;
-      border-radius: 6px;
-      text-decoration: none;
-      transition: opacity 0.15s;
-    }
-    .cta:hover { opacity: 0.85; }
+    .row-highlight td { color: var(--accent2) !important; font-weight: 500; }
+    .row-lambda td   { color: var(--accent2) !important; }
+    .row-critical td { color: var(--accent4) !important; }
 
+    /* ── Footer ── */
     footer {
       text-align: center;
-      padding: 2rem;
-      font-size: 0.8rem;
+      padding: 1.75rem 2rem;
+      font-size: 0.79rem;
       color: var(--muted);
       border-top: 1px solid var(--border);
-      margin-top: 3rem;
     }
     footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 680px) {
+      header      { padding: 0.75rem 1rem; flex-wrap: wrap; }
+      .hdr-src    { display: none; }
+      .kpi-strip  { padding: 0.75rem 1rem; }
+      .tab-bar    { padding: 0 0.5rem; }
+      main        { padding: 1rem 1rem 2rem; }
+      .grid-2     { grid-template-columns: 1fr; }
+      .slider-label { min-width: 160px; }
+    }
   </style>
 </head>
 <body>
 
-  <header>
-    <a class="back" href="../index.html">← Back to Portal</a>
-    <span class="title">🧊 Cryo Dashboard</span>
-    <span class="version">v0.3.0</span>
-  </header>
+<!-- ── Header ── -->
+<header>
+  <a class="back" href="../index.html">← Portal</a>
+  <span class="hdr-title">🧊 Cryo Dashboard</span>
+  <span class="hdr-ver">v0.3.0</span>
+  <span class="hdr-src">
+    Data: <a href="https://webbook.nist.gov/chemistry/fluid/" target="_blank" rel="noopener">NIST WebBook He-4 (SRD 69)</a>
+  </span>
+</header>
 
-  <div class="placeholder">
-    <div class="icon">🧊</div>
-    <h1>Cryo Dashboard <span style="color:var(--accent)">v0.3.0</span></h1>
-    <p>
-      This dashboard visualises cryogenic performance data derived from
-      <strong>NIST reference data</strong> for superconducting / cryogenic LINAC systems.
-      It includes method-comparison panels, parameter sweeps, and trend analysis.
-    </p>
+<!-- ── KPI Strip ── -->
+<div class="kpi-strip">
+  <div class="kpi">
+    <div class="kpi-label">He-4 Critical Temp</div>
+    <div class="kpi-value">5.195 K</div>
+    <div class="kpi-sub">NIST reference</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Normal Boil Point</div>
+    <div class="kpi-value">4.222 K</div>
+    <div class="kpi-sub">@ 101.325 kPa</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Lambda Point</div>
+    <div class="kpi-value">2.177 K</div>
+    <div class="kpi-sub">He-I → He-II</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Latent Heat @ NBP</div>
+    <div class="kpi-value">20.4 kJ/kg</div>
+    <div class="kpi-sub">h_fg at 4.222 K</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Carnot @ 4.2 K</div>
+    <div class="kpi-value">70.4 W/W</div>
+    <div class="kpi-sub">vs 300 K warm end</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">NIST Data Points</div>
+    <div class="kpi-value">12</div>
+    <div class="kpi-sub">Saturation table</div>
+  </div>
+</div>
 
-    <div class="info-box">
-      <h3>📋 Dashboard Features (v0.3.0)</h3>
-      <ul>
-        <li>Method comparison panel (clean layout)</li>
-        <li>NIST-sourced cryogenic fluid properties</li>
-        <li>Interactive parameter exploration</li>
-        <li>Trend analysis and visualisation</li>
-        <li>Standalone — no backend or server required</li>
-      </ul>
-    </div>
+<!-- ── Tab Bar ── -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab(event,'method-comparison')">📊 Method Comparison</button>
+  <button class="tab-btn" onclick="switchTab(event,'he4-properties')">🔬 He-4 Properties</button>
+  <button class="tab-btn" onclick="switchTab(event,'parameter-sweep')">⚙️ Parameter Sweep</button>
+  <button class="tab-btn" onclick="switchTab(event,'heat-budget')">🔥 Heat Budget</button>
+  <button class="tab-btn" onclick="switchTab(event,'data-reference')">📋 Data Reference</button>
+</div>
 
-    <div class="steps">
-      <h3>🚀 How to deploy your dashboard files here</h3>
-      <ol>
-        <li>
-          Copy your dashboard HTML/JS/CSS files into the
-          <code>cryo_dashboard_v0_3_0/</code> folder of this repository.
-        </li>
-        <li>
-          Make sure the main entry point is named <code>index.html</code>
-          (it replaces this placeholder page).
-        </li>
-        <li>
-          Push to the <code>main</code> branch — GitHub Actions will
-          automatically redeploy to GitHub Pages within ~60 seconds.
-        </li>
-        <li>
-          Visit <code>https://gbogeb.github.io/Q_engineering_tools/cryo_dashboard_v0_3_0/</code>
-          to verify the live dashboard.
-        </li>
-      </ol>
-    </div>
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 1 — Method Comparison
+════════════════════════════════════════════════════════════════ -->
+<div class="tab-content active" id="tab-method-comparison">
+<main>
+  <p class="section-hd">🧊 Cooling Method Comparison — Superconducting LINAC Cryogenics</p>
 
-    <a class="cta" href="https://github.com/GBOGEB/Q_engineering_tools/tree/main/cryo_dashboard_v0_3_0"
-       target="_blank" rel="noopener">
-      ↗ Open folder on GitHub
-    </a>
+  <div class="info-panel">
+    Compares four common helium cooling strategies used in superconducting RF (SRF) LINAC systems.
+    Key metrics include operating temperature, saturation pressure, Carnot-limit COP, practical
+    refrigerator efficiency, and achievable SRF cavity Q₀ for bulk-niobium cavities at 20 MV/m.
+    Practical COP assumes ≈ 30 % of ideal Carnot, representative of large-scale helium refrigerators.
   </div>
 
-  <footer>
-    <p>
-      <a href="../index.html">← Portal</a>
-      &nbsp;·&nbsp;
-      <a href="https://github.com/GBOGEB/Q_engineering_tools" target="_blank" rel="noopener">
-        GitHub Repository
-      </a>
-      &nbsp;·&nbsp;
-      Hosted with <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a>
-    </p>
-  </footer>
+  <div class="grid-2">
+    <div class="chart-card">
+      <h3>Refrigerator Efficiency — Carnot vs Practical (W_in / W_removed)</h3>
+      <p class="sub">Lower is better. Bars show the Carnot lower bound; outlined bars show the practical achievable value at scale. High Carnot penalty drives preference for higher operating temperatures where possible.</p>
+      <div class="chart-wrap"><canvas id="chart-cop"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Operating Pressure at Nominal Set-point</h3>
+      <p class="sub">Logarithmic scale. Sub-atmospheric pressures (2 K, 1.8 K) require vacuum integrity on large cryomodule systems, adding engineering complexity compared with over-pressure 4.2 K operation.</p>
+      <div class="chart-wrap"><canvas id="chart-pressure"></canvas></div>
+    </div>
+  </div>
 
+  <div class="chart-card" style="margin-top:1.25rem;">
+    <h3>Method Comparison — Full Parameter Table</h3>
+    <p class="sub">All values at nominal steady-state operating conditions. Q₀ for Nb SRF cavities, 1.3 GHz, 20 MV/m accelerating gradient. ★ = most common modern SRF LINAC operating point.</p>
+    <div class="tbl-wrap">
+      <table class="method-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>T_op (K)</th>
+            <th>P_op (kPa)</th>
+            <th>Phase / state</th>
+            <th>Carnot (W/W)</th>
+            <th>Practical COP (W/W)</th>
+            <th>Nb SRF Q₀</th>
+            <th>Typical application</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge-m badge-blue">4.2 K Bath</span></td>
+            <td>4.222</td><td>101.3</td><td>Saturated liquid</td>
+            <td>70.0</td><td>233</td><td>~ 5 × 10⁹</td>
+            <td>SC magnets, moderate-gradient SRF</td>
+          </tr>
+          <tr class="row-highlight">
+            <td><span class="badge-m badge-green">2 K He-II ★</span></td>
+            <td>2.000</td><td>3.13</td><td>Superfluid He-II</td>
+            <td>149</td><td>497</td><td>~ 2 × 10¹⁰</td>
+            <td>High-Q SRF — LHC, SNS, LCLS-II, ESS</td>
+          </tr>
+          <tr>
+            <td><span class="badge-m badge-orange">1.8 K He-II</span></td>
+            <td>1.800</td><td>1.56</td><td>Superfluid He-II</td>
+            <td>166</td><td>553</td><td>~ 3 × 10¹⁰</td>
+            <td>R&amp;D cavities, highest achievable Q₀</td>
+          </tr>
+          <tr>
+            <td><span class="badge-m badge-purple">Supercritical 4.5 K</span></td>
+            <td>4.500</td><td>400</td><td>Supercritical He</td>
+            <td>65.7</td><td>219</td><td>~ 5 × 10⁹</td>
+            <td>Forced-flow cooling, long transfer lines</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="src-note">
+      Practical COP = Carnot / 0.30 (30 % Carnot efficiency at large scale, per published He refrigerator surveys).
+      Q₀ ranges from SRF community performance databases; actual values depend on surface preparation and gradient.
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 2 — He-4 Properties
+════════════════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-he4-properties">
+<main>
+  <p class="section-hd">🔬 He-4 Saturation Properties — NIST Reference Data</p>
+
+  <div class="info-panel green">
+    <strong>Source:</strong> NIST Chemistry WebBook, SRD 69 — Helium-4 saturation properties.
+    Temperature range: 2.177 K (λ-point, He-I / He-II boundary) to 5.195 K (critical point, T_c).
+    Charts are drawn from the 12-point table in the Data Reference tab.
+    For precision calculations, use
+    <a href="https://webbook.nist.gov/chemistry/fluid/" target="_blank" rel="noopener">NIST WebBook</a>
+    or <a href="https://www.nist.gov/srd/refprop" target="_blank" rel="noopener">NIST REFPROP</a>.
+  </div>
+
+  <div class="grid-2">
+    <div class="chart-card">
+      <h3>Saturation Pressure P vs Temperature</h3>
+      <p class="sub">Vapour pressure rises steeply from 5 kPa at the λ-point to 227 kPa at the critical point. Used to set operating pressure for any desired temperature.</p>
+      <div class="chart-wrap"><canvas id="chart-pvt"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Liquid and Vapour Density vs Temperature</h3>
+      <p class="sub">Liquid density decreases while vapour density increases; the two converge at the critical point (ρ_c = 69.6 kg/m³). Density ratio determines vapour fraction in two-phase systems.</p>
+      <div class="chart-wrap"><canvas id="chart-density"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Enthalpy of Vaporisation h_fg vs Temperature</h3>
+      <p class="sub">Latent heat decreases from ≈ 21 kJ/kg at the λ-point to zero at the critical point. Critical to sizing He recovery compressors and phase separators.</p>
+      <div class="chart-wrap"><canvas id="chart-hfg"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Liquid Specific Heat c_p,L vs Temperature</h3>
+      <p class="sub">c_p rises sharply near the λ-point and diverges at the He-II transition. The anomalously high c_p of He-II provides excellent thermal buffering in SRF cryomodules.</p>
+      <div class="chart-wrap"><canvas id="chart-cp"></canvas></div>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 3 — Parameter Sweep
+════════════════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-parameter-sweep">
+<main>
+  <p class="section-hd">⚙️ SRF Cavity Parameter Sweep — Dynamic Refrigeration Load Estimation</p>
+
+  <div class="info-panel">
+    Estimates dynamic cryogenic load from SRF (superconducting RF) niobium cavities.
+    The BCS surface resistance R_BCS ∝ f² · exp(−Δ/kT) governs RF power dissipation in cavity walls.
+    Adjust parameters to explore temperature / frequency / gradient trade-offs.
+    Model uses: G = 270 Ω (TESLA-type geometry factor), R/Q = 1036 Ω (1.3 GHz TM₀₁₀ mode), Δ/k = 17.67 K for Nb.
+  </div>
+
+  <div class="sweep-controls">
+    <h3>🎛️ Input Parameters</h3>
+    <div class="slider-row">
+      <div class="slider-label">Operating Temperature: <span id="lbl-temp">4.2</span> K</div>
+      <input type="range" id="sl-temp" min="1.8" max="5.0" step="0.1" value="4.2" oninput="updateSweep()">
+    </div>
+    <div class="slider-row">
+      <div class="slider-label">RF Frequency: <span id="lbl-freq">1300</span> MHz</div>
+      <input type="range" id="sl-freq" min="350" max="3000" step="50" value="1300" oninput="updateSweep()">
+    </div>
+    <div class="slider-row">
+      <div class="slider-label">Accelerating Gradient: <span id="lbl-grad">20</span> MV/m</div>
+      <input type="range" id="sl-grad" min="5" max="50" step="1" value="20" oninput="updateSweep()">
+    </div>
+    <div class="slider-row">
+      <div class="slider-label">Active Cavity Length: <span id="lbl-len">1.04</span> m</div>
+      <input type="range" id="sl-len" min="0.10" max="2.00" step="0.02" value="1.04" oninput="updateSweep()">
+    </div>
+    <div class="slider-row">
+      <div class="slider-label">Number of Cavities: <span id="lbl-ncav">8</span></div>
+      <input type="range" id="sl-ncav" min="1" max="32" step="1" value="8" oninput="updateSweep()">
+    </div>
+    <div class="slider-row">
+      <div class="slider-label">Residual Resistance R_res: <span id="lbl-rres">10</span> nΩ</div>
+      <input type="range" id="sl-rres" min="2" max="50" step="1" value="10" oninput="updateSweep()">
+    </div>
+  </div>
+
+  <div class="results-strip">
+    <div class="res-kpi">
+      <div class="r-label">R_BCS</div>
+      <div class="r-value" id="res-rbcs">—</div>
+      <div class="r-unit">nΩ</div>
+    </div>
+    <div class="res-kpi">
+      <div class="r-label">R_s total</div>
+      <div class="r-value" id="res-rs">—</div>
+      <div class="r-unit">nΩ</div>
+    </div>
+    <div class="res-kpi">
+      <div class="r-label">Q₀ (cavity)</div>
+      <div class="r-value" id="res-q0">—</div>
+      <div class="r-unit">× 10⁹</div>
+    </div>
+    <div class="res-kpi">
+      <div class="r-label">P_diss / cavity</div>
+      <div class="r-value" id="res-pdiss">—</div>
+      <div class="r-unit">W</div>
+    </div>
+    <div class="res-kpi">
+      <div class="r-label">Total dynamic load</div>
+      <div class="r-value" id="res-ptot">—</div>
+      <div class="r-unit">W at T_op</div>
+    </div>
+    <div class="res-kpi">
+      <div class="r-label">AC wall-plug equiv.</div>
+      <div class="r-value" id="res-pac">—</div>
+      <div class="r-unit">kW (practical COP)</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="chart-card">
+      <h3>R_BCS vs Temperature at Selected Frequency</h3>
+      <p class="sub">Exponential dependence on 1/T — each degree lower roughly halves R_BCS. Cross the cost with rising Carnot penalty to find the optimal operating point.</p>
+      <div class="chart-wrap"><canvas id="chart-rbcs-t"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Dynamic Heat Load per Cavity vs RF Frequency</h3>
+      <p class="sub">P_diss scales as f² through R_BCS. Higher-frequency structures carry a significant cryo penalty — motivates low-frequency choices for high-gradient CW linacs.</p>
+      <div class="chart-wrap"><canvas id="chart-load-f"></canvas></div>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 4 — Heat Budget
+════════════════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-heat-budget">
+<main>
+  <p class="section-hd">🔥 Cryomodule Heat Budget — Typical 8-Cavity 1.3 GHz SRF Cryomodule</p>
+
+  <div class="info-panel">
+    Indicative heat-load breakdown based on published TESLA/ILC-style cryomodule performance data.
+    Values are representative of steady-state operation at 20 MV/m.  Absolute figures scale with cavity
+    count and gradient; relative fractions are broadly applicable across modern 1.3 GHz designs.
+  </div>
+
+  <div class="grid-2">
+    <div class="chart-card">
+      <h3>Heat Load at 2 K Level (W per cryomodule)</h3>
+      <p class="sub">Dynamic RF load dominates at high gradient. Static contributions (support conduction, radiation, HOM absorbers, coupler) set the floor even with RF off.</p>
+      <div class="chart-wrap"><canvas id="chart-budget-2k"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Heat Load at 70 K Intercept Level (W per cryomodule)</h3>
+      <p class="sub">The 70 K thermal shield intercepts the bulk of room-temperature radiation and conduction, reducing 2 K loads dramatically. Aluminium shields with LN₂ or He-gas cooling are typical.</p>
+      <div class="chart-wrap"><canvas id="chart-budget-70k"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-card" style="margin-top:1.25rem;">
+    <h3>AC Wall-Plug Power per Temperature Level (per cryomodule)</h3>
+    <p class="sub">Same physical heat load translates to very different electricity consumption across temperature levels because of the Carnot penalty. This chart makes the 2 K penalty visible — it dominates total refrigerator power despite being the smallest heat load.</p>
+    <div class="chart-wrap" style="height:300px;"><canvas id="chart-refrig-bar"></canvas></div>
+  </div>
+</main>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 5 — Data Reference
+════════════════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-data-reference">
+<main>
+  <p class="section-hd">📋 NIST He-4 Saturation Properties — Reference Table</p>
+
+  <div class="info-panel green">
+    <strong>Source:</strong> NIST Chemistry WebBook, SRD 69 — Helium-4 (CAS 7440-59-7).
+    <a href="https://webbook.nist.gov/cgi/fluid.cgi?Action=Load&ID=C7440597&Type=SatT&Digits=5&THigh=5.1953&TLow=2.1768&TInc=0.1&RefState=NBP&TUnit=K&PUnit=MPa&DUnit=kg%2Fm3&HUnit=kJ%2Fkg&WUnit=m%2Fs&VisUnit=uPa*s&STUnit=N%2Fm"
+       target="_blank" rel="noopener">View on NIST WebBook ↗</a>
+    &nbsp;·&nbsp; Reference state: NBP (h = 0, s = 0 at normal boiling point, 4.2218 K).
+    &nbsp;·&nbsp; ★λ = lambda point (2.1768 K, He-I / He-II boundary).
+    &nbsp;·&nbsp; ★c = critical point (5.1953 K, 0.22746 MPa, 69.641 kg/m³).
+  </div>
+
+  <div class="tbl-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>T (K)</th>
+          <th>P (MPa)</th>
+          <th>P (kPa)</th>
+          <th>ρ_L (kg/m³)</th>
+          <th>ρ_V (kg/m³)</th>
+          <th>h_fg (kJ/kg)</th>
+          <th>c_p,L (kJ/kg·K)</th>
+          <th>μ_L (μPa·s)</th>
+          <th>λ_L (mW/m·K)</th>
+        </tr>
+      </thead>
+      <tbody id="nist-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="src-note">
+    Values rounded to 4 significant figures. c_p shown as "—" at the critical point where it diverges.
+    For precision engineering work use NIST REFPROP (https://www.nist.gov/srd/refprop).
+    Thermal conductivity λ_L of liquid He-II (below λ-point) is effectively infinite due to superfluid phonon transport.
+  </div>
+</main>
+</div>
+
+<!-- ── Footer ── -->
+<footer>
+  <p>
+    <a href="../index.html">← Portal</a> &nbsp;·&nbsp;
+    Data: <a href="https://webbook.nist.gov/chemistry/fluid/" target="_blank" rel="noopener">NIST WebBook He-4</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/GBOGEB/Q_engineering_tools" target="_blank" rel="noopener">GitHub</a>
+    &nbsp;·&nbsp;
+    Hosted with <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a>
+  </p>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  NIST He-4 Saturation Data  (NBP reference state)
+//  Source: NIST Chemistry WebBook, SRD 69
+//  Columns: T(K), P(MPa), rhoL(kg/m³), rhoV(kg/m³),
+//           hfg(kJ/kg), cpL(kJ/kg·K), muL(μPa·s), lambdaL(mW/m·K)
+// ════════════════════════════════════════════════════════════════
+const NIST_HE4 = [
+  // T        P         rhoL     rhoV    hfg    cpL    muL    lambdaL
+  [2.1768, 0.005033, 146.20, 0.3836, 21.1,  3.476, 3.502, 18.70],  // ★λ
+  [2.3,    0.006980, 145.71, 0.5215, 21.0,  3.494, 3.381, 19.42],
+  [2.5,    0.010155, 145.03, 0.7241, 20.9,  3.643, 3.218, 20.47],
+  [3.0,    0.023279, 143.20, 1.5690, 20.7,  3.979, 2.812, 22.50],
+  [3.5,    0.045679, 140.74, 2.9351, 20.5,  4.474, 2.435, 23.67],
+  [4.0,    0.081027, 137.39, 5.0584, 20.4,  5.214, 2.032, 23.53],
+  [4.2,    0.101325, 135.73, 6.2854, 20.4,  5.718, 1.853, 22.97],
+  [4.5,    0.133160, 132.98, 8.2769, 18.7,  6.720, 1.572, 21.50],
+  [4.8,    0.192450, 129.50, 11.590, 15.8,  8.445, 1.275, 18.74],
+  [5.0,    0.227410, 126.84, 13.823, 12.7, 10.850, 1.069, 15.83],
+  [5.1,    0.251170, 124.63, 16.009, 10.1, 14.100, 0.915, 13.51],
+  [5.195,  0.227460,  69.64,  69.64,  0.0,  null,  0.600,  9.00],  // ★c
+];
+
+const T_arr      = NIST_HE4.map(r => r[0]);
+const P_kPa      = NIST_HE4.map(r => r[1] * 1000);
+const rhoL_arr   = NIST_HE4.map(r => r[2]);
+const rhoV_arr   = NIST_HE4.map(r => r[3]);
+const hfg_arr    = NIST_HE4.map(r => r[4]);
+const cpL_arr    = NIST_HE4.map(r => r[5]);   // null at critical point
+const muL_arr    = NIST_HE4.map(r => r[6]);
+const lambda_arr = NIST_HE4.map(r => r[7]);
+
+const T_labels = T_arr.map(t => t.toFixed(3) + ' K');
+
+// ════════════════════════════════════════════════════════════════
+//  Cooling Methods Data
+// ════════════════════════════════════════════════════════════════
+const METHODS = {
+  labels:   ['4.2 K Bath', '2 K He-II', '1.8 K He-II', 'Supercrit. 4.5 K'],
+  temps:    [4.222,  2.000,  1.800,  4.500],
+  pressKPa: [101.3,  3.13,   1.56,   400.0],
+  carnot:   [70.0,  149.0,  165.6,   65.7],
+  practCOP: [233,   497,    552,     219],
+};
+
+// ════════════════════════════════════════════════════════════════
+//  Chart.js Globals
+// ════════════════════════════════════════════════════════════════
+Chart.defaults.color        = '#8b949e';
+Chart.defaults.borderColor  = '#30363d';
+Chart.defaults.font.family  = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+Chart.defaults.font.size    = 12;
+
+// ════════════════════════════════════════════════════════════════
+//  Tab Switching
+// ════════════════════════════════════════════════════════════════
+const _initialized = { 'method-comparison': true };
+
+function switchTab(evt, id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
+  evt.currentTarget.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+  if (!_initialized[id]) {
+    _initialized[id] = true;
+    initTab(id);
+  }
+}
+
+function initTab(id) {
+  if (id === 'he4-properties')   initHe4();
+  if (id === 'parameter-sweep')  { initSweep(); updateSweep(); }
+  if (id === 'heat-budget')      initBudget();
+  if (id === 'data-reference')   initTable();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  Helper: build Chart.js config
+// ════════════════════════════════════════════════════════════════
+function mkChart(canvasId, cfg) {
+  const el = document.getElementById(canvasId);
+  if (!el) return null;
+  return new Chart(el, cfg);
+}
+
+function lineConfig(datasets, xLabel, yLabel, logY) {
+  return {
+    type: 'line',
+    data: { labels: T_labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: {
+        x: { title: { display: true, text: xLabel } },
+        y: {
+          title: { display: true, text: yLabel },
+          type: logY ? 'logarithmic' : 'linear',
+        },
+      },
+    },
+  };
+}
+
+// ════════════════════════════════════════════════════════════════
+//  TAB 1 — Method Comparison (initialised on page load)
+// ════════════════════════════════════════════════════════════════
+(function initMethodComparison() {
+  const colors   = ['#58a6ff', '#3fb950', '#e3b341', '#d2a8ff'];
+  const bgColors = ['#1f3a5c', '#1a3a2a', '#3a2a1a', '#2a1a3a'];
+
+  mkChart('chart-cop', {
+    type: 'bar',
+    data: {
+      labels: METHODS.labels,
+      datasets: [
+        {
+          label: 'Carnot limit (W/W)',
+          data: METHODS.carnot,
+          backgroundColor: bgColors,
+          borderColor: colors,
+          borderWidth: 2,
+        },
+        {
+          label: 'Practical COP (W/W)',
+          data: METHODS.practCOP,
+          backgroundColor: colors.map(c => c + '33'),
+          borderColor: colors,
+          borderWidth: 1,
+          borderDash: [4, 3],
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: {
+        y: { title: { display: true, text: 'W input per W removed' }, beginAtZero: true },
+      },
+    },
+  });
+
+  mkChart('chart-pressure', {
+    type: 'bar',
+    data: {
+      labels: METHODS.labels,
+      datasets: [{
+        label: 'Operating pressure (kPa)',
+        data: METHODS.pressKPa,
+        backgroundColor: bgColors,
+        borderColor: colors,
+        borderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: {
+        y: { type: 'logarithmic', title: { display: true, text: 'Pressure (kPa) — log scale' } },
+      },
+    },
+  });
+})();
+
+// ════════════════════════════════════════════════════════════════
+//  TAB 2 — He-4 Properties
+// ════════════════════════════════════════════════════════════════
+function initHe4() {
+  mkChart('chart-pvt', lineConfig([{
+    label: 'P_sat (kPa)',
+    data: P_kPa,
+    borderColor: '#58a6ff',
+    backgroundColor: '#58a6ff18',
+    fill: true,
+    tension: 0.4,
+    pointRadius: 4,
+  }], 'Temperature (K)', 'Saturation Pressure (kPa)'));
+
+  mkChart('chart-density', lineConfig([
+    {
+      label: 'ρ_L — liquid (kg/m³)',
+      data: rhoL_arr,
+      borderColor: '#3fb950',
+      tension: 0.4,
+      pointRadius: 3,
+    },
+    {
+      label: 'ρ_V — vapour (kg/m³)',
+      data: rhoV_arr,
+      borderColor: '#f78166',
+      tension: 0.4,
+      pointRadius: 3,
+    },
+  ], 'Temperature (K)', 'Density (kg/m³)'));
+
+  mkChart('chart-hfg', lineConfig([{
+    label: 'h_fg (kJ/kg)',
+    data: hfg_arr,
+    borderColor: '#e3b341',
+    backgroundColor: '#e3b34118',
+    fill: true,
+    tension: 0.4,
+    pointRadius: 4,
+  }], 'Temperature (K)', 'Latent Heat h_fg (kJ/kg)'));
+
+  // Exclude divergent critical-point value from cp chart
+  const cpPlot = cpL_arr.map(v => (v === null || v > 50) ? null : v);
+  mkChart('chart-cp', lineConfig([{
+    label: 'c_p,L (kJ/kg·K)',
+    data: cpPlot,
+    borderColor: '#d2a8ff',
+    backgroundColor: '#d2a8ff18',
+    fill: true,
+    tension: 0.3,
+    pointRadius: 4,
+    spanGaps: false,
+  }], 'Temperature (K)', 'Specific Heat c_p,L (kJ/kg·K)'));
+}
+
+// ════════════════════════════════════════════════════════════════
+//  TAB 3 — Parameter Sweep
+// ════════════════════════════════════════════════════════════════
+// BCS surface resistance for Nb:  R_BCS ≈ A·(f/GHz)²/T · exp(−Δ/kT)
+// Δ/k = 17.67 K  (Nb: T_c = 9.25 K, Δ = 1.764 k T_c)
+// A = 1.72 × 10⁻⁴ Ω at 1 GHz  (empirical fit to NIST/HEPAK data)
+const NB_A      = 1.72e-4;   // Ω
+const NB_DELTA  = 17.67;     // K
+const G_FACTOR  = 270;       // Ω  (TESLA-type elliptical cavity)
+const R_OVER_Q  = 1036;      // Ω  (1.3 GHz TM₀₁₀)
+
+function rbcs(T_K, f_MHz) {
+  const fGHz = f_MHz / 1000;
+  return NB_A * (fGHz * fGHz) / T_K * Math.exp(-NB_DELTA / T_K) * 1e9; // nΩ
+}
+
+function practCOP(T_K) {
+  return (300 - T_K) / T_K / 0.30;
+}
+
+let _chartRbcsT = null;
+let _chartLoadF = null;
+
+function initSweep() { /* charts created lazily in updateSweep */ }
+
+function updateSweep() {
+  const T     = parseFloat(document.getElementById('sl-temp').value);
+  const fMHz  = parseFloat(document.getElementById('sl-freq').value);
+  const Eacc  = parseFloat(document.getElementById('sl-grad').value) * 1e6; // V/m
+  const L     = parseFloat(document.getElementById('sl-len').value);
+  const Ncav  = parseInt(document.getElementById('sl-ncav').value, 10);
+  const Rres  = parseFloat(document.getElementById('sl-rres').value); // nΩ
+
+  document.getElementById('lbl-temp').textContent = T.toFixed(1);
+  document.getElementById('lbl-freq').textContent = fMHz;
+  document.getElementById('lbl-grad').textContent = (Eacc / 1e6).toFixed(0);
+  document.getElementById('lbl-len').textContent  = L.toFixed(2);
+  document.getElementById('lbl-ncav').textContent = Ncav;
+  document.getElementById('lbl-rres').textContent = Rres;
+
+  const Rbcs  = rbcs(T, fMHz);                    // nΩ
+  const Rs    = Rbcs + Rres;                       // nΩ
+  const Rs_O  = Rs * 1e-9;                         // Ω
+  const Q0    = G_FACTOR / Rs_O;
+  const Vacc  = Eacc * L;                          // V
+  const Pdiss = (Vacc * Vacc) / (R_OVER_Q * Q0);  // W per cavity
+  const Ptot  = Pdiss * Ncav;                      // W total
+  const Pac   = Ptot * practCOP(T) / 1000;         // kW wall-plug
+
+  document.getElementById('res-rbcs').textContent  = Rbcs.toFixed(1);
+  document.getElementById('res-rs').textContent    = Rs.toFixed(1);
+  document.getElementById('res-q0').textContent    = (Q0 / 1e9).toFixed(2);
+  document.getElementById('res-pdiss').textContent = Pdiss.toFixed(2);
+  document.getElementById('res-ptot').textContent  = Ptot.toFixed(1);
+  document.getElementById('res-pac').textContent   = Pac.toFixed(1);
+
+  // ── R_BCS vs T chart ──
+  const Tarr  = Array.from({ length: 33 }, (_, i) => parseFloat((1.8 + i * 0.1).toFixed(1)));
+  const RbcsT = Tarr.map(t => rbcs(t, fMHz));
+
+  if (_chartRbcsT) {
+    _chartRbcsT.data.labels                  = Tarr.map(t => t.toFixed(1));
+    _chartRbcsT.data.datasets[0].data        = RbcsT;
+    _chartRbcsT.data.datasets[0].label       = `R_BCS (nΩ) @ ${fMHz} MHz`;
+    _chartRbcsT.update();
+  } else {
+    _chartRbcsT = mkChart('chart-rbcs-t', {
+      type: 'line',
+      data: {
+        labels: Tarr.map(t => t.toFixed(1)),
+        datasets: [{
+          label: `R_BCS (nΩ) @ ${fMHz} MHz`,
+          data: RbcsT,
+          borderColor: '#58a6ff',
+          backgroundColor: '#58a6ff18',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          x: { title: { display: true, text: 'Temperature (K)' } },
+          y: { type: 'logarithmic', title: { display: true, text: 'R_BCS (nΩ)' } },
+        },
+      },
+    });
+  }
+
+  // ── P_diss vs frequency chart ──
+  const Farr   = Array.from({ length: 54 }, (_, i) => 350 + i * 50);
+  const PdissF = Farr.map(f => {
+    const rs = (rbcs(T, f) + Rres) * 1e-9;
+    const q0 = G_FACTOR / rs;
+    return (Vacc * Vacc) / (R_OVER_Q * q0);
+  });
+  const gradLabel = (Eacc / 1e6).toFixed(0);
+
+  if (_chartLoadF) {
+    _chartLoadF.data.labels           = Farr;
+    _chartLoadF.data.datasets[0].data  = PdissF;
+    _chartLoadF.data.datasets[0].label = `P_diss (W) @ T=${T.toFixed(1)} K, ${gradLabel} MV/m`;
+    _chartLoadF.update();
+  } else {
+    _chartLoadF = mkChart('chart-load-f', {
+      type: 'line',
+      data: {
+        labels: Farr,
+        datasets: [{
+          label: `P_diss (W) @ T=${T.toFixed(1)} K, ${gradLabel} MV/m`,
+          data: PdissF,
+          borderColor: '#3fb950',
+          backgroundColor: '#3fb95018',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          x: { title: { display: true, text: 'RF Frequency (MHz)' } },
+          y: { type: 'logarithmic', title: { display: true, text: 'P_diss per cavity (W)' } },
+        },
+      },
+    });
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  TAB 4 — Heat Budget
+// ════════════════════════════════════════════════════════════════
+function initBudget() {
+  const doughnutOpts = (unit) => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'right' },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed.toFixed(1)} ${unit}` } },
+    },
+  });
+
+  // 2 K level
+  mkChart('chart-budget-2k', {
+    type: 'doughnut',
+    data: {
+      labels: ['Dynamic RF (cavities)', 'Static conduction', 'Static radiation', 'Input coupler', 'HOM absorbers'],
+      datasets: [{
+        data: [5.2, 0.8, 0.4, 0.6, 0.5],
+        backgroundColor: ['#58a6ff', '#3fb950', '#e3b341', '#d2a8ff', '#f78166'],
+        borderColor: '#30363d',
+        borderWidth: 2,
+      }],
+    },
+    options: doughnutOpts('W'),
+  });
+
+  // 70 K level
+  mkChart('chart-budget-70k', {
+    type: 'doughnut',
+    data: {
+      labels: ['Radiation shield', 'Support posts', 'Piping & feedthroughs', 'Instrumentation'],
+      datasets: [{
+        data: [35, 12, 8, 5],
+        backgroundColor: ['#e3b341', '#58a6ff', '#3fb950', '#d2a8ff'],
+        borderColor: '#30363d',
+        borderWidth: 2,
+      }],
+    },
+    options: doughnutOpts('W'),
+  });
+
+  // Refrigerator wall-plug comparison
+  // Representative steady-state heat loads per cryomodule
+  const levels     = ['2 K', '4 K', '70 K', '300 K'];
+  const heatLoads  = [7.5,   15,    60,    200];
+  const tempK      = [2,      4,    70,    300];
+  const acPowers   = tempK.map((t, i) => {
+    const cop = t >= 300 ? 1 : practCOP(t);
+    return heatLoads[i] * cop / 1000;  // kW
+  });
+
+  mkChart('chart-refrig-bar', {
+    type: 'bar',
+    data: {
+      labels: levels,
+      datasets: [
+        {
+          label: 'Heat load (W)',
+          data: heatLoads,
+          backgroundColor: '#58a6ff44',
+          borderColor: '#58a6ff',
+          borderWidth: 2,
+          yAxisID: 'y',
+        },
+        {
+          label: 'AC wall-plug power (kW)',
+          data: acPowers,
+          backgroundColor: '#f7816644',
+          borderColor: '#f78166',
+          borderWidth: 2,
+          yAxisID: 'y1',
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: {
+        y:  { title: { display: true, text: 'Heat load (W)' }, position: 'left' },
+        y1: { title: { display: true, text: 'AC wall-plug power (kW)' }, position: 'right', grid: { drawOnChartArea: false } },
+      },
+    },
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+//  TAB 5 — Data Reference Table
+// ════════════════════════════════════════════════════════════════
+function initTable() {
+  const tbody = document.getElementById('nist-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = NIST_HE4.map((r, i) => {
+    const isLambda = i === 0;
+    const isCrit   = i === NIST_HE4.length - 1;
+    const rowClass = isLambda ? ' class="row-lambda"' : isCrit ? ' class="row-critical"' : '';
+    const tLabel   = r[0].toFixed(4) + (isLambda ? ' ★λ' : isCrit ? ' ★c' : '');
+    const cpStr    = (r[5] === null || r[5] > 50) ? '—' : r[5].toFixed(3);
+    return `<tr${rowClass}>
+      <td>${tLabel}</td>
+      <td>${r[1].toFixed(6)}</td>
+      <td>${(r[1] * 1000).toFixed(3)}</td>
+      <td>${r[2].toFixed(3)}</td>
+      <td>${r[3].toFixed(4)}</td>
+      <td>${r[4].toFixed(1)}</td>
+      <td>${cpStr}</td>
+      <td>${r[6].toFixed(3)}</td>
+      <td>${r[7].toFixed(2)}</td>
+    </tr>`;
+  }).join('');
+}
+</script>
 </body>
 </html>
