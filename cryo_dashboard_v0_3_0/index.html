@@ -296,39 +296,8 @@
 <div id="tab-overview" class="tab-panel active">
 <div class="content">
 
-  <!-- KPI stats row -->
-  <div class="stat-grid">
-    <div class="stat-box accent">
-      <div class="label">He-4 NBP</div>
-      <div class="value">4.222</div>
-      <div class="unit">K at 1 atm · Normal Boiling Point</div>
-    </div>
-    <div class="stat-box accent">
-      <div class="label">He-4 Critical T</div>
-      <div class="value">5.195</div>
-      <div class="unit">K</div>
-    </div>
-    <div class="stat-box accent2">
-      <div class="label">LN₂ NBP</div>
-      <div class="value">77.36</div>
-      <div class="unit">K at 1 atm · Liquid Nitrogen</div>
-    </div>
-    <div class="stat-box accent3">
-      <div class="label">He-4 ΔH_vap (NBP)</div>
-      <div class="value">20.4</div>
-      <div class="unit">kJ/kg</div>
-    </div>
-    <div class="stat-box accent4">
-      <div class="label">He-4 λ-point</div>
-      <div class="value">2.177</div>
-      <div class="unit">K · Superfluid transition</div>
-    </div>
-    <div class="stat-box">
-      <div class="label">He-4 Critical P</div>
-      <div class="value">227.5</div>
-      <div class="unit">kPa</div>
-    </div>
-  </div>
+  <!-- KPI stats row — values injected by JS from data constants -->
+  <div class="stat-grid" id="overviewStats"></div>
 
   <div class="two-col">
     <!-- P-T chart -->
@@ -614,6 +583,7 @@ const LN2 = {
    UTILITY: linear interpolation inside a sorted dataset
    ============================================================ */
 function lerp(x, x0, x1, y0, y1) {
+  // Caller (interpSat) is responsible for bounds checking before calling lerp.
   if (x1 === x0) return y0;
   return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
 }
@@ -632,25 +602,28 @@ function interpSat(data, T, col) {
 /* ============================================================
    METHOD MODELS for comparison
    ============================================================ */
-// Clausius-Clapeyron: constant ΔH_vap anchored at He-4 NBP
+// Clausius-Clapeyron: constant ΔH_vap anchored at He-4 NBP.
+// Intentionally simplified (constant latent heat) — used to demonstrate
+// divergence from NIST data in the Method Comparison tab.
 function clausClapeyron(T) {
-  const dHvap = 20.4e3;  // J/kg at NBP
-  const R     = 8314.46; // J/(kmol·K)
-  const M     = 4.0026;  // g/mol → kg/kmol
-  const Rspec = R / M;   // J/(kg·K) = 2078 J/(kg·K)
+  const dHvap = 20.4e3;    // J/kg — latent heat at NBP (held constant)
+  // CODATA 2018 molar gas constant: 8314.462618 J/(kmol·K)
+  const R     = 8314.462618; // J/(kmol·K)
+  const M     = 4.0026;      // kg/kmol (He-4 molar mass)
+  const Rspec = R / M;       // specific gas constant J/(kg·K) ≈ 2077.3
   const T0    = HE4.Tnbp;
   const P0    = HE4.Pnbp;
   return P0 * Math.exp((dHvap / Rspec) * (1/T0 - 1/T));
 }
 
-// Ideal-gas approximation: uses saturated vapour density at NBP as reference
+// Ideal-gas (T-linear) approximation: P ∝ T at constant molar volume anchored
+// at the He-4 NBP. This is intentionally naive — it ignores compressibility,
+// density change, and latent heat — and is included only to show how poorly
+// a linear temperature scaling performs across the He-4 saturation curve.
 function idealGas(T) {
-  const T0   = HE4.Tnbp;
-  const P0   = HE4.Pnbp;
-  // ideal gas: P ∝ T at constant V, but volume grows with temperature
-  // simplified model: P = P0 * (rhoV0 * R * T / M) / P0 (constant number density)
-  // => just scales as T (at constant molar volume) — intentionally naive
-  return P0 * (T / T0);
+  const T0 = HE4.Tnbp;
+  const P0 = HE4.Pnbp;
+  return P0 * (T / T0); // P ∝ T (constant number density / molar volume)
 }
 
 /* ============================================================
@@ -909,14 +882,14 @@ function buildLookup() {
       </div>
     `;
 
-    // contextual notes
+    // contextual notes — use data constants to avoid magic-number drift
     let note = 'Values interpolated from NIST REFPROP 10 tabulated data.';
     if (fluid === 'he4') {
-      if (T <= 2.177) note = '⚠️ Below or at the λ-point (2.177 K): helium becomes <strong>superfluid</strong> (He-II).';
-      else if (Math.abs(T - 4.2217) < 0.05) note = '✅ Near the <strong>normal boiling point</strong> (4.2217 K at 1 atm). Standard SRF cavity operating condition.';
-      else if (T > 5.0) note = '⚠️ Approaching the critical point (5.1953 K). Two-phase properties degrade rapidly.';
+      if (T <= HE4.Tlambda) note = `⚠️ Below or at the λ-point (${HE4.Tlambda} K): helium becomes <strong>superfluid</strong> (He-II).`;
+      else if (Math.abs(T - HE4.Tnbp) < 0.05) note = `✅ Near the <strong>normal boiling point</strong> (${HE4.Tnbp} K at 1 atm). Standard SRF cavity operating condition.`;
+      else if (T > 5.0) note = `⚠️ Approaching the critical point (${HE4.Tc} K). Two-phase properties degrade rapidly.`;
     } else {
-      if (Math.abs(T - 77.355) < 1) note = '✅ Near the <strong>LN₂ normal boiling point</strong> (77.355 K at 1 atm). Standard thermal-shield operating point.';
+      if (Math.abs(T - LN2.Tnbp) < 1) note = `✅ Near the <strong>LN₂ normal boiling point</strong> (${LN2.Tnbp} K at 1 atm). Standard thermal-shield operating point.`;
     }
     noteDiv.innerHTML = note;
   }
@@ -929,6 +902,45 @@ function buildLookup() {
   });
 
   updateLookup();
+}
+
+/* ============================================================
+   OVERVIEW STATS — populated from data constants (single source of truth)
+   ============================================================ */
+function buildOverviewStats() {
+  const nbpDhvap = interpSat(HE4, HE4.Tnbp, 4);
+  document.getElementById('overviewStats').innerHTML = `
+    <div class="stat-box accent">
+      <div class="label">He-4 NBP</div>
+      <div class="value">${HE4.Tnbp.toFixed(4)}</div>
+      <div class="unit">K at 1 atm · Normal Boiling Point</div>
+    </div>
+    <div class="stat-box accent">
+      <div class="label">He-4 Critical T</div>
+      <div class="value">${HE4.Tc.toFixed(4)}</div>
+      <div class="unit">K</div>
+    </div>
+    <div class="stat-box accent2">
+      <div class="label">LN₂ NBP</div>
+      <div class="value">${LN2.Tnbp.toFixed(3)}</div>
+      <div class="unit">K at 1 atm · Liquid Nitrogen</div>
+    </div>
+    <div class="stat-box accent3">
+      <div class="label">He-4 ΔH_vap (NBP)</div>
+      <div class="value">${nbpDhvap != null ? nbpDhvap.toFixed(1) : '20.4'}</div>
+      <div class="unit">kJ/kg</div>
+    </div>
+    <div class="stat-box accent4">
+      <div class="label">He-4 λ-point</div>
+      <div class="value">${HE4.Tlambda.toFixed(3)}</div>
+      <div class="unit">K · Superfluid transition</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">He-4 Critical P</div>
+      <div class="value">${HE4.Pc.toFixed(2)}</div>
+      <div class="unit">kPa</div>
+    </div>
+  `;
 }
 
 /* ============================================================
@@ -949,6 +961,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 populateSatTable('satTable', HE4);
 populateSatTable('ln2Table', LN2);
 populateCompTable();
+buildOverviewStats();
 buildCharts();
 buildLookup();
 </script>
