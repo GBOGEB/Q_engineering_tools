@@ -36,7 +36,7 @@ Q_engineering_tools/
 
 | Dashboard | Version | URL | Status |
 | --- | --- | --- | --- |
-| 🧊 Cryo Dashboard | v0.3.0 | [`/cryo_dashboard_v0_3_0/`](https://gbogeb.github.io/Q_engineering_tools/cryo_dashboard_v0_3_0/) | Placeholder |
+| 🧊 Cryo Dashboard | v0.3.0 | [`/cryo_dashboard_v0_3_0/`](https://gbogeb.github.io/Q_engineering_tools/cryo_dashboard_v0_3_0/) | 🟢 Live |
 
 ---
 
@@ -62,19 +62,6 @@ If GitHub Pages is not yet enabled on this repository:
 1. Go to **Settings → Pages**.
 2. Under *Source*, select **GitHub Actions**.
 3. Save. The next push to `main` will deploy the site.
-
----
-
-## Deploying Cryo Dashboard v0.3.0
-
-The `cryo_dashboard_v0_3_0/` folder currently contains a placeholder page.
-To deploy the actual dashboard:
-
-1. Copy your dashboard files from
-   `document-organization-system / feature/method-comparison-panel-clean / cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/`
-   into the `cryo_dashboard_v0_3_0/` folder here.
-2. Make sure the main entry point is named **`index.html`**.
-3. Push to `main` — GitHub Pages will update automatically.
 
 ---
 
