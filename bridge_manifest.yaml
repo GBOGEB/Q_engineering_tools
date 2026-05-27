@@ -1,0 +1,56 @@
+federation_bridge:
+  version: "1.1.0"
+  domain: "gbogeb"
+  repos:
+    codex:
+      url: "https://github.com/GBOGEB/CODEX"
+      branch: "main"
+      role: "upstream_conceptual"
+      focus: "Markdown, requirements, metadata, YAML glossary, federation bridge"
+    abacus:
+      url: "https://github.com/GBOGEB/ABACUS"
+      branch: "main"
+      role: "downstream_functional"
+      focus: "Python math engines, calculation schemas, DMAIC pipelines, 12-cluster analysis"
+    q_engineering_tools:
+      url: "https://github.com/GBOGEB/Q_engineering_tools"
+      branch: "main"
+      role: "web_portal"
+      focus: "Static HTML dashboards, tool cards, GitHub Pages presentation layer"
+      live_url: "https://gbogeb.github.io/Q_engineering_tools/"
+  orchestration:
+    mcp_enabled: true
+    protocols:
+      - git-sync
+      - telemetry-stream
+      - artifact-bake
+  wave_tracking:
+    analytics:
+      - PCA
+      - DMAIC
+      - ANOVA
+    metrics:
+      claimed_progress: float
+      actual_progress: float
+      covariance_threshold: 0.05
+  dashboards:
+    - id: cryo_dashboard_v0_3_0
+      source_repo: q_engineering_tools
+      url: "https://gbogeb.github.io/Q_engineering_tools/cryo_dashboard_v0_3_0/"
+      version: "0.3.0"
+      status: live
+    - id: abacus_main
+      source_repo: abacus
+      url: "https://gbogeb.github.io/ABACUS/"
+      version: "4.4.0"
+      status: external
+    - id: abacus_cryo
+      source_repo: abacus
+      url: "https://gbogeb.github.io/ABACUS/cryo/"
+      version: "4.4.0"
+      status: external
+    - id: abacus_12cluster
+      source_repo: abacus
+      url: "https://gbogeb.github.io/ABACUS/12-cluster/"
+      version: "4.4.0"
+      status: external

@@ -7,10 +7,16 @@
 
 ## Overview
 
-This repository is a **standalone, statically-hosted platform** for engineering
-dashboards and tools. Everything is served directly via
-[GitHub Pages](https://pages.github.com) — no server, no build step, no framework
-required. Dashboards are plain HTML/JS/CSS files organised in sub-folders.
+This repository is the **web-portal layer** of the three-repo engineering ecosystem:
+
+| Repo | Role |
+| --- | --- |
+| **Q_engineering_tools** (this repo) | Static GitHub Pages portal — dashboard cards, tool links |
+| [**ABACUS**](https://github.com/GBOGEB/ABACUS) | Downstream functional layer — Python engines, DMAIC, 12-cluster, cryo analysis |
+| [**CODEX**](https://github.com/GBOGEB/CODEX) | Upstream conceptual layer — requirements, metadata, YAML glossary, federation bridge |
+
+Everything in this repo is served directly via [GitHub Pages](https://pages.github.com) —
+no server, no build step, no framework required. Dashboards are plain HTML/JS/CSS files organised in sub-folders.
 
 ---
 
@@ -22,8 +28,8 @@ Q_engineering_tools/
 ├── .nojekyll                     ← Disables Jekyll processing on GitHub Pages
 ├── .github/workflows/pages.yml  ← Auto-deploy workflow (pushes to GitHub Pages)
 │
-├── cryo_dashboard_v0_3_0/        ← Cryo Dashboard v0.3.0 (NIST data)
-│   ├── index.html                  (placeholder — replace with your dashboard)
+├── cryo_dashboard_v0_3_0/        ← Cryo Dashboard v0.3.0 (NIST data) — LIVE
+│   ├── index.html                  (full interactive dashboard from ABACUS)
 │   └── README.md
 │
 └── <future_tool_or_dashboard>/   ← Add new tools/dashboards here
@@ -36,7 +42,15 @@ Q_engineering_tools/
 
 | Dashboard | Version | URL | Status |
 | --- | --- | --- | --- |
-| 🧊 Cryo Dashboard | v0.3.0 | [`/cryo_dashboard_v0_3_0/`](https://gbogeb.github.io/Q_engineering_tools/cryo_dashboard_v0_3_0/) | Placeholder |
+| 🧊 Cryo Dashboard | v0.3.0 | [`/cryo_dashboard_v0_3_0/`](https://gbogeb.github.io/Q_engineering_tools/cryo_dashboard_v0_3_0/) | ✅ Live |
+
+### ABACUS Ecosystem (external)
+
+| Dashboard | URL | Status |
+| --- | --- | --- |
+| 📊 ABACUS Main Dashboard | [gbogeb.github.io/ABACUS/](https://gbogeb.github.io/ABACUS/) | External |
+| 🧊 Cryo Overview | [gbogeb.github.io/ABACUS/cryo/](https://gbogeb.github.io/ABACUS/cryo/) | External |
+| 🔬 12-Cluster Navigator | [gbogeb.github.io/ABACUS/12-cluster/](https://gbogeb.github.io/ABACUS/12-cluster/) | External |
 
 ---
 
@@ -63,18 +77,8 @@ If GitHub Pages is not yet enabled on this repository:
 2. Under *Source*, select **GitHub Actions**.
 3. Save. The next push to `main` will deploy the site.
 
----
-
-## Deploying Cryo Dashboard v0.3.0
-
-The `cryo_dashboard_v0_3_0/` folder currently contains a placeholder page.
-To deploy the actual dashboard:
-
-1. Copy your dashboard files from
-   `document-organization-system / feature/method-comparison-panel-clean / cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/`
-   into the `cryo_dashboard_v0_3_0/` folder here.
-2. Make sure the main entry point is named **`index.html`**.
-3. Push to `main` — GitHub Pages will update automatically.
+> The deploy workflow (`pages.yml`) uses `enablement: true` on the
+> `configure-pages` step, so it will attempt to auto-provision Pages on first run.
 
 ---
 
