@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cryogenic Dashboard - HTML Preview Hub</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --line: #d8dde6;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #1f6feb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 1.5rem;
+    }
+    .header p {
+      margin: 0;
+      color: var(--muted);
+    }
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .nav-links a,
+    .nav-links button {
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: var(--accent);
+      border-radius: 8px;
+      padding: 8px 12px;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 420px;
+    }
+    .card-head {
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .card-head h2 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+    .card-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .actions a,
+    .actions button {
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: var(--accent);
+      border-radius: 7px;
+      padding: 6px 10px;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    iframe {
+      width: 100%;
+      height: 280px;
+      border: 0;
+      background: #fff;
+    }
+    .note {
+      font-size: 0.86rem;
+      color: var(--muted);
+      padding: 10px 12px 12px;
+      border-top: 1px solid var(--line);
+    }
+    @media print {
+      .nav-links, .actions, .note { display: none; }
+      body { background: #fff; }
+      .card { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1>HTML Preview Hub</h1>
+      <p>Visual preview and print/PDF access for baseline HTML artifacts.</p>
+      <p style="margin-top:8px;font-size:0.92rem;color:#475569;">For Markdown documents, use the Rendered Markdown mode in <a href="files.html" style="color:#1d4ed8;">files.html</a>, then print from the browser for a reader-friendly PDF.</p>
+      <div class="nav-links">
+        <a href="index.html">Open Launch Screen</a>
+        <a href="files.html">Open File Browser</a>
+        <a href="visual_key.yaml">Open visual_key.yaml</a>
+        <button onclick="window.print()">Print/PDF This Preview Page</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <div class="card-head">
+          <h2>index.html</h2>
+          <p>Default launch selector.</p>
+          <div class="actions">
+            <a href="index.html" target="_blank" rel="noopener">Open Full Page</a>
+            <button onclick="printHint('index.html')">PDF View Hint</button>
+          </div>
+        </div>
+        <iframe src="index.html" title="Preview index"></iframe>
+        <div class="note">PDF view: open full page then use browser print (Ctrl+P).</div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>files.html</h2>
+          <p>Artifact browser and baseline index.</p>
+          <div class="actions">
+            <a href="files.html" target="_blank" rel="noopener">Open Full Page</a>
+            <button onclick="printHint('files.html')">PDF View Hint</button>
+          </div>
+        </div>
+        <iframe src="files.html" title="Preview files"></iframe>
+        <div class="note">Use this for visual verification of ordering and navigation cards.</div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>dashboard_modular.html</h2>
+          <p>Primary runtime dashboard (v0.4.9).</p>
+          <div class="actions">
+            <a href="dashboard_modular.html" target="_blank" rel="noopener">Open Full Page</a>
+            <button onclick="printHint('dashboard_modular.html')">PDF View Hint</button>
+          </div>
+        </div>
+        <iframe src="dashboard_modular.html" title="Preview modular dashboard"></iframe>
+        <div class="note">Works fully when hosted over HTTPS (GitHub Pages) or local HTTP server. Avoid file:// direct open.</div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>material_properties_dashboard_v1_10.html</h2>
+          <p>Legacy reference runtime (deprecated).</p>
+          <div class="actions">
+            <a href="material_properties_dashboard_v1_10.html" target="_blank" rel="noopener">Open Full Page</a>
+            <button onclick="printHint('material_properties_dashboard_v1_10.html')">PDF View Hint</button>
+          </div>
+        </div>
+        <iframe src="material_properties_dashboard_v1_10.html" title="Preview legacy dashboard"></iframe>
+        <div class="note">Kept for historical comparison, not primary engineering baseline.</div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    function printHint(fileName) {
+      alert('Open ' + fileName + ' in full page, then use Ctrl+P to create a PDF view.');
+    }
+  </script>
+</body>
+</html>

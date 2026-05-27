@@ -1,0 +1,74 @@
+baseline:
+  version: v0.4.6
+  updated: 2026-05-04
+  source_of_truth:
+    - dashboard_modular.html
+    - js/app_modular.js
+    - data/materials.json
+
+html_artifacts:
+  - order: 1
+    file: index.html
+    role: default-launch-selector
+    owner_js: none
+  - order: 2
+    file: files.html
+    role: artifact-browser-and-navigation
+    owner_js: inline-status-script
+  - order: 3
+    file: dashboard_modular.html
+    role: primary-runtime
+    owner_js: js/app_modular.js
+  - order: 4
+    file: material_properties_dashboard_v1_10.html
+    role: legacy-reference-runtime
+    owner_js: inline-legacy-script
+
+js_module_order_primary_runtime:
+  - order: 1
+    file: js/materials.js
+    responsibility: material database loading, equation/value evaluation, range checks
+  - order: 2
+    file: js/numerics.js
+    responsibility: numerical integration methods
+  - order: 3
+    file: js/plots.js
+    responsibility: Plotly rendering and plot download
+  - order: 4
+    file: js/export.js
+    responsibility: CSV/JSON export payload builders and formatting
+  - order: 5
+    file: js/app_modular.js
+    responsibility: orchestration, UI binding, panel updates, and workflow control
+
+legacy_js_modules:
+  - js/app.js
+  - js/state.js
+  - js/debug.js
+  - js/logger.js
+
+visual_panel_order_dashboard_modular:
+  - Global Controls
+  - Quick Outputs
+  - Selected Property vs Temperature
+  - Evaluation Points
+  - Integration Results
+  - Delta Summary
+  - Integration Method Comparison
+  - Energy Calculation
+  - Selected Property Over Temperature Range
+  - Export
+  - Active NIST Equation and Coefficients
+  - Layered Wall Screening
+  - VBA/NIST Audit Notes
+  - Debug Panel
+
+sorting_policy:
+  html: sort by html_artifacts.order
+  js: sort by js_module_order_primary_runtime.order, then legacy_js_modules
+  docs: keep canonical docs before historical/session docs
+
+acceptance:
+  - files.html displays HTML artifacts in the same order as html_artifacts
+  - files.html lists JS modules in primary-runtime dependency order first
+  - visual_key.yaml is linked from files.html

@@ -1,0 +1,402 @@
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SSOT Launcher — Cryogenic Material Dashboard v0.4.9</title>
+<!-- CDN pinned: Plotly.js 2.35.2 (locked 2026-05-18 for v0.4.9 stability) -->
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+:root[data-theme="dark"]{--bg:#0f1117;--panel:#1a1f2e;--card:#242938;--text:#e0e0e0;--muted:#94a3b8;--border:#2a3550;--accent:#60a5fa;--accent2:#93c5fd;--green:#4ade80;--amber:#fbbf24;--red:#f87171;--purple:#a78bfa;--cyan:#22d3ee}
+:root[data-theme="light"]{--bg:#f8fafc;--panel:#fff;--card:#f1f5f9;--text:#1e293b;--muted:#64748b;--border:#cbd5e1;--accent:#2563eb;--accent2:#1d4ed8;--green:#16a34a;--amber:#ea580c;--red:#dc2626;--purple:#7c3aed;--cyan:#0891b2}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;transition:all .3s}
+.header{background:linear-gradient(135deg,var(--panel),var(--card));border-bottom:2px solid var(--border);padding:28px 24px;text-align:center;position:relative}
+.header h1{font-size:2rem;color:var(--accent);margin-bottom:6px}
+.header p{color:var(--muted);font-size:.95rem}
+.badge{display:inline-block;background:var(--card);border:1px solid var(--border);padding:3px 12px;border-radius:6px;font-size:.8rem;color:var(--accent);font-weight:700;margin:2px 4px}
+.badge-g{border-color:var(--green);color:var(--green)}
+.badge-a{border-color:var(--amber);color:var(--amber)}
+.theme-btn{position:absolute;top:20px;right:20px;background:var(--card);border:1px solid var(--border);padding:8px 16px;border-radius:8px;cursor:pointer;color:var(--text);font-size:.85rem;transition:all .2s}
+.theme-btn:hover{border-color:var(--accent);color:var(--accent)}
+.container{max-width:1280px;margin:0 auto;padding:24px}
+.section{margin-bottom:32px}
+.section-title{font-size:1.3rem;color:var(--accent);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:16px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .3s;position:relative}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.card h3{color:var(--accent);font-size:1.1rem;margin-bottom:8px}
+.card p{color:var(--muted);font-size:.88rem;margin-bottom:12px}
+.card .tag{position:absolute;top:12px;right:12px;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:4px}
+.tag-live{background:var(--green);color:#111}
+.tag-http{background:var(--amber);color:#111}
+.tag-docs{background:var(--border);color:var(--text)}
+.tag-new{background:var(--cyan);color:#111}
+.btn{display:block;width:100%;padding:12px;border-radius:8px;text-align:center;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;border:none;cursor:pointer}
+.btn:hover{transform:scale(1.02);opacity:.9}
+.btn-g{background:var(--green);color:#111}
+.btn-b{background:var(--accent);color:#fff}
+.btn-a{background:var(--amber);color:#111}
+.btn-p{background:var(--purple);color:#fff}
+.btn-o{background:var(--card);color:var(--accent);border:1px solid var(--border)}
+.btn-o:hover{border-color:var(--accent)}
+.pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:600}
+.pill-g{background:rgba(74,222,128,.15);color:var(--green)}
+.pill-a{background:rgba(251,191,36,.15);color:var(--amber)}
+.pill-m{background:var(--card);color:var(--muted);border:1px solid var(--border)}
+.kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:16px 0}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.kpi .v{font-size:1.6em;font-weight:700;color:var(--accent)}
+.kpi .l{font-size:.65em;color:var(--muted);margin-top:2px}
+.chart-box{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.chart-box h3{color:var(--accent);font-size:1rem;margin-bottom:10px}
+.chart-area{width:100%;height:350px}
+.mat-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:8px 0}
+.mat-table th,.mat-table td{padding:8px 12px;border-bottom:1px solid var(--border);text-align:left}
+.mat-table th{background:var(--card);color:var(--accent);font-weight:600;text-transform:uppercase;font-size:.78rem}
+.chk{color:var(--green);font-weight:700}
+.na{color:var(--muted)}
+.formula{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 18px;font-family:Consolas,monospace;font-size:.85rem;color:var(--cyan);margin:8px 0}
+.ssot-meta{background:var(--card);border:1px solid var(--cyan);border-radius:10px;padding:16px;font-size:.78rem;color:var(--muted);margin:16px 0}
+.ssot-meta code{color:var(--cyan);font-family:Consolas,monospace}
+.toc{list-style:none;columns:2;gap:20px;font-size:.9rem}
+.toc li{padding:6px 0;break-inside:avoid}
+.toc a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--border)}
+.toc a:hover{color:var(--accent2);border-color:var(--accent)}
+footer{text-align:center;padding:24px;color:var(--muted);font-size:.78rem;border-top:1px solid var(--border);margin-top:40px}
+footer a{color:var(--accent);text-decoration:none}
+@media(max-width:768px){.grid-3,.grid-2{grid-template-columns:1fr}.toc{columns:1}}
+</style>
+</head>
+<body>
+
+<div class="header">
+<button class="theme-btn" onclick="toggleTheme()"><span id="ticon">☀️</span> Toggle</button>
+<h1>🧊 Cryogenic Material Dashboard — SSOT Launcher</h1>
+<p>Single Source of Truth Navigation Hub · SCK CEN Engineering Tool</p>
+<div style="margin-top:8px">
+<span class="badge badge-g">v0.4.9</span>
+<span class="badge">10 NIST Materials</span>
+<span class="badge">1–300 K</span>
+<span class="badge badge-a">SSOT-Driven</span>
+</div>
+</div>
+
+<div class="container">
+
+<!-- ── TABLE OF CONTENTS ── -->
+<div class="section">
+<div class="section-title">📑 Quick Navigation</div>
+<ul class="toc">
+<li><a href="#launch">🚀 Launch Pads</a> — Dashboards & Tools</li>
+<li><a href="#presentation">🎬 Slide Presentation</a> — Reveal.js Slides</li>
+<li><a href="#materials">🧪 Material Catalog</a> — 10 NIST Materials</li>
+<li><a href="#charts">📊 Live Charts</a> — k(T) & cp(T) Visualizations</li>
+<li><a href="#engineering">⚙️ Engineering Formulas</a> — Qdot, Energy, Strain</li>
+<li><a href="#methods">🔢 Integration Methods</a> — 4 Methods Compared</li>
+<li><a href="#architecture">🏗️ Architecture</a> — Module Map</li>
+<li><a href="#docs">📄 Documentation</a> — Handover & Changelog</li>
+<li><a href="#validation">✅ Validation</a> — Test Coverage & Gaps</li>
+<li><a href="#ssot-info">🗄️ SSOT Metadata</a> — Source of Truth Info</li>
+</ul>
+</div>
+
+<!-- ── KPI STRIP ── -->
+<div class="kpi-strip">
+<div class="kpi"><div class="v">10</div><div class="l">Materials</div></div>
+<div class="kpi"><div class="v">3</div><div class="l">Properties</div></div>
+<div class="kpi"><div class="v">4</div><div class="l">Int. Methods</div></div>
+<div class="kpi"><div class="v">12</div><div class="l">Panels</div></div>
+<div class="kpi"><div class="v">v0.4.9</div><div class="l">Version</div></div>
+<div class="kpi"><div class="v">12</div><div class="l">Releases</div></div>
+</div>
+
+<!-- ── LAUNCH PADS ── -->
+<div class="section" id="launch">
+<div class="section-title">🚀 Launch Pads</div>
+<div class="grid-3">
+
+<div class="card">
+<span class="tag tag-new">✨ NEW</span>
+<h3>🎬 SSOT Slide Presentation</h3>
+<p>Interactive Reveal.js slideshow covering the full dashboard: materials, equations, charts, architecture, and workflow — all driven from ssot.json.</p>
+<a href="index_slides.html" class="btn btn-p">Open Presentation →</a>
+<div class="pills">
+<span class="pill pill-g">✓ Self-contained</span>
+<span class="pill pill-g">✓ Live charts</span>
+<span class="pill pill-m">Reveal.js 4.6</span>
+</div>
+</div>
+
+<div class="card">
+<span class="tag tag-live">✅ PRIMARY</span>
+<h3>🚀 Modular Dashboard v0.4.9</h3>
+<p>Full-featured engineering dashboard: 12 panels, Plotly interactive charts, 4 integration methods, cursor pins, CSV/JSON export, dark/light theme.</p>
+<a href="dashboard_modular.html" class="btn btn-b">Launch Dashboard →</a>
+<div class="pills">
+<span class="pill pill-g">✓ GitHub Pages</span>
+<span class="pill pill-a">⚙️ HTTP required</span>
+<span class="pill pill-m">ES6 modules</span>
+</div>
+</div>
+
+<div class="card">
+<span class="tag tag-live">✅ OPEN</span>
+<h3>🧊 Legacy Dashboard v1.10</h3>
+<p>Self-contained single-file dashboard. Works from file://, shared links, or GitHub Pages — no server needed. Canvas plots with cursor tracking.</p>
+<a href="material_properties_dashboard_v1_10.html" class="btn btn-g">Open v1.10 →</a>
+<div class="pills">
+<span class="pill pill-g">✓ No server</span>
+<span class="pill pill-g">✓ Works file://</span>
+<span class="pill pill-m">10 materials</span>
+</div>
+</div>
+
+<div class="card">
+<span class="tag tag-live">✅ OPEN</span>
+<h3>📁 File Browser</h3>
+<p>Visual navigator for all project artifacts — HTML, JS modules, schemas, tests, and documentation with markdown render toggle.</p>
+<a href="files.html" class="btn btn-o">Open File Browser →</a>
+<div class="pills"><span class="pill pill-g">✓ No server</span></div>
+</div>
+
+<div class="card">
+<span class="tag tag-live">✅ OPEN</span>
+<h3>🖼️ Preview Hub</h3>
+<p>Side-by-side preview cards for all HTML artifacts with print/PDF links.</p>
+<a href="html_preview_hub.html" class="btn btn-o">Open Preview Hub →</a>
+<div class="pills"><span class="pill pill-g">✓ No server</span></div>
+</div>
+
+<div class="card">
+<span class="tag tag-docs">📄 DOC</span>
+<h3>📋 Landing Page</h3>
+<p>Original index.html with tiered access model (Open / HTTP / Docs), feature comparison, and getting started guide.</p>
+<a href="index.html" class="btn btn-o">Open Landing →</a>
+</div>
+
+</div>
+</div>
+
+<!-- ── PRESENTATION ── -->
+<div class="section" id="presentation">
+<div class="section-title">🎬 Slide Presentation</div>
+<div class="card" style="border-color:var(--purple)">
+<h3>Interactive SSOT Presentation — 15 Slides</h3>
+<p>Covers: Project Overview · Version Timeline · Material Catalog · Property Equations · k(T) Chart · cp(T) Chart · Engineering Workflow · Integration Methods · Architecture · Dashboard Panels · Copper RRR Comparison · SSOT Structure · Limitations · Launch Links</p>
+<div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+<a href="index_slides.html" class="btn btn-p" style="flex:1;min-width:200px">🎬 Open Full Presentation →</a>
+<a href="index_slides.html#/3" class="btn btn-o" style="flex:1;min-width:150px">🧪 Jump to Materials</a>
+<a href="index_slides.html#/5" class="btn btn-o" style="flex:1;min-width:150px">📊 Jump to Charts</a>
+<a href="index_slides.html#/7" class="btn btn-o" style="flex:1;min-width:150px">⚙️ Jump to Workflow</a>
+</div>
+</div>
+</div>
+
+<!-- ── MATERIAL CATALOG ── -->
+<div class="section" id="materials">
+<div class="section-title">🧪 Material Catalog</div>
+<table class="mat-table">
+<thead><tr><th>ID</th><th>Material</th><th>Category</th><th>k(T)</th><th>cp(T)</th><th>Y(T)</th><th>k Range</th><th>Equation Type</th></tr></thead>
+<tbody>
+<tr><td>AISI316</td><td>AISI 316 Stainless Steel</td><td>Steel</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td><td>1–300 K</td><td>polylog / pw-logpoly</td></tr>
+<tr><td>Al6061T6</td><td>Aluminum 6061-T6</td><td>Aluminum</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td><td>1–300 K</td><td>polylog</td></tr>
+<tr><td>G10Normal</td><td>G-10 CR Epoxy – Normal</td><td>Composite</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td><td>10–300 K</td><td>polylog</td></tr>
+<tr><td>G10Warp</td><td>G-10 CR Epoxy – Warp</td><td>Composite</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td><td>12–300 K</td><td>polylog</td></tr>
+<tr><td>CuRRR50</td><td>OFHC Copper RRR 50</td><td>Copper</td><td class="chk">✓</td><td class="chk">✓</td><td class="na">—</td><td>4–300 K</td><td>rational</td></tr>
+<tr><td>CuRRR100</td><td>OFHC Copper RRR 100</td><td>Copper</td><td class="chk">✓</td><td class="chk">✓</td><td class="na">—</td><td>4–300 K</td><td>rational</td></tr>
+<tr><td>CuRRR150</td><td>OFHC Copper RRR 150</td><td>Copper</td><td class="chk">✓</td><td class="chk">✓</td><td class="na">—</td><td>4–300 K</td><td>rational</td></tr>
+<tr><td>CuRRR300</td><td>OFHC Copper RRR 300</td><td>Copper</td><td class="chk">✓</td><td class="chk">✓</td><td class="na">—</td><td>4–300 K</td><td>rational</td></tr>
+<tr><td>CuRRR500</td><td>OFHC Copper RRR 500</td><td>Copper</td><td class="chk">✓</td><td class="chk">✓</td><td class="na">—</td><td>4–300 K</td><td>rational</td></tr>
+<tr><td>Ti64</td><td>Ti-6Al-4V</td><td>Titanium</td><td class="chk">✓</td><td class="na">—</td><td class="chk">✓</td><td>20–300 K</td><td>polylog</td></tr>
+</tbody>
+</table>
+<p style="color:var(--muted);font-size:.75rem;margin-top:6px">Source: NIST Cryogenic Material Properties Database · Coefficients from materials.json v0.4.6</p>
+</div>
+
+<!-- ── LIVE CHARTS ── -->
+<div class="section" id="charts">
+<div class="section-title">📊 Live Material Property Charts</div>
+<div class="grid-2">
+<div class="chart-box">
+<h3>Thermal Conductivity k(T) — All Materials</h3>
+<div id="chart-k-launcher" class="chart-area"></div>
+</div>
+<div class="chart-box">
+<h3>Specific Heat cp(T) — All Materials</h3>
+<div id="chart-cp-launcher" class="chart-area"></div>
+</div>
+</div>
+<div class="chart-box">
+<h3>Copper RRR Variant Comparison — k(T)</h3>
+<div id="chart-cu-launcher" class="chart-area" style="height:320px"></div>
+</div>
+</div>
+
+<!-- ── ENGINEERING FORMULAS ── -->
+<div class="section" id="engineering">
+<div class="section-title">⚙️ Engineering Formulas</div>
+<div class="grid-2">
+<div class="card">
+<h3>Conduction Heat Load</h3>
+<div class="formula">Q̇ = (A/L) × ∫<sub>T_cold</sub><sup>T_warm</sup> k(T) dT &nbsp; [W]</div>
+<p>Inputs: Cross-section area A [m²], Length L [m], T<sub>cold</sub> [K], T<sub>warm</sub> [K]</p>
+</div>
+<div class="card">
+<h3>Cooldown Energy</h3>
+<div class="formula">E = m × ∫<sub>T₁</sub><sup>T₂</sup> cp(T) dT &nbsp; [J]</div>
+<p>Inputs: Mass m [kg], T₁ [K], T₂ [K]</p>
+</div>
+<div class="card">
+<h3>Thermal Strain</h3>
+<div class="formula">ΔL = L<sub>ref</sub> × [Y(T₂) − Y(T₁)] × 10⁻⁵ &nbsp; [m]</div>
+<p>Inputs: Reference length L<sub>ref</sub> [m], T₁ [K], T₂ [K]</p>
+</div>
+<div class="card">
+<h3>Series Thermal Resistance</h3>
+<div class="formula">R<sub>total</sub> = Σᵢ (Lᵢ / (k<sub>i,avg</sub> × Aᵢ)) &nbsp; [K/W]</div>
+<p>Per layer: Length L, Average conductivity k<sub>avg</sub>, Area A</p>
+</div>
+</div>
+</div>
+
+<!-- ── INTEGRATION METHODS ── -->
+<div class="section" id="methods">
+<div class="section-title">🔢 Integration Methods</div>
+<div class="grid-3" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+<div class="card" style="text-align:center">
+<h3>Composite Trapezoid</h3>
+<div style="font-size:1.5em;color:var(--amber);font-weight:700;margin:8px 0">O(h²)</div>
+<p>Baseline reference method. Simple, robust.</p>
+</div>
+<div class="card" style="text-align:center">
+<h3>Simpson's 1/3 Rule</h3>
+<div style="font-size:1.5em;color:var(--green);font-weight:700;margin:8px 0">O(h⁴)</div>
+<p>Fixed step count. Better accuracy than trapezoid.</p>
+</div>
+<div class="card" style="text-align:center">
+<h3>Romberg Integration</h3>
+<div style="font-size:1.5em;color:var(--accent);font-weight:700;margin:8px 0">Adaptive</div>
+<p>Richardson extrapolation to machine precision. Reference standard.</p>
+</div>
+<div class="card" style="text-align:center">
+<h3>Gauss-Legendre 4pt</h3>
+<div style="font-size:1.5em;color:var(--purple);font-weight:700;margin:8px 0">O(h⁸)</div>
+<p>4-node Gaussian quadrature per subinterval. Highest order.</p>
+</div>
+</div>
+</div>
+
+<!-- ── ARCHITECTURE ── -->
+<div class="section" id="architecture">
+<div class="section-title">🏗️ Modular Architecture</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px">
+<div class="card" style="flex:1;min-width:200px;border-left:3px solid var(--accent)">
+<h3 style="font-size:.95rem">materials.js</h3>
+<p style="font-size:.8rem">Material DB loading, equation evaluation, range checks</p>
+</div>
+<div class="card" style="flex:1;min-width:200px;border-left:3px solid var(--green)">
+<h3 style="font-size:.95rem">numerics.js</h3>
+<p style="font-size:.8rem">Integration: Trapezoid, Simpson, Romberg, Gauss-Legendre</p>
+</div>
+<div class="card" style="flex:1;min-width:200px;border-left:3px solid var(--amber)">
+<h3 style="font-size:.95rem">plots.js</h3>
+<p style="font-size:.8rem">Plotly rendering, PNG download, adaptive legend placement</p>
+</div>
+<div class="card" style="flex:1;min-width:200px;border-left:3px solid var(--purple)">
+<h3 style="font-size:.95rem">export.js</h3>
+<p style="font-size:.8rem">CSV/JSON export payload builders with traceability</p>
+</div>
+<div class="card" style="flex:1;min-width:200px;border-left:3px solid var(--cyan)">
+<h3 style="font-size:.95rem">app_modular.js</h3>
+<p style="font-size:.8rem">Orchestration, UI binding, cursor pins, panel updates</p>
+</div>
+</div>
+<div class="formula" style="margin-top:12px;font-size:.8rem">
+data/materials.json → js/materials.js → js/numerics.js → js/plots.js → js/export.js → js/app_modular.js → dashboard_modular.html
+</div>
+</div>
+
+<!-- ── DOCUMENTATION ── -->
+<div class="section" id="docs">
+<div class="section-title">📄 Documentation</div>
+<div class="grid-3">
+<div class="card"><h3>README</h3><p>Project overview, version history, quick-start guide.</p><a href="README.md" class="btn btn-o">Open →</a></div>
+<div class="card"><h3>Changelog</h3><p>Full version history from v0.3.0 through v0.4.9.</p><a href="docs/CHANGELOG.md" class="btn btn-o">Open →</a></div>
+<div class="card"><h3>Engineering Handover</h3><p>Architecture, branch policy, reproducibility checklist.</p><a href="docs/ENGINEERING_HANDOVER.md" class="btn btn-o">Open →</a></div>
+<div class="card"><h3>Final Handover v0.4.6</h3><p>Session-final handover with retrieval runbook.</p><a href="FINAL_HANDOVER.md" class="btn btn-o">Open →</a></div>
+<div class="card"><h3>Testing Guide</h3><p>Dashboard testing procedures and validation.</p><a href="DASHBOARD_TESTING_GUIDE.md" class="btn btn-o">Open →</a></div>
+<div class="card"><h3>Visual Key</h3><p>Artifact ordering, panel map, sorting policy.</p><a href="visual_key.yaml" class="btn btn-o">Open →</a></div>
+</div>
+</div>
+
+<!-- ── VALIDATION ── -->
+<div class="section" id="validation">
+<div class="section-title">✅ Validation Status</div>
+<div class="grid-2">
+<div class="card" style="border-color:var(--green)">
+<h3 style="color:var(--green)">✅ Passing</h3>
+<ul style="list-style:none;padding:0">
+<li style="padding:4px 0;font-size:.85rem">✓ Regression fixtures for selected integrals</li>
+<li style="padding:4px 0;font-size:.85rem">✓ Export consistency checks (CSV/JSON match UI)</li>
+<li style="padding:4px 0;font-size:.85rem">✓ Material schema validation (incl. thermal-contraction)</li>
+</ul>
+<div class="formula" style="font-size:.8rem">npm test</div>
+</div>
+<div class="card" style="border-color:var(--amber)">
+<h3 style="color:var(--amber)">⚠️ Gaps (Next Iteration)</h3>
+<ul style="list-style:none;padding:0">
+<li style="padding:4px 0;font-size:.85rem">⚠ Broader NIST-equation parity checks</li>
+<li style="padding:4px 0;font-size:.85rem">⚠ Method tolerance bands with documented thresholds</li>
+<li style="padding:4px 0;font-size:.85rem">⚠ Engineering acceptance criteria (pass/fail cutoffs)</li>
+<li style="padding:4px 0;font-size:.85rem">⚠ Validation report artifact from test outputs</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- ── SSOT METADATA ── -->
+<div class="section" id="ssot-info">
+<div class="section-title">🗄️ SSOT Metadata</div>
+<div class="ssot-meta">
+<strong style="color:var(--cyan)">Single Source of Truth</strong><br/>
+<code>ssot.json</code> → Schema v1.0.0 · Dashboard v0.4.9<br/>
+Idempotency Key: <code>cryo-ssot-v0.4.9-20260514</code><br/>
+Repository: <code>GBOGEB/document-organization-system</code><br/>
+Subtree: <code>cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0</code><br/><br/>
+<strong>Recursive rule:</strong> All views (slides, launcher, charts) derive from ssot.json.<br/>
+<strong>Idempotent rule:</strong> Same ssot.json → identical output every regeneration.<br/>
+<strong>Canonical rule:</strong> ssot.json + materials.json are the only data sources. No shadow copies.
+</div>
+</div>
+
+</div><!-- /container -->
+
+<footer>
+🧊 Cryogenic Material Property Dashboard · SCK CEN · v0.4.9 · 2026<br/>
+<a href="index_slides.html">Presentation</a> ·
+<a href="dashboard_modular.html">Dashboard</a> ·
+<a href="files.html">File Browser</a> ·
+<a href="ssot.json">ssot.json</a> ·
+<a href="index.html">Landing</a>
+</footer>
+
+<script>
+function toggleTheme(){const h=document.documentElement,c=h.getAttribute('data-theme'),n=c==='dark'?'light':'dark';h.setAttribute('data-theme',n);document.getElementById('ticon').textContent=n==='dark'?'☀️':'🌙';localStorage.setItem('theme',n);renderCharts()}
+window.addEventListener('DOMContentLoaded',()=>{const s=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',s);document.getElementById('ticon').textContent=s==='dark'?'☀️':'🌙';renderCharts()});
+
+const MDATA = {"version": "v0.4.6", "note": "Complete NIST cryogenic material properties database for v0.4.6. Includes all 10 materials with thermal conductivity (k) and specific heat (cp) where available; coefficients validated against NIST sources.", "temperature_validity_K": {"min": 1, "max": 300}, "materials": {"AISI316": {"name": "AISI 316 Stainless Steel", "source": "NIST 316 Stainless", "properties": {"k": {"type": "polylog", "units": "W/(m\u00b7K)", "range": [1, 300], "coefficients": [-1.4087, 1.3982, 0.2543, -0.626, 0.2334, 0.4256, -0.4658, 0.165, -0.0199]}, "cp": {"type": "piecewise-logpoly", "units": "J/(kg\u00b7K)", "range": [4, 300], "pieces": [{"range": [4, 50], "coefficients": [12.2486, -80.6422, 218.743, -308.854, 239.5296, -89.9982, 3.15315, 8.44996, -1.91368]}, {"range": [50, 300], "coefficients": [-1879.464, 3643.198, 76.70125, -6176.028, 7437.6247, -4305.7217, 1382.4627, -237.22704, 17.05262]}]}, "tc": {"type": "thermal-contraction", "units": "x1e-5 [(L(T)-L293)/L293]", "range": [4, 300], "coefficients": [-295.54, -0.39811, 0.0092683, -2.0261e-05, 1.7127e-08], "tlow": 23, "f": -300.04}}}, "Al6061T6": {"name": "Aluminum 6061-T6", "source": "NIST 6061-T6 Aluminum", "properties": {"k": {"type": "polylog", "units": "W/(m\u00b7K)", "range": [1, 300], "coefficients": [0.07918, 1.0957, -0.07277, 0.08084, 0.02803, -0.09464, 0.04179, -0.00571, 0]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [46.6467, -314.292, 866.662, -1298.3, 1162.27, -637.795, 210.351, -38.3094, 2.96344]}, "tc": {"type": "thermal-contraction", "units": "x1e-5 [(L(T)-L293)/L293]", "range": [4, 300], "coefficients": [-412.77, -0.30389, 0.0087696, -9.9821e-06, 0], "tlow": 18, "f": -415.45}}}, "G10Normal": {"name": "G-10 CR Fiberglass Epoxy - Normal", "source": "NIST G-10 CR Fiberglass Epoxy", "properties": {"k": {"type": "polylog", "units": "W/(m\u00b7K)", "range": [10, 300], "coefficients": [-4.1236, 13.788, -26.068, 26.272, -14.663, 4.4954, -0.6905, 0.0397, 0]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [-2.4083, 7.6006, -8.2982, 7.3301, -4.2386, 1.4294, -0.24396, 0.015236, 0]}, "tc": {"type": "thermal-contraction", "units": "x1e-5 [(L(T)-L293)/L293]", "range": [10, 300], "coefficients": [-719.8, 0.4455, 0.007505, -2.219e-06, 0]}}}, "G10Warp": {"name": "G-10 CR Fiberglass Epoxy - Warp", "source": "NIST G-10 CR Fiberglass Epoxy", "properties": {"k": {"type": "polylog", "units": "W/(m\u00b7K)", "range": [12, 300], "coefficients": [-2.64827, 8.80228, -24.8998, 41.1625, -39.8754, 23.1778, -7.95635, 1.48806, -0.11701]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [-2.4083, 7.6006, -8.2982, 7.3301, -4.2386, 1.4294, -0.24396, 0.015236, 0]}, "tc": {"type": "thermal-contraction", "units": "x1e-5 [(L(T)-L293)/L293]", "range": [12, 300], "coefficients": [-246.9, 0.2064, 0.003072, -3.226e-06, 0]}}}, "CuRRR50": {"name": "OFHC Copper RRR 50", "source": "NIST OFHC Copper", "properties": {"k": {"type": "rational", "units": "W/(m\u00b7K)", "range": [4, 300], "coefficients": [1.8743, -0.41538, -0.6018, 0.13294, 0.26426, -0.0219, -0.051276, 0.0014871, 0.003723]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [-1.91844, -0.15973, 8.61013, -18.996, 21.9661, -12.7328, 3.54322, -0.3797, 0]}}}, "CuRRR100": {"name": "OFHC Copper RRR 100", "source": "NIST OFHC Copper", "properties": {"k": {"type": "rational", "units": "W/(m\u00b7K)", "range": [4, 300], "coefficients": [2.2154, -0.47461, -0.88068, 0.13871, 0.29505, -0.02043, -0.04831, 0.001281, 0.003207]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [-1.91844, -0.15973, 8.61013, -18.996, 21.9661, -12.7328, 3.54322, -0.3797, 0]}}}, "CuRRR150": {"name": "OFHC Copper RRR 150", "source": "NIST OFHC Copper", "properties": {"k": {"type": "rational", "units": "W/(m\u00b7K)", "range": [4, 300], "coefficients": [2.3797, -0.4918, -0.98615, 0.13942, 0.30475, -0.019713, -0.046897, 0.0011969, 0.0029988]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [-1.91844, -0.15973, 8.61013, -18.996, 21.9661, -12.7328, 3.54322, -0.3797, 0]}}}, "CuRRR300": {"name": "OFHC Copper RRR 300", "source": "NIST OFHC Copper", "properties": {"k": {"type": "rational", "units": "W/(m\u00b7K)", "range": [4, 300], "coefficients": [1.357, 0.3981, 2.669, -0.1346, -0.6683, 0.01342, 0.05773, 0.0002147, 0]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [-1.91844, -0.15973, 8.61013, -18.996, 21.9661, -12.7328, 3.54322, -0.3797, 0]}}}, "CuRRR500": {"name": "OFHC Copper RRR 500", "source": "NIST OFHC Copper", "properties": {"k": {"type": "rational", "units": "W/(m\u00b7K)", "range": [4, 300], "coefficients": [2.8075, -0.54074, -1.2777, 0.15362, 0.36444, -0.02105, -0.051727, 0.0012226, 0.0030964]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [-1.91844, -0.15973, 8.61013, -18.996, 21.9661, -12.7328, 3.54322, -0.3797, 0]}}}, "Ti64": {"name": "Ti-6Al-4V", "source": "NIST Ti-6Al-4V", "properties": {"k": {"type": "polylog", "units": "W/(m\u00b7K)", "range": [20, 300], "coefficients": [-5107.8774, 19240.422, -30789.064, 27134.756, -14226.379, 4438.2154, -763.07767, 55.796592, 0]}, "tc": {"type": "thermal-contraction", "units": "x1e-5 [(L(T)-L293)/L293]", "range": [4, 300], "coefficients": [-171.1, -0.214, 0.004807, -7.111e-06, 0], "tlow": 24, "f": -173.61}}}}};
+function evalPolylog(c,T){const x=Math.log10(T);let s=0;for(let i=0;i<c.length;i++)s+=c[i]*Math.pow(x,i);return Math.pow(10,s)}
+function evalRational(c,T){/* Matches js/materials.js rational(): sqrt(T)-based with 9 coefficients [a..i] */const r=Math.sqrt(T);const num=c[0]+c[2]*r+c[4]*T+c[6]*Math.pow(T,1.5)+c[8]*T*T;const den=1+c[1]*r+c[3]*T+c[5]*Math.pow(T,1.5)+c[7]*T*T;return Math.pow(10,num/den)}
+function evalProp(mat,prop,T){const p=mat.properties[prop];if(!p||T<p.range[0]||T>p.range[1])return null;if(p.type==='polylog')return evalPolylog(p.coefficients,T);if(p.type==='rational')return evalRational(p.coefficients,T);if(p.type==='piecewise-logpoly'){for(const pc of p.pieces){if(T>=pc.range[0]&&T<=pc.range[1])return evalPolylog(pc.coefficients,T)}return null}return null}
+const COLORS=['#60a5fa','#4ade80','#fbbf24','#f87171','#a78bfa','#22d3ee','#fb923c','#e879f9','#34d399','#f472b6'];
+function genT(a,b,n){const t=[];const la=Math.log10(a),lb=Math.log10(b);for(let i=0;i<n;i++)t.push(Math.pow(10,la+(lb-la)*i/(n-1)));return t}
+function isDark(){return document.documentElement.getAttribute('data-theme')==='dark'}
+function chartLayout(yTitle){return{paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:isDark()?'rgba(15,17,23,0.5)':'rgba(241,245,249,0.5)',font:{color:isDark()?'#e0e0e0':'#1e293b',size:11},xaxis:{title:'Temperature [K]',type:'log',gridcolor:isDark()?'#2a3550':'#cbd5e1',color:isDark()?'#94a3b8':'#64748b'},yaxis:{title:yTitle,type:'log',gridcolor:isDark()?'#2a3550':'#cbd5e1',color:isDark()?'#94a3b8':'#64748b'},legend:{font:{size:9},bgcolor:'rgba(0,0,0,0)'},margin:{l:60,r:20,t:10,b:50}}}
+function buildPropChart(div,prop,yT){const m=MDATA.materials;const tr=[];let ci=0;for(const[id,mat]of Object.entries(m)){if(!mat.properties[prop])continue;const r=mat.properties[prop].range;const ts=genT(Math.max(r[0],4),r[1],200);const vs=ts.map(t=>evalProp(mat,prop,t)).filter(v=>v!==null&&v>0);tr.push({x:ts.slice(0,vs.length),y:vs,type:'scatter',mode:'lines',name:mat.name.length>25?id:mat.name,line:{color:COLORS[ci%COLORS.length],width:2}});ci++}Plotly.newPlot(div,tr,chartLayout(yT),{responsive:true,displayModeBar:false})}
+function buildCuChart(){const m=MDATA.materials;const ids=['CuRRR50','CuRRR100','CuRRR150','CuRRR300','CuRRR500'];const cs=['#60a5fa','#4ade80','#fbbf24','#f87171','#a78bfa'];const tr=[];ids.forEach((id,i)=>{const mat=m[id];if(!mat)return;const r=mat.properties.k.range;const ts=genT(r[0],r[1],200);const vs=ts.map(t=>evalProp(mat,'k',t)).filter(v=>v!==null&&v>0);tr.push({x:ts.slice(0,vs.length),y:vs,type:'scatter',mode:'lines',name:mat.name,line:{color:cs[i],width:2.5}})});Plotly.newPlot('chart-cu-launcher',tr,chartLayout('k [W/(m·K)]'),{responsive:true,displayModeBar:false})}
+function renderCharts(){buildPropChart('chart-k-launcher','k','k [W/(m·K)]');buildPropChart('chart-cp-launcher','cp','cp [J/(kg·K)]');buildCuChart()}
+</script>
+</body>
+</html>

@@ -1,0 +1,499 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Cryogenic Material Dashboard v0.4.9 — SSOT Presentation</title>
+<!-- CDN pinned: Reveal.js 4.6.1 (locked 2026-05-18 for v0.4.9 stability) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/black.min.css" id="theme"/>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/markdown/markdown.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/math/math.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.min.css"/>
+<!-- CDN pinned: Plotly.js 2.35.2 (locked 2026-05-18 for v0.4.9 stability) -->
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+:root{--cryo-blue:#60a5fa;--cryo-green:#4ade80;--cryo-amber:#fbbf24;--cryo-red:#f87171;--cryo-purple:#a78bfa;--cryo-cyan:#22d3ee;--cryo-bg:#0f1117;--cryo-panel:#1a1f2e;--cryo-card:#242938;--cryo-text:#e0e0e0;--cryo-muted:#94a3b8;--cryo-border:#2a3550}
+.reveal{font-family:'Segoe UI',system-ui,sans-serif}
+.reveal h1,.reveal h2,.reveal h3{color:var(--cryo-blue);text-transform:none;font-weight:700}
+.reveal h1{font-size:2.2em}
+.reveal h2{font-size:1.6em}
+.reveal .slide-number{font-size:14px;color:var(--cryo-muted)}
+.reveal section{text-align:left}
+.badge{display:inline-block;background:var(--cryo-card);border:1px solid var(--cryo-border);padding:4px 14px;border-radius:6px;font-size:.75em;color:var(--cryo-blue);font-weight:700;margin:2px 4px}
+.badge-green{border-color:var(--cryo-green);color:var(--cryo-green)}
+.badge-amber{border-color:var(--cryo-amber);color:var(--cryo-amber)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:20px 0}
+.kpi{background:var(--cryo-card);border:1px solid var(--cryo-border);border-radius:10px;padding:16px;text-align:center}
+.kpi .val{font-size:1.8em;font-weight:700;color:var(--cryo-blue)}
+.kpi .lbl{font-size:.7em;color:var(--cryo-muted);margin-top:4px}
+.mat-table{width:100%;border-collapse:collapse;font-size:.65em;margin:10px 0}
+.mat-table th,.mat-table td{padding:6px 10px;border-bottom:1px solid var(--cryo-border);text-align:left}
+.mat-table th{background:var(--cryo-card);color:var(--cryo-blue);font-weight:600;text-transform:uppercase;font-size:.85em;letter-spacing:.5px}
+.mat-table td{color:var(--cryo-text)}
+.check{color:var(--cryo-green);font-weight:700}
+.cross{color:var(--cryo-muted)}
+.formula-box{background:var(--cryo-panel);border:1px solid var(--cryo-border);border-radius:8px;padding:14px 20px;font-family:'Consolas',monospace;font-size:.8em;color:var(--cryo-cyan);margin:12px 0}
+.timeline{position:relative;padding-left:30px;margin:10px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--cryo-border)}
+.timeline-item{position:relative;margin-bottom:12px;padding-left:20px}
+.timeline-item::before{content:'';position:absolute;left:-26px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--cryo-blue);border:2px solid var(--cryo-card)}
+.timeline-item.current::before{background:var(--cryo-green);box-shadow:0 0 8px var(--cryo-green)}
+.timeline-item .ver{font-weight:700;color:var(--cryo-text);font-size:.85em}
+.timeline-item .desc{color:var(--cryo-muted);font-size:.7em}
+.arch-box{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.arch-mod{background:var(--cryo-card);border:1px solid var(--cryo-border);border-radius:8px;padding:10px 16px;flex:1;min-width:150px}
+.arch-mod .fn{font-weight:700;font-size:.8em;color:var(--cryo-blue)}
+.arch-mod .role{font-size:.65em;color:var(--cryo-muted);margin-top:4px}
+.panel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0}
+.panel-card{background:var(--cryo-card);border:1px solid var(--cryo-border);border-radius:8px;padding:12px;font-size:.7em}
+.panel-card h4{color:var(--cryo-blue);font-size:1em;margin:0 0 4px}
+.panel-card p{color:var(--cryo-muted);margin:0;font-size:.9em}
+.method-row{display:flex;gap:12px;margin:8px 0;flex-wrap:wrap}
+.method-card{background:var(--cryo-card);border:1px solid var(--cryo-border);border-radius:8px;padding:12px;flex:1;min-width:140px;text-align:center}
+.method-card .name{font-weight:700;font-size:.85em;color:var(--cryo-blue)}
+.method-card .order{font-size:.7em;color:var(--cryo-amber)}
+.method-card .desc{font-size:.6em;color:var(--cryo-muted);margin-top:4px}
+.chart-container{width:100%;height:380px;margin:10px 0}
+.limit-list{list-style:none;padding:0}
+.limit-list li{padding:8px 0 8px 28px;position:relative;color:var(--cryo-text);font-size:.8em}
+.limit-list li::before{content:'⚠';position:absolute;left:0;color:var(--cryo-amber)}
+.footer-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(15,17,23,.9);padding:6px 20px;display:flex;justify-content:space-between;font-size:.65em;color:var(--cryo-muted);z-index:100;border-top:1px solid var(--cryo-border)}
+.nav-hint{color:var(--cryo-muted);font-size:.55em;text-align:center;margin-top:20px}
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ═══ SLIDE 1: TITLE ═══ -->
+<section data-background-gradient="linear-gradient(135deg, #0f1117, #1a1f2e)">
+<div style="text-align:center">
+<h1 style="font-size:2.6em">🧊 Cryogenic Material Dashboard</h1>
+<p style="color:var(--cryo-muted);font-size:1.1em;margin:16px 0">Single Source of Truth — Engineering Presentation</p>
+<div>
+<span class="badge badge-green">v0.4.9</span>
+<span class="badge">SCK CEN</span>
+<span class="badge">10 NIST Materials</span>
+<span class="badge">1–300 K</span>
+</div>
+<p style="color:var(--cryo-muted);font-size:.7em;margin-top:30px">Generated from <code style="color:var(--cryo-cyan)">ssot.json</code> · Canonical · Idempotent · Recursive</p>
+<p class="nav-hint">Use arrow keys or swipe to navigate · Press ESC for overview</p>
+</div>
+</section>
+
+<!-- ═══ SLIDE 2: PROJECT OVERVIEW ═══ -->
+<section>
+<h2>📋 Project Overview</h2>
+<div class="kpi-grid">
+<div class="kpi"><div class="val">10</div><div class="lbl">NIST Materials</div></div>
+<div class="kpi"><div class="val">3</div><div class="lbl">Properties (k, cp, tc)</div></div>
+<div class="kpi"><div class="val">1–300 K</div><div class="lbl">Temperature Range</div></div>
+<div class="kpi"><div class="val">4</div><div class="lbl">Integration Methods</div></div>
+<div class="kpi"><div class="val">12</div><div class="lbl">Dashboard Panels</div></div>
+<div class="kpi"><div class="val">v0.4.9</div><div class="lbl">Current Version</div></div>
+</div>
+<p style="color:var(--cryo-muted);font-size:.8em;margin-top:16px">
+<strong style="color:var(--cryo-text)">Purpose:</strong> Engineering tool for evaluating cryogenic material-property behaviour. 
+Computes thermal conductivity k(T), specific heat cp(T), and thermal contraction Y(T) 
+using NIST polynomial/rational fits, with multiple integration methods for heat-load and energy calculations.
+</p>
+</section>
+
+<!-- ═══ SLIDE 3: VERSION TIMELINE ═══ -->
+<section>
+<h2>📅 Version Timeline</h2>
+<div class="timeline">
+<div class="timeline-item"><span class="ver">v0.1.0</span> <span class="desc">Tabbed dashboard prototype</span></div>
+<div class="timeline-item"><span class="ver">v0.2.0</span> <span class="desc">14 engineering improvements in single file</span></div>
+<div class="timeline-item"><span class="ver">v0.3.0</span> <span class="desc">Modular production-style rebuild (HTML + CSS + JS modules + JSON data)</span></div>
+<div class="timeline-item"><span class="ver">v0.4.1–v0.4.4</span> <span class="desc">Integration methods, Gauss-Legendre, PNG export, mode toggle</span></div>
+<div class="timeline-item"><span class="ver">v0.4.5</span> <span class="desc">Delta Summary panel + regression test suite</span></div>
+<div class="timeline-item"><span class="ver">v0.4.6</span> <span class="desc">Thermal contraction, KPI strip, dual-axis plots, layered wall, dark/light theme</span></div>
+<div class="timeline-item"><span class="ver">v0.4.7</span> <span class="desc">Comparison view modes, adaptive legend, cursor pins, endpoint labels</span></div>
+<div class="timeline-item current"><span class="ver">v0.4.9</span> <span class="desc">SSOT integration · Slide presentation · Launcher hub</span></div>
+</div>
+</section>
+
+<!-- ═══ SLIDE 4: MATERIAL CATALOG ═══ -->
+<section>
+<h2>🧪 Material Catalog</h2>
+<table class="mat-table">
+<thead><tr><th>ID</th><th>Material</th><th>Category</th><th>k(T)</th><th>cp(T)</th><th>Y(T)</th><th>k Type</th></tr></thead>
+<tbody>
+<tr><td>AISI316</td><td>AISI 316 Stainless Steel</td><td>Steel</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td>polylog</td></tr>
+<tr><td>Al6061T6</td><td>Aluminum 6061-T6</td><td>Aluminum</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td>polylog</td></tr>
+<tr><td>G10Normal</td><td>G-10 CR Epoxy – Normal</td><td>Composite</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td>polylog</td></tr>
+<tr><td>G10Warp</td><td>G-10 CR Epoxy – Warp</td><td>Composite</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td>polylog</td></tr>
+<tr><td>CuRRR50</td><td>OFHC Copper RRR 50</td><td>Copper</td><td class="check">✓</td><td class="check">✓</td><td class="cross">—</td><td>rational</td></tr>
+<tr><td>CuRRR100</td><td>OFHC Copper RRR 100</td><td>Copper</td><td class="check">✓</td><td class="check">✓</td><td class="cross">—</td><td>rational</td></tr>
+<tr><td>CuRRR150</td><td>OFHC Copper RRR 150</td><td>Copper</td><td class="check">✓</td><td class="check">✓</td><td class="cross">—</td><td>rational</td></tr>
+<tr><td>CuRRR300</td><td>OFHC Copper RRR 300</td><td>Copper</td><td class="check">✓</td><td class="check">✓</td><td class="cross">—</td><td>rational</td></tr>
+<tr><td>CuRRR500</td><td>OFHC Copper RRR 500</td><td>Copper</td><td class="check">✓</td><td class="check">✓</td><td class="cross">—</td><td>rational</td></tr>
+<tr><td>Ti64</td><td>Ti-6Al-4V</td><td>Titanium</td><td class="check">✓</td><td class="cross">—</td><td class="check">✓</td><td>polylog</td></tr>
+</tbody>
+</table>
+<p style="color:var(--cryo-muted);font-size:.65em;margin-top:8px">Source: NIST Cryogenic Material Properties Database · All coefficients validated against published fits</p>
+</section>
+
+<!-- ═══ SLIDE 5: PROPERTY EQUATIONS ═══ -->
+<section>
+<h2>📐 Property Equation Types</h2>
+<div class="formula-box">
+<strong style="color:var(--cryo-blue)">Polylog:</strong> k(T) = 10^( Σᵢ aᵢ · (log₁₀ T)ⁱ )
+</div>
+<div class="formula-box">
+<strong style="color:var(--cryo-blue)">Rational:</strong> log₁₀k = (a + c√T + eT + gT^(3/2) + iT²) / (1 + b√T + dT + fT^(3/2) + hT²)
+<br/><span style="font-size:.85em;color:var(--cryo-muted)">k = 10^(above), 9 coefficients (a..i)</span>
+</div>
+<div class="formula-box">
+<strong style="color:var(--cryo-blue)">Piecewise Logpoly:</strong> Separate coefficient sets per temperature sub-range
+<br/><span style="font-size:.85em;color:var(--cryo-muted)">Used for AISI316 cp with ranges [4,50] and [50,300]</span>
+</div>
+<div class="formula-box">
+<strong style="color:var(--cryo-blue)">Thermal Contraction:</strong> Y(T) = a₀ + a₁T + a₂T² + a₃T³ + a₄T⁴
+<br/><span style="font-size:.85em;color:var(--cryo-muted)">Optional low-T constant branch: Y(T) = f for T ≤ T_low</span>
+</div>
+</section>
+
+<!-- ═══ SLIDE 6: THERMAL CONDUCTIVITY CHART ═══ -->
+<section>
+<h2>📊 Thermal Conductivity k(T) — All Materials</h2>
+<div id="chart-k" class="chart-container"></div>
+<p style="color:var(--cryo-muted);font-size:.6em;text-align:center">Computed from NIST coefficients in ssot.json · Log scale · 4–300 K</p>
+</section>
+
+<!-- ═══ SLIDE 7: SPECIFIC HEAT CHART ═══ -->
+<section>
+<h2>📊 Specific Heat cp(T) — All Materials</h2>
+<div id="chart-cp" class="chart-container"></div>
+<p style="color:var(--cryo-muted);font-size:.6em;text-align:center">Computed from NIST coefficients · Log scale · 4–300 K</p>
+</section>
+
+<!-- ═══ SLIDE 8: ENGINEERING WORKFLOW ═══ -->
+<section>
+<h2>⚙️ Engineering Workflow</h2>
+<div style="display:flex;flex-direction:column;gap:6px;margin:16px 0">
+<div style="display:flex;align-items:center;gap:10px" class="fragment fade-up">
+<span style="background:var(--cryo-blue);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8em;flex-shrink:0">1</span>
+<span style="color:var(--cryo-text);font-size:.85em">Select material from 10 NIST-validated options</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px" class="fragment fade-up">
+<span style="background:var(--cryo-blue);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8em;flex-shrink:0">2</span>
+<span style="color:var(--cryo-text);font-size:.85em">Define T<sub>min</sub> / T<sub>max</sub> / cursor temperature</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px" class="fragment fade-up">
+<span style="background:var(--cryo-blue);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8em;flex-shrink:0">3</span>
+<span style="color:var(--cryo-text);font-size:.85em">Compute k(T), cp(T), or Y(T) property curves</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px" class="fragment fade-up">
+<span style="background:var(--cryo-blue);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8em;flex-shrink:0">4</span>
+<span style="color:var(--cryo-text);font-size:.85em">Compute dk/dT sensitivity and tangent line</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px" class="fragment fade-up">
+<span style="background:var(--cryo-blue);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8em;flex-shrink:0">5</span>
+<span style="color:var(--cryo-text);font-size:.85em">Compute ∫k(T)dT via Trapezoid / Simpson / Romberg / Gauss-Legendre</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px" class="fragment fade-up">
+<span style="background:var(--cryo-green);color:#111;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8em;flex-shrink:0">6</span>
+<span style="color:var(--cryo-text);font-size:.85em"><strong>Q̇ = (A/L) × ∫k(T)dT</strong> — conduction heat load output</span>
+</div>
+</div>
+<div class="formula-box fragment fade-up" style="text-align:center;font-size:.9em">
+<strong>Idempotency:</strong> Same inputs → same computed state → same plots → same exports
+</div>
+</section>
+
+<!-- ═══ SLIDE 9: INTEGRATION METHODS ═══ -->
+<section>
+<h2>🔢 Integration Methods</h2>
+<div class="method-row">
+<div class="method-card">
+<div class="name">Trapezoid</div>
+<div class="order">O(h²)</div>
+<div class="desc">Composite trapezoidal rule — baseline reference</div>
+</div>
+<div class="method-card">
+<div class="name">Simpson's 1/3</div>
+<div class="order">O(h⁴)</div>
+<div class="desc">Composite Simpson's rule with fixed step count</div>
+</div>
+<div class="method-card">
+<div class="name">Romberg</div>
+<div class="order">Adaptive</div>
+<div class="desc">Richardson extrapolation to machine precision</div>
+</div>
+<div class="method-card">
+<div class="name">Gauss-Legendre</div>
+<div class="order">O(h⁸)</div>
+<div class="desc">4-point Gaussian quadrature per subinterval</div>
+</div>
+</div>
+<div class="formula-box" style="margin-top:16px">
+<strong style="color:var(--cryo-blue)">Conduction Heat Load:</strong> Q̇ = (A/L) × ∫<sub>T<sub>cold</sub></sub><sup>T<sub>warm</sub></sup> k(T) dT &nbsp; [W]<br/>
+<strong style="color:var(--cryo-blue)">Cooldown Energy:</strong> E = m × ∫<sub>T₁</sub><sup>T₂</sup> cp(T) dT &nbsp; [J]<br/>
+<strong style="color:var(--cryo-blue)">Thermal Strain:</strong> ΔL = L<sub>ref</sub> × [Y(T₂) − Y(T₁)] × 10⁻⁵ &nbsp; [m]
+</div>
+</section>
+
+<!-- ═══ SLIDE 10: MODULAR ARCHITECTURE ═══ -->
+<section>
+<h2>🏗️ Modular Architecture</h2>
+<div class="arch-box">
+<div class="arch-mod"><div class="fn">materials.js</div><div class="role">Material DB loading, equation evaluation, range checks</div></div>
+<div class="arch-mod"><div class="fn">numerics.js</div><div class="role">Integration: Trap, Simpson, Romberg, Gauss-Legendre</div></div>
+<div class="arch-mod"><div class="fn">plots.js</div><div class="role">Plotly rendering, PNG download, adaptive legend</div></div>
+<div class="arch-mod"><div class="fn">export.js</div><div class="role">CSV/JSON export with traceability metadata</div></div>
+<div class="arch-mod" style="border-color:var(--cryo-green)"><div class="fn">app_modular.js</div><div class="role">Orchestration, UI binding, panel updates, cursor pins</div></div>
+</div>
+<div style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap">
+<div style="background:var(--cryo-card);border:1px solid var(--cryo-green);border-radius:8px;padding:12px;flex:1;min-width:200px">
+<div style="color:var(--cryo-green);font-weight:700;font-size:.85em">✅ Primary Runtime</div>
+<div style="color:var(--cryo-text);font-size:.75em;margin-top:4px">dashboard_modular.html — ES6 modules, Plotly interactive, full feature set</div>
+</div>
+<div style="background:var(--cryo-card);border:1px solid var(--cryo-amber);border-radius:8px;padding:12px;flex:1;min-width:200px">
+<div style="color:var(--cryo-amber);font-weight:700;font-size:.85em">⚙️ Legacy Fallback</div>
+<div style="color:var(--cryo-text);font-size:.75em;margin-top:4px">v1.10 — self-contained single file, works from file://, canvas plots</div>
+</div>
+</div>
+</section>
+
+<!-- ═══ SLIDE 11: DASHBOARD PANELS ═══ -->
+<section>
+<h2>📱 Dashboard Panel Map</h2>
+<div class="panel-grid">
+<div class="panel-card"><h4>🎛️ Global Controls</h4><p>Material, property, T-range, method</p></div>
+<div class="panel-card"><h4>📊 KPI Strip</h4><p>8-card: values at T1/T2, integral, avg, Qdot</p></div>
+<div class="panel-card"><h4>📈 Main Plot</h4><p>Plotly interactive with cursor pins (3 max)</p></div>
+<div class="panel-card"><h4>📍 Eval Points</h4><p>Color-coded P1/P2 table</p></div>
+<div class="panel-card"><h4>∫ Integration</h4><p>Dual-axis: property + cumulative integral</p></div>
+<div class="panel-card"><h4>Δ Delta Summary</h4><p>Δk, ∫k dT, Qdot, NIST validation</p></div>
+<div class="panel-card"><h4>⚖️ Method Compare</h4><p>4 methods + % deviation from Romberg</p></div>
+<div class="panel-card"><h4>⚡ Energy Calc</h4><p>Cooldown energy / conduction heat load</p></div>
+<div class="panel-card"><h4>💾 Export</h4><p>CSV, JSON, PNG with traceability</p></div>
+<div class="panel-card"><h4>📝 NIST Equation</h4><p>Active equation, range, coefficients</p></div>
+<div class="panel-card"><h4>🧱 Layered Wall</h4><p>3-layer series-R screening</p></div>
+<div class="panel-card"><h4>🔧 Debug</h4><p>Step-through calculation output</p></div>
+</div>
+</section>
+
+<!-- ═══ SLIDE 12: COPPER RRR COMPARISON ═══ -->
+<section>
+<h2>📊 Copper RRR Comparison — k(T)</h2>
+<div id="chart-copper" class="chart-container"></div>
+<p style="color:var(--cryo-muted);font-size:.6em;text-align:center">OFHC Copper variants: RRR 50, 100, 150, 300, 500 · Rational polynomial fits · 4–300 K</p>
+</section>
+
+<!-- ═══ SLIDE 13: SSOT STRUCTURE ═══ -->
+<section>
+<h2>🗄️ SSOT Architecture</h2>
+<div style="display:flex;gap:16px;margin:16px 0;flex-wrap:wrap">
+<div style="background:var(--cryo-card);border:2px solid var(--cryo-cyan);border-radius:10px;padding:16px;flex:1;min-width:200px;text-align:center">
+<div style="font-size:1.5em;margin-bottom:6px">📄</div>
+<div style="color:var(--cryo-cyan);font-weight:700;font-size:.9em">ssot.json</div>
+<div style="color:var(--cryo-muted);font-size:.65em;margin-top:4px">Canonical data source. All views derive from this file.</div>
+</div>
+<div style="background:var(--cryo-card);border:2px solid var(--cryo-purple);border-radius:10px;padding:16px;flex:1;min-width:200px;text-align:center">
+<div style="font-size:1.5em;margin-bottom:6px">🎬</div>
+<div style="color:var(--cryo-purple);font-weight:700;font-size:.9em">index_slides.html</div>
+<div style="color:var(--cryo-muted);font-size:.65em;margin-top:4px">This presentation. Reveal.js slides with live charts.</div>
+</div>
+<div style="background:var(--cryo-card);border:2px solid var(--cryo-green);border-radius:10px;padding:16px;flex:1;min-width:200px;text-align:center">
+<div style="font-size:1.5em;margin-bottom:6px">🚀</div>
+<div style="color:var(--cryo-green);font-weight:700;font-size:.9em">ssot_launcher.html</div>
+<div style="color:var(--cryo-muted);font-size:.65em;margin-top:4px">Navigation hub linking all dashboard components.</div>
+</div>
+</div>
+<div class="formula-box" style="font-size:.75em">
+ssot.json → { index_slides.html, ssot_launcher.html, dashboard_modular.html }<br/>
+<span style="color:var(--cryo-muted)">Recursive: re-generate any view by re-reading ssot.json</span><br/>
+<span style="color:var(--cryo-muted)">Idempotent: same ssot.json → identical output every time</span>
+</div>
+</section>
+
+<!-- ═══ SLIDE 14: KNOWN LIMITATIONS ═══ -->
+<section>
+<h2>⚠️ Known Limitations & Next Steps</h2>
+<ul class="limit-list">
+<li>No iterative layered-wall interface solver (screening only — Python needed for T-dependent k)</li>
+<li>No uncertainty propagation / Monte Carlo in-browser</li>
+<li>Modular dashboard requires HTTP context (GitHub Pages or localhost — not file://)</li>
+<li>Multi-material overlay limited to 4 simultaneous traces</li>
+<li>Smoothing is deterministic moving average, not formal smoothing spline</li>
+</ul>
+<h3 style="margin-top:24px;font-size:1em">🔜 Planned Next</h3>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+<span class="badge">Broader NIST parity checks</span>
+<span class="badge">Method tolerance bands</span>
+<span class="badge">Engineering acceptance thresholds</span>
+<span class="badge">Multi-material overlay mode</span>
+<span class="badge">Pin on-plot text labels</span>
+</div>
+</section>
+
+<!-- ═══ SLIDE 15: LAUNCH LINKS ═══ -->
+<section data-background-gradient="linear-gradient(135deg, #0f1117, #1a1f2e)">
+<div style="text-align:center">
+<h2>🚀 Launch Dashboard</h2>
+<p style="color:var(--cryo-muted);font-size:.85em;margin-bottom:24px">All components available via GitHub Pages or local server</p>
+<div style="display:flex;flex-direction:column;gap:12px;max-width:500px;margin:0 auto">
+<a href="ssot_launcher.html" style="background:var(--cryo-green);color:#111;padding:14px;border-radius:8px;text-decoration:none;font-weight:700;font-size:1em;display:block">🚀 SSOT Launcher Hub →</a>
+<a href="dashboard_modular.html" style="background:var(--cryo-blue);color:#fff;padding:14px;border-radius:8px;text-decoration:none;font-weight:700;font-size:1em;display:block">📊 Modular Dashboard v0.4.9 →</a>
+<a href="material_properties_dashboard_v1_10.html" style="background:var(--cryo-amber);color:#111;padding:14px;border-radius:8px;text-decoration:none;font-weight:700;font-size:1em;display:block">🧊 Legacy Dashboard v1.10 →</a>
+<a href="files.html" style="background:var(--cryo-card);color:var(--cryo-blue);border:1px solid var(--cryo-border);padding:14px;border-radius:8px;text-decoration:none;font-weight:700;font-size:1em;display:block">📁 File Browser →</a>
+</div>
+<p style="color:var(--cryo-muted);font-size:.6em;margin-top:24px">
+Cryogenic Material Property Dashboard · SCK CEN · v0.4.9 · 2026<br/>
+Data source: ssot.json · Idempotent · Recursive · Canonical
+</p>
+</div>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<div class="footer-bar">
+<span>🧊 Cryogenic Material Dashboard v0.4.9 · SCK CEN</span>
+<span>SSOT Presentation · Source: ssot.json</span>
+</div>
+
+<script>
+/* ── Material data from ssot.json (embedded for portability) ── */
+const MATERIALS_DB = {"version": "v0.4.6", "note": "Complete NIST cryogenic material properties database for v0.4.6. Includes all 10 materials with thermal conductivity (k) and specific heat (cp) where available; coefficients validated against NIST sources.", "temperature_validity_K": {"min": 1, "max": 300}, "materials": {"AISI316": {"name": "AISI 316 Stainless Steel", "source": "NIST 316 Stainless", "properties": {"k": {"type": "polylog", "units": "W/(m\u00b7K)", "range": [1, 300], "coefficients": [-1.4087, 1.3982, 0.2543, -0.626, 0.2334, 0.4256, -0.4658, 0.165, -0.0199]}, "cp": {"type": "piecewise-logpoly", "units": "J/(kg\u00b7K)", "range": [4, 300], "pieces": [{"range": [4, 50], "coefficients": [12.2486, -80.6422, 218.743, -308.854, 239.5296, -89.9982, 3.15315, 8.44996, -1.91368]}, {"range": [50, 300], "coefficients": [-1879.464, 3643.198, 76.70125, -6176.028, 7437.6247, -4305.7217, 1382.4627, -237.22704, 17.05262]}]}, "tc": {"type": "thermal-contraction", "units": "x1e-5 [(L(T)-L293)/L293]", "range": [4, 300], "coefficients": [-295.54, -0.39811, 0.0092683, -2.0261e-05, 1.7127e-08], "tlow": 23, "f": -300.04}}}, "Al6061T6": {"name": "Aluminum 6061-T6", "source": "NIST 6061-T6 Aluminum", "properties": {"k": {"type": "polylog", "units": "W/(m\u00b7K)", "range": [1, 300], "coefficients": [0.07918, 1.0957, -0.07277, 0.08084, 0.02803, -0.09464, 0.04179, -0.00571, 0]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [46.6467, -314.292, 866.662, -1298.3, 1162.27, -637.795, 210.351, -38.3094, 2.96344]}, "tc": {"type": "thermal-contraction", "units": "x1e-5 [(L(T)-L293)/L293]", "range": [4, 300], "coefficients": [-412.77, -0.30389, 0.0087696, -9.9821e-06, 0], "tlow": 18, "f": -415.45}}}, "G10Normal": {"name": "G-10 CR Fiberglass Epoxy - Normal", "source": "NIST G-10 CR Fiberglass Epoxy", "properties": {"k": {"type": "polylog", "units": "W/(m\u00b7K)", "range": [10, 300], "coefficients": [-4.1236, 13.788, -26.068, 26.272, -14.663, 4.4954, -0.6905, 0.0397, 0]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [-2.4083, 7.6006, -8.2982, 7.3301, -4.2386, 1.4294, -0.24396, 0.015236, 0]}, "tc": {"type": "thermal-contraction", "units": "x1e-5 [(L(T)-L293)/L293]", "range": [10, 300], "coefficients": [-719.8, 0.4455, 0.007505, -2.219e-06, 0]}}}, "G10Warp": {"name": "G-10 CR Fiberglass Epoxy - Warp", "source": "NIST G-10 CR Fiberglass Epoxy", "properties": {"k": {"type": "polylog", "units": "W/(m\u00b7K)", "range": [12, 300], "coefficients": [-2.64827, 8.80228, -24.8998, 41.1625, -39.8754, 23.1778, -7.95635, 1.48806, -0.11701]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [-2.4083, 7.6006, -8.2982, 7.3301, -4.2386, 1.4294, -0.24396, 0.015236, 0]}, "tc": {"type": "thermal-contraction", "units": "x1e-5 [(L(T)-L293)/L293]", "range": [12, 300], "coefficients": [-246.9, 0.2064, 0.003072, -3.226e-06, 0]}}}, "CuRRR50": {"name": "OFHC Copper RRR 50", "source": "NIST OFHC Copper", "properties": {"k": {"type": "rational", "units": "W/(m\u00b7K)", "range": [4, 300], "coefficients": [1.8743, -0.41538, -0.6018, 0.13294, 0.26426, -0.0219, -0.051276, 0.0014871, 0.003723]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [-1.91844, -0.15973, 8.61013, -18.996, 21.9661, -12.7328, 3.54322, -0.3797, 0]}}}, "CuRRR100": {"name": "OFHC Copper RRR 100", "source": "NIST OFHC Copper", "properties": {"k": {"type": "rational", "units": "W/(m\u00b7K)", "range": [4, 300], "coefficients": [2.2154, -0.47461, -0.88068, 0.13871, 0.29505, -0.02043, -0.04831, 0.001281, 0.003207]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [-1.91844, -0.15973, 8.61013, -18.996, 21.9661, -12.7328, 3.54322, -0.3797, 0]}}}, "CuRRR150": {"name": "OFHC Copper RRR 150", "source": "NIST OFHC Copper", "properties": {"k": {"type": "rational", "units": "W/(m\u00b7K)", "range": [4, 300], "coefficients": [2.3797, -0.4918, -0.98615, 0.13942, 0.30475, -0.019713, -0.046897, 0.0011969, 0.0029988]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [-1.91844, -0.15973, 8.61013, -18.996, 21.9661, -12.7328, 3.54322, -0.3797, 0]}}}, "CuRRR300": {"name": "OFHC Copper RRR 300", "source": "NIST OFHC Copper", "properties": {"k": {"type": "rational", "units": "W/(m\u00b7K)", "range": [4, 300], "coefficients": [1.357, 0.3981, 2.669, -0.1346, -0.6683, 0.01342, 0.05773, 0.0002147, 0]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [-1.91844, -0.15973, 8.61013, -18.996, 21.9661, -12.7328, 3.54322, -0.3797, 0]}}}, "CuRRR500": {"name": "OFHC Copper RRR 500", "source": "NIST OFHC Copper", "properties": {"k": {"type": "rational", "units": "W/(m\u00b7K)", "range": [4, 300], "coefficients": [2.8075, -0.54074, -1.2777, 0.15362, 0.36444, -0.02105, -0.051727, 0.0012226, 0.0030964]}, "cp": {"type": "polylog", "units": "J/(kg\u00b7K)", "range": [4, 300], "coefficients": [-1.91844, -0.15973, 8.61013, -18.996, 21.9661, -12.7328, 3.54322, -0.3797, 0]}}}, "Ti64": {"name": "Ti-6Al-4V", "source": "NIST Ti-6Al-4V", "properties": {"k": {"type": "polylog", "units": "W/(m\u00b7K)", "range": [20, 300], "coefficients": [-5107.8774, 19240.422, -30789.064, 27134.756, -14226.379, 4438.2154, -763.07767, 55.796592, 0]}, "tc": {"type": "thermal-contraction", "units": "x1e-5 [(L(T)-L293)/L293]", "range": [4, 300], "coefficients": [-171.1, -0.214, 0.004807, -7.111e-06, 0], "tlow": 24, "f": -173.61}}}}};
+
+/* ── Evaluate polylog: k(T) = 10^(sum ai * (log10(T))^i) ── */
+function evalPolylog(coeffs, T) {
+  const x = Math.log10(T);
+  let s = 0;
+  for (let i = 0; i < coeffs.length; i++) s += coeffs[i] * Math.pow(x, i);
+  return Math.pow(10, s);
+}
+
+/* ── Evaluate rational: log10k = P(√T,T,T^1.5,T²)/Q(√T,T,T^1.5,T²) ── */
+/* Matches js/materials.js rational() — uses sqrt(T)-based terms with 9 coefficients [a..i] */
+function evalRational(c, T) {
+  const r = Math.sqrt(T);
+  const num = c[0] + c[2]*r + c[4]*T + c[6]*Math.pow(T, 1.5) + c[8]*T*T;
+  const den = 1   + c[1]*r + c[3]*T + c[5]*Math.pow(T, 1.5) + c[7]*T*T;
+  return Math.pow(10, num / den);
+}
+
+function evalProperty(mat, prop, T) {
+  const p = mat.properties[prop];
+  if (!p) return null;
+  if (T < p.range[0] || T > p.range[1]) return null;
+  if (p.type === 'polylog') return evalPolylog(p.coefficients, T);
+  if (p.type === 'rational') return evalRational(p.coefficients, T);
+  if (p.type === 'piecewise-logpoly') {
+    for (const piece of p.pieces) {
+      if (T >= piece.range[0] && T <= piece.range[1])
+        return evalPolylog(piece.coefficients, T);
+    }
+    return null;
+  }
+  return null;
+}
+
+/* ── Color palette ── */
+const COLORS = ['#60a5fa','#4ade80','#fbbf24','#f87171','#a78bfa','#22d3ee','#fb923c','#e879f9','#34d399','#f472b6'];
+
+function generateTemps(tmin, tmax, n) {
+  const temps = [];
+  const logMin = Math.log10(tmin), logMax = Math.log10(tmax);
+  for (let i = 0; i < n; i++) {
+    temps.push(Math.pow(10, logMin + (logMax - logMin) * i / (n-1)));
+  }
+  return temps;
+}
+
+function buildChart(divId, prop, title) {
+  const mats = MATERIALS_DB.materials;
+  const traces = [];
+  let ci = 0;
+  for (const [id, mat] of Object.entries(mats)) {
+    if (!mat.properties[prop]) continue;
+    const range = mat.properties[prop].range;
+    const temps = generateTemps(Math.max(range[0], 4), range[1], 200);
+    const vals = temps.map(t => evalProperty(mat, prop, t)).filter(v => v !== null && v > 0);
+    const validTemps = temps.slice(0, vals.length);
+    traces.push({
+      x: validTemps, y: vals, type: 'scatter', mode: 'lines',
+      name: mat.name.length > 25 ? id : mat.name,
+      line: {color: COLORS[ci % COLORS.length], width: 2}
+    });
+    ci++;
+  }
+  const layout = {
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(15,17,23,0.5)',
+    font: {color: '#e0e0e0', size: 11},
+    xaxis: {title: 'Temperature [K]', type: 'log', gridcolor: '#2a3550', color: '#94a3b8'},
+    yaxis: {title: title, type: 'log', gridcolor: '#2a3550', color: '#94a3b8'},
+    legend: {font: {size: 9}, bgcolor: 'rgba(0,0,0,0)'},
+    margin: {l: 60, r: 20, t: 10, b: 50},
+    showlegend: true
+  };
+  Plotly.newPlot(divId, traces, layout, {responsive: true, displayModeBar: false});
+}
+
+function buildCopperChart() {
+  const mats = MATERIALS_DB.materials;
+  const copperIds = ['CuRRR50','CuRRR100','CuRRR150','CuRRR300','CuRRR500'];
+  const copperColors = ['#60a5fa','#4ade80','#fbbf24','#f87171','#a78bfa'];
+  const traces = [];
+  copperIds.forEach((id, i) => {
+    const mat = mats[id];
+    if (!mat) return;
+    const range = mat.properties.k.range;
+    const temps = generateTemps(range[0], range[1], 200);
+    const vals = temps.map(t => evalProperty(mat, 'k', t)).filter(v => v !== null && v > 0);
+    traces.push({
+      x: temps.slice(0, vals.length), y: vals, type: 'scatter', mode: 'lines',
+      name: mat.name, line: {color: copperColors[i], width: 2.5}
+    });
+  });
+  Plotly.newPlot('chart-copper', traces, {
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(15,17,23,0.5)',
+    font: {color: '#e0e0e0', size: 11},
+    xaxis: {title: 'Temperature [K]', type: 'log', gridcolor: '#2a3550', color: '#94a3b8'},
+    yaxis: {title: 'k [W/(m·K)]', type: 'log', gridcolor: '#2a3550', color: '#94a3b8'},
+    legend: {font: {size: 10}, bgcolor: 'rgba(0,0,0,0)'},
+    margin: {l: 60, r: 20, t: 10, b: 50}
+  }, {responsive: true, displayModeBar: false});
+}
+
+/* ── Initialize Reveal.js ── */
+Reveal.initialize({
+  hash: true,
+  slideNumber: 'c/t',
+  transition: 'slide',
+  backgroundTransition: 'fade',
+  plugins: [RevealMarkdown, RevealHighlight, RevealMath.KaTeX],
+  width: 1100,
+  height: 700
+}).then(() => {
+  // Build charts when their slides become visible
+  Reveal.on('slidechanged', e => {
+    if (e.currentSlide.querySelector('#chart-k') && !e.currentSlide.querySelector('#chart-k').dataset.rendered) {
+      buildChart('chart-k', 'k', 'k [W/(m·K)]');
+      e.currentSlide.querySelector('#chart-k').dataset.rendered = 'true';
+    }
+    if (e.currentSlide.querySelector('#chart-cp') && !e.currentSlide.querySelector('#chart-cp').dataset.rendered) {
+      buildChart('chart-cp', 'cp', 'cp [J/(kg·K)]');
+      e.currentSlide.querySelector('#chart-cp').dataset.rendered = 'true';
+    }
+    if (e.currentSlide.querySelector('#chart-copper') && !e.currentSlide.querySelector('#chart-copper').dataset.rendered) {
+      buildCopperChart();
+      e.currentSlide.querySelector('#chart-copper').dataset.rendered = 'true';
+    }
+  });
+  // Build first visible chart if starting on it
+  const first = Reveal.getCurrentSlide();
+  if (first.querySelector('#chart-k') && !first.querySelector('#chart-k').dataset.rendered) {
+    buildChart('chart-k', 'k', 'k [W/(m·K)]');
+    first.querySelector('#chart-k').dataset.rendered = 'true';
+  }
+});
+</script>
+</body>
+</html>

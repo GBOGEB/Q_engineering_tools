@@ -1,0 +1,49 @@
+version: v0.4.7
+updated: 2026-05-05
+project: cryogenic-material-dashboard
+repository: GBOGEB/document-organization-system
+subtree: cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0
+human_start_here:
+  - index.html
+  - files.html
+  - README.md
+  - dashboard_modular.html
+machine_readable_note: Use files.html for human navigation and this file or file_index.json for scripted intake.
+primary_runtime:
+  file: dashboard_modular.html
+  access: github-pages-or-localhost
+legacy_fallback:
+  file: material_properties_dashboard_v1_10.html
+  access: file-double-click-supported
+minimum_artifacts:
+  - index.html
+  - files.html
+  - dashboard_modular.html
+  - data/materials.json
+  - js/app_modular.js
+  - js/materials.js
+  - README.md
+  - FINAL_HANDOVER.md
+  - SESSION_SUMMARY.md
+  - docs/CHANGELOG.md
+  - docs/SESSION_DROPIN_HANDOVER_v0.4.7.md
+  - VERSION
+canonical_docs:
+  - README.md
+  - FINAL_HANDOVER.md
+  - SESSION_SUMMARY.md
+  - docs/CHANGELOG.md
+  - docs/SESSION_DROPIN_HANDOVER_v0.4.7.md
+  - FILE_INDEX_v0.4.7.md
+  - SETUP_GUIDE.md
+  - DASHBOARD_TESTING_GUIDE.md
+  - GIT_TRACKING_MANIFEST.md
+companion_indexes:
+  - file_index.yaml
+  - file_index.json
+runtime_files:
+  - index.html
+  - files.html
+  - dashboard_modular.html
+  - material_properties_dashboard_v1_10.html
+  - data/materials.json

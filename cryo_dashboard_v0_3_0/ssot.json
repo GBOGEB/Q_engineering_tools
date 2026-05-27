@@ -1,0 +1,481 @@
+{
+  "ssot_meta": {
+    "schema_version": "1.0.0",
+    "dashboard_version": "v0.4.9",
+    "generated": "2026-05-14T00:00:00Z",
+    "canonical_source": "GBOGEB/document-organization-system",
+    "subtree": "cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0",
+    "idempotency_key": "cryo-ssot-v0.4.9-20260514",
+    "description": "Single Source of Truth for the Cryogenic Material Property Dashboard. All downstream views (slides, launcher, charts) derive from this file."
+  },
+  "project": {
+    "title": "Cryogenic Material Property Dashboard",
+    "organization": "SCK CEN",
+    "purpose": "Engineering tool for evaluating cryogenic material-property behaviour (1–300 K)",
+    "version_lineage": [
+      {
+        "version": "v0.1.0",
+        "date": "2026-03",
+        "milestone": "Tabbed dashboard prototype"
+      },
+      {
+        "version": "v0.2.0",
+        "date": "2026-03",
+        "milestone": "14 engineering improvements in single file"
+      },
+      {
+        "version": "v0.3.0",
+        "date": "2026-04",
+        "milestone": "Modular production-style rebuild"
+      },
+      {
+        "version": "v0.4.1",
+        "date": "2026-05",
+        "milestone": "Integration method comparison panel"
+      },
+      {
+        "version": "v0.4.2",
+        "date": "2026-05",
+        "milestone": "Gauss-Legendre 4-point method"
+      },
+      {
+        "version": "v0.4.3",
+        "date": "2026-05",
+        "milestone": "Plot PNG export"
+      },
+      {
+        "version": "v0.4.4",
+        "date": "2026-05",
+        "milestone": "Result mode toggle"
+      },
+      {
+        "version": "v0.4.5",
+        "date": "2026-05",
+        "milestone": "Delta Summary panel + regression tests"
+      },
+      {
+        "version": "v0.4.6",
+        "date": "2026-05-04",
+        "milestone": "Thermal contraction, KPI strip, dual-axis, layered wall screening, dark/light theme"
+      },
+      {
+        "version": "v0.4.9",
+        "date": "2026-05-05",
+        "milestone": "Comparison view modes, adaptive legend, cursor pins, endpoint labels"
+      },
+      {
+        "version": "v0.4.8",
+        "date": "2026-05-05",
+        "milestone": "Maintenance release"
+      },
+      {
+        "version": "v0.4.9",
+        "date": "2026-05-14",
+        "milestone": "SSOT integration, slideshow presentation, launcher hub"
+      }
+    ]
+  },
+  "architecture": {
+    "primary_runtime": "dashboard_modular.html",
+    "legacy_fallback": "material_properties_dashboard_v1_10.html",
+    "navigator": "files.html",
+    "launcher": "ssot_launcher.html",
+    "presentation": "index_slides.html",
+    "access_model": {
+      "github_pages": "Primary — no server needed",
+      "localhost": "python -m http.server 8000",
+      "file_protocol": "Legacy v1.10 only"
+    },
+    "module_dependency_order": [
+      {
+        "file": "js/materials.js",
+        "role": "Material database loading, equation evaluation, range checks"
+      },
+      {
+        "file": "js/numerics.js",
+        "role": "Numerical integration methods (Trapezoid, Simpson, Romberg, Gauss-Legendre)"
+      },
+      {
+        "file": "js/plots.js",
+        "role": "Plotly rendering and plot download"
+      },
+      {
+        "file": "js/export.js",
+        "role": "CSV/JSON export payload builders"
+      },
+      {
+        "file": "js/app_modular.js",
+        "role": "Orchestration, UI binding, panel updates, workflow control"
+      }
+    ]
+  },
+  "engineering_workflow": {
+    "steps": [
+      "Select material",
+      "Define Tmin / Tmax / cursor T",
+      "Compute k(T) or cp(T) or Y(T)",
+      "Compute dk/dT (sensitivity)",
+      "Compute ∫property(T)dT",
+      "Compute Qdot = (A/L) × ∫k(T)dT",
+      "Render panels: Engineering, Sensitivity, Comparison, Methods, Traceability"
+    ],
+    "idempotency_rule": "Same inputs → same computed state → same plots → same exports"
+  },
+  "materials": {
+    "temperature_validity_K": {
+      "min": 1,
+      "max": 300
+    },
+    "count": 10,
+    "catalog": [
+      {
+        "id": "AISI316",
+        "name": "AISI 316 Stainless Steel",
+        "source": "NIST 316 Stainless",
+        "properties": [
+          "k",
+          "cp",
+          "tc"
+        ],
+        "k_range": [
+          1,
+          300
+        ],
+        "cp_range": [
+          4,
+          300
+        ],
+        "tc_range": [
+          4,
+          300
+        ],
+        "k_type": "polylog",
+        "cp_type": "piecewise-logpoly",
+        "tc_type": "thermal-contraction",
+        "category": "steel"
+      },
+      {
+        "id": "Al6061T6",
+        "name": "Aluminum 6061-T6",
+        "source": "NIST 6061-T6 Aluminum",
+        "properties": [
+          "k",
+          "cp",
+          "tc"
+        ],
+        "k_range": [
+          1,
+          300
+        ],
+        "cp_range": [
+          4,
+          300
+        ],
+        "tc_range": [
+          4,
+          300
+        ],
+        "k_type": "polylog",
+        "cp_type": "polylog",
+        "tc_type": "thermal-contraction",
+        "category": "aluminum"
+      },
+      {
+        "id": "G10Normal",
+        "name": "G-10 CR Fiberglass Epoxy – Normal",
+        "source": "NIST G-10 CR",
+        "properties": [
+          "k",
+          "cp",
+          "tc"
+        ],
+        "k_range": [
+          10,
+          300
+        ],
+        "cp_range": [
+          4,
+          300
+        ],
+        "tc_range": [
+          10,
+          300
+        ],
+        "k_type": "polylog",
+        "cp_type": "polylog",
+        "tc_type": "thermal-contraction",
+        "category": "composite"
+      },
+      {
+        "id": "G10Warp",
+        "name": "G-10 CR Fiberglass Epoxy – Warp",
+        "source": "NIST G-10 CR",
+        "properties": [
+          "k",
+          "cp",
+          "tc"
+        ],
+        "k_range": [
+          12,
+          300
+        ],
+        "cp_range": [
+          4,
+          300
+        ],
+        "tc_range": [
+          12,
+          300
+        ],
+        "k_type": "polylog",
+        "cp_type": "polylog",
+        "tc_type": "thermal-contraction",
+        "category": "composite"
+      },
+      {
+        "id": "CuRRR50",
+        "name": "OFHC Copper RRR 50",
+        "source": "NIST OFHC Copper",
+        "properties": [
+          "k",
+          "cp"
+        ],
+        "k_range": [
+          4,
+          300
+        ],
+        "cp_range": [
+          4,
+          300
+        ],
+        "k_type": "rational",
+        "cp_type": "polylog",
+        "category": "copper"
+      },
+      {
+        "id": "CuRRR100",
+        "name": "OFHC Copper RRR 100",
+        "source": "NIST OFHC Copper",
+        "properties": [
+          "k",
+          "cp"
+        ],
+        "k_range": [
+          4,
+          300
+        ],
+        "cp_range": [
+          4,
+          300
+        ],
+        "k_type": "rational",
+        "cp_type": "polylog",
+        "category": "copper"
+      },
+      {
+        "id": "CuRRR150",
+        "name": "OFHC Copper RRR 150",
+        "source": "NIST OFHC Copper",
+        "properties": [
+          "k",
+          "cp"
+        ],
+        "k_range": [
+          4,
+          300
+        ],
+        "cp_range": [
+          4,
+          300
+        ],
+        "k_type": "rational",
+        "cp_type": "polylog",
+        "category": "copper"
+      },
+      {
+        "id": "CuRRR300",
+        "name": "OFHC Copper RRR 300",
+        "source": "NIST OFHC Copper",
+        "properties": [
+          "k",
+          "cp"
+        ],
+        "k_range": [
+          4,
+          300
+        ],
+        "cp_range": [
+          4,
+          300
+        ],
+        "k_type": "rational",
+        "cp_type": "polylog",
+        "category": "copper"
+      },
+      {
+        "id": "CuRRR500",
+        "name": "OFHC Copper RRR 500",
+        "source": "NIST OFHC Copper",
+        "properties": [
+          "k",
+          "cp"
+        ],
+        "k_range": [
+          4,
+          300
+        ],
+        "cp_range": [
+          4,
+          300
+        ],
+        "k_type": "rational",
+        "cp_type": "polylog",
+        "category": "copper"
+      },
+      {
+        "id": "Ti64",
+        "name": "Ti-6Al-4V",
+        "source": "NIST Ti-6Al-4V",
+        "properties": [
+          "k",
+          "tc"
+        ],
+        "k_range": [
+          20,
+          300
+        ],
+        "tc_range": [
+          4,
+          300
+        ],
+        "k_type": "polylog",
+        "tc_type": "thermal-contraction",
+        "category": "titanium"
+      }
+    ],
+    "property_definitions": {
+      "k": {
+        "name": "Thermal Conductivity",
+        "symbol": "k(T)",
+        "units": "W/(m·K)",
+        "description": "Thermal conductivity as a function of temperature"
+      },
+      "cp": {
+        "name": "Specific Heat",
+        "symbol": "cp(T)",
+        "units": "J/(kg·K)",
+        "description": "Specific heat capacity as a function of temperature"
+      },
+      "tc": {
+        "name": "Thermal Contraction",
+        "symbol": "Y(T)",
+        "units": "×1e-5 [(L(T)−L293)/L293]",
+        "description": "Fractional length change relative to 293 K"
+      }
+    },
+    "equation_types": {
+      "polylog": "k(T) = 10^(Σ aᵢ·(log₁₀T)ⁱ)",
+      "rational": "log₁₀k = (a + c√T + eT + gT^(3/2) + iT²) / (1 + b√T + dT + fT^(3/2) + hT²) → k = 10^(above) (9 coefficients: a..i)",
+      "piecewise-logpoly": "Piecewise polylog with separate coefficient sets per temperature range",
+      "thermal-contraction": "Y(T) = a₀ + a₁T + a₂T² + a₃T³ + a₄T⁴ (with optional low-T constant branch)"
+    }
+  },
+  "integration_methods": [
+    {
+      "id": "trapezoid",
+      "name": "Composite Trapezoid",
+      "order": 2,
+      "description": "O(h²) composite trapezoidal rule"
+    },
+    {
+      "id": "simpson",
+      "name": "Simpson's 1/3 Rule",
+      "order": 4,
+      "description": "O(h⁴) composite Simpson's rule (fixed steps)"
+    },
+    {
+      "id": "romberg",
+      "name": "Romberg Integration",
+      "order": "adaptive",
+      "description": "Richardson extrapolation to machine-precision tolerance"
+    },
+    {
+      "id": "gauss",
+      "name": "Gauss-Legendre 4-point",
+      "order": 8,
+      "description": "Gaussian quadrature with 4 nodes per subinterval"
+    }
+  ],
+  "engineering_formulas": {
+    "conduction_heat_load": {
+      "formula": "Qdot = (A/L) × ∫[T_cold→T_warm] k(T)dT",
+      "units": "W",
+      "inputs": [
+        "A (m²)",
+        "L (m)",
+        "T_cold (K)",
+        "T_warm (K)"
+      ]
+    },
+    "cooldown_energy": {
+      "formula": "E = m × ∫[T1→T2] cp(T)dT",
+      "units": "J",
+      "inputs": [
+        "m (kg)",
+        "T1 (K)",
+        "T2 (K)"
+      ]
+    },
+    "thermal_strain": {
+      "formula": "ΔL = L_ref × [Y(T2) − Y(T1)] × 1e-5",
+      "units": "m",
+      "inputs": [
+        "L_ref (m)",
+        "T1 (K)",
+        "T2 (K)"
+      ]
+    },
+    "series_thermal_resistance": {
+      "formula": "R_total = Σᵢ (Lᵢ / (kᵢ_avg × Aᵢ))",
+      "units": "K/W",
+      "inputs": [
+        "Per layer: L, k_avg, A"
+      ]
+    }
+  },
+  "validation": {
+    "automated_tests": [
+      "tests/numerics.test.js",
+      "tests/export.test.js",
+      "tests/materials.validate.js",
+      "tests/file_index_integrity.test.js",
+      "tests/static_entrypoints.test.js",
+      "tests/nist_parity.test.js"
+    ],
+    "run_command": "npm test",
+    "coverage": [
+      "Regression fixtures for integrals",
+      "Export consistency checks",
+      "Material schema validation",
+      "File index integrity",
+      "Static entry point existence",
+      "NIST parity regression (823 assertions)"
+    ],
+    "gaps": [
+      "Method tolerance bands",
+      "Engineering acceptance thresholds"
+    ]
+  },
+  "github_pages": {
+    "base_url": "https://gbogeb.github.io/document-organization-system/cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/",
+    "entry_points": {
+      "landing": "index.html",
+      "modular_dashboard": "dashboard_modular.html",
+      "legacy_dashboard": "material_properties_dashboard_v1_10.html",
+      "file_browser": "files.html",
+      "preview_hub": "html_preview_hub.html",
+      "ssot_launcher": "ssot_launcher.html",
+      "slides": "index_slides.html"
+    }
+  }
+}

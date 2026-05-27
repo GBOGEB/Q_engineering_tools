@@ -1,0 +1,1051 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cryogenic Dashboard v0.4.9 - File Browser</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .status-banner {
+      padding: 15px 30px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+    .status-ok {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+    }
+    .status-warning {
+      background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+      color: #333;
+    }
+    .status-error {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+      color: white;
+    }
+    .status-icon {
+      font-size: 1.5em;
+    }
+    .status-text {
+      flex: 1;
+    }
+    .folder-path {
+      background: rgba(255,255,255,0.2);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+      word-break: break-all;
+    }
+    .startup-guide {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 20px;
+      margin: 20px 30px;
+      border-radius: 6px;
+      display: none;
+    }
+    .startup-guide.show {
+      display: block;
+    }
+    .startup-guide h3 {
+      color: #856404;
+      margin-bottom: 10px;
+    }
+    .startup-guide ol {
+      margin-left: 20px;
+      color: #856404;
+    }
+    .startup-guide ol ul {
+      list-style-type: disc;
+      margin-top: 5px;
+    }
+    .startup-guide code {
+      background: #fff;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    .priority-pill {
+      display: inline-block;
+      min-width: 1.8em;
+      text-align: center;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-weight: 700;
+      margin-right: 8px;
+      font-size: 0.85em;
+      border: 1px solid #89c2d9;
+      background: #d4f1f9;
+      color: #0c5460;
+    }
+    .mini-copy-btn {
+      margin-left: 6px;
+      padding: 2px 8px;
+      border: 1px solid #0c5460;
+      border-radius: 4px;
+      background: #fff;
+      color: #0c5460;
+      font-size: 0.78em;
+      cursor: pointer;
+    }
+    .mini-copy-btn:hover {
+      background: #0c5460;
+      color: #fff;
+    }
+    .md-toggle-wrap {
+      margin: 0 0 12px;
+      padding: 10px;
+      border: 1px solid #dbeafe;
+      border-left: 4px solid #1d4ed8;
+      border-radius: 8px;
+      background: #f8fbff;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    .md-toggle-wrap strong {
+      color: #1e3c72;
+      margin-right: 8px;
+    }
+    .md-toggle-wrap button {
+      border: 1px solid #93c5fd;
+      border-radius: 6px;
+      background: #fff;
+      color: #1d4ed8;
+      padding: 6px 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .md-toggle-wrap button.active {
+      background: #1d4ed8;
+      color: #fff;
+      border-color: #1d4ed8;
+    }
+    .md-mode-note {
+      color: #64748b;
+      font-size: 0.85em;
+    }
+    /* Grey out non-renderable files (YAML/JSON) in rendered mode */
+    .file-item.mode-na {
+      opacity: 0.45;
+      transition: opacity 0.2s;
+    }
+    .file-item.mode-na:hover { opacity: 0.8; }
+    .file-item.mode-na .file-icon::after {
+      content: ' (raw)';
+      font-size: 0.72em;
+      color: #94a3b8;
+      font-style: italic;
+    }
+    header {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    header p {
+      opacity: 0.9;
+      font-size: 1.1em;
+    }
+    .version-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      margin-left: 10px;
+    }
+    .main-link {
+      background: #4CAF50;
+      color: white;
+      padding: 15px 30px;
+      text-decoration: none;
+      border-radius: 8px;
+      display: inline-block;
+      margin: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+    .main-link:hover {
+      background: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .content {
+      padding: 30px;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+    .section h2 {
+      color: #1e3c72;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+    }
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 15px;
+    }
+    .file-item {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 112px;
+      transition: all 0.3s;
+    }
+    .file-item:hover {
+      background: #e9ecef;
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .file-item a {
+      color: #1e3c72;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .file-item a:hover {
+      color: #667eea;
+    }
+    .file-icon {
+      font-size: 1.5em;
+    }
+    .file-desc {
+      color: #6c757d;
+      font-size: 0.9em;
+      margin-top: 8px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+    .badge-new {
+      background: #28a745;
+      color: white;
+    }
+    .badge-core {
+      background: #007bff;
+      color: white;
+    }
+    .badge-doc {
+      background: #ffc107;
+      color: #333;
+    }
+    .governance-block {
+      margin: 20px 30px;
+      background: #eef6ff;
+      border: 1px solid #b6d4fe;
+      border-left: 4px solid #2a5298;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .governance-block h3 {
+      color: #1e3c72;
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+    .gov-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .gov-item {
+      background: #fff;
+      border: 1px solid #dbeafe;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.9em;
+      color: #334155;
+    }
+    .gov-item strong {
+      display: block;
+      color: #1e3c72;
+      margin-bottom: 4px;
+    }
+    .legend-block {
+      margin: 16px 30px;
+      background: #fff8e6;
+      border: 1px solid #ffe08a;
+      border-left: 4px solid #f59e0b;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #6b4f00;
+    }
+    .legend-block h3 {
+      margin-bottom: 8px;
+      color: #7c4a03;
+      font-size: 1.05em;
+    }
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .legend-note {
+      font-size: 0.9em;
+      color: #7c5c12;
+    }
+    .kickoff-box {
+      background: #f8fbff;
+      border: 1px solid #dbeafe;
+      border-left: 4px solid #2563eb;
+      border-radius: 8px;
+      padding: 14px;
+      margin: 12px 0 16px;
+    }
+    .kickoff-box pre {
+      margin: 10px 0 0;
+      white-space: pre-wrap;
+      font-size: 0.9em;
+      color: #1e3c72;
+      background: #fff;
+      border: 1px solid #dbeafe;
+      border-radius: 6px;
+      padding: 10px;
+    }
+    footer {
+      background: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      color: #6c757d;
+      border-top: 1px solid #dee2e6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="statusBanner" class="status-banner status-ok">
+      <span class="status-icon">🔄</span>
+      <div class="status-text">
+        <div>Checking server status...</div>
+        <div class="folder-path" id="folderPath">Loading...</div>
+      </div>
+    </div>
+
+    <div id="startupGuide" class="startup-guide">
+      <h3>⚠️ Server Not Running - How to Start:</h3>
+      <ol>
+        <li>Open <strong>PowerShell</strong> or <strong>Command Prompt</strong></li>
+        <li>Navigate to: <code>C:\Users\gbonthuy\OneDrive - Studiecentrum voor Kernenergie\Documents\cryo_dashboard_v0_3_0\cryo_dashboard_v0_3_0</code></li>
+        <li>Run: <code>python -m http.server 8000</code> or double-click <code>start_server.bat</code></li>
+        <li>Then open: <code>http://localhost:8000/index.html</code></li>
+      </ol>
+    </div>
+
+    <div id="gettingStartedGuide" class="startup-guide show" style="background: #d1ecf1; border-left-color: #0c5460; display: block;">
+      <h3>🚀 Getting Started</h3>
+      <table style="width:100%; border-collapse: collapse; font-size: 0.93em; color: #0c5460; margin-bottom: 12px;">
+        <thead>
+          <tr style="background:#b2dfdb;">
+            <th style="padding:6px 10px; text-align:left;">Access path</th>
+            <th style="padding:6px 10px; text-align:left;">Works for</th>
+            <th style="padding:6px 10px; text-align:left;">Action needed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:#e0f7fa;">
+            <td style="padding:6px 10px;"><span class="priority-pill">①</span><strong>🌐 GitHub Pages (primary)</strong></td>
+            <td style="padding:6px 10px;">All pages incl. <code>dashboard_modular.html</code></td>
+            <td style="padding:6px 10px;">Open hosted URL: <code id="pagesUrlFs">https://gbogeb.github.io/document-organization-system/cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/index.html</code><button class="mini-copy-btn" onclick="copyText(this,'https://gbogeb.github.io/document-organization-system/cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/index.html')">Copy</button><br><span style="font-size:0.85em;"><em>No Python, no install</em></span></td>
+          </tr>
+          <tr>
+            <td style="padding:6px 10px;"><span class="priority-pill">②</span>🖥️ Double-click / file://</td>
+            <td style="padding:6px 10px;"><code>material_properties_dashboard_v1_10.html</code> only</td>
+            <td style="padding:6px 10px;">Open file: <code id="legacyFileFs">material_properties_dashboard_v1_10.html</code><button class="mini-copy-btn" onclick="copyText(this,'material_properties_dashboard_v1_10.html')">Copy</button><br><span style="font-size:0.85em;">Self-contained legacy fallback</span></td>
+          </tr>
+          <tr style="background:#e0f7fa;">
+            <td style="padding:6px 10px;"><span class="priority-pill">③</span>🐍 Local Python server</td>
+            <td style="padding:6px 10px;">All pages (local dev/testing)</td>
+            <td style="padding:6px 10px;"><code id="pythonCmdFs">python -m http.server 8000</code><button class="mini-copy-btn" onclick="copyText(this,'python -m http.server 8000')">Copy</button> → <code id="localhostFs">http://localhost:8000/index.html</code><button class="mini-copy-btn" onclick="copyText(this,'http://localhost:8000/index.html')">Copy</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="color:#0c5460; font-weight:bold; margin-bottom: 8px;">📋 Spot-check reference (verify your setup is computing correctly):</p>
+      <table style="width:100%; border-collapse: collapse; font-size: 0.87em; color: #0c5460; margin-bottom: 12px;">
+        <thead>
+          <tr style="background:#b2dfdb;">
+            <th style="padding:4px 8px;">Material</th><th style="padding:4px 8px;">Property</th><th style="padding:4px 8px;">T1→T2 (K)</th><th style="padding:4px 8px;">Method</th><th style="padding:4px 8px;">Expected ∫</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:4px 8px;">AISI316</td><td style="padding:4px 8px;">k</td><td style="padding:4px 8px;">20 → 300</td><td style="padding:4px 8px;">Romberg</td><td style="padding:4px 8px;"><strong>3012.150 W/m</strong></td></tr>
+          <tr style="background:#e0f7fa;"><td style="padding:4px 8px;">AISI316</td><td style="padding:4px 8px;">cp</td><td style="padding:4px 8px;">20 → 300</td><td style="padding:4px 8px;">Romberg</td><td style="padding:4px 8px;"><strong>93 190.19 J/kg</strong></td></tr>
+          <tr><td style="padding:4px 8px;">CuRRR100</td><td style="padding:4px 8px;">k</td><td style="padding:4px 8px;">4 → 300</td><td style="padding:4px 8px;">Romberg</td><td style="padding:4px 8px;"><strong>194 330.57 W/m</strong></td></tr>
+        </tbody>
+      </table>
+      <p style="color:#0c5460; font-size:0.88em;">Use 100 integration steps. Values are derived from the automated test fixtures in <code>tests/numerics.test.js</code>.</p>
+    </div>
+
+    <header>
+      <h1>🧊 Cryogenic Material Dashboard <span class="version-badge" id="versionBadge">v0.4.9</span></h1>
+      <p>File Browser & Documentation Index</p>
+      <a href="dashboard_modular.html" class="main-link">🚀 Launch Modular Dashboard</a>
+    </header>
+
+    <div class="governance-block">
+      <h3>♻️ Governance Status (Idempotent / Recursive / Dual-Lineage)</h3>
+      <div class="gov-grid">
+        <div class="gov-item">
+          <strong>Idempotent Control</strong>
+          <span>Active via <a href="material_properties_docs/IDEMPOTENT_RECURSIVE_CONTROL.md">IDEMPOTENT_RECURSIVE_CONTROL.md</a></span>
+        </div>
+        <div class="gov-item">
+          <strong>Recursive Build Cycle</strong>
+          <span>Tracked in artifact handovers and iterative baselines</span>
+        </div>
+        <div class="gov-item" style="border-left: 3px solid #f59e0b;">
+          <strong>DMAIC Tracking — v1.x Lineage</strong>
+          <span>Covers v1.0–v1.10 (VBA/HTML standalone track):<br><a href="material_properties_docs/DMAIC_VERSION_LOG.md">DMAIC_VERSION_LOG.md</a></span>
+        </div>
+        <div class="gov-item" style="border-left: 3px solid #10b981;">
+          <strong>Engineering Changelog — v0.4.x Lineage</strong>
+          <span>Covers v0.4.0–v0.4.9 (modular JS track).<br>
+          Each release requires: <em>npm test pass → validation → version bump → git push</em>.<br>
+          <a href="docs/CHANGELOG.md">docs/CHANGELOG.md</a></span>
+        </div>
+        <div class="gov-item">
+          <strong>Latest v0.4.x Baseline (live)</strong>
+          <span id="govChangelogVersion">Loading...</span><br>
+          <span id="govChangelogDate" style="color:#64748b;">Loading...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend-block">
+      <h3>🏷️ Badge / Color Legend</h3>
+      <div class="legend-row">
+        <span class="badge badge-core">CORE / CANONICAL / INDEX</span>
+        <span>Blue badges mark current runtime-critical, canonical, baseline, preview, or machine-readable index artifacts.</span>
+      </div>
+      <div class="legend-row">
+        <span class="badge badge-doc">LEGACY / REFERENCE / HISTORICAL / TOOLING</span>
+        <span>Amber badges mark legacy, reference, snapshot, historical, or tooling/support artifacts.</span>
+      </div>
+      <div class="legend-note">The colors are semantic first and visual second. They are not just for contrast: blue means current/canonical use, amber means keep for context, reference, migration, or tooling.</div>
+    </div>
+
+    <div class="content">
+      <div class="section">
+        <h2>🧾 Current Session Continuity</h2>
+        <p style="margin-bottom: 15px; color: #6c757d; font-size: 0.95em;">
+          Current continuation state for v0.4.9. Use this block for intent, tuple summary, version-control references, active TODO, and copy-ready restart text.
+        </p>
+        <div class="kickoff-box">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;">
+            <strong style="color:#1e3c72;">Copy-Ready Next Session Kickoff</strong>
+            <button class="mini-copy-btn" onclick="copyText(this, document.getElementById('nextSessionKickoffText').innerText)">Copy kickoff text</button>
+          </div>
+          <pre id="nextSessionKickoffText">I am continuing from Cryogenic Dashboard v0.4.9 continuation state.
+
+Treat v0.4.9 as the current canonical baseline.
+
+Start intake in this order:
+1. README.md
+2. FINAL_HANDOVER.md
+3. docs/SESSION_DROPIN_HANDOVER_v0.4.7.md
+4. docs/CHANGELOG.md
+5. file_index.yaml or file_index.json
+6. files.html
+
+Authoring branch: feature/method-comparison-panel
+Transport/PR branch: feature/method-comparison-panel-clean-v2
+
+Immediate carry-forward TODO:
+- testing-depth improvements
+- GitHub roundtrip / clean branch sync
+- export consistency follow-up</pre>
+        </div>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="SESSION_SUMMARY.md" class="md-toggle-target" data-md-path="SESSION_SUMMARY.md"><span class="file-icon">🧾</span>SESSION_SUMMARY.md<span class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Purpose:</strong> Current tuple session summary, intent, canonical sources, version-control references, and active TODO carry-forward.</div>
+          </div>
+          <div class="file-item">
+            <a href="FINAL_HANDOVER.md" class="md-toggle-target" data-md-path="FINAL_HANDOVER.md"><span class="file-icon">📄</span>FINAL_HANDOVER.md<span class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Purpose:</strong> Retrieval runbook, canonical artifacts, and minimum artifact set for the current continuation baseline.</div>
+          </div>
+          <div class="file-item">
+            <a href="docs/SESSION_DROPIN_HANDOVER_v0.4.7.md" class="md-toggle-target" data-md-path="docs/SESSION_DROPIN_HANDOVER_v0.4.7.md"><span class="file-icon">🚪</span>SESSION_DROPIN_HANDOVER_v0.4.7.md<span class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Purpose:</strong> Copy-ready next-session intake sequence, minimum share set, and clean-branch roundtrip guidance.</div>
+          </div>
+          <div class="file-item">
+            <a href="docs/CHANGELOG.md" class="md-toggle-target" data-md-path="docs/CHANGELOG.md"><span class="file-icon">🧭</span>docs/CHANGELOG.md<span class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Purpose:</strong> Change log for this session's canonical updates, continuity work, and next-iteration TODO framing.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🏠 Dashboard Versions</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="index.html"><span class="file-icon">🏠</span>index.html<span class="badge badge-core">CORE</span></a>
+            <div class="file-desc">Baseline launch selector and user entry point</div>
+          </div>
+          <div class="file-item">
+            <a href="files.html"><span class="file-icon">📁</span>files.html<span class="badge badge-core">CORE</span></a>
+            <div class="file-desc">Artifact browser and baseline navigation index</div>
+          </div>
+          <div class="file-item">
+            <a href="dashboard_modular.html"><span class="file-icon">📊</span>dashboard_modular.html<span class="badge badge-new">NEW</span></a>
+            <div class="file-desc">Primary modular runtime (controller: js/app_modular.js)</div>
+          </div>
+          <div class="file-item">
+            <a href="material_properties_dashboard_v1_10.html"><span class="file-icon">🔬</span>material_properties_dashboard_v1_10.html<span class="badge badge-doc">LEGACY</span></a>
+            <div class="file-desc"><strong>Rationale for retention:</strong> NIST coefficient baseline and VBA→JS migration audit reference. Self-contained (no HTTP context required — works from file://). Retained as fixed-layout method reference; not part of publish payload.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🧭 Baseline Visual Key</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="visual_key.yaml"><span class="file-icon">🗂️</span>visual_key.yaml<span class="badge badge-core">BASELINE</span></a>
+            <div class="file-desc">Canonical ordering for HTML artifacts, JS module ownership, and visual panel map</div>
+          </div>
+          <div class="file-item">
+            <a href="html_preview_hub.html"><span class="file-icon">🖼️</span>html_preview_hub.html<span class="badge badge-core">PREVIEW</span></a>
+            <div class="file-desc">Visual preview hub for HTML artifacts with print/PDF-friendly workflow</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📱 Application Files</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="style.css"><span class="file-icon">🎨</span>style.css</a>
+            <div class="file-desc">Dashboard styling and layout</div>
+          </div>
+          <div class="file-item">
+            <a href="package.json"><span class="file-icon">📦</span>package.json</a>
+            <div class="file-desc">Project metadata and scripts</div>
+          </div>
+          <div class="file-item">
+            <a href="VERSION"><span class="file-icon">🏷️</span>VERSION</a>
+            <div class="file-desc">Current version: v0.4.9</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>💻 JavaScript Modules</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="js/materials.js"><span class="file-icon">🔬</span>materials.js<span class="badge badge-core">CORE</span></a>
+            <div class="file-desc">Material data loading, model equations, and range status</div>
+          </div>
+          <div class="file-item">
+            <a href="js/numerics.js"><span class="file-icon">🧮</span>numerics.js<span class="badge badge-core">CORE</span></a>
+            <div class="file-desc">Numerical methods (Trapezoid, Simpson, Romberg, Gauss-Legendre)</div>
+          </div>
+          <div class="file-item">
+            <a href="js/plots.js"><span class="file-icon">📈</span>plots.js<span class="badge badge-core">CORE</span></a>
+            <div class="file-desc">Plot rendering and plot export helpers</div>
+          </div>
+          <div class="file-item">
+            <a href="js/export.js"><span class="file-icon">💾</span>export.js<span class="badge badge-core">CORE</span></a>
+            <div class="file-desc">CSV/JSON payload formatting and export composition</div>
+          </div>
+          <div class="file-item">
+            <a href="js/app_modular.js"><span class="file-icon">⚙️</span>app_modular.js<span class="badge badge-new">PRIMARY</span></a>
+            <div class="file-desc">Primary v0.4.9 orchestrator consuming materials/numerics/plots/export modules</div>
+          </div>
+          <div class="file-item">
+            <a href="js/app.js"><span class="file-icon">⚙️</span>app.js<span class="badge badge-doc">LEGACY</span></a>
+            <div class="file-desc"><strong>Rationale for retention:</strong> Pre-modular orchestration entry; retained for refactoring traceability (shows pre-v0.4.x design decisions). Not loaded by any current HTML artifact.</div>
+          </div>
+          <div class="file-item">
+            <a href="js/state.js"><span class="file-icon">📊</span>state.js<span class="badge badge-doc">LEGACY</span></a>
+            <div class="file-desc"><strong>Rationale for retention:</strong> Pre-modular state management; retained for design traceability. Not loaded by any current HTML artifact.</div>
+          </div>
+          <div class="file-item">
+            <a href="js/debug.js"><span class="file-icon">🐛</span>debug.js<span class="badge badge-doc">LEGACY</span></a>
+            <div class="file-desc"><strong>Rationale for retention:</strong> Pre-modular debug helpers; retained for design traceability. Not loaded by any current HTML artifact.</div>
+          </div>
+          <div class="file-item">
+            <a href="js/logger.js"><span class="file-icon">📝</span>logger.js<span class="badge badge-doc">LEGACY</span></a>
+            <div class="file-desc"><strong>Rationale for retention:</strong> Pre-modular event logger; retained for design traceability. Not loaded by any current HTML artifact.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📊 Data Files</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="data/materials.json"><span class="file-icon">📋</span>materials.json<span class="badge badge-core">CORE</span></a>
+            <div class="file-desc">Material properties database (JSON)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📚 Canonical Documentation (Start Here)</h2>
+        <p style="margin-bottom: 15px; color: #6c757d; font-size: 0.95em;">
+          ✅ These are the official user-facing documentation files. All paths are at project root unless specified.
+        </p>
+        <div class="md-toggle-wrap">
+          <strong>Markdown View Mode</strong>
+          <button id="mdModeRendered" class="active" type="button" onclick="setMarkdownMode('rendered')">Rendered Markdown (GitHub)</button>
+          <button id="mdModeRaw" type="button" onclick="setMarkdownMode('raw')">Raw Markdown (.md file)</button>
+          <span class="md-mode-note" id="mdModeNote">Current mode: rendered view for readability.</span>
+        </div>
+        <p style="margin:0 0 14px; color:#64748b; font-size:0.9em;">
+          Reader workflow: use <strong>Rendered Markdown</strong> for styled reading, structure review, and browser PDF print; use <strong>Raw Markdown</strong> for source inspection and diff-oriented review. HTML pages are previewed via <a href="html_preview_hub.html">html_preview_hub.html</a>.
+        </p>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="README.md" class="md-toggle-target" data-md-path="README.md"><span class="file-icon">📖</span>README.md<span class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Path:</strong> <code>./README.md</code><br>Project overview, materials list, quick start
+            </div>
+          </div>
+          <div class="file-item">
+            <a href="docs/CHANGELOG.md" class="md-toggle-target" data-md-path="docs/CHANGELOG.md"><span class="file-icon">🧾</span>docs/CHANGELOG.md<span class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Path:</strong> <code>./docs/CHANGELOG.md</code><br>Modular JS engineering track: v0.4.0–v0.4.9. <strong>Each v0.4.x release entry requires: test pass → validation → version bump in VERSION → git push.</strong></div>
+          </div>
+          <div class="file-item">
+            <a href="SETUP_GUIDE.md" class="md-toggle-target" data-md-path="SETUP_GUIDE.md"><span class="file-icon">🚀</span>SETUP_GUIDE.md<span
+                class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Path:</strong> <code>./SETUP_GUIDE.md</code><br>Setup instructions, architecture,
+              troubleshooting (v0.4.9)</div>
+          </div>
+          <div class="file-item">
+            <a href="DASHBOARD_TESTING_GUIDE.md" class="md-toggle-target" data-md-path="DASHBOARD_TESTING_GUIDE.md"><span class="file-icon">🧪</span>DASHBOARD_TESTING_GUIDE.md<span
+                class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Path:</strong> <code>./DASHBOARD_TESTING_GUIDE.md</code><br>Testing procedures and
+              architecture notes</div>
+          </div>
+          <div class="file-item">
+            <a href="STANDALONE_VS_PYTHON.md" class="md-toggle-target" data-md-path="STANDALONE_VS_PYTHON.md"><span class="file-icon">⚖️</span>STANDALONE_VS_PYTHON.md<span
+                class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Path:</strong> <code>./STANDALONE_VS_PYTHON.md</code><br>Capabilities: browser-only vs
+              Python integration</div>
+          </div>
+          <div class="file-item">
+            <a href="GIT_TRACKING_MANIFEST.md" class="md-toggle-target" data-md-path="GIT_TRACKING_MANIFEST.md"><span class="file-icon">📋</span>GIT_TRACKING_MANIFEST.md<span
+                class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc"><strong>Path:</strong> <code>./GIT_TRACKING_MANIFEST.md</code><br>Git strategy and tracked files
+              (v0.4.9)</div>
+            </div>
+            <div class="file-item">
+              <a href="file_index.yaml"><span class="file-icon">🧭</span>file_index.yaml<span class="badge badge-core">INDEX</span></a>
+              <div class="file-desc"><strong>Path:</strong> <code>./file_index.yaml</code><br>Machine-readable start-here and minimum-artifact index for scripted intake or packaging</div>
+            </div>
+            <div class="file-item">
+              <a href="file_index.json"><span class="file-icon">🧭</span>file_index.json<span class="badge badge-core">INDEX</span></a>
+              <div class="file-desc"><strong>Path:</strong> <code>./file_index.json</code><br>JSON companion to <code>file_index.yaml</code> for external tools and automated handover checks</div>
+            </div>
+            <div class="file-item">
+              <a href="FILE_INDEX_v0.4.7.md" class="md-toggle-target" data-md-path="FILE_INDEX_v0.4.7.md"><span class="file-icon">🗂️</span>FILE_INDEX_v0.4.7.md<span
+                  class="badge badge-doc">SNAPSHOT</span></a>
+              <div class="file-desc"><strong>Path:</strong> <code>./FILE_INDEX_v0.4.7.md</code><br>Complete file listing with
+                navigation (current canonical snapshot; use files.html + docs/CHANGELOG.md for live status)</div>
+            </div>
+            <div class="file-item">
+              <a href="docs/BASELINE_VERIFICATION_v0.4.5.md" class="md-toggle-target" data-md-path="docs/BASELINE_VERIFICATION_v0.4.5.md"><span class="file-icon">✅</span>docs/BASELINE_VERIFICATION_v0.4.5.md<span
+                  class="badge badge-core">CANONICAL</span></a>
+              <div class="file-desc"><strong>Path:</strong> <code>./docs/BASELINE_VERIFICATION_v0.4.5.md</code><br>Baseline run/test checklist and portable Node workflow</div>
+            </div>
+            <div class="file-item">
+              <a href="material_properties_docs/IDEMPOTENT_RECURSIVE_CONTROL.md" class="md-toggle-target" data-md-path="material_properties_docs/IDEMPOTENT_RECURSIVE_CONTROL.md"><span class="file-icon">♻️</span>IDEMPOTENT_RECURSIVE_CONTROL.md<span
+                  class="badge badge-core">IMPROVEMENT</span></a>
+              <div class="file-desc"><strong>Path:</strong> <code>./material_properties_docs/IDEMPOTENT_RECURSIVE_CONTROL.md</code><br>Idempotent and recursive control practices used for iterative builds</div>
+            </div>
+            <div class="file-item">
+              <a href="material_properties_docs/DMAIC_VERSION_LOG.md" class="md-toggle-target" data-md-path="material_properties_docs/DMAIC_VERSION_LOG.md"><span class="file-icon">📈</span>DMAIC_VERSION_LOG.md<span
+                  class="badge badge-core">IMPROVEMENT</span></a>
+            <div class="file-desc"><strong>Path:</strong> <code>./material_properties_docs/DMAIC_VERSION_LOG.md</code><br><strong>Covers v1.0–v1.10 VBA/HTML lineage only.</strong> DMAIC-structured improvement log for the legacy standalone track. v0.4.x lineage is tracked separately in docs/CHANGELOG.md.</div>
+            </div>
+            </div>
+            </div>
+            
+            <div class="section">
+              <h2>📚 Historical & Session Documents</h2>
+              <p style="margin-bottom: 15px; color: #6c757d; font-size: 0.95em;">
+                📚 Session records and historical reports — useful for context, but not required for current operation.
+              </p>
+              <div class="file-grid">
+                <div class="file-item">
+                  <a href="archive_20260427/archived_20260428/MASTER_DOCUMENTATION.md"><span class="file-icon">�</span>MASTER_DOCUMENTATION.md<span
+                      class="badge badge-doc">REFERENCE</span></a>
+                  <div class="file-desc">Complete session history, design decisions, DMAIC framework</div>
+          </div>
+          <div class="file-item">
+            <a href="FINAL_HANDOVER.md"><span class="file-icon">📄</span>FINAL_HANDOVER.md<span
+                class="badge badge-doc">REFERENCE</span></a>
+            <div class="file-desc">Engineering handover package</div>
+          </div>
+          <div class="file-item">
+            <a href="archive_20260427/archived_20260428/DOCUMENTATION_STATUS_REPORT.md"><span class="file-icon">�</span>DOCUMENTATION_STATUS_REPORT.md<span
+                class="badge badge-doc">REFERENCE</span></a>
+            <div class="file-desc">Documentation audit findings (2026-04-28)</div>
+          </div>
+          <div class="file-item">
+            <a href="archive_20260427/archived_20260428/MERGE_COMPLETION_REPORT.md"><span class="file-icon">📄</span>MERGE_COMPLETION_REPORT.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">v1.10 → v0.4.x merge technical report</div>
+          </div>
+          <div class="file-item">
+            <a href="VALIDATION_REPORT.md"><span class="file-icon">✅</span>VALIDATION_REPORT.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">Debug session validation results</div>
+          </div>
+          <div class="file-item">
+            <a href="SESSION_SUMMARY.md"><span class="file-icon">📋</span>SESSION_SUMMARY.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">Session completion summary</div>
+          </div>
+          <div class="file-item">
+            <a href="archive_20260427/archived_20260428/V1_10_SESSION_HANDOVER.md"><span class="file-icon">🎯</span>V1_10_SESSION_HANDOVER.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">v1.10 session handover — materials, features, validation</div>
+          </div>
+          <div class="file-item">
+            <a href="archive_20260427/archived_20260428/V1_10_MATERIAL_COMPARISON_REPORT.md"><span class="file-icon">📄</span>V1_10_MATERIAL_COMPARISON_REPORT.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">Material properties comparison v1.10 vs v0.4.x</div>
+          </div>
+          <div class="file-item">
+            <a href="archive_20260427/archived_20260428/V040_COMPLETION_SUMMARY.md"><span class="file-icon">✔️</span>V040_COMPLETION_SUMMARY.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">v0.4.x completion summary</div>
+          </div>
+          <div class="file-item">
+            <a href="archive_20260427/archived_20260428/VALIDATION_REPORT_v1_10.md"><span class="file-icon">✔️</span>VALIDATION_REPORT_v1_10.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">v1.10 validation and testing</div>
+          </div>
+          <div class="file-item">
+            <a href="archive_20260427/archived_20260428/MATERIAL_PROPERTIES_INTEGRATION_SUMMARY.md"><span
+                class="file-icon">🔗</span>MATERIAL_PROPERTIES_INTEGRATION_SUMMARY.md<span
+                class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc">Material properties integration guide</div>
+          </div>
+          <div class="file-item">
+            <a href="README_ZIP_CREATION.md"><span class="file-icon">📦</span>README_ZIP_CREATION.md<span
+                class="badge badge-doc">UTILITY</span></a>
+            <div class="file-desc">Instructions for creating distribution packages</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🎯 Scripts & Tools</h2>        <p style="margin-bottom: 15px; color: #6c757d; font-size: 0.95em;">
+          🛠️ Local developer tooling only — <strong>not part of the GitHub Pages publish payload.</strong> Not required for runtime operation of the dashboard.
+        </p>        <div class="file-grid">
+          <div class="file-item">
+            <a href="start_dashboard.ps1"><span class="file-icon">▶️</span>start_dashboard.ps1</a>
+            <div class="file-desc">PowerShell script to start the server</div>
+          </div>
+          <div class="file-item">
+            <a href="start_server.bat"><span class="file-icon">▶️</span>start_server.bat</a>
+            <div class="file-desc">Windows batch script to start server</div>
+          </div>
+          <div class="file-item">
+            <a href="create_handover_package.ps1"><span class="file-icon">📦</span>create_handover_package.ps1</a>
+            <div class="file-desc">Create handover package script</div>
+          </div>
+          <div class="file-item">
+            <a href="CREATE_V040_ZIP.ps1"><span class="file-icon">🗜️</span>CREATE_V040_ZIP.ps1</a>
+            <div class="file-desc">Create v0.4.x distribution zip</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🧪 Testing & Validation</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="tests/"><span class="file-icon">🧪</span>tests/<span class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc">Test suite: numerics.test.js, export.test.js, materials.validate.js. <strong>Required v0.4.x version push gate: npm test must pass before any CHANGELOG entry and version bump.</strong></div>
+          </div>
+          <div class="file-item">
+            <a href="schemas/"><span class="file-icon">📐</span>schemas/<span class="badge badge-core">CANONICAL</span></a>
+            <div class="file-desc">JSON schemas for data validation (materials.schema.json). Canonical contract for materials.json structure.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📋 Configuration & Metadata</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="visual_key.yaml"><span class="file-icon">🗂️</span>visual_key.yaml</a>
+            <div class="file-desc">Baseline visual ordering and module ownership key</div>
+          </div>
+          <div class="file-item">
+            <a href="handover.glob.yaml"><span class="file-icon">⚙️</span>handover.glob.yaml<span class="badge badge-doc">TOOLING</span></a>
+            <div class="file-desc"><strong>Rationale for retention:</strong> Glob pattern config consumed by create_handover_package.ps1. Not part of publish payload or runtime.</div>
+          </div>
+          <div class="file-item">
+            <a href="SESSION_CONTEXT.json"><span class="file-icon">💾</span>SESSION_CONTEXT.json<span class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc"><strong>Rationale for retention:</strong> Agent session state snapshot; audit trail for iterative design decisions across engineering sessions. Not required for runtime.</div>
+          </div>
+          <div class="file-item">
+            <a href="MANIFEST.txt"><span class="file-icon">📋</span>MANIFEST.txt<span class="badge badge-doc">HISTORICAL</span></a>
+            <div class="file-desc"><strong>Rationale for retention:</strong> Static file manifest generated at handover; cross-check reference for payload completeness. Not required for runtime; use files.html for live status.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔗 Quick Navigation</h2>
+        <div class="file-grid">
+          <div class="file-item">
+            <a href="index.html" style="color: #28a745;"><span class="file-icon">🏠</span>Home / Landing Page</a>
+            <div class="file-desc">Return to main landing page with version selector</div>
+          </div>
+          <div class="file-item">
+            <a href="dashboard_modular.html" style="color: #007bff;"><span class="file-icon">📊</span>Modular Dashboard (v0.4.9)</a>
+            <div class="file-desc">Launch the modular dashboard with advanced integration</div>
+          </div>
+          <div class="file-item">
+            <a href="material_properties_dashboard_v1_10.html" style="color: #a15c00;"><span class="file-icon">🔬</span>Legacy Dashboard (v1.10, deprecated)</a>
+            <div class="file-desc">Open legacy v1.10 page for reference-only validation</div>
+          </div>
+          <div class="file-item">
+            <a href="files.html" style="color: #fd7e14;"><span class="file-icon">🔄</span>Refresh Browser</a>
+            <div class="file-desc">Reload this file browser page</div>
+          </div>
+          <div class="file-item">
+            <a href="html_preview_hub.html" style="color: #6f42c1;"><span class="file-icon">🖼️</span>HTML Preview Hub</a>
+            <div class="file-desc">Preview index/modular/legacy/file browser pages and print to PDF</div>
+          </div>
+          <div class="file-item">
+            <a href="README.md" style="color: #17a2b8;"><span class="file-icon">📖</span>Read Documentation</a>
+            <div class="file-desc">Project overview and getting started</div>
+          </div>
+          <div class="file-item">
+            <a href="DASHBOARD_TESTING_GUIDE.md" style="color: #20c997;"><span class="file-icon">🧪</span>Testing Guide</a>
+            <div class="file-desc">How to test and validate the dashboard</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p><strong>Cryogenic Material Dashboard</strong> <span id="footerVersion">v0.4.9</span></p>
+      <p id="footerStatus">File Browser | Checking server status...</p>
+      <p style="margin-top: 10px; font-size: 0.9em; color: #7c5c12;">Badge meaning: <span class="badge badge-core">blue</span> = current/canonical/index/baseline, <span class="badge badge-doc">amber</span> = legacy/reference/historical/tooling. Colors support readability, but the badge text carries the real status meaning.</p>
+      <p style="margin-top: 10px; opacity: 0.7;">Navigate to any file above or <a href="dashboard_modular.html"
+          style="color: #667eea; font-weight: bold;">launch the modular dashboard</a></p>
+    </footer>
+  </div>
+
+  <script>
+    const EXPECTED_FOLDER = 'C:\\Users\\gbonthuy\\OneDrive - Studiecentrum voor Kernenergie\\Documents\\cryo_dashboard_v0_3_0\\cryo_dashboard_v0_3_0';
+    const GITHUB_OWNER = 'GBOGEB';
+    const GITHUB_REPO = 'document-organization-system';
+    const GITHUB_BRANCH = 'main';
+    const SITE_SUBDIR = 'cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0';
+
+    function copyText(buttonEl, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const old = buttonEl.textContent;
+        buttonEl.textContent = 'Copied';
+        setTimeout(() => { buttonEl.textContent = old; }, 1000);
+      }).catch(() => {
+        alert('Copy failed. Select and copy manually:\n' + text);
+      });
+    }
+
+    function buildGithubRenderedUrl(mdPath) {
+      return `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/blob/${GITHUB_BRANCH}/${SITE_SUBDIR}/${mdPath}`;
+    }
+
+    function setMarkdownMode(mode) {
+      const links = document.querySelectorAll('.md-toggle-target');
+      const renderedBtn = document.getElementById('mdModeRendered');
+      const rawBtn = document.getElementById('mdModeRaw');
+      const note = document.getElementById('mdModeNote');
+
+      links.forEach(link => {
+        const mdPath = link.getAttribute('data-md-path');
+        if (!mdPath) return;
+        link.setAttribute('href', mode === 'rendered' ? buildGithubRenderedUrl(mdPath) : mdPath);
+        if (mode === 'rendered') {
+          link.setAttribute('target', '_blank');
+          link.setAttribute('rel', 'noopener noreferrer');
+        } else {
+          link.removeAttribute('target');
+          link.removeAttribute('rel');
+        }
+      });
+
+      if (renderedBtn) renderedBtn.classList.toggle('active', mode === 'rendered');
+      if (rawBtn) rawBtn.classList.toggle('active', mode === 'raw');
+      if (note) {
+        note.textContent = mode === 'rendered'
+          ? 'Current mode: rendered view for readability.'
+          : 'Current mode: raw markdown source (.md) view.';
+      }
+      // Dim non-renderable file items (YAML, JSON) in rendered mode
+      document.querySelectorAll(
+        '.file-item a[href$=".yaml"]:not(.md-toggle-target), .file-item a[href$=".json"]:not(.md-toggle-target)'
+      ).forEach(a => {
+        const item = a.closest('.file-item');
+        if (item) item.classList.toggle('mode-na', mode === 'rendered');
+      });
+      localStorage.setItem('mdViewMode', mode);
+    }
+
+    async function updateGovernanceStatus() {
+      const verEl = document.getElementById('govChangelogVersion');
+      const dateEl = document.getElementById('govChangelogDate');
+      if (!verEl || !dateEl) return;
+
+      verEl.textContent = 'Unavailable (open via HTTP for metadata)';
+      dateEl.textContent = '';
+
+      if (!(window.location.protocol === 'http:' || window.location.protocol === 'https:')) {
+        return;
+      }
+
+      try {
+        const changeRes = await fetch('docs/CHANGELOG.md', { cache: 'no-store' });
+        if (changeRes.ok) {
+          const txt = await changeRes.text();
+          const m = txt.match(/^##\s+(v[^\r\n]+)/m);
+          verEl.textContent = m ? m[1] : 'docs/CHANGELOG.md (version heading not found)';
+        } else {
+          verEl.textContent = 'docs/CHANGELOG.md not reachable';
+        }
+
+        const headRes = await fetch('docs/CHANGELOG.md', { method: 'HEAD', cache: 'no-store' });
+        const lm = headRes.headers.get('last-modified');
+        dateEl.textContent = lm ? `Last modified: ${new Date(lm).toLocaleString()}` : 'Last modified: n/a';
+      } catch (err) {
+        verEl.textContent = 'Error reading changelog metadata';
+        dateEl.textContent = String(err.message || err);
+      }
+    }
+
+    async function checkStatus() {
+      const statusBanner = document.getElementById('statusBanner');
+      const startupGuide = document.getElementById('startupGuide');
+      const gettingStartedGuide = document.getElementById('gettingStartedGuide');
+      const folderPath = document.getElementById('folderPath');
+      const versionBadge = document.getElementById('versionBadge');
+      const footerVersion = document.getElementById('footerVersion');
+      const footerStatus = document.getElementById('footerStatus');
+
+      const protocol = window.location.protocol;
+      const isFileProtocol = protocol === 'file:';
+      const isHttp = protocol === 'http:' || protocol === 'https:';
+
+      let version = 'v0.4.9';
+
+      if (isHttp) {
+        try {
+          const versionResponse = await fetch('VERSION');
+          if (versionResponse.ok) {
+            version = (await versionResponse.text()).trim();
+            if (versionBadge) versionBadge.textContent = version;
+            footerVersion.textContent = version;
+          }
+        } catch (e) {
+          console.log('Could not fetch VERSION file:', e);
+        }
+      }
+
+      if (isFileProtocol) {
+        if (statusBanner) {
+          statusBanner.className = 'status-banner status-warning';
+          statusBanner.innerHTML = `
+            <span class="status-icon">⚠️</span>
+            <div class="status-text">
+              <div><strong>Warning:</strong> Opened via file:// protocol - Server not running!</div>
+              <div class="folder-path">${window.location.pathname}</div>
+            </div>
+          `;
+        }
+        if (startupGuide) startupGuide.classList.add('show');
+        if (gettingStartedGuide) gettingStartedGuide.classList.remove('show');
+        footerStatus.textContent = 'File Browser | ⚠️ Server NOT running - Dashboard features require HTTP server!';
+      } else if (isHttp) {
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+        const portText = port ? `:${port}` : '';
+
+        if (statusBanner) {
+          statusBanner.className = 'status-banner status-ok';
+          statusBanner.innerHTML = `
+            <span class="status-icon">✅</span>
+            <div class="status-text">
+              <div><strong>Server Running:</strong> ${hostname}${portText} | Version: ${version}</div>
+              <div class="folder-path">${EXPECTED_FOLDER}</div>
+            </div>
+          `;
+        }
+        if (startupGuide) startupGuide.classList.remove('show');
+        footerStatus.textContent = `File Browser | ✅ Server active on ${hostname}${portText} - All features enabled`;
+      } else {
+        if (statusBanner) {
+          statusBanner.className = 'status-banner status-error';
+          statusBanner.innerHTML = `
+            <span class="status-icon">❌</span>
+            <div class="status-text">
+              <div><strong>Unknown Protocol:</strong> ${protocol}</div>
+              <div class="folder-path">Please use HTTP server</div>
+            </div>
+          `;
+        }
+        if (startupGuide) startupGuide.classList.add('show');
+        footerStatus.textContent = 'File Browser | ❌ Unknown protocol';
+      }
+    }
+
+    const savedMdMode = localStorage.getItem('mdViewMode') || 'rendered';
+    setMarkdownMode(savedMdMode);
+    checkStatus();
+    updateGovernanceStatus();
+    setInterval(checkStatus, 30000);
+    setInterval(updateGovernanceStatus, 60000);
+  </script>
+</body>
+</html>
