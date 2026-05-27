@@ -21,9 +21,10 @@ Q_engineering_tools/
 ├── index.html                    ← Portal home page (lists all dashboards & tools)
 ├── .nojekyll                     ← Disables Jekyll processing on GitHub Pages
 ├── .github/workflows/pages.yml  ← Auto-deploy workflow (pushes to GitHub Pages)
+├── FEDERATION.md                 ← Ecosystem bridge & asset provenance log
 │
-├── cryo_dashboard_v0_3_0/        ← Cryo Dashboard v0.3.0 (NIST data)
-│   ├── index.html                  (placeholder — replace with your dashboard)
+├── cryo_dashboard_v0_3_0/        ← Cryo Dashboard v0.3.0 (NIST data, from ABACUS)
+│   ├── index.html                  (live dashboard — Chart.js, NIST reference data)
 │   └── README.md
 │
 └── <future_tool_or_dashboard>/   ← Add new tools/dashboards here
@@ -36,7 +37,7 @@ Q_engineering_tools/
 
 | Dashboard | Version | URL | Status |
 | --- | --- | --- | --- |
-| 🧊 Cryo Dashboard | v0.3.0 | [`/cryo_dashboard_v0_3_0/`](https://gbogeb.github.io/Q_engineering_tools/cryo_dashboard_v0_3_0/) | Placeholder |
+| 🧊 Cryo Dashboard | v0.3.0 | [`/cryo_dashboard_v0_3_0/`](https://gbogeb.github.io/Q_engineering_tools/cryo_dashboard_v0_3_0/) | ✅ Live |
 
 ---
 
@@ -67,13 +68,14 @@ If GitHub Pages is not yet enabled on this repository:
 
 ## Deploying Cryo Dashboard v0.3.0
 
-The `cryo_dashboard_v0_3_0/` folder currently contains a placeholder page.
-To deploy the actual dashboard:
+The `cryo_dashboard_v0_3_0/index.html` contains the **live NIST cryo dashboard**
+(sourced from [GBOGEB/ABACUS](https://github.com/GBOGEB/ABACUS)).  
+It uses Chart.js 4.4.0 (CDN) and requires no backend.
 
-1. Copy your dashboard files from
-   `document-organization-system / feature/method-comparison-panel-clean / cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/`
-   into the `cryo_dashboard_v0_3_0/` folder here.
-2. Make sure the main entry point is named **`index.html`**.
+To update to a newer version of the dashboard:
+
+1. Copy the updated `index.html` from `ABACUS/cryo_dashboard_v0_3_0/index.html`.
+2. Update the version badge in the root `index.html` card and in `FEDERATION.md`.
 3. Push to `main` — GitHub Pages will update automatically.
 
 ---
@@ -83,3 +85,18 @@ To deploy the actual dashboard:
 - **Hosting:** GitHub Pages (static, free, zero backend)
 - **Deployment:** GitHub Actions (`.github/workflows/pages.yml`)
 - **No build tools required** — pure HTML / CSS / JavaScript
+
+---
+
+## Ecosystem & Federation
+
+This repo is the **web-host layer** of a three-repo engineering toolchain:
+
+| Repo | Role |
+|------|------|
+| [GBOGEB/CODEX](https://github.com/GBOGEB/CODEX) | Upstream conceptual — requirements, ADRs, YAML manifests |
+| [GBOGEB/ABACUS](https://github.com/GBOGEB/ABACUS) | Downstream functional — Python engines, cryo dashboard source |
+| **GBOGEB/Q_engineering_tools** | Web-host — static GitHub Pages presentation layer |
+
+See [`FEDERATION.md`](FEDERATION.md) for the full ecosystem map, asset provenance
+table, and stale/drift log.
