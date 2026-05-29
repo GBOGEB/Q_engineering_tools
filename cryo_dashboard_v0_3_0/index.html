@@ -266,6 +266,58 @@
       padding: 0.6rem 0.9rem;
       margin-top: 0.75rem;
     }
+
+    /* ── Drift Monitor tab ── */
+    .drift-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .drift-kv {
+      background: #21262d;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.82rem;
+    }
+    .drift-kv .k { color: var(--muted); margin-right: 0.4em; }
+    .drift-kv .v { color: var(--cyan); font-weight: 600; }
+    .drift-pending {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+    .drift-pending .icon { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
+    .drift-dim-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .drift-dim {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.84rem;
+    }
+    .drift-dim .dim-name { width: 160px; color: var(--text); flex-shrink: 0; }
+    .drift-dim .dim-bar-wrap {
+      flex: 1;
+      background: #21262d;
+      border-radius: 4px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .drift-dim .dim-bar {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--accent);
+    }
+    .drift-dim .dim-bar.warn { background: var(--accent4); }
+    .drift-dim .dim-bar.alert { background: var(--accent3); }
+    .drift-dim .dim-val { width: 72px; text-align: right; color: var(--muted); flex-shrink: 0; }
   </style>
 </head>
 <body>
@@ -287,7 +339,8 @@
   <button class="tab-btn"        data-tab="satcurve"    role="tab">📈 Saturation Curve</button>
   <button class="tab-btn"        data-tab="properties"  role="tab">🔍 Property Lookup</button>
   <button class="tab-btn"        data-tab="comparison"  role="tab">⚖️ Method Comparison</button>
-  <button class="tab-btn"        data-tab="about"       role="tab">ℹ️ About</button>
+  <button class="tab-btn"        data-tab="about"         role="tab">ℹ️ About</button>
+  <button class="tab-btn"        data-tab="drift-monitor" role="tab">🔬 Drift Monitor</button>
 </nav>
 
 <!-- ════════════════════════════════════════════════
@@ -515,6 +568,42 @@
 </div>
 </div><!-- end about -->
 
+<!-- ════════════════════════════════════════════════
+     TAB 6 — DRIFT MONITOR (CODEX W000 telemetry)
+════════════════════════════════════════════════ -->
+<div id="tab-drift-monitor" class="tab-panel">
+<div class="content">
+
+  <div class="card" style="margin-bottom:1rem;">
+    <div class="card-title">
+      PCA Drift Monitor
+      <span class="badge nist" style="margin-left:0.5rem">CODEX W000</span>
+    </div>
+    <p style="font-size:0.85rem;color:var(--muted);line-height:1.65;margin-bottom:1rem;">
+      Quality signal from the <strong>CODEX W000 drift monitor</strong>
+      (<code>telemetry/pca/drift_monitor.py</code>). Per-dimension deltas and aggregate
+      <code>drift_variance</code> are computed by comparing baseline vs. current metric
+      snapshots using PCA. This tab is populated automatically when CODEX publishes
+      <code>drift_data.json</code> to this repository via
+      <a href="https://github.com/GBOGEB/Q_engineering_tools/blob/main/bridge_manifest.yaml"
+         target="_blank" rel="noopener" style="color:var(--accent)">bridge_manifest.yaml</a>.
+    </p>
+    <div id="driftMeta" class="drift-meta"></div>
+    <div id="driftBody"></div>
+  </div>
+
+  <div class="card" style="max-width:480px;font-size:0.82rem;line-height:1.7;color:var(--muted);">
+    <div class="card-title">Activate drift telemetry</div>
+    <ol style="padding-left:1.2rem;margin-top:0.5rem;">
+      <li>Run <code>python telemetry/pca/drift_monitor.py --baseline baseline.json --current current.json</code> in the <a href="https://github.com/GBOGEB/CODEX" target="_blank" rel="noopener" style="color:var(--accent)">CODEX</a> repository.</li>
+      <li>Commit the output as <code>telemetry/pca/drift_report.json</code>.</li>
+      <li>Create <code>publish-codex-telemetry.yml</code> in CODEX (see <code>artifact_publish.drift-data</code> in <a href="../bridge_manifest.yaml" style="color:var(--accent)">bridge_manifest.yaml</a>) to auto-publish to this repo.</li>
+    </ol>
+  </div>
+
+</div>
+</div><!-- end drift-monitor -->
+
 <footer>
   <p>
     <a href="../index.html">← Portal</a>
@@ -531,8 +620,9 @@
 /* ============================================================
    DATA — He-4 saturation properties (NIST REFPROP 10)
    Anchor points verified against published NIST / Donnelly 1998
+   Stored as fallback (_HE4); runtime may override from cryo_data.json
    ============================================================ */
-const HE4 = {
+const _HE4 = {
   Tc: 5.1953, Pc: 227.46, rhoc: 69.64,  // critical constants
   Tnbp: 4.2217, Pnbp: 101.325,          // normal boiling point
   Tlambda: 2.177, Plambda: 5.04,        // superfluid λ-transition
@@ -556,8 +646,9 @@ const HE4 = {
 
 /* ============================================================
    DATA — Liquid Nitrogen saturation (NIST REFPROP 10 / Span 2000)
+   Stored as fallback (_LN2); runtime may override from cryo_data.json
    ============================================================ */
-const LN2 = {
+const _LN2 = {
   Tc: 126.19, Pc: 3395.8, rhoc: 313.3,
   Tnbp: 77.355, Pnbp: 101.325,
 
@@ -956,14 +1047,102 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 });
 
 /* ============================================================
-   INIT
+   DRIFT MONITOR — populate tab from drift_data.json
    ============================================================ */
-populateSatTable('satTable', HE4);
-populateSatTable('ln2Table', LN2);
-populateCompTable();
-buildOverviewStats();
-buildCharts();
-buildLookup();
+function populateDriftTab(data) {
+  const metaEl = document.getElementById('driftMeta');
+  const bodyEl = document.getElementById('driftBody');
+
+  if (!data || data.drift_variance === null) {
+    // Placeholder / unreachable state
+    metaEl.innerHTML = '';
+    bodyEl.innerHTML = `
+      <div class="drift-pending">
+        <span class="icon">🔬</span>
+        Drift telemetry not yet available.<br>
+        Follow the activation steps below to connect CODEX W000.
+      </div>`;
+    return;
+  }
+
+  const threshold = data.covariance_threshold ?? 0.05;
+  const varClass  = data.drift_variance > threshold ? 'var(--accent3)' : 'var(--accent2)';
+
+  metaEl.innerHTML = `
+    <div class="drift-kv"><span class="k">drift_variance</span>
+      <span class="v" style="color:${varClass}">${data.drift_variance.toFixed(4)}</span></div>
+    <div class="drift-kv"><span class="k">threshold</span>
+      <span class="v">${threshold}</span></div>
+    <div class="drift-kv"><span class="k">generated_at</span>
+      <span class="v">${data.generated_at ?? '—'}</span></div>
+    <div class="drift-kv"><span class="k">status</span>
+      <span class="v">${data.status ?? 'ok'}</span></div>`;
+
+  if (!data.dimensions || data.dimensions.length === 0) {
+    bodyEl.innerHTML = `<p style="font-size:0.85rem;color:var(--muted);">No per-dimension deltas reported.</p>`;
+    return;
+  }
+
+  // Find max delta for normalising bar widths
+  const maxDelta = Math.max(...data.dimensions.map(d => Math.abs(d.delta)));
+
+  const rows = data.dimensions.map(d => {
+    const pct = maxDelta > 0 ? (Math.abs(d.delta) / maxDelta * 100).toFixed(1) : 0;
+    const barClass = Math.abs(d.delta) > threshold ? 'dim-bar alert'
+                   : Math.abs(d.delta) > threshold * 0.5 ? 'dim-bar warn'
+                   : 'dim-bar';
+    return `<div class="drift-dim">
+      <span class="dim-name">${d.name}</span>
+      <span class="dim-bar-wrap"><span class="${barClass}" style="width:${pct}%"></span></span>
+      <span class="dim-val">${d.delta >= 0 ? '+' : ''}${d.delta.toFixed(4)}</span>
+    </div>`;
+  }).join('');
+
+  bodyEl.innerHTML = `
+    <div class="card-title" style="margin-bottom:0.75rem;">Per-dimension deltas</div>
+    <div class="drift-dim-list">${rows}</div>`;
+}
+
+/* ============================================================
+   INIT — async: try cryo_data.json then drift_data.json
+   ============================================================ */
+
+// Working data globals — set by initDashboard() from JSON or embedded fallback
+let HE4, LN2;
+
+async function initDashboard() {
+  // Load cryogenic data — prefer live ABACUS publish, fall back to embedded
+  try {
+    const resp = await fetch('data/cryo_data.json');
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const json = await resp.json();
+    HE4 = json.fluids.HE4;
+    LN2 = json.fluids.LN2;
+  } catch {
+    HE4 = _HE4;
+    LN2 = _LN2;
+  }
+
+  // Render all panels that depend on cryo data
+  populateSatTable('satTable', HE4);
+  populateSatTable('ln2Table', LN2);
+  populateCompTable();
+  buildOverviewStats();
+  buildCharts();
+  buildLookup();
+
+  // Load drift telemetry — gracefully degrade if not yet published
+  try {
+    const resp = await fetch('data/drift_data.json');
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const json = await resp.json();
+    populateDriftTab(json);
+  } catch {
+    populateDriftTab(null);
+  }
+}
+
+initDashboard();
 </script>
 
 </body>

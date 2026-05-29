@@ -7,10 +7,35 @@
 
 ## Overview
 
-This repository is a **standalone, statically-hosted platform** for engineering
-dashboards and tools. Everything is served directly via
-[GitHub Pages](https://pages.github.com) — no server, no build step, no framework
-required. Dashboards are plain HTML/JS/CSS files organised in sub-folders.
+This repository is the **public display layer** of a three-repo engineering federation.
+Everything is served directly via [GitHub Pages](https://pages.github.com) — no server,
+no build step, no framework required. Dashboards are plain HTML/JS/CSS files organised
+in sub-folders.
+
+---
+
+## Federation Architecture
+
+```
+CODEX (upstream_conceptual)
+  ├─ Markdown books, YAML metadata, requirements
+  └─ W000 drift telemetry (PCA drift monitor)
+        │
+        │  drift_report.json
+        ▼
+ABACUS (downstream_functional)
+  ├─ Python math engines, DMAIC v4.4.0 pipeline
+  └─ Cryogenic analysis + HTML dashboard exports
+        │
+        │  cryo_data.json, drift_data.json, HTML exports
+        ▼
+Q_engineering_tools (downstream_display)  ← this repo
+  └─ GitHub Pages portal — public web UI
+```
+
+The federation topology is declared in [`bridge_manifest.yaml`](bridge_manifest.yaml).
+Automated publish workflows (ABACUS → `publish-to-portal.yml`, CODEX → `publish-codex-telemetry.yml`)
+will push updated data files to this repo on each ABACUS release or CODEX schedule.
 
 ---
 
@@ -18,15 +43,19 @@ required. Dashboards are plain HTML/JS/CSS files organised in sub-folders.
 
 ```
 Q_engineering_tools/
-├── index.html                    ← Portal home page (lists all dashboards & tools)
-├── .nojekyll                     ← Disables Jekyll processing on GitHub Pages
-├── .github/workflows/pages.yml  ← Auto-deploy workflow (pushes to GitHub Pages)
+├── index.html                         ← Portal home page
+├── bridge_manifest.yaml               ← Three-repo federation registry
+├── .nojekyll                          ← Disables Jekyll on GitHub Pages
+├── .github/workflows/pages.yml        ← Auto-deploy to GitHub Pages
 │
-├── cryo_dashboard_v0_3_0/        ← Cryo Dashboard v0.3.0 (NIST data)
-│   ├── index.html                  (placeholder — replace with your dashboard)
-│   └── README.md
+├── cryo_dashboard_v0_3_0/             ← Cryo Dashboard v0.3.0
+│   ├── index.html                       5-tab interactive dashboard (live)
+│   ├── README.md
+│   └── data/
+│       ├── cryo_data.json               He-4 / LN₂ saturation data (ABACUS feed)
+│       └── drift_data.json              CODEX W000 drift telemetry (CODEX feed)
 │
-└── <future_tool_or_dashboard>/   ← Add new tools/dashboards here
+└── <future_tool_or_dashboard>/        ← Add new dashboards here
     └── index.html
 ```
 
@@ -36,7 +65,7 @@ Q_engineering_tools/
 
 | Dashboard | Version | URL | Status |
 | --- | --- | --- | --- |
-| 🧊 Cryo Dashboard | v0.3.0 | [`/cryo_dashboard_v0_3_0/`](https://gbogeb.github.io/Q_engineering_tools/cryo_dashboard_v0_3_0/) | Placeholder |
+| 🧊 Cryo Dashboard | v0.3.0 | [`/cryo_dashboard_v0_3_0/`](https://gbogeb.github.io/Q_engineering_tools/cryo_dashboard_v0_3_0/) | Live |
 
 ---
 
@@ -65,21 +94,9 @@ If GitHub Pages is not yet enabled on this repository:
 
 ---
 
-## Deploying Cryo Dashboard v0.3.0
-
-The `cryo_dashboard_v0_3_0/` folder currently contains a placeholder page.
-To deploy the actual dashboard:
-
-1. Copy your dashboard files from
-   `document-organization-system / feature/method-comparison-panel-clean / cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/`
-   into the `cryo_dashboard_v0_3_0/` folder here.
-2. Make sure the main entry point is named **`index.html`**.
-3. Push to `main` — GitHub Pages will update automatically.
-
----
-
 ## Technology
 
 - **Hosting:** GitHub Pages (static, free, zero backend)
 - **Deployment:** GitHub Actions (`.github/workflows/pages.yml`)
 - **No build tools required** — pure HTML / CSS / JavaScript
+- **Federation:** [`bridge_manifest.yaml`](bridge_manifest.yaml) declares CODEX → ABACUS → Q_engineering_tools data flows

@@ -1,0 +1,10 @@
+{
+  "generated_by": "CODEX W000 telemetry/pca/drift_monitor.py",
+  "schema_version": "1.0",
+  "status": "placeholder",
+  "note": "Run CODEX drift_monitor.py with --baseline and --current JSON inputs to populate this file. See https://github.com/GBOGEB/CODEX and bridge_manifest.yaml artifact_publish.drift-data.",
+  "generated_at": null,
+  "drift_variance": null,
+  "covariance_threshold": 0.05,
+  "dimensions": []
+}

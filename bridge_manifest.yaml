@@ -1,0 +1,114 @@
+federation_bridge:
+  version: "1.1.0"
+  domain: "gbogeb"
+
+  # Three-repo architecture
+  #   CODEX  (upstream_conceptual)  →  ABACUS  (downstream_functional)
+  #                                 →  Q_engineering_tools (downstream_display)
+  repos:
+    codex:
+      url: "https://github.com/GBOGEB/CODEX"
+      branch: "main"
+      role: "upstream_conceptual"
+      focus: "Markdown books, requirements, metadata, YAML glossary, W000 drift telemetry"
+    abacus:
+      url: "https://github.com/GBOGEB/ABACUS"
+      branch: "main"
+      role: "downstream_functional"
+      focus: "Python math engines, DMAIC v4.4.0 pipeline, cryogenic analysis, HTML dashboard exports"
+    q_engineering_tools:
+      url: "https://github.com/GBOGEB/Q_engineering_tools"
+      branch: "main"
+      role: "downstream_display"
+      focus: "Static HTML/JS portal — GitHub Pages public-facing web UI"
+
+  # Declared data flows (produced by source, consumed by this repo)
+  data_flow:
+    - id: cryo-data
+      from: abacus
+      to: q_engineering_tools
+      source_path: "cryo_dashboard_v0_3_0/data/cryo_data.json"
+      target_path: "cryo_dashboard_v0_3_0/data/cryo_data.json"
+      description: >
+        ABACUS-computed He-4 / LN₂ saturation tables; replaces embedded JS arrays
+        in the Cryo Dashboard on each ABACUS release.
+    - id: drift-data
+      from: codex
+      to: q_engineering_tools
+      source_path: "telemetry/pca/drift_report.json"
+      target_path: "cryo_dashboard_v0_3_0/data/drift_data.json"
+      description: >
+        CODEX W000 PCA drift-monitor output; displayed in the Cryo Dashboard
+        Drift Monitor tab as a live quality signal.
+    - id: abacus-dashboards
+      from: abacus
+      to: q_engineering_tools
+      source_path: "docs/"
+      target_path: "abacus_dashboards/"
+      description: >
+        ABACUS HTML exports (deep_analysis_dashboard, progress_tracker,
+        handover_book, dmaic-metrics) published to the portal as additional cards.
+
+  # Orchestration — protocols and pending publish workflows
+  orchestration:
+    mcp_enabled: true
+    protocols:
+      - git-sync
+      - telemetry-stream
+      - artifact-bake
+
+    # artifact_publish entries describe cross-repo publish jobs
+    # that must be created in the source repo (.github/workflows/).
+    artifact_publish:
+      - id: abacus-dashboards
+        source_repo: abacus
+        source_paths:
+          - docs/deep_analysis_dashboard.html
+          - docs/progress_tracker.html
+          - docs/handover_book.html
+          - docs/dmaic-metrics.html
+        target_repo: q_engineering_tools
+        target_dir: abacus_dashboards/
+        trigger: workflow_dispatch
+        workflow: publish-to-portal.yml   # to be created in ABACUS
+        status: pending
+
+      - id: codex-books
+        source_repo: codex
+        source_paths:
+          - book_md/10_books/output/
+        target_repo: q_engineering_tools
+        target_dir: codex_books/
+        trigger: workflow_dispatch
+        workflow: publish-codex-books.yml  # to be created in CODEX
+        status: pending
+
+      - id: cryo-data
+        source_repo: abacus
+        source_paths:
+          - cryo_dashboard_v0_3_0/data/cryo_data.json
+        target_repo: q_engineering_tools
+        target_dir: cryo_dashboard_v0_3_0/data/
+        trigger: release
+        workflow: publish-to-portal.yml   # to be created in ABACUS
+        status: pending
+
+      - id: drift-data
+        source_repo: codex
+        source_paths:
+          - telemetry/pca/drift_report.json
+        target_repo: q_engineering_tools
+        target_dir: cryo_dashboard_v0_3_0/data/
+        trigger: schedule
+        workflow: publish-codex-telemetry.yml  # to be created in CODEX
+        status: pending
+
+  wave_tracking:
+    analytics:
+      - PCA
+      - DMAIC
+      - ANOVA
+    metrics:
+      claimed_progress: float
+      actual_progress: float
+      covariance_threshold: 0.05
