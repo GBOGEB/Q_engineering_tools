@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cryogenic Material Dashboard v0.4.9 — Modular</title>
+  <!-- CDN pinned: Plotly.js 2.35.2 (locked 2026-05-18 for v0.4.9 stability) -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    :root[data-theme="dark"] {
+      --bg: #0f1117;
+      --panel: #1a1f2e;
+      --border: #2a3550;
+      --text: #e0e0e0;
+      --muted: #94a3b8;
+      --active: #60a5fa;
+      --active-soft: #1e3a5f;
+      --warn: #fbbf24;
+      --ok: #4ade80;
+    }
+    :root[data-theme="light"] {
+      --bg: #eef2f7;
+      --panel: #dde4ee;
+      --border: #8ea0b8;
+      --text: #1a2230;
+      --muted: #3c4a5d;
+      --active: #1f6feb;
+      --active-soft: #cfd9e8;
+      --warn: #a15c00;
+      --ok: #116329;
+    }
+    
+    body { transition: background 0.3s, color 0.3s; padding-top: 96px; }
+
+    .floating-controls {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(calc(100vw - 20px), 1600px);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 10px;
+      box-sizing: border-box;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .floating-toggle-btn {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+      padding: 9px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.84rem;
+      color: var(--text);
+      pointer-events: auto;
+      max-width: min(320px, calc(50% - 6px));
+      text-align: center;
+      line-height: 1.25;
+      transition: all 0.2s;
+    }
+    .floating-toggle-btn:hover {
+      border-color: var(--active);
+      background: color-mix(in srgb, var(--panel) 76%, var(--active-soft));
+    }
+    .floating-toggle-btn.active {
+      background: var(--active-soft);
+      border-color: var(--active);
+      color: var(--active);
+    }
+    
+    .version-badge {
+      display: inline-block;
+      background: var(--active-soft);
+      color: var(--active);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      color: var(--active);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .result-mode-toggle {
+      display: inline-flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .result-mode-toggle label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .quick-kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+    }
+
+    .quick-kpi {
+      background: var(--active-soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .quick-kpi .kpi-label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-bottom: 4px;
+    }
+
+    .quick-kpi .kpi-value {
+      display: block;
+      color: var(--text);
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    /* ── Collapsible panel ── */
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      padding-bottom: 4px;
+    }
+    .panel-header h2 { margin: 0; }
+    .panel-header:hover h2 { color: var(--active); }
+    .toggle-arrow { font-size: 0.9em; color: var(--muted); transition: transform 0.2s; line-height: 1; }
+    .panel-collapsed > .panel-header .toggle-arrow { transform: rotate(-90deg); }
+    .panel-body { margin-top: 12px; }
+    .panel-collapsed .panel-body { display: none; }
+    .panel-hint { font-size: 0.8rem; font-weight: 400; color: var(--muted); margin-left: 4px; white-space: nowrap; }
+
+    /* ── Temperature presets ── */
+    .temp-presets { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+    .tpb {
+      background: var(--active-soft); border: 1px solid var(--border); color: var(--active);
+      border-radius: 5px; padding: 2px 7px; font-size: 0.75rem; cursor: pointer; font-weight: 600;
+    }
+    .tpb:hover { background: var(--active); color: #fff; }
+
+    /* ── Field hints ── */
+    .field-hint { font-size: 0.73rem; color: var(--muted); margin-top: 2px; line-height: 1.3; }
+
+    /* ── Plot toolbar ── */
+    .plot-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .btn-popup {
+      background: var(--active-soft); border: 1px solid var(--border); color: var(--active);
+      border-radius: 6px; padding: 5px 12px; font-size: 0.85rem; cursor: pointer; font-weight: 600;
+    }
+    .btn-popup:hover { background: var(--active); color: #fff; }
+    .btn-popup.is-on {
+      background: var(--active-soft);
+      color: var(--active);
+      border-color: color-mix(in srgb, var(--active) 35%, var(--border));
+    }
+    .btn-popup.is-off {
+      background: color-mix(in srgb, var(--panel) 75%, white 25%);
+      color: var(--muted);
+      border-color: var(--border);
+    }
+
+    .plot-toolbar label.toggle-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--panel) 82%, white 18%);
+      font-size: 0.82rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .plot-toolbar select.toolbar-select {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--panel) 84%, white 16%);
+      color: var(--text);
+      padding: 5px 9px;
+      font-size: 0.82rem;
+    }
+
+    .panel-summary-strip {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--active-soft) 55%, var(--panel));
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .math-note {
+      margin-top: 6px;
+      padding: 8px 10px;
+      border-left: 3px solid var(--active);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--active-soft) 35%, var(--panel));
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    /* ── Reset button ── */
+    .btn-reset {
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      border-radius: 6px; padding: 8px 14px; font-size: 0.9rem; cursor: pointer;
+    }
+    .btn-reset:hover { border-color: var(--warn); color: var(--warn); }
+
+    /* ── Eval details ── */
+    details.eval-details > summary {
+      cursor: pointer; font-weight: 600; color: var(--active); font-size: 0.9rem;
+      padding: 4px 0; user-select: none; list-style: none;
+    }
+    details.eval-details > summary::before { content: '▶ '; font-size: 0.8em; }
+    details.eval-details[open] > summary::before { content: '▼ '; }
+
+    /* ── Method comparison enhancements ── */
+    .cmp-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 0.86rem;
+      color: var(--text);
+    }
+    .cmp-summary > div {
+      background: var(--active-soft);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 9px;
+    }
+    .cmp-bars {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .cmp-bar-row {
+      display: grid;
+      grid-template-columns: 170px 1fr 84px;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+    }
+    .cmp-bar-track {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .cmp-bar { height: 100%; }
+    .cmp-bar.pos { background: #22c55e; }
+    .cmp-bar.neg { background: #f97316; }
+    .cmp-bar.ref { background: #94a3b8; }
+
+    /* ── WIP badge ── */
+    .wip-badge {
+      display: inline-block;
+      margin-left: 8px;
+      background: #fde68a;
+      color: #92400e;
+      border: 1px solid #f59e0b;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+
+    /* ── Fixed 16:9 landscape layout ── */
+    body.layout-fixed { max-width: 1600px; min-width: 1200px; margin-left: auto; margin-right: auto; }
+
+    /* ── Quick nav bar ── */
+    .nav-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.85rem; }
+    .nav-bar strong { color: var(--muted); font-size: 0.78rem; margin-right: 2px; }
+    .nav-bar .back-link { margin-bottom: 0; }
+
+    /* ── Plot square toggle ── */
+    #mainPlot { min-height: 300px; }
+    #mainPlotNormalized { min-height: 300px; }
+    #mainPlot.plot-square { aspect-ratio: 1 / 1; }
+
+    /* ── Comparison multi-select ── */
+    #compMaterialSelect option:checked { background: var(--active-soft); }
+
+    @media (max-width: 900px) {
+      body { padding-top: 138px; }
+      .floating-controls {
+        top: 10px;
+        width: calc(100vw - 12px);
+        gap: 8px;
+        padding: 0 6px;
+      }
+      .floating-toggle-btn {
+        max-width: none;
+        width: calc(50% - 4px);
+        padding: 8px 10px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-controls">
+    <button class="floating-toggle-btn theme-toggle-btn" onclick="toggleTheme()">
+      <span id="theme-icon">🌙</span> <span id="theme-label">Theme: Light</span>
+    </button>
+    <button class="floating-toggle-btn layout-toggle-btn" id="layoutToggleBtn" onclick="toggleLayout()" title="Toggle fixed 16:9 landscape viewport (max-width: 1600px, centred). Good for laptop screens.">&#x1F4D0; Fixed View</button>
+  </div>
+
+  <a href="index.html" class="back-link">← Back to Version Selector</a>
+  <div class="nav-bar" style="margin-top:10px;margin-bottom:4px;">
+    <strong>Navigate:</strong>
+    <a href="files.html" class="back-link">📁 File Browser</a>
+    <a href="html_preview_hub.html" class="back-link">🌐 HTML Preview Hub</a>
+    <a href="visual_key.yaml" class="back-link">🔑 Visual Key</a>
+    <a href="index.html" class="back-link">🏠 Version Selector</a>
+  </div>
+  <div class="nav-bar" style="margin-bottom:16px;">
+    <strong>Jump to:</strong>
+    <a href="#controlsPanel" class="back-link">⚙ Controls</a>
+    <a href="#quickOutputsPanel" class="back-link">📊 Outputs</a>
+    <a href="#b1Panel" class="back-link">B1 Plot</a>
+    <a href="#cursorPinsPanel" class="back-link">📍 Pins</a>
+    <a href="#b2Panel" class="back-link">B2 Integration</a>
+    <a href="#b3Panel" class="back-link">B3 Rate</a>
+    <a href="#b4Panel" class="back-link">B4 Normalized</a>
+    <a href="#exportPanel" class="back-link">📤 Export</a>
+  </div>
+  
+  <h1>
+    Cryogenic Material Property Dashboard 
+    <span class="note">v0.4.9</span>
+    <span class="version-badge">MODULAR</span>
+  </h1>
+
+  <!-- Temperature presets datalist -->
+  <datalist id="tempPresets">
+    <option value="1">1 K — superfluid He</option>
+    <option value="4">4 K — liquid He boil</option>
+    <option value="10">10 K</option>
+    <option value="20">20 K — liquid H₂</option>
+    <option value="40">40 K</option>
+    <option value="60">60 K</option>
+    <option value="77">77 K — liquid N₂</option>
+    <option value="100">100 K</option>
+    <option value="120">120 K</option>
+    <option value="150">150 K</option>
+    <option value="200">200 K</option>
+    <option value="250">250 K</option>
+    <option value="273">273 K — ice point</option>
+    <option value="293">293 K — room temp ref</option>
+    <option value="300">300 K</option>
+  </datalist>
+
+  <div class="panel" id="controlsPanel">
+    <div class="panel-header" onclick="toggleControls()">
+      <span class="toggle-arrow" id="controlsArrow">▼</span>
+      <h2 style="margin:0;">Global Controls</h2>
+      <span class="panel-hint" id="controlsSummary">Material · Property · T range · Method</span>
+    </div>
+    <div class="panel-body controls" id="controlsBody">
+      <div>
+        <label for="materialSelect">Material</label>
+        <select id="materialSelect"></select>
+      </div>
+
+      <div>
+        <label for="propertySelect">Property</label>
+        <select id="propertySelect">
+          <option value="k">Thermal Conductivity k(T)</option>
+          <option value="cp">Specific Heat cp(T)</option>
+          <option value="tc">Thermal Contraction Y(T)</option>
+        </select>
+      </div>
+
+      <div>
+        <details open style="margin-top:2px;">
+          <summary style="cursor:pointer;font-size:0.85rem;color:var(--active);user-select:none;list-style:none;" title="Select additional materials to overlay on B1 for visual comparison. Hold Ctrl/Cmd to select multiple.">+ Comparison overlays on B1 (optional)</summary>
+          <div style="margin-top:6px;">
+            <label for="compViewMode" style="font-size:0.78rem;font-weight:600;color:var(--muted);margin-bottom:2px;display:block;">📊 B1 display mode — how to show overlays:</label>
+            <select id="compViewMode" style="width:100%;font-size:0.82rem;margin-bottom:6px;" title="Raw shows actual values on B1 — when materials differ in magnitude, low-value curves appear flat. Normalized scales each material to its own peak (0–1) so shapes are directly comparable. Split shows both views side by side.">
+              <option value="raw" selected>Raw values — actual units (scale dominates)</option>
+              <option value="normalized">Normalized — each material peak = 1 (shape comparison)</option>
+              <option value="split">Split view: raw + normalized panels</option>
+            </select>
+            <select id="compMaterialSelect" multiple size="6" style="width:100%;font-size:0.82rem;" title="Hold Ctrl/Cmd to select up to 4 comparison materials. Primary selected material is always shown as solid line."></select>
+            <div id="compSelectionStatus" class="field-hint">Select up to 4 comparisons for B1. Solid = primary; dashed = overlays. <em>B4 uses its own built-in reference set (SS / Al / Ti / Cu / Composite) — independent of this selector.</em></div>
+          </div>
+        </details>
+      </div>
+
+      <div>
+        <label for="Tmin">T cold / Tmin [K]</label>
+        <input id="Tmin" type="number" min="1" max="300" step="any" value="20" list="tempPresets" autocomplete="off" />
+        <div class="temp-presets">
+          <span style="font-size:0.72rem;color:var(--muted);align-self:center;">Presets:</span>
+          <button class="tpb" onclick="setT('Tmin',4)">4 K</button>
+          <button class="tpb" onclick="setT('Tmin',10)">10 K</button>
+          <button class="tpb" onclick="setT('Tmin',20)">20 K</button>
+          <button class="tpb" onclick="setT('Tmin',40)">40 K</button>
+          <button class="tpb" onclick="setT('Tmin',77)">77 K</button>
+        </div>
+      </div>
+
+      <div>
+        <label for="Tmax">T hot / Tmax [K]</label>
+        <input id="Tmax" type="number" min="1" max="300" step="any" value="300" list="tempPresets" autocomplete="off" />
+        <div class="temp-presets">
+          <span style="font-size:0.72rem;color:var(--muted);align-self:center;">Presets:</span>
+          <button class="tpb" onclick="setT('Tmax',100)">100 K</button>
+          <button class="tpb" onclick="setT('Tmax',150)">150 K</button>
+          <button class="tpb" onclick="setT('Tmax',200)">200 K</button>
+          <button class="tpb" onclick="setT('Tmax',293)">293 K</button>
+          <button class="tpb" onclick="setT('Tmax',300)">300 K</button>
+        </div>
+      </div>
+
+      <div>
+        <label for="nsteps">Integration Steps
+          <span title="Number of sub-intervals for numerical integration. Higher = more accurate for curved properties. 100 is sufficient for most cases; use 500+ for very steep profiles." style="cursor:help;color:var(--muted);font-weight:400;">ⓘ</span>
+        </label>
+        <input id="nsteps" type="number" min="10" max="1000" step="10" value="100" />
+        <div class="field-hint">Affects integration accuracy — not plot resolution. 100 is default.</div>
+      </div>
+
+      <div>
+        <label for="plotPoints">Plot Curve Points
+          <span title="Number of T points rendered in the property curve. Higher = smoother line. Does NOT affect integration accuracy; only visual density." style="cursor:help;color:var(--muted);font-weight:400;">ⓘ</span>
+        </label>
+        <input id="plotPoints" type="number" min="10" max="2000" step="10" value="200" />
+        <div class="field-hint">Affects plot smoothness only — not numerical results.</div>
+      </div>
+
+      <div>
+        <label for="integrationMethod">Integration Method</label>
+        <select id="integrationMethod">
+          <option value="trapezoid">Trapezoid</option>
+          <option value="simpson">Simpson's 1/3</option>
+          <option value="romberg">Romberg</option>
+          <option value="gauss">Gauss-Legendre (4-pt)</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div>
+          <label for="areaInput">Area A [m²]</label>
+          <input id="areaInput" type="number" min="0" step="0.0001" value="0.001" />
+        </div>
+        <div>
+          <label for="lengthInput">Length L [m]</label>
+          <input id="lengthInput" type="number" min="0" step="0.01" value="1" />
+        </div>
+      </div>
+
+      <div>
+        <label for="massInput">Mass [kg]</label>
+        <input id="massInput" type="number" min="0" step="0.1" value="1" />
+      </div>
+
+      <div id="knownLengthGroup" style="display:none;">
+        <label for="knownLengthInput">Known Length [m]
+          <span title="Reference specimen length for thermal contraction calculation. Only relevant for Y(T) property." style="cursor:help;color:var(--muted);font-weight:400;">ⓘ</span>
+        </label>
+        <input id="knownLengthInput" type="number" min="0" step="0.0001" value="1" />
+      </div>
+
+      <div id="lengthReferenceGroup" style="display:none;">
+        <label for="lengthReferenceSelect">Known Length Reference</label>
+        <select id="lengthReferenceSelect">
+          <option value="L293">Length is L293 (reference at 293 K)</option>
+          <option value="T1">Length is actual length at T1</option>
+        </select>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;margin-top:4px;">
+        <button id="calculateBtn" title="Run calculation with current inputs. Results update automatically when you press Calculate.">▶ Calculate</button>
+        <button class="btn-reset" id="resetBtn" title="Reset all inputs to defaults and recalculate.">↺ Reset</button>
+        <div id="calcError" style="color:#ef4444;font-size:0.85rem;margin-top:4px;min-height:1.2em;flex-basis:100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="quickOutputsPanel" title="Quick calculation outputs for the current inputs and selected method.">
+    <h2>Quick Outputs</h2>
+    <div id="quickOutputs" class="quick-kpis"></div>
+  </div>
+
+  <div class="panel" id="b1Panel" title="Plot of the currently selected property across the chosen temperature range.">
+    <h2>Selected Property vs Temperature</h2>
+    <div class="plot-toolbar">
+      <label title="Y minimum: leave blank for Plotly auto-range (fits to data). Enter a value to lock the lower bound.">Y min: <input type="number" id="yAxisMin" style="width:70px;" placeholder="auto"></label>
+      <label title="Y maximum: leave blank for Plotly auto-range. Enter a value to lock the upper bound.">Y max: <input type="number" id="yAxisMax" style="width:70px;" placeholder="auto"></label>
+      <label class="toggle-chip" title="Apply log scale to the temperature (x) axis. Useful for wide ranges (e.g. 4–300 K) to show low-T detail clearly."><input type="checkbox" id="logTempAxis"> Log T (x)</label>
+      <label class="toggle-chip" title="Apply log scale to the property (y) axis when every visible value is positive. If any visible curve is zero or negative, the plot stays linear."><input type="checkbox" id="logValueAxis"> Log value (y)</label>
+      <button id="downloadPlotBtn">⬇ PNG</button>
+      <button class="btn-popup" id="legendToggleB1" data-visible="true" onclick="toggleLegend('mainPlot', this)" title="Show or hide the plot legend">👁 Legend</button>
+      <button class="btn-popup" id="squareToggleB1" onclick="togglePlotAspect('mainPlot', this)" title="Toggle between landscape (wide) and square aspect ratio">□ Square</button>
+      <button class="btn-popup" onclick="openPlotPopup('mainPlot','Property vs Temperature')">⛶ Landscape View / PDF</button>
+    </div>
+    <div class="field-hint" style="margin-bottom:4px;">Y-axis: blank = auto-scale to data · enter value to lock range · use mouse scroll/drag to zoom/pan on plot · double-click to reset zoom. Log T opens low-temperature detail; log value only applies when all visible values stay positive.</div>
+    <div id="b1AxisModeNote" class="panel-summary-strip">Scale mode: X linear · Y linear.</div>
+    <div id="mainPlot"></div>
+  </div>
+
+  <div class="panel" id="b1NormalizedPanel" style="display:none;" title="Normalized comparison view for B1 overlays.">
+    <h2>B1N — Normalized Comparison View</h2>
+    <div class="field-hint" style="margin-bottom:6px;">Each visible B1 curve is scaled by its own max absolute value over the current range: y_norm = y / max(|y|). Use for shape comparison.</div>
+    <div id="mainPlotNormalized"></div>
+  </div>
+
+  <div class="panel" id="cursorPinsPanel">
+    <h2 title="Click anywhere on the main plot to pin up to 3 reference points. Pins survive re-calculate if the material/range is unchanged. Export pinned points to CSV.">📍 Cursor Pins <span style="font-weight:400;font-size:0.85rem;color:var(--muted);">— click main plot to pin · max 3</span></h2>
+    <div id="cursorPinsTable"><p style="color:var(--muted);font-size:0.9rem;">Click on the main plot curve to pin up to 3 reference points.</p></div>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button id="exportPinsCsvBtn" disabled title="Export pinned T / value / cumulative integral to CSV">⬇ Export Pins CSV</button>
+      <button id="clearPinsBtn" title="Remove all pinned points">🗑 Clear Pins</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <details class="eval-details" open>
+      <summary>Evaluation Points <span style="font-weight:400;color:var(--muted);font-size:0.85rem;">— T1 &amp; T2 always included</span></summary>
+      <div id="evalTable" style="margin-top:10px;"></div>
+    </details>
+  </div>
+
+  <div class="panel panel-collapsed" id="integrationResultsPanel">
+    <div class="panel-header" onclick="togglePanel('integrationResultsPanel')">
+      <span class="toggle-arrow">▼</span>
+      <h2 title="Integral of the selected property over the chosen temperature range.">Integration Results</h2>
+      <span class="panel-hint" id="integrationResultsSummary">Collapsed until needed · active method summary appears here.</span>
+    </div>
+    <div class="panel-body">
+      <div class="result-mode-toggle" id="resultModeToggle" role="radiogroup" aria-label="Result display mode">
+        <label><input type="radio" name="resultMode" value="single" checked> Single Method</label>
+        <label><input type="radio" name="resultMode" value="compare"> Compare All</label>
+      </div>
+      <div id="integrationResults"></div>
+    </div>
+  </div>
+
+  <div class="panel panel-collapsed" id="deltaSummaryPanel">
+    <div class="panel-header" onclick="togglePanel('deltaSummaryPanel')">
+      <span class="toggle-arrow">▼</span>
+      <h2 title="Endpoint difference and active-method integral for the selected property over the current temperature range.">Delta Summary</h2>
+      <span class="panel-hint" id="deltaSummaryHint">Collapsed until needed · engineering delta summary appears here.</span>
+    </div>
+    <div class="panel-body">
+      <div id="deltaSummary"></div>
+    </div>
+  </div>
+  
+  <div class="panel" id="methodComparisonPanel">
+    <h2>Integration Method Comparison</h2>
+    <div id="methodComparisonResults"></div>
+  </div>
+
+  <div class="panel" title="Mass-based energy output applies to cp(T). For k(T), this panel explains that energy is not derived from conductivity alone.">
+    <h2>Energy Calculation (with mass)</h2>
+    <div id="energyResults"></div>
+  </div>
+
+  <div class="panel" id="b2Panel" title="Cumulative integral of the selected property from T1 to T over the chosen range.">
+    <h2>Selected Property Over Temperature Range</h2>
+    <div class="plot-toolbar">
+      <button class="btn-popup" id="legendToggleB2" data-visible="true" onclick="toggleLegend('integrationPlot', this)" title="Show or hide the plot legend">👁 Legend</button>
+      <button class="btn-popup" onclick="openPlotPopup('integrationPlot','Cumulative Integration Plot')">⛶ Landscape View / PDF</button>
+    </div>
+    <div id="integrationPlot"></div>
+  </div>
+
+  <div class="panel" id="b3Panel" title="Rate-of-change view (B3): derivative of selected property vs temperature with knee indicator.">
+    <h2>B3 — Rate of Change / Knee Indicator</h2>
+    <div class="plot-toolbar">
+      <button class="btn-popup" id="legendToggleB3" data-visible="true" onclick="toggleLegend('ratePlot', this)" title="Show or hide the plot legend">👁 Legend</button>
+      <button class="btn-popup" onclick="openPlotPopup('ratePlot','B3 Rate of Change Plot')">⛶ Landscape View / PDF</button>
+    </div>
+    <div class="math-note">B3 plots the first derivative $dy/dT$. The knee marker is estimated from the strongest local change in slope, using a central finite-difference approximation of $|d^2y/dT^2|$. A separate $dy/dT = 0$ marker is also useful when present, because it marks a stationary point of the original curve $y(T)$, such as a local maximum or minimum.</div>
+    <div id="ratePlot"></div>
+  </div>
+
+  <div class="panel" id="b4Panel" title="B4 normalized benchmark view: selected curve, cumulative integral, and |rate| normalized to 0..1 with equal scale references across SS/Al/Ti/Cu/Composite.">
+    <h2 id="b4Heading">B4 — Normalized Benchmark for Current Property (Equal Scale)</h2>
+    <div class="plot-toolbar">
+      <button class="btn-popup" id="legendToggleB4" data-visible="true" onclick="toggleLegend('normalizedPlot', this)" title="Show or hide the plot legend">👁 Legend</button>
+      <label class="toggle-chip" title="Normalize using absolute magnitude. Turn off to keep signed normalized shapes."><input type="checkbox" id="b4AbsoluteToggle" checked> Absolute values</label>
+      <label class="toggle-chip" title="Apply log scale to the B4 temperature axis. Useful for low-temperature shape comparison."><input type="checkbox" id="b4LogXAxis"> Log T (x)</label>
+      <label class="toggle-chip" title="Selected material always shows value, cumulative, and rate. Reference materials can show all three, or only one family.">References
+        <select id="b4ReferenceMode" class="toolbar-select">
+          <option value="all" selected>All</option>
+          <option value="value">Value only</option>
+          <option value="cumulative">Cumulative only</option>
+          <option value="rate">Rate only</option>
+        </select>
+      </label>
+      <button class="btn-popup" onclick="openPlotPopup('normalizedPlot','B4 Normalized Benchmark Plot')">⛶ Landscape View / PDF</button>
+    </div>
+    <div class="field-hint" style="margin-bottom:6px;">Selected material always shows normalized value, cumulative integral, and rate traces. Reference materials follow the selector above, so the legend can stay readable when overlays increase. <strong>B4 references (SS / Al / Ti / Cu / Composite) are independent of the B1 comparison overlay selector.</strong> Hover any point to see both the normalized value (0–1) and the actual physical value.</div>
+    <div id="normalizedPlot"></div>
+    <div id="normalizedSummary" class="field-hint" style="margin-top:8px;">Run Calculate to generate normalized benchmark view.</div>
+  </div>
+
+  <div class="panel" id="exportPanel">
+    <h2>Export</h2>
+    <button id="exportCsvBtn">Export CSV</button>
+    <button id="exportJsonBtn">Export JSON</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 10px;max-width:760px;">
+      <div>
+        <label for="plotsVisualPreset">B1/B2 Visual Preset</label>
+        <select id="plotsVisualPreset" title="Default visual sizing preset for B1/B2 full-page exports.">
+          <option value="golden" selected>Golden Ratio (default)</option>
+          <option value="fibonacci">Fibonacci 8:5</option>
+          <option value="equal">Equal / Block 1:1</option>
+        </select>
+      </div>
+      <div>
+        <label for="plotsScaleMode">B1/B2 Export Scale</label>
+        <select id="plotsScaleMode" title="Exports always preserve the live B1 x-axis. This selector controls whether B1 y also follows the live plot or is forced back to linear.">
+          <option value="follow-live" selected>Follow live B1 X/Y</option>
+          <option value="force-linear-y">Follow live B1 X, force Y linear</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-hint" style="margin-bottom:6px;">Publication exports use vector SVG plots for legibility. B1/B2 are exported together; B3 has a dedicated page export.</div>
+    <div class="field-hint" style="margin-bottom:6px;">🌓 Theme preview: export follows active theme at click-time · 📐 Preset changes visual hierarchy: Golden = dominant B1, Fibonacci = tighter but still hierarchical, Equal/Block = balanced comparison</div>
+    <div class="field-hint" style="margin-bottom:10px;">📊 Export scale text is explicit: X scale and Y scale are labelled separately so log-x, log-y, and double-log views are unambiguous in the output pages.</div>
+    <button class="btn-popup" onclick="openDashboardPagePopup()">🧾 Dashboard Page PDF (A4)</button>
+    <button class="btn-popup" onclick="openPlotsLandscapePagePopup()">🖼 B1+B2 Full Page (A4 Landscape)</button>
+    <button class="btn-popup" onclick="openPlotsPortraitPagePopup()">🖼 B1+B2 Full Page (A4 Portrait)</button>
+    <button class="btn-popup" onclick="openB3RatePagePopup()">🖼 B3 Rate Plot Page (A4 Landscape)</button>
+    <button class="btn-popup" onclick="openSlideLandscapePopup()">🎞 Single Slide (16:9 Landscape)</button>
+  </div>
+
+  <div class="panel" title="Active NIST equation form and coefficients for the selected material and property.">
+    <h2>Active NIST Equation &amp; Coefficients</h2>
+    <pre id="equationPanel" style="font-size:12px;white-space:pre-wrap;margin:0;">Select a material to view equation.</pre>
+  </div>
+
+  <div class="panel">
+    <h2>Layered Wall Screening <span class="wip-badge">WORK IN PROGRESS</span></h2>
+    <p style="font-size:12px;margin:0 0 8px 0;">Low-priority placeholder panel for future layered-wall engineering effort. Current output is preliminary series-resistance screening only.</p>
+    <table>
+      <thead><tr><th>Layer</th><th>Material</th><th>L [m]</th><th>A [m²]</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><select id="layMat1"></select></td><td><input id="layL1" type="number" value="0.01" step="0.001" min="0" style="width:80px"></td><td><input id="layA1" type="number" value="0.001" step="0.0001" min="0" style="width:80px"></td></tr>
+        <tr><td>2</td><td><select id="layMat2"></select></td><td><input id="layL2" type="number" value="0.02" step="0.001" min="0" style="width:80px"></td><td><input id="layA2" type="number" value="0.001" step="0.0001" min="0" style="width:80px"></td></tr>
+        <tr><td>3</td><td><select id="layMat3"></select></td><td><input id="layL3" type="number" value="0" step="0.001" min="0" style="width:80px"></td><td><input id="layA3" type="number" value="0.001" step="0.0001" min="0" style="width:80px"></td></tr>
+      </tbody>
+    </table>
+    <button id="calcLayersBtn" style="margin-top:8px;">Calculate Layers</button>
+    <div class="kpis" style="margin-top:10px;flex-wrap:wrap;gap:8px;">
+      <div class="kpi"><span class="small">Qdot [W]</span><b id="layerQ">—</b></div>
+      <div class="kpi"><span class="small">Total R [K/W]</span><b id="layerR">—</b></div>
+      <div class="kpi"><span class="small">Status</span><b id="layerStatus">—</b></div>
+      <div class="kpi"><span class="small">Type</span><b>screening</b></div>
+    </div>
+    <pre id="layerRows" style="font-size:12px;white-space:pre-wrap;margin-top:8px;">—</pre>
+  </div>
+
+  <div class="panel" id="vbaAuditPanel" style="display:none;" title="Known discrepancies between NIST reference values and legacy VBA implementation.">
+    <h2>VBA / NIST Audit Notes</h2>
+    <table>
+      <thead><tr><th>Item</th><th>Status</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>AISI316 k/cp</td><td class="ok">PASS</td><td>Coefficients and 50 K cp piecewise split match NIST.</td></tr>
+        <tr><td>OFHC Copper k/cp</td><td class="ok">PASS</td><td>RRR 50/100/150/300/500 k and shared cp match NIST. Copper k uses rational log₁₀ form.</td></tr>
+        <tr><td>G-10 Normal/Warp k and cp</td><td class="ok">PASS</td><td>Coefficients match NIST. k ranges differ: Normal 10–300 K, Warp 12–300 K.</td></tr>
+        <tr><td>Ti-6Al-4V k</td><td class="warning">LEGACY VBA BUG</td><td>NIST coefficients are correct in this baseline. Legacy VBA branch may not execute due to case-sensitivity error; i coefficient is 0 (correct).</td></tr>
+        <tr><td>Al6061-T6 k</td><td class="warning">LEGACY VBA MISMATCH</td><td>This baseline is NIST-correct (a = 0.07918). Legacy VBA used 0.7918 (likely typo), which significantly changes k.</td></tr>
+        <tr><td>Integration</td><td class="warning">INFO</td><td>Baseline supports Trapezoid, Simpson, Romberg, Gauss-Legendre. For closest NIST comparison use Trapezoid.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>Debug Panel <label style="font-size:13px;font-weight:normal;margin-left:10px;"><input type="checkbox" id="debugMode"> Show debug info</label></h2>
+    <div id="debugPanel"></div>
+  </div>
+
+  <script type="module">
+    import { initApp } from './js/app_modular.js?v=20260505d';
+    
+    window.addEventListener('DOMContentLoaded', () => {
+      initApp();
+      
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      document.getElementById('theme-icon').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+      document.getElementById('theme-label').textContent = savedTheme === 'dark' ? 'Theme: Dark' : 'Theme: Light';
+    });
+    
+    window.toggleTheme = function() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      document.getElementById('theme-icon').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+      document.getElementById('theme-label').textContent = newTheme === 'dark' ? 'Theme: Dark' : 'Theme: Light';
+      localStorage.setItem('theme', newTheme);
+      window._appRefreshPlot?.();
+    };
+
+    // ── Collapsible controls ──────────────────────────────────
+    window.toggleControls = function() {
+      const panel = document.getElementById('controlsPanel');
+      const arrow = document.getElementById('controlsArrow');
+      const summary = document.getElementById('controlsSummary');
+      const body = document.getElementById('controlsBody');
+      const collapsed = body.style.display === 'none';
+      body.style.display = collapsed ? '' : 'none';
+      arrow.style.transform = collapsed ? '' : 'rotate(-90deg)';
+      const mat = document.getElementById('materialSelect');
+      const prop = document.getElementById('propertySelect');
+      const t1 = document.getElementById('Tmin');
+      const t2 = document.getElementById('Tmax');
+      summary.textContent = collapsed
+        ? 'Material · Property · T range · Method'
+        : `${mat?.options[mat.selectedIndex]?.text?.split('(')[0]?.trim() || '—'} · ${prop?.options[prop.selectedIndex]?.text?.split('(')[0]?.trim() || '—'} · ${t1?.value||'?'}–${t2?.value||'?'} K`;
+    };
+
+    // ── Temperature preset buttons ────────────────────────────
+    window.setT = function(id, val) {
+      document.getElementById(id).value = val;
+    };
+
+    // ── Fixed 16:9 layout toggle ──────────────────────────────
+    window.toggleLayout = function() {
+      const btn = document.getElementById('layoutToggleBtn');
+      const isFixed = document.body.classList.toggle('layout-fixed');
+      if (btn) {
+        btn.classList.toggle('active', isFixed);
+        btn.innerHTML = isFixed ? '&#x1F4D0; Fixed &#x2713;' : '&#x1F4D0; Fixed View';
+      }
+      localStorage.setItem('layoutFixed', isFixed ? '1' : '0');
+    };
+    // Restore fixed layout on page load
+    if (localStorage.getItem('layoutFixed') === '1') {
+      document.body.classList.add('layout-fixed');
+      const btn = document.getElementById('layoutToggleBtn');
+      if (btn) { btn.classList.add('active'); btn.innerHTML = '&#x1F4D0; Fixed &#x2713;'; }
+    }
+
+    window.togglePanel = function(panelId) {
+      const panel = document.getElementById(panelId);
+      if (!panel) return;
+      panel.classList.toggle('panel-collapsed');
+    };
+
+    function syncLegendButton(btn, isVisible) {
+      if (!btn) return;
+      btn.dataset.visible = String(isVisible);
+      btn.classList.toggle('is-on', isVisible);
+      btn.classList.toggle('is-off', !isVisible);
+      btn.innerHTML = isVisible ? '\ud83d\udc41 Legend: ON' : '\ud83d\udc41 Legend: OFF';
+    }
+
+    // ── Legend toggle ─────────────────────────────────────────
+    window.toggleLegend = function(divId, btn) {
+      const el = document.getElementById(divId);
+      if (!el || !el.data) return;
+      const isVisible = btn.dataset.visible !== 'false';
+      Plotly.relayout(divId, { showlegend: !isVisible });
+      syncLegendButton(btn, !isVisible);
+    };
+
+    document.querySelectorAll('[id^="legendToggle"]').forEach(function(btn) {
+      syncLegendButton(btn, btn.dataset.visible !== 'false');
+    });
+
+    // ── Plot aspect ratio toggle (square ↔ landscape) ─────────
+    window.togglePlotAspect = function(divId, btn) {
+      const el = document.getElementById(divId);
+      if (!el) return;
+      const isSquare = el.classList.toggle('plot-square');
+      btn.textContent = isSquare ? '\u25a4 Long' : '\u25a1 Square';
+      if (el.data) Plotly.relayout(divId, {});
+    };
+
+    // ── Known Length: show only for Thermal Contraction ───────
+    function updateKnownLengthVisibility() {
+      const prop = document.getElementById('propertySelect')?.value;
+      const show = prop === 'tc';
+      document.getElementById('knownLengthGroup').style.display = show ? '' : 'none';
+      document.getElementById('lengthReferenceGroup').style.display = show ? '' : 'none';
+    }
+    document.getElementById('propertySelect')?.addEventListener('change', updateKnownLengthVisibility);
+    updateKnownLengthVisibility();
+
+    // ── Reset to defaults ─────────────────────────────────────
+    document.getElementById('resetBtn')?.addEventListener('click', function() {
+      document.getElementById('Tmin').value = 20;
+      document.getElementById('Tmax').value = 300;
+      document.getElementById('nsteps').value = 100;
+      document.getElementById('plotPoints').value = 200;
+      document.getElementById('areaInput').value = 0.001;
+      document.getElementById('lengthInput').value = 1;
+      document.getElementById('massInput').value = 1;
+      document.getElementById('knownLengthInput').value = 1;
+      document.getElementById('integrationMethod').value = 'trapezoid';
+      document.getElementById('yAxisMin').value = '';
+      document.getElementById('yAxisMax').value = '';
+      document.getElementById('calculateBtn').click();
+    });
+
+    // ── Landscape plot popup (PNG → new window) ───────────────
+    window.openPlotPopup = function(plotDivId, title) {
+      const el = document.getElementById(plotDivId);
+      if (!el || !window.Plotly) { alert('Plot not yet rendered — calculate first.'); return; }
+      const opts = getPlotsExportOptions();
+      const liveMainYType = el.layout?.yaxis?.type === 'log' ? 'log' : 'linear';
+      const exportMainYType = plotDivId === 'mainPlot'
+        ? (opts.scaleMode === 'force-linear-y' ? 'linear' : liveMainYType)
+        : null;
+
+      clonePlotImageWithMode(plotDivId, 1400, 700, exportMainYType, 'png', true).then(function(url) {
+        const w = window.open('', '_blank', 'width=1250,height=780,resizable=yes,scrollbars=yes');
+        if (!w) { alert('Pop-up blocked. Allow pop-ups for this page and try again.'); return; }
+        const ts = new Date().toISOString().slice(0,16).replace('T',' ');
+        w.document.write(`<!DOCTYPE html><html><head><meta charset='UTF-8'><title>${title}</title>
+<style>
+  body{margin:0;background:#fff;font-family:Segoe UI,sans-serif;display:flex;flex-direction:column;min-height:100vh;}
+  .toolbar{padding:10px 16px;border-bottom:1px solid #ddd;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#f8fafc;}
+  .toolbar strong{font-size:1rem;flex:1;}
+  .toolbar span{font-size:0.78rem;color:#666;}
+  button{padding:7px 14px;border-radius:6px;border:1px solid #ccc;cursor:pointer;font-size:0.85rem;background:#fff;}
+  button:hover{background:#1f6feb;color:#fff;border-color:#1f6feb;}
+  .img-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:12px;}
+  img{max-width:100%;border:1px solid #e5e7eb;border-radius:4px;}
+  @media print{
+    .toolbar{display:none;}
+    body{margin:0;}
+    img{width:100%;max-width:none;border:none;}
+  }
+</style></head><body>
+<div class='toolbar'>
+  <strong>${title}</strong>
+  <span>${ts}</span>
+  <button onclick='safePrint()'>🖨 Print / Save PDF</button>
+  <a href='${escapeHtml(url)}' download='${title.replace(/[^a-z0-9]/gi,"_")}.png' style='text-decoration:none;'><button>⬇ Download PNG</button></a>
+  <button onclick='openImageTab()'>↗ Open Image Tab</button>
+  <button onclick='window.close()'>✕ Close</button>
+</div>
+<div class='img-wrap'><img src='${escapeHtml(url)}' alt='${escapeHtml(title)}' /></div>
+<script>
+  const __IMG_URL__ = '${escapeHtml(url)}';
+  function safePrint() {
+    try {
+      window.focus();
+      setTimeout(function() { window.print(); }, 40);
+    } catch (_) {
+      openImageTab();
+    }
+  }
+  function openImageTab() {
+    window.open(__IMG_URL__, '_blank', 'noopener,noreferrer');
+  }
+<\/script>
+</body></html>`);
+        w.document.close();
+      }).catch(function() { alert('Could not render plot image. Make sure a calculation has been run first.'); });
+    };
+
+    // ── Single-page dashboard export (2x2 A4 portrait) ────────
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, function(ch) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+      });
+    }
+
+    window.openDashboardPagePopup = function() {
+      const mainPlotEl = document.getElementById('mainPlot');
+      const integrationPlotEl = document.getElementById('integrationPlot');
+      if (!mainPlotEl || !integrationPlotEl || !window.Plotly) {
+        alert('Plots are not available yet. Run Calculate first.');
+        return;
+      }
+
+      const matSel = document.getElementById('materialSelect');
+      const propSel = document.getElementById('propertySelect');
+      const modeSel = document.querySelector('input[name="resultMode"]:checked');
+      const controlsState = document.getElementById('controlsBody')?.style?.display === 'none' ? 'Collapsed' : 'Expanded';
+
+      const controlRows = [
+        ['Material', matSel?.options?.[matSel.selectedIndex]?.text || '—'],
+        ['Property', propSel?.options?.[propSel.selectedIndex]?.text || '—'],
+        ['T range [K]', `${document.getElementById('Tmin')?.value || '?'} to ${document.getElementById('Tmax')?.value || '?'}`],
+        ['Integration method', document.getElementById('integrationMethod')?.value || '—'],
+        ['Integration steps', document.getElementById('nsteps')?.value || '—'],
+        ['Plot points', document.getElementById('plotPoints')?.value || '—'],
+        ['Area A [m²]', document.getElementById('areaInput')?.value || '—'],
+        ['Length L [m]', document.getElementById('lengthInput')?.value || '—'],
+        ['Mass [kg]', document.getElementById('massInput')?.value || '—'],
+        ['Controls view', controlsState],
+        ['Results mode', modeSel?.value === 'compare' ? 'Compare all methods' : 'Single method']
+      ];
+
+      if ((propSel?.value || '') === 'tc') {
+        controlRows.push(['Known length [m]', document.getElementById('knownLengthInput')?.value || '—']);
+        const lr = document.getElementById('lengthReferenceSelect')?.value;
+        controlRows.push(['Known length reference', lr === 'T1' ? 'Actual at T1' : 'L293 reference']);
+      }
+
+      const quickCards = Array.from(document.querySelectorAll('#quickOutputs .quick-kpi')).map(function(card) {
+        return {
+          label: card.querySelector('.kpi-label')?.textContent?.trim() || 'Metric',
+          value: card.querySelector('.kpi-value')?.textContent?.trim() || '—'
+        };
+      });
+
+      const opts = getPlotsExportOptions();
+      const liveXScale = mainPlotEl.layout?.xaxis?.type === 'log' ? 'log' : 'linear';
+      const liveYScale = mainPlotEl.layout?.yaxis?.type === 'log' ? 'log' : 'linear';
+      const exportYScale = opts.scaleMode === 'force-linear-y' ? 'linear' : liveYScale;
+
+      Promise.all([
+        clonePlotImageWithMode('mainPlot', 1800, 1050, useLogMain, 'svg', true),
+        clonePlotImageWithMode('integrationPlot', 1800, 1050, false, 'svg', true)
+      ]).then(function(images) {
+        const mainUrl = images[0];
+        const integUrl = images[1];
+        const ts = new Date().toISOString().slice(0, 16).replace('T', ' ');
+        const matName = matSel?.options?.[matSel.selectedIndex]?.text || 'Material';
+        const propName = propSel?.options?.[propSel.selectedIndex]?.text || 'Property';
+
+        const controlRowsHtml = controlRows.map(function(row) {
+          return `<div class="kv"><span>${escapeHtml(row[0])}</span><b>${escapeHtml(row[1])}</b></div>`;
+        }).join('');
+
+        const quickRowsHtml = (quickCards.length ? quickCards : [{ label: 'Quick outputs', value: 'Run Calculate to populate values' }]).map(function(row) {
+          return `<div class="kpi"><span>${escapeHtml(row.label)}</span><b>${escapeHtml(row.value)}</b></div>`;
+        }).join('');
+
+        const w = window.open('', '_blank', 'width=1200,height=1600,resizable=yes,scrollbars=yes');
+        if (!w) {
+          alert('Pop-up blocked. Allow pop-ups for this page and try again.');
+          return;
+        }
+
+        const slideName = `dashboard_slide_${matName.replace(/[^a-z0-9]+/gi, '_')}_${(propSel?.value || 'prop')}.svg`;
+        w.document.write(`<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Single Page Dashboard Export</title>
+<style>
+  :root { --ink:#0f172a; --muted:#475569; --line:#cbd5e1; --soft:#e2e8f0; --bg:#f1f5f9; --accent:#1d4ed8; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); font-family:Segoe UI,Arial,sans-serif; color:var(--ink); }
+  .toolbar{ position:sticky; top:0; z-index:5; display:flex; gap:8px; align-items:center; padding:10px 14px; border-bottom:1px solid var(--line); background:#fff; }
+  .toolbar strong{ flex:1; font-size:0.95rem; }
+  .toolbar span{ color:var(--muted); font-size:0.8rem; }
+  button,a.btn{ border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--ink); font-size:0.82rem; padding:6px 12px; text-decoration:none; cursor:pointer; }
+  button:hover,a.btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .page{ width:190mm; height:277mm; margin:10mm auto; background:#fff; border:1px solid #dbe3ee; box-shadow:0 8px 24px rgba(15,23,42,.08); padding:8mm; display:grid; grid-template-rows:auto 1fr; gap:5mm; }
+  .head{ border-bottom:1px solid var(--soft); padding-bottom:3mm; }
+  .title{ font-size:1.06rem; font-weight:700; margin:0 0 2px 0; }
+  .sub{ font-size:0.8rem; color:var(--muted); margin:0; }
+  .grid{ display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:4mm; min-height:0; }
+  .tile{ border:1px solid var(--line); border-radius:7px; padding:3mm; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+  .tile h3{ margin:0 0 2mm 0; font-size:0.87rem; color:var(--accent); }
+  .kv{ display:grid; grid-template-columns:1.3fr 1fr; gap:2mm; border-bottom:1px dashed #e2e8f0; padding:1mm 0; font-size:0.73rem; }
+  .kv span{ color:var(--muted); }
+  .kv b{ text-align:right; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .kpi-grid{ display:grid; grid-template-columns:1fr 1fr; gap:2mm; }
+  .kpi{ border:1px solid #dbeafe; background:#f8fbff; border-radius:6px; padding:2mm; min-height:26px; display:flex; flex-direction:column; justify-content:center; }
+  .kpi span{ font-size:0.68rem; color:var(--muted); line-height:1.1; }
+  .kpi b{ font-size:0.86rem; line-height:1.2; }
+  .plot{ flex:1; min-height:0; display:flex; align-items:center; justify-content:center; border:1px solid #e2e8f0; border-radius:6px; background:#fff; }
+  .plot img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .cap{ margin-top:2mm; padding-top:1mm; border-top:1px solid #e2e8f0; font-size:0.7rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .legend{ margin-top:1mm; font-size:0.69rem; color:var(--muted); }
+  @media print{
+    @page { size:A4 portrait; margin:8mm; }
+    body{ background:#fff; }
+    .toolbar{ display:none; }
+    .page{ width:100%; height:auto; margin:0; border:none; box-shadow:none; padding:0; }
+  }
+</style></head><body>
+<div class='toolbar'>
+  <strong>Single-Page Dashboard Export (A4 Portrait 2x2)</strong>
+  <span>${escapeHtml(ts)}</span>
+  <button onclick='safePrint()'>🖨 Print / Save PDF</button>
+  <button onclick='openStandalone()'>↗ Open Browser Tab</button>
+  <a class='btn' href='${escapeHtml(mainUrl)}' download='main_plot_${(propSel?.value || 'prop')}.svg'>⬇ Main Plot SVG</a>
+  <a class='btn' href='${escapeHtml(integUrl)}' download='integration_plot_${(propSel?.value || 'prop')}.svg'>⬇ Integration Plot SVG</a>
+  <button onclick='window.close()'>✕ Close</button>
+</div>
+
+<div class='page'>
+  <div class='head'>
+    <p class='title'>Cryogenic Dashboard — Single Page Report</p>
+    <p class='sub'>${escapeHtml(matName)} · ${escapeHtml(propName)} · T=${escapeHtml(document.getElementById('Tmin')?.value || '?')}–${escapeHtml(document.getElementById('Tmax')?.value || '?')} K · Generated ${escapeHtml(ts)}</p>
+  </div>
+
+  <div class='grid'>
+    <section class='tile'>
+      <h3>A1. Global Controls Snapshot</h3>
+      ${controlRowsHtml}
+      <div class='cap'>A1 (1): Control state at export time (single-line labeled values)</div>
+    </section>
+
+    <section class='tile'>
+      <h3>A2. Quick Outputs</h3>
+      <div class='kpi-grid'>${quickRowsHtml}</div>
+      <div class='legend'>Values reflect the currently selected method/property at export time.</div>
+      <div class='cap'>A2 (2): Quick KPI values as shown in dashboard</div>
+    </section>
+
+    <section class='tile'>
+      <h3>B1. Property vs Temperature</h3>
+      <div class='plot'><img src='${escapeHtml(mainUrl)}' alt='Main property plot'></div>
+      <div class='cap'>B1 (3): Primary curve with endpoint markers and current y-axis context</div>
+    </section>
+
+    <section class='tile'>
+      <h3>B2. Cumulative Integration Plot</h3>
+      <div class='plot'><img src='${escapeHtml(integUrl)}' alt='Integration plot'></div>
+      <div class='cap'>B2 (4): Cumulative integral and endpoint labels (single-page readable)</div>
+    </section>
+  </div>
+</div>
+<script>
+  function safePrint() {
+    try {
+      window.focus();
+      setTimeout(function() { window.print(); }, 40);
+    } catch (_) {
+      openStandalone();
+    }
+  }
+  function openStandalone() {
+    const html = '<!DOCTYPE html>' + document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank', 'noopener,noreferrer');
+  }
+<\/script>
+</body></html>`);
+        w.document.close();
+      }).catch(function() {
+        alert('Could not generate dashboard page. Run Calculate first and try again.');
+      });
+    };
+
+    function getPlotsExportOptions() {
+      const preset = document.getElementById('plotsVisualPreset')?.value || 'golden';
+      const scaleMode = document.getElementById('plotsScaleMode')?.value || 'follow-live';
+      return { preset, scaleMode };
+    }
+
+    function getPresetSizing(preset, orientation) {
+      const isLandscape = orientation === 'landscape';
+      if (preset === 'fibonacci') {
+        return isLandscape
+          ? { track: '8fr 5fr', accent: '#0f766e', name: 'Fibonacci 8:5' }
+          : { track: '8fr 5fr', accent: '#0f766e', name: 'Fibonacci 8:5' };
+      }
+      if (preset === 'equal') {
+        return isLandscape
+          ? { track: '1fr 1fr', accent: '#334155', name: 'Equal 1:1' }
+          : { track: '1fr 1fr', accent: '#334155', name: 'Equal 1:1' };
+      }
+      return isLandscape
+        ? { track: '1.618fr 1fr', accent: '#1d4ed8', name: 'Golden Ratio' }
+        : { track: '1.618fr 1fr', accent: '#1d4ed8', name: 'Golden Ratio' };
+    }
+
+    function collectPositiveYFromPlot(plotDivId) {
+      const el = document.getElementById(plotDivId);
+      if (!el || !Array.isArray(el.data)) return [];
+      const vals = [];
+      el.data.forEach(function(trace) {
+        if (!trace || !Array.isArray(trace.y)) return;
+        trace.y.forEach(function(v) {
+          const n = Number(v);
+          if (Number.isFinite(n)) vals.push(n);
+        });
+      });
+      return vals;
+    }
+
+    function clonePlotImageWithMode(plotDivId, width, height, yAxisTypeOverride, format = 'png', publication = false) {
+      const src = document.getElementById(plotDivId);
+      if (!src || !window.Plotly) return Promise.reject(new Error('Plot missing'));
+
+      const data = JSON.parse(JSON.stringify(src.data || []));
+      const layout = JSON.parse(JSON.stringify(src.layout || {}));
+      layout.width = width;
+      layout.height = height;
+      layout.paper_bgcolor = '#ffffff';
+      layout.plot_bgcolor = '#ffffff';
+
+      if (!layout.font) layout.font = {};
+      if (!layout.legend) layout.legend = {};
+      const sizeScale = Math.min(width / 1300, height / 900);
+      const baseFont = publication ? 11 : 11;
+      const fontSize = Math.min(12, Math.max(10, Math.round(baseFont * sizeScale)));
+      // Mirror the live dashboard theme so popup exports look identical to screen.
+      const isExportDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const exportBg    = isExportDark ? '#0d1117' : '#ffffff';
+      const exportInk   = isExportDark ? '#e6edf3' : '#1e293b';
+      const exportGrid  = isExportDark ? '#2a3550' : '#d8dde6';
+      const exportLegBg = isExportDark ? 'rgba(22,27,34,0.80)' : 'rgba(255,255,255,0.72)';
+      layout.paper_bgcolor = exportBg;
+      layout.plot_bgcolor  = exportBg;
+      layout.font.size = fontSize;
+      layout.font.color = exportInk;
+      layout.legend.font = Object.assign({}, layout.legend.font || {}, { size: Math.max(9, fontSize - 1), color: exportInk });
+      layout.legend.itemsizing = 'constant';
+      if (layout.legend.x == null) layout.legend.x = 0.02;
+      if (layout.legend.y == null) layout.legend.y = 0.02;
+      if (!layout.legend.xanchor) layout.legend.xanchor = 'left';
+      if (!layout.legend.yanchor) layout.legend.yanchor = 'bottom';
+      if (!layout.legend.orientation) layout.legend.orientation = 'h';
+      layout.legend.bgcolor = exportLegBg;
+      layout.legend.bordercolor = exportGrid;
+      layout.legend.borderwidth = layout.legend.borderwidth || 1;
+
+      if (layout.xaxis) {
+        layout.xaxis.color = exportInk;
+        layout.xaxis.gridcolor = exportGrid;
+        layout.xaxis.tickfont = Object.assign({}, layout.xaxis.tickfont || {}, { size: Math.max(10, fontSize - 1), color: exportInk });
+        layout.xaxis.title = Object.assign({}, layout.xaxis.title || {}, { font: Object.assign({}, (layout.xaxis.title || {}).font || {}, { size: fontSize, color: exportInk }) });
+      }
+      if (layout.yaxis) {
+        layout.yaxis.color = exportInk;
+        layout.yaxis.gridcolor = exportGrid;
+        layout.yaxis.tickfont = Object.assign({}, layout.yaxis.tickfont || {}, { size: Math.max(10, fontSize - 1), color: exportInk });
+        layout.yaxis.title = Object.assign({}, layout.yaxis.title || {}, { font: Object.assign({}, (layout.yaxis.title || {}).font || {}, { size: fontSize, color: exportInk }) });
+      }
+      if (layout.yaxis2) {
+        layout.yaxis2.color = exportInk;
+        layout.yaxis2.gridcolor = exportGrid;
+        layout.yaxis2.tickfont = Object.assign({}, layout.yaxis2.tickfont || {}, { size: Math.max(10, fontSize - 1), color: exportInk });
+        layout.yaxis2.title = Object.assign({}, layout.yaxis2.title || {}, { font: Object.assign({}, (layout.yaxis2.title || {}).font || {}, { size: fontSize, color: exportInk }) });
+      }
+      // Remap any trace-level text colors (e.g. pin labels) to the export ink color.
+      data.forEach(function(trace) {
+        if (trace.textfont && trace.textfont.color) {
+          trace.textfont = Object.assign({}, trace.textfont, { color: exportInk });
+        }
+      });
+
+      if (yAxisTypeOverride) {
+        if (!layout.yaxis) layout.yaxis = {};
+        layout.yaxis.type = yAxisTypeOverride;
+      }
+
+      const tmp = document.createElement('div');
+      tmp.style.position = 'fixed';
+      tmp.style.left = '-99999px';
+      tmp.style.top = '-99999px';
+      tmp.style.width = width + 'px';
+      tmp.style.height = height + 'px';
+      document.body.appendChild(tmp);
+
+      return Plotly.newPlot(tmp, data, layout, { staticPlot: true, displayModeBar: false, responsive: false })
+        .then(function() {
+          return Plotly.toImage(tmp, {
+            format: format,
+            width: width,
+            height: height,
+            scale: format === 'png' ? 2 : 1
+          });
+        })
+        .finally(function() {
+          try { Plotly.purge(tmp); } catch (_) {}
+          tmp.remove();
+        });
+    }
+
+    function openPlotsPagePopup(orientation) {
+      const mainPlotEl = document.getElementById('mainPlot');
+      const integrationPlotEl = document.getElementById('integrationPlot');
+      if (!mainPlotEl || !integrationPlotEl || !window.Plotly) {
+        alert('Plots are not available yet. Run Calculate first.');
+        return;
+      }
+
+      const opts = getPlotsExportOptions();
+      const preset = getPresetSizing(opts.preset, orientation);
+      const matSel = document.getElementById('materialSelect');
+      const propSel = document.getElementById('propertySelect');
+      const matName = matSel?.options?.[matSel.selectedIndex]?.text || 'Material';
+      const propName = propSel?.options?.[propSel.selectedIndex]?.text || 'Property';
+      const t1 = document.getElementById('Tmin')?.value || '?';
+      const t2 = document.getElementById('Tmax')?.value || '?';
+      const ts = new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+      const mainY = collectPositiveYFromPlot('mainPlot');
+      const canLogMain = mainY.length > 0 && mainY.every(function(v) { return v > 0; });
+      const useLogMain = opts.scaleMode === 'log-main-auto' && canLogMain;
+
+      const imageSize = orientation === 'landscape'
+        ? { w: 1800, h: 980 }
+        : { w: 1300, h: 900 };
+
+      Promise.all([
+        clonePlotImageWithMode('mainPlot', imageSize.w, imageSize.h, exportYScale, 'svg', true),
+        clonePlotImageWithMode('integrationPlot', imageSize.w, imageSize.h, null, 'svg', true)
+      ]).then(function(images) {
+        const b1Url = images[0];
+        const b2Url = images[1];
+        const isLandscape = orientation === 'landscape';
+        const pageTitle = isLandscape ? 'B1+B2 Landscape Export' : 'B1+B2 Portrait Export';
+        const pageLabel = isLandscape ? 'A4 Landscape' : 'A4 Portrait';
+        const pageDims = isLandscape ? '277mm; height:190mm' : '190mm; height:277mm';
+        const gridRule = isLandscape
+          ? `grid-template-columns:${preset.track};`
+          : `grid-template-rows:${preset.track}; grid-template-columns:1fr;`;
+
+        const popupSize = isLandscape ? 'width=1600,height=980' : 'width=1180,height=1650';
+        const w = window.open('', '_blank', `${popupSize},resizable=yes,scrollbars=yes`);
+        if (!w) {
+          alert('Pop-up blocked. Allow pop-ups for this page and try again.');
+          return;
+        }
+
+        w.document.write(`<!DOCTYPE html><html><head><meta charset='UTF-8'><title>${pageTitle}</title>
+<style>
+  :root{ --ink:#0f172a; --muted:#475569; --line:#cbd5e1; --accent:${preset.accent}; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#f8fafc; color:var(--ink); font-family:Segoe UI,Arial,sans-serif; }
+  .toolbar{ position:sticky; top:0; z-index:5; display:flex; gap:8px; align-items:center; padding:10px 14px; border-bottom:1px solid var(--line); background:#fff; }
+  .toolbar strong{ flex:1; font-size:0.95rem; }
+  .toolbar span{ color:var(--muted); font-size:0.8rem; }
+  button,a.btn{ border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--ink); font-size:0.82rem; padding:6px 12px; text-decoration:none; cursor:pointer; }
+  button:hover,a.btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .page{
+    width:${pageDims};
+    margin:10mm auto;
+    background:#fff;
+    border:1px solid #dbe3ee;
+    box-shadow:0 8px 24px rgba(15,23,42,.08);
+    padding:7mm;
+    display:grid;
+    grid-template-rows:auto 1fr;
+    gap:4mm;
+  }
+  .head{ border-bottom:1px solid #e2e8f0; padding-bottom:2.5mm; }
+  .title{ margin:0; font-size:1.02rem; font-weight:700; }
+  .sub{ margin:1mm 0 0 0; color:var(--muted); font-size:0.8rem; }
+  .grid{ display:grid; ${gridRule} gap:4mm; min-height:0; }
+  .tile{ border:1px solid var(--line); border-radius:8px; padding:2.5mm; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+  .tile h3{ margin:0 0 2mm 0; font-size:0.88rem; color:var(--accent); }
+  .plot{ flex:1; min-height:0; border:1px solid #e2e8f0; border-radius:6px; background:#fff; display:flex; align-items:center; justify-content:center; }
+  .plot img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .cap{ margin-top:1.5mm; border-top:1px solid #e2e8f0; padding-top:1mm; color:var(--muted); font-size:0.72rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  @media print{
+    @page{ size:A4 ${isLandscape ? 'landscape' : 'portrait'}; margin:8mm; }
+    body{ background:#fff; }
+    .toolbar{ display:none; }
+    .page{ width:100%; height:auto; margin:0; border:none; box-shadow:none; padding:0; }
+  }
+</style></head><body>
+<div class='toolbar'>
+  <strong>B1+B2 Full Page Export (${pageLabel}, Vector)</strong>
+  <span>${escapeHtml(ts)}</span>
+  <button onclick='safePrint()'>🖨 Print / Save PDF</button>
+  <button onclick='openStandalone()'>↗ Open Browser Tab</button>
+  <a class='btn' href='${escapeHtml(b1Url)}' download='B1_property_plot.svg'>⬇ B1 SVG</a>
+  <a class='btn' href='${escapeHtml(b2Url)}' download='B2_integration_plot.svg'>⬇ B2 SVG</a>
+  <button onclick='window.close()'>✕ Close</button>
+</div>
+
+<div class='page'>
+  <div class='head'>
+    <p class='title'>Cryogenic Dashboard — Plots Only (B1 + B2)</p>
+    <p class='sub'>${escapeHtml(matName)} · ${escapeHtml(propName)} · T=${escapeHtml(t1)}–${escapeHtml(t2)} K · Preset: ${escapeHtml(preset.name)} · X scale: ${escapeHtml(liveXScale)} · Y scale: ${escapeHtml(exportYScale)} · ${pageLabel}</p>
+  </div>
+
+  <div class='grid'>
+    <section class='tile'>
+      <h3>B1. Property vs Temperature (X: ${escapeHtml(liveXScale)} · Y: ${escapeHtml(exportYScale)})</h3>
+      <div class='plot'><img src='${escapeHtml(b1Url)}' alt='B1 property plot'></div>
+      <div class='cap'>B1 (1): Primary property curve with explicit exported x/y scaling labels</div>
+    </section>
+
+    <section class='tile'>
+      <h3>B2. Cumulative Integration Plot</h3>
+      <div class='plot'><img src='${escapeHtml(b2Url)}' alt='B2 cumulative integration plot'></div>
+      <div class='cap'>B2 (2): Cumulative integral with endpoint annotations and matching theme treatment</div>
+    </section>
+  </div>
+</div>
+<script>
+  function safePrint() {
+    try {
+      window.focus();
+      setTimeout(function() { window.print(); }, 40);
+    } catch (_) {
+      openStandalone();
+    }
+  }
+  function openStandalone() {
+    const html = '<!DOCTYPE html>' + document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank', 'noopener,noreferrer');
+  }
+<\/script>
+</body></html>`);
+        w.document.close();
+      }).catch(function() {
+        alert('Could not generate B1+B2 export. Run Calculate first and try again.');
+      });
+    }
+
+    window.openPlotsLandscapePagePopup = function() {
+      openPlotsPagePopup('landscape');
+    };
+
+    window.openPlotsPortraitPagePopup = function() {
+      openPlotsPagePopup('portrait');
+    };
+
+    window.openB3RatePagePopup = function() {
+      const ratePlotEl = document.getElementById('ratePlot');
+      if (!ratePlotEl || !window.Plotly) {
+        alert('B3 plot is not available yet. Run Calculate first.');
+        return;
+      }
+
+      const matSel = document.getElementById('materialSelect');
+      const propSel = document.getElementById('propertySelect');
+      const matName = matSel?.options?.[matSel.selectedIndex]?.text || 'Material';
+      const propName = propSel?.options?.[propSel.selectedIndex]?.text || 'Property';
+      const t1 = document.getElementById('Tmin')?.value || '?';
+      const t2 = document.getElementById('Tmax')?.value || '?';
+      const ts = new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+      clonePlotImageWithMode('ratePlot', 1900, 1040, null, 'svg', true).then(function(rateUrl) {
+        const w = window.open('', '_blank', 'width=1620,height=980,resizable=yes,scrollbars=yes');
+        if (!w) {
+          alert('Pop-up blocked. Allow pop-ups for this page and try again.');
+          return;
+        }
+
+        w.document.write(`<!DOCTYPE html><html><head><meta charset='UTF-8'><title>B3 Rate Plot Export</title>
+<style>
+  :root{ --ink:#0f172a; --muted:#475569; --line:#cbd5e1; --accent:#7c3aed; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#f8fafc; color:var(--ink); font-family:Segoe UI,Arial,sans-serif; }
+  .toolbar{ position:sticky; top:0; z-index:5; display:flex; gap:8px; align-items:center; padding:10px 14px; border-bottom:1px solid var(--line); background:#fff; }
+  .toolbar strong{ flex:1; font-size:0.95rem; }
+  .toolbar span{ color:var(--muted); font-size:0.8rem; }
+  button,a.btn{ border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--ink); font-size:0.82rem; padding:6px 12px; text-decoration:none; cursor:pointer; }
+  button:hover,a.btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .page{ width:277mm; height:190mm; margin:10mm auto; background:#fff; border:1px solid #dbe3ee; box-shadow:0 8px 24px rgba(15,23,42,.08); padding:7mm; display:grid; grid-template-rows:auto 1fr; gap:4mm; }
+  .head{ border-bottom:1px solid #e2e8f0; padding-bottom:2.5mm; }
+  .title{ margin:0; font-size:1.02rem; font-weight:700; }
+  .sub{ margin:1mm 0 0 0; color:var(--muted); font-size:0.8rem; }
+  .tile{ border:1px solid var(--line); border-radius:8px; padding:2.5mm; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+  .tile h3{ margin:0 0 2mm 0; font-size:0.9rem; color:var(--accent); }
+  .plot{ flex:1; min-height:0; border:1px solid #e2e8f0; border-radius:6px; background:#fff; display:flex; align-items:center; justify-content:center; }
+  .plot img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .cap{ margin-top:1.5mm; border-top:1px solid #e2e8f0; padding-top:1mm; color:var(--muted); font-size:0.75rem; }
+  @media print{
+    @page{ size:A4 landscape; margin:8mm; }
+    body{ background:#fff; }
+    .toolbar{ display:none; }
+    .page{ width:100%; height:auto; margin:0; border:none; box-shadow:none; padding:0; }
+  }
+</style></head><body>
+<div class='toolbar'>
+  <strong>B3 Rate Plot Export (A4 Landscape, Vector)</strong>
+  <span>${escapeHtml(ts)}</span>
+  <button onclick='safePrint()'>🖨 Print / Save PDF</button>
+  <button onclick='openStandalone()'>↗ Open Browser Tab</button>
+  <a class='btn' href='${escapeHtml(rateUrl)}' download='B3_rate_plot.svg'>⬇ B3 SVG</a>
+  <button onclick='window.close()'>✕ Close</button>
+</div>
+
+<div class='page'>
+  <div class='head'>
+    <p class='title'>Cryogenic Dashboard — B3 Rate of Change</p>
+    <p class='sub'>${escapeHtml(matName)} · ${escapeHtml(propName)} · T=${escapeHtml(t1)}–${escapeHtml(t2)} K · A4 Landscape · B3 plots dy/dT and labels the strongest local slope-change candidate as the knee.</p>
+  </div>
+
+  <section class='tile'>
+    <h3>B3. Rate of Change / Knee Indicator</h3>
+    <div class='plot'><img src='${escapeHtml(rateUrl)}' alt='B3 rate-of-change plot'></div>
+    <div class='cap'>B3: First derivative dy/dT with knee annotation based on a central finite-difference estimate of max |d²y/dT²|.</div>
+  </section>
+</div>
+<script>
+  function safePrint() {
+    try {
+      window.focus();
+      setTimeout(function() { window.print(); }, 40);
+    } catch (_) {
+      openStandalone();
+    }
+  }
+  function openStandalone() {
+    const html = '<!DOCTYPE html>' + document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank', 'noopener,noreferrer');
+  }
+<\/script>
+</body></html>`);
+        w.document.close();
+      }).catch(function() {
+        alert('Could not generate B3 rate export. Run Calculate first and try again.');
+      });
+    };
+
+    window.openSlideLandscapePopup = function() {
+      const mainPlotEl = document.getElementById('mainPlot');
+      const integrationPlotEl = document.getElementById('integrationPlot');
+      if (!mainPlotEl || !integrationPlotEl || !window.Plotly) {
+        alert('Plots are not available yet. Run Calculate first.');
+        return;
+      }
+
+      const matSel = document.getElementById('materialSelect');
+      const propSel = document.getElementById('propertySelect');
+      const matName = matSel?.options?.[matSel.selectedIndex]?.text || 'Material';
+      const propName = propSel?.options?.[propSel.selectedIndex]?.text || 'Property';
+      const t1 = document.getElementById('Tmin')?.value || '?';
+      const t2 = document.getElementById('Tmax')?.value || '?';
+      const ts = new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+      const opts = getPlotsExportOptions();
+      const mainY = collectPositiveYFromPlot('mainPlot');
+      const canLogMain = mainY.length > 0 && mainY.every(function(v) { return v > 0; });
+      const useLogMain = opts.scaleMode === 'log-main-auto' && canLogMain;
+
+      Promise.all([
+        clonePlotImageWithMode('mainPlot', 1920, 1080, useLogMain, 'svg', true),
+        clonePlotImageWithMode('integrationPlot', 1920, 1080, false, 'svg', true)
+      ]).then(function(images) {
+        const b1Url = images[0];
+        const b2Url = images[1];
+
+        const w = window.open('', '_blank', 'width=1680,height=980,resizable=yes,scrollbars=yes');
+        if (!w) {
+          alert('Pop-up blocked. Allow pop-ups for this page and try again.');
+          return;
+        }
+
+        w.document.write(`<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Single Slide Export (16:9)</title>
+<style>
+  :root{ --ink:#0f172a; --muted:#475569; --line:#cbd5e1; --accent:#1d4ed8; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#f1f5f9; color:var(--ink); font-family:Segoe UI,Arial,sans-serif; }
+  .toolbar{ position:sticky; top:0; z-index:5; display:flex; gap:8px; align-items:center; padding:10px 14px; border-bottom:1px solid var(--line); background:#fff; }
+  .toolbar strong{ flex:1; font-size:0.95rem; }
+  .toolbar span{ color:var(--muted); font-size:0.8rem; }
+  button,a.btn{ border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--ink); font-size:0.82rem; padding:6px 12px; text-decoration:none; cursor:pointer; }
+  button:hover,a.btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .slide{ width:320mm; height:180mm; margin:8mm auto; background:#fff; border:1px solid #dbe3ee; box-shadow:0 8px 24px rgba(15,23,42,.08); padding:8mm; display:grid; grid-template-rows:auto 1fr; gap:4mm; }
+  .head{ border-bottom:1px solid #e2e8f0; padding-bottom:2mm; }
+  .title{ margin:0; font-size:1.1rem; font-weight:700; }
+  .sub{ margin:1mm 0 0 0; color:var(--muted); font-size:0.85rem; }
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:4mm; min-height:0; }
+  .tile{ border:1px solid var(--line); border-radius:8px; padding:2.5mm; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+  .tile h3{ margin:0 0 2mm 0; font-size:0.95rem; color:var(--accent); }
+  .plot{ flex:1; min-height:0; border:1px solid #e2e8f0; border-radius:6px; background:#fff; display:flex; align-items:center; justify-content:center; }
+  .plot img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .cap{ margin-top:1.5mm; color:var(--muted); font-size:0.76rem; }
+  @media print{
+    @page{ size: 320mm 180mm; margin:6mm; }
+    body{ background:#fff; }
+    .toolbar{ display:none; }
+    .slide{ width:100%; height:auto; margin:0; border:none; box-shadow:none; padding:0; }
+  }
+</style></head><body>
+<div class='toolbar'>
+  <strong>Single Slide Export (16:9 Landscape, Vector)</strong>
+  <span>${escapeHtml(ts)}</span>
+  <button onclick='safePrint()'>🖨 Print / Save PDF</button>
+  <button onclick='openStandalone()'>↗ Open Browser Tab</button>
+  <a class='btn' href='${escapeHtml(b1Url)}' download='slide_B1_property.svg'>⬇ B1 SVG</a>
+  <a class='btn' href='${escapeHtml(b2Url)}' download='slide_B2_integration.svg'>⬇ B2 SVG</a>
+  <button onclick='window.close()'>✕ Close</button>
+</div>
+
+<div class='slide'>
+  <div class='head'>
+    <p class='title'>Cryogenic Dashboard — Presentation Slide</p>
+    <p class='sub'>${escapeHtml(matName)} · ${escapeHtml(propName)} · T=${escapeHtml(t1)}–${escapeHtml(t2)} K · ${escapeHtml(useLogMain ? 'B1 log scale' : 'B1 linear scale')}</p>
+  </div>
+
+  <div class='grid'>
+    <section class='tile'>
+      <h3>B1. Property vs Temperature</h3>
+      <div class='plot'><img src='${escapeHtml(b1Url)}' alt='B1 property plot'></div>
+      <div class='cap'>Vector render for slide reuse and zoom-safe legends.</div>
+    </section>
+
+    <section class='tile'>
+      <h3>B2. Cumulative Integration Plot</h3>
+      <div class='plot'><img src='${escapeHtml(b2Url)}' alt='B2 cumulative integration plot'></div>
+      <div class='cap'>Vector render with proportional legend and axis typography.</div>
+    </section>
+  </div>
+</div>
+<script>
+  function safePrint() {
+    try {
+      window.focus();
+      setTimeout(function() { window.print(); }, 40);
+    } catch (_) {
+      openStandalone();
+    }
+  }
+  function openStandalone() {
+    const html = '<!DOCTYPE html>' + document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank', 'noopener,noreferrer');
+  }
+<\/script>
+</body></html>`);
+        w.document.close();
+      }).catch(function() {
+        alert('Could not generate slide export. Run Calculate first and try again.');
+      });
+    };
+  </script>
+
+</body>
+</html>
