@@ -12,10 +12,10 @@ permissions:
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment; skip runs queued between the run in-progress and latest queued.
+# Allow only one concurrent deployment; cancel any run queued while another is in progress.
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -33,7 +33,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload the entire repository root
+          # Upload the repository root (site content lives here)
           path: "."
 
       - name: Deploy to GitHub Pages

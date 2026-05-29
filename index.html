@@ -173,6 +173,9 @@
     .dot-wip    { background: #d29922; }
     .dot-soon   { background: var(--muted); }
 
+    /* placeholder cards */
+    .card--placeholder { opacity: 0.5; cursor: default; }
+
     /* ── Footer ── */
     footer {
       text-align: center;
@@ -212,14 +215,14 @@
   <main>
 
     <!-- Dashboards -->
-    <p class="section-title">📊 Dashboards</p>
+    <h2 class="section-title">📊 Dashboards</h2>
     <div class="grid">
 
       <!-- Cryo Dashboard v0.3.0 -->
       <a class="card" href="cryo_dashboard_v0_3_0/index.html">
         <div class="card-icon">🧊</div>
         <div class="card-title">Cryo Dashboard</div>
-        <div class="card-version">v0.3.0</div>
+        <div class="card-version">v0.4.9</div>
         <div class="card-desc">
           Interactive cryogenic performance dashboard built from NIST reference data.
           Includes method comparison panels, parameter sweeps, and trend analysis
@@ -232,7 +235,7 @@
       </a>
 
       <!-- Placeholder for future dashboards -->
-      <div class="card" style="opacity:0.5; cursor:default;">
+      <div class="card card--placeholder">
         <div class="card-icon">📈</div>
         <div class="card-title">Future Dashboard</div>
         <div class="card-version">coming soon</div>
@@ -248,10 +251,10 @@
     </div>
 
     <!-- Tools -->
-    <p class="section-title">🔧 Tools</p>
+    <h2 class="section-title">🔧 Tools</h2>
     <div class="grid">
 
-      <div class="card" style="opacity:0.5; cursor:default;">
+      <div class="card card--placeholder">
         <div class="card-icon">🛠️</div>
         <div class="card-title">Tool Placeholder</div>
         <div class="card-version">coming soon</div>
