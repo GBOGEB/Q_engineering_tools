@@ -1,0 +1,73 @@
+name: Federation Health Check (W000)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  federation-check:
+    name: CODEX W000 Drift & Federation Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Q_engineering_tools
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Checkout CODEX drift monitor
+        uses: actions/checkout@v4
+        with:
+          repository: GBOGEB/CODEX
+          path: codex_src
+          sparse-checkout: |
+            telemetry/pca/drift_monitor.py
+
+      - name: Run W000 drift check
+        id: drift
+        run: |
+          python - <<'EOF'
+          import sys, json
+          sys.path.insert(0, "codex_src/telemetry/pca")
+          from drift_monitor import evaluate_drift
+
+          # Baseline: stable federation reference values (W000 bootstrap)
+          baseline = [0.90, 0.85, 0.80, 0.75, 0.70]
+          # Current: observed values (placeholder — replace with live telemetry feed)
+          current  = [0.90, 0.85, 0.80, 0.75, 0.70]
+
+          signal = evaluate_drift(baseline, current, threshold=0.45)
+          report = {
+              "drift_score": round(signal.score, 4),
+              "stable": signal.stable,
+              "threshold": 0.45,
+              "federation_gate": "PASS" if signal.stable else "FAIL",
+          }
+          print(json.dumps(report, indent=2))
+
+          # Write report artefact
+          import os
+          os.makedirs("tools/drift_report", exist_ok=True)
+          with open("tools/drift_report/latest.json", "w") as f:
+              json.dump(report, f, indent=2)
+
+          if not signal.stable:
+              print(f"::error::W000 federation drift {signal.score:.4f} exceeds threshold 0.45 — deploy blocked")
+              sys.exit(1)
+          EOF
+
+      - name: Upload drift report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: federation-drift-report
+          path: tools/drift_report/latest.json
+          retention-days: 30

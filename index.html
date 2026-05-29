@@ -206,6 +206,7 @@
       and quality-engineering utilities — all statically hosted via GitHub Pages.
     </p>
     <div class="badge">🟢 GitHub Pages · Static Hosting · No Backend Required</div>
+    <div class="badge" style="margin-left:0.5rem;">🔗 ABACUS · CODEX · Federation W000</div>
   </div>
 
   <!-- ── Main content ── -->
@@ -219,11 +220,11 @@
       <a class="card" href="cryo_dashboard_v0_3_0/index.html">
         <div class="card-icon">🧊</div>
         <div class="card-title">Cryo Dashboard</div>
-        <div class="card-version">v0.3.0</div>
+        <div class="card-version">v0.3.0 / v0.4.9</div>
         <div class="card-desc">
           Interactive cryogenic performance dashboard built from NIST reference data.
           Includes method comparison panels, parameter sweeps, and trend analysis
-          for superconducting / cryogenic LINAC systems.
+          for superconducting / cryogenic LINAC systems. 10 materials · k(T) + cp(T) + Thermal Contraction · 1–300 K.
         </div>
         <div class="card-meta">
           <span><span class="dot dot-live"></span> Live</span>
@@ -231,19 +232,68 @@
         </div>
       </a>
 
-      <!-- Placeholder for future dashboards -->
-      <div class="card" style="opacity:0.5; cursor:default;">
-        <div class="card-icon">📈</div>
-        <div class="card-title">Future Dashboard</div>
-        <div class="card-version">coming soon</div>
+      <!-- ABACUS: Cryo Analysis -->
+      <a class="card" href="https://gbogeb.github.io/ABACUS/cryo/index.html" target="_blank" rel="noopener">
+        <div class="card-icon">🔬</div>
+        <div class="card-title">ABACUS Cryo Analysis</div>
+        <div class="card-version">v4.4.0</div>
         <div class="card-desc">
-          Add new dashboards by creating a sub-folder and linking it here.
-          See the <strong>README</strong> → "Adding a New Dashboard or Tool" section.
+          12-Cluster cryogenic analysis framework applying DMAIC methodology to
+          cryogenic engineering analysis. Includes cluster navigator, DOW governance,
+          and KEB execution layers.
         </div>
         <div class="card-meta">
-          <span><span class="dot dot-soon"></span> Planned</span>
+          <span><span class="dot dot-live"></span> ABACUS</span>
+          &nbsp;·&nbsp; 12-Cluster &nbsp;·&nbsp; DMAIC
         </div>
-      </div>
+      </a>
+
+      <!-- ABACUS: 12-Cluster Navigator -->
+      <a class="card" href="https://gbogeb.github.io/ABACUS/12-cluster/index.html" target="_blank" rel="noopener">
+        <div class="card-icon">🗺️</div>
+        <div class="card-title">12-Cluster Navigator</div>
+        <div class="card-version">v4.4.0</div>
+        <div class="card-desc">
+          Interactive navigator for the ABACUS 12-Cluster Architecture — spanning
+          Analysis (C1–C4), Documentation (C5–C6), Recursive (C7–C8), and
+          Knowledge &amp; Monitoring (C9–C12) tiers.
+        </div>
+        <div class="card-meta">
+          <span><span class="dot dot-live"></span> ABACUS</span>
+          &nbsp;·&nbsp; Architecture &nbsp;·&nbsp; Cluster Map
+        </div>
+      </a>
+
+      <!-- ABACUS: Deep Analysis Dashboard -->
+      <a class="card" href="https://gbogeb.github.io/ABACUS/deep_analysis_dashboard.html" target="_blank" rel="noopener">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Deep Analysis Dashboard</div>
+        <div class="card-version">v4.4.0</div>
+        <div class="card-desc">
+          Repository audit dashboard with interactive metrics and health scores for
+          the ABACUS cryogenic analysis system. Visualises quality, coverage, and
+          DMAIC phase status.
+        </div>
+        <div class="card-meta">
+          <span><span class="dot dot-live"></span> ABACUS</span>
+          &nbsp;·&nbsp; Audit &nbsp;·&nbsp; Health Scores
+        </div>
+      </a>
+
+      <!-- ABACUS: Progress Tracker -->
+      <a class="card" href="https://gbogeb.github.io/ABACUS/progress_tracker.html" target="_blank" rel="noopener">
+        <div class="card-icon">📈</div>
+        <div class="card-title">Progress Tracker</div>
+        <div class="card-version">v4.4.0</div>
+        <div class="card-desc">
+          Interactive development progress tracker showing branch status, milestone
+          completion, and DMAIC phase advancement across the ABACUS project.
+        </div>
+        <div class="card-meta">
+          <span><span class="dot dot-live"></span> ABACUS</span>
+          &nbsp;·&nbsp; Milestones &nbsp;·&nbsp; Progress
+        </div>
+      </a>
 
     </div>
 
@@ -251,18 +301,52 @@
     <p class="section-title">🔧 Tools</p>
     <div class="grid">
 
-      <div class="card" style="opacity:0.5; cursor:default;">
-        <div class="card-icon">🛠️</div>
-        <div class="card-title">Tool Placeholder</div>
-        <div class="card-version">coming soon</div>
+      <!-- CODEX: Drift Monitor (W000) -->
+      <a class="card" href="https://github.com/GBOGEB/CODEX/blob/main/telemetry/pca/drift_monitor.py" target="_blank" rel="noopener">
+        <div class="card-icon">📡</div>
+        <div class="card-title">CODEX Drift Monitor</div>
+        <div class="card-version">W000</div>
         <div class="card-desc">
-          Standalone engineering tools (calculators, converters, reports) will
-          appear here as they are developed.
+          W000 federation PCA drift monitor. Tracks semantic vs temporal layer drift
+          between CODEX and ABACUS. Flags instability when drift variance exceeds
+          threshold gates (drift &gt; 0.45 · federation &lt; 0.40).
         </div>
         <div class="card-meta">
-          <span><span class="dot dot-soon"></span> Planned</span>
+          <span><span class="dot dot-live"></span> CODEX</span>
+          &nbsp;·&nbsp; PCA / W000 &nbsp;·&nbsp; Federation Health
         </div>
-      </div>
+      </a>
+
+      <!-- ABACUS: DOW Governance -->
+      <a class="card" href="https://gbogeb.github.io/ABACUS/dow/index.html" target="_blank" rel="noopener">
+        <div class="card-icon">📋</div>
+        <div class="card-title">DOW Governance</div>
+        <div class="card-version">v4.4.0</div>
+        <div class="card-desc">
+          Department of Work governance dashboard for the ABACUS system. Tracks
+          workflow compliance, audit trails, and quality gate status across all
+          DMAIC phases.
+        </div>
+        <div class="card-meta">
+          <span><span class="dot dot-live"></span> ABACUS</span>
+          &nbsp;·&nbsp; Governance &nbsp;·&nbsp; Compliance
+        </div>
+      </a>
+
+      <!-- ABACUS: Testing -->
+      <a class="card" href="https://gbogeb.github.io/ABACUS/testing/index.html" target="_blank" rel="noopener">
+        <div class="card-icon">🧪</div>
+        <div class="card-title">Testing Dashboard</div>
+        <div class="card-version">v4.4.0</div>
+        <div class="card-desc">
+          Test results and coverage dashboard for the ABACUS system — CI/CD pipeline
+          status, coverage metrics, and test suite health.
+        </div>
+        <div class="card-meta">
+          <span><span class="dot dot-live"></span> ABACUS</span>
+          &nbsp;·&nbsp; CI/CD &nbsp;·&nbsp; Coverage
+        </div>
+      </a>
 
     </div>
 

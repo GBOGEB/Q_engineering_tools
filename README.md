@@ -12,22 +12,42 @@ dashboards and tools. Everything is served directly via
 [GitHub Pages](https://pages.github.com) — no server, no build step, no framework
 required. Dashboards are plain HTML/JS/CSS files organised in sub-folders.
 
+It is the **display layer** of the three-repo federation:
+
+| Repo | Role |
+|------|------|
+| **Q_engineering_tools** | `downstream_display` — this portal |
+| **[ABACUS](https://github.com/GBOGEB/ABACUS)** | `downstream_functional` — 12-Cluster analysis framework |
+| **[CODEX](https://github.com/GBOGEB/CODEX)** | `upstream_conceptual` — federation/telemetry bootstrap |
+
+Federation thresholds (W000): drift ≤ 0.45 · federation ≥ 0.40  
+See [`bridge_manifest.yaml`](bridge_manifest.yaml) for the full federation declaration.
+
 ---
 
 ## Repository Structure
 
 ```
 Q_engineering_tools/
-├── index.html                    ← Portal home page (lists all dashboards & tools)
-├── .nojekyll                     ← Disables Jekyll processing on GitHub Pages
-├── .github/workflows/pages.yml  ← Auto-deploy workflow (pushes to GitHub Pages)
+├── index.html                         ← Portal home page (all dashboards & tools)
+├── bridge_manifest.yaml               ← Three-repo federation declaration (W000)
+├── .nojekyll                          ← Disables Jekyll on GitHub Pages
+├── .github/
+│   └── workflows/
+│       ├── pages.yml                  ← Auto-deploy to GitHub Pages on push to main
+│       └── federation-check.yml      ← CODEX W000 drift/federation gate
 │
-├── cryo_dashboard_v0_3_0/        ← Cryo Dashboard v0.3.0 (NIST data)
-│   ├── index.html                  (placeholder — replace with your dashboard)
-│   └── README.md
+├── cryo_dashboard_v0_3_0/             ← Cryo Dashboard (NIST material properties)
+│   ├── index.html                       Version picker + launcher
+│   ├── material_properties_dashboard_v1_10.html  ← Main interactive dashboard
+│   ├── dashboard_modular.html           Modular JS dashboard
+│   ├── style.css
+│   ├── data/
+│   │   └── materials.json              NIST cryogenic material properties
+│   └── js/                             Modular JS files
 │
-└── <future_tool_or_dashboard>/   ← Add new tools/dashboards here
-    └── index.html
+└── tools/drift_report/                ← Federation drift reports (CI artefacts)
+    └── latest.json
 ```
 
 ---
@@ -36,7 +56,19 @@ Q_engineering_tools/
 
 | Dashboard | Version | URL | Status |
 | --- | --- | --- | --- |
-| 🧊 Cryo Dashboard | v0.3.0 | [`/cryo_dashboard_v0_3_0/`](https://gbogeb.github.io/Q_engineering_tools/cryo_dashboard_v0_3_0/) | Placeholder |
+| 🧊 Cryo Dashboard | v0.4.9 | [`/cryo_dashboard_v0_3_0/`](https://gbogeb.github.io/Q_engineering_tools/cryo_dashboard_v0_3_0/) | Live |
+| 🔬 ABACUS Cryo Analysis | v4.4.0 | [`ABACUS/cryo/`](https://gbogeb.github.io/ABACUS/cryo/index.html) | ABACUS Pages |
+| 🗺️ 12-Cluster Navigator | v4.4.0 | [`ABACUS/12-cluster/`](https://gbogeb.github.io/ABACUS/12-cluster/index.html) | ABACUS Pages |
+| 📊 Deep Analysis Dashboard | v4.4.0 | [`ABACUS/deep_analysis_dashboard.html`](https://gbogeb.github.io/ABACUS/deep_analysis_dashboard.html) | ABACUS Pages |
+| 📈 Progress Tracker | v4.4.0 | [`ABACUS/progress_tracker.html`](https://gbogeb.github.io/ABACUS/progress_tracker.html) | ABACUS Pages |
+
+## Tools
+
+| Tool | Repo | Description |
+| --- | --- | --- |
+| 📡 CODEX Drift Monitor | [CODEX](https://github.com/GBOGEB/CODEX/blob/main/telemetry/pca/drift_monitor.py) | W000 PCA drift check |
+| 📋 DOW Governance | [ABACUS](https://gbogeb.github.io/ABACUS/dow/index.html) | Workflow compliance |
+| 🧪 Testing Dashboard | [ABACUS](https://gbogeb.github.io/ABACUS/testing/index.html) | CI/CD + coverage |
 
 ---
 
@@ -65,21 +97,9 @@ If GitHub Pages is not yet enabled on this repository:
 
 ---
 
-## Deploying Cryo Dashboard v0.3.0
-
-The `cryo_dashboard_v0_3_0/` folder currently contains a placeholder page.
-To deploy the actual dashboard:
-
-1. Copy your dashboard files from
-   `document-organization-system / feature/method-comparison-panel-clean / cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/`
-   into the `cryo_dashboard_v0_3_0/` folder here.
-2. Make sure the main entry point is named **`index.html`**.
-3. Push to `main` — GitHub Pages will update automatically.
-
----
-
 ## Technology
 
 - **Hosting:** GitHub Pages (static, free, zero backend)
 - **Deployment:** GitHub Actions (`.github/workflows/pages.yml`)
+- **Federation CI gate:** GitHub Actions (`.github/workflows/federation-check.yml`)
 - **No build tools required** — pure HTML / CSS / JavaScript

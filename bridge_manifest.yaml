@@ -1,0 +1,77 @@
+# bridge_manifest.yaml — Three-Repo Federation Declaration
+# Q Engineering Tools · ABACUS · CODEX
+# Federation Protocol: ABACUS↔CODEX W000
+# Last updated: 2026-05-29
+
+federation:
+  name: Q Engineering Tools Federation
+  version: W000
+  protocol: ABACUS_CODEX_FEDERATION_PROTOCOL
+
+repos:
+  display:
+    name: Q_engineering_tools
+    role: downstream_display
+    url: https://github.com/GBOGEB/Q_engineering_tools
+    pages_url: https://gbogeb.github.io/Q_engineering_tools/
+    description: >
+      Static GitHub Pages portal — the user-facing hub for all engineering
+      dashboards and tools. Links out to ABACUS sub-pages and CODEX utilities.
+
+  functional:
+    name: ABACUS
+    role: downstream_functional
+    url: https://github.com/GBOGEB/ABACUS
+    pages_url: https://gbogeb.github.io/ABACUS/
+    version: v4.4.0
+    description: >
+      12-Cluster cryogenic analysis framework applying DMAIC methodology.
+      Provides cryo, 12-cluster, DOW governance, testing, tools, and versions
+      landing pages, plus deep analysis and progress tracker dashboards.
+    sub_pages:
+      - path: /cryo/index.html
+        label: Cryo Analysis
+      - path: /12-cluster/index.html
+        label: 12-Cluster Navigator
+      - path: /dow/index.html
+        label: DOW Governance
+      - path: /testing/index.html
+        label: Testing Dashboard
+      - path: /tools/index.html
+        label: Tools Catalog
+      - path: /versions/index.html
+        label: Versions Timeline
+      - path: /deep_analysis_dashboard.html
+        label: Deep Analysis Dashboard
+      - path: /progress_tracker.html
+        label: Progress Tracker
+
+  conceptual:
+    name: CODEX
+    role: upstream_conceptual
+    url: https://github.com/GBOGEB/CODEX
+    description: >
+      GitHub interface package + W000 federation/telemetry bootstrap.
+      Defines the ABACUS↔CODEX federation protocol, drift monitor, and
+      semantic indexing for cross-repo traceability.
+    artifacts:
+      - path: telemetry/pca/drift_monitor.py
+        label: Drift Monitor (W000)
+        description: PCA-based semantic/temporal layer drift computation
+      - path: federation/semantic_index/schema.yaml
+        label: Semantic Index Schema
+        description: Dual-render tuple contract and prefix definitions
+      - path: agents/abacus/FEDERATION_PROTOCOL.md
+        label: Federation Protocol
+        description: ABACUS↔CODEX federation thresholds and tuple lineage format
+
+federation_thresholds:
+  drift_variance_max: 0.45
+  federation_min: 0.40
+  orchestration_readiness_min: 0.30
+
+artifact_publish:
+  # Pending: CI workflow to run drift_monitor.py on push and publish
+  # JSON report to tools/drift_report/latest.json
+  status: pending
+  workflow: .github/workflows/federation-check.yml
