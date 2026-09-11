@@ -23,4 +23,29 @@ jobs:
           actual="$(git rev-parse HEAD)"
           test "$actual" = "$expected"
       - name: Execute bounded numerical golden case
+        id: probe
+        continue-on-error: true
         run: node mission/M02A/numerics_probe.mjs
+      - name: Emit fleet receipt
+        if: always()
+        env:
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          PROBE_OUTCOME: ${{ steps.probe.outcome }}
+        run: |
+          python mission/federation/emit_receipt.py \
+            --mission M02A \
+            --repo GBOGEB/Q_engineering_tools \
+            --source-sha "$SOURCE_SHA" \
+            --outcome "$PROBE_OUTCOME" \
+            --kernel mission/M02A/numerics_probe.mjs \
+            --out mission/receipts/qps-receipt-M02A.json
+      - name: Upload fleet receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qps-receipt-M02A-${{ github.event.pull_request.head.sha || github.sha }}
+          path: mission/receipts/qps-receipt-M02A.json
+      - name: Enforce probe outcome
+        if: always()
+        shell: bash
+        run: test "${{ steps.probe.outcome }}" = "success"
