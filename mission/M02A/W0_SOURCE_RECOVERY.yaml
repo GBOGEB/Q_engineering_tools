@@ -1,0 +1,33 @@
+schema: qps-triage-mission-baseline/v1
+mission_id: M02A
+moniker: ENGINEERING_OUTPOST
+repo: GBOGEB/Q_engineering_tools
+baseline_sha: 4f9304fed18168e8e152cdbcca93864dead34490
+phase: W0_W1_SOURCE_RECOVERY
+status: STAY
+observed:
+  pages_workflow: .github/workflows/pages.yml
+  hosted_model: static_html_css_javascript
+  local_cryo_dashboard_state: PLACEHOLDER
+recovered_source:
+  repo: GBOGEB/document-organization-system
+  repo_sha: cea7bfb533c246c797ef43652579fe00a39dcd4d
+  path: cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/js/numerics.js
+  git_blob_sha: 2d23e1d0ac041d85e45ba157088c699b3f1c9fe6
+  evidence_class: OBSERVED_EXACT_SOURCE
+  functions:
+    - linspace
+    - clamp
+    - gradient
+    - cumulativeTrapezoid
+    - trapezoidIntegral
+    - simpsonIntegralUniform
+    - adaptiveSimpson
+    - normalize
+    - nearestIndex
+    - deterministicNoise
+    - movingAverage
+    - rombergIntegration
+    - gaussLegendre4
+next_control_gate: EXECUTE_RECOVERED_NUMERICAL_KERNEL_GT0
+authority_note: Recovered numerical code is candidate implementation evidence only; engineering validity requires golden/reference cases and source provenance.
