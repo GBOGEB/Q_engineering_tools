@@ -121,16 +121,16 @@ export function equationText(material, property) {
   }
   const propDef = material.properties[property];
   const eqLabel = {
-    polylog: "log₁₀(y) = a + b·log₁₀(T) + c·(log₁₀T)² + … + i·(log₁₀T)⁸  →  y = 10^(above)",
-    rational: "log₁₀(k) = (a + c·T½ + e·T + g·T³ᐟ² + i·T²) / (1 + b·T½ + d·T + f·T³ᐟ² + h·T²)  →  k = 10^(above)",
-    "piecewise-logpoly": "Piecewise log₁₀-polynomial (region selected by T)",
-    "thermal-contraction": "Y(T) = a + b·T + c·T² + d·T³ + e·T⁴; optional low-T branch: Y = f for T < Tlow"
+    polylog: "log\u2081\u2080(y) = a + b\u00b7log\u2081\u2080(T) + c\u00b7(log\u2081\u2080T)\u00b2 + \u2026 + i\u00b7(log\u2081\u2080T)\u2078  \u2192  y = 10^(above)",
+    rational: "log\u2081\u2080(k) = (a + c\u00b7T\u00bd + e\u00b7T + g\u00b7T\u00b3\u1d30\u00b2 + i\u00b7T\u00b2) / (1 + b\u00b7T\u00bd + d\u00b7T + f\u00b7T\u00b3\u1d30\u00b2 + h\u00b7T\u00b2)  \u2192  k = 10^(above)",
+    "piecewise-logpoly": "Piecewise log\u2081\u2080-polynomial (region selected by T)",
+    "thermal-contraction": "Y(T) = a + b\u00b7T + c\u00b7T\u00b2 + d\u00b7T\u00b3 + e\u00b7T\u2074; optional low-T branch: Y = f for T < Tlow"
   }[propDef.type] || `Type: ${propDef.type}`;
 
   let coeffLines;
   if (propDef.type === "piecewise-logpoly" && propDef.pieces) {
     coeffLines = propDef.pieces
-      .map((p, i) => `  Region ${i + 1}: ${p.range[0]}–${p.range[1]} K\n  [${p.coefficients.join(", ")}]`)
+      .map((p, i) => `  Region ${i + 1}: ${p.range[0]}\u2013${p.range[1]} K\n  [${p.coefficients.join(", ")}]`)
       .join("\n");
   } else if (propDef.type === "thermal-contraction") {
     const base = `  [${propDef.coefficients.join(", ")}]`;
@@ -146,7 +146,7 @@ export function equationText(material, property) {
     `Source: ${material.source}`,
     `Material: ${material.name}`,
     `Property: ${property === "k" ? "Thermal conductivity k" : property === "cp" ? "Specific heat cp" : "Thermal contraction Y(T) relative to 293 K"} [${propDef.units}]`,
-    `Valid range: ${propDef.range[0]}–${propDef.range[1]} K`,
+    `Valid range: ${propDef.range[0]}\u2013${propDef.range[1]} K`,
     ``,
     `Equation form:`,
     `  ${eqLabel}`,
