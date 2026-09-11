@@ -1,6 +1,8 @@
 name: M02A Engineering Outpost Numerics Probe
 
 on:
+  push:
+    branches: [mission/m02a-engineering-outpost-w0]
   pull_request:
     branches: [main]
   workflow_dispatch:
