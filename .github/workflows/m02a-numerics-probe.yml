@@ -22,10 +22,17 @@ jobs:
           expected="${{ github.event.pull_request.head.sha || github.sha }}"
           actual="$(git rev-parse HEAD)"
           test "$actual" = "$expected"
-      - name: Execute bounded numerical golden case
+      - name: Verify recovered Git blob identity
+        shell: bash
+        run: |
+          actual="$(git hash-object mission/M02A/recovered/numerics.mjs)"
+          test "$actual" = "2d23e1d0ac041d85e45ba157088c699b3f1c9fe6"
+      - name: Execute independent and direct recovered numerical suite
         id: probe
         continue-on-error: true
-        run: node mission/M02A/numerics_probe.mjs
+        run: |
+          node mission/M02A/numerics_probe.mjs
+          node mission/M02A/direct_recovered_probe.mjs
       - name: Emit fleet receipt
         if: always()
         env:
@@ -37,7 +44,8 @@ jobs:
             --repo GBOGEB/Q_engineering_tools \
             --source-sha "$SOURCE_SHA" \
             --outcome "$PROBE_OUTCOME" \
-            --kernel mission/M02A/numerics_probe.mjs \
+            --kernel mission/M02A/direct_recovered_probe.mjs \
+            --evidence-class EXECUTED_EXACT_RECOVERED_BLOB \
             --out mission/receipts/qps-receipt-M02A.json
       - name: Upload fleet receipt
         if: always()
