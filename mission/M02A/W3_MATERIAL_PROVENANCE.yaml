@@ -1,0 +1,51 @@
+schema: qps-m02a-material-provenance/v1
+mission_id: M02A
+wave: W3
+role: ENGINEERING_OUTPOST_MATERIAL_DATA_PROVENANCE
+parent_w2_merge_sha: 1511615c84fe0d1b9d3edd44370f721f65b0a0a1
+source_bundle:
+  repo: GBOGEB/document-organization-system
+  source_sha: cea7bfb533c246c797ef43652579fe00a39dcd4d
+  subtree: cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0
+  ssot:
+    path: cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/ssot.json
+    dashboard_version: v0.4.9
+    source_claim: >-
+      NIST Monograph 177 / Cryogenic Material Properties DB is the primary
+      coefficient reference for OFHC Copper, AISI 316, Ti-6Al-4V, G-10 CR and Al 6061-T6.
+    evidence_class: SOURCE_SUPPORTED_CLAIM_NOT_INDEPENDENTLY_VERIFIED
+  evaluator:
+    path: cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/js/materials.js
+    git_blob_sha: 2fff568b3b5f73874581a5004553f1046f7c15a4
+    functions: [loadMaterialDatabase, propertyValue, kValue, cpValue, rangeStatus, equationText]
+    evidence_class: EXACT_SOURCE_BLOB_OBSERVED
+  database:
+    path: cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0/data/materials.json
+    git_blob_sha: 65be104be14dc694efb519c98e8939ae7184afec
+    version: v0.4.6
+    material_count_claim: 10
+    temperature_envelope_K: [1, 300]
+    evidence_class: EXACT_SOURCE_BLOB_OBSERVED
+catalog_claims:
+  - {id: AISI316, family: steel, source_label: NIST_316_Stainless, properties: [k, cp, tc]}
+  - {id: Al6061T6, family: aluminum, source_label: NIST_6061_T6_Aluminum, properties: [k, cp, tc]}
+  - {id: G10Normal, family: composite, source_label: NIST_G10_CR, properties: [k, cp, tc]}
+  - {id: G10Warp, family: composite, source_label: NIST_G10_CR, properties: [k, cp, tc]}
+  - {id: CuRRR50, family: copper, source_label: NIST_OFHC_Copper, properties: [k, cp]}
+  - {id: CuRRR100, family: copper, source_label: NIST_OFHC_Copper, properties: [k, cp]}
+  - {id: CuRRR150, family: copper, source_label: NIST_OFHC_Copper, properties: [k, cp]}
+  - {id: CuRRR300, family: copper, source_label: NIST_OFHC_Copper, properties: [k, cp]}
+  - {id: CuRRR500, family: copper, source_label: NIST_OFHC_Copper, properties: [k, cp]}
+  - {id: Ti64, family: titanium, source_label: NIST_Ti_6Al_4V, properties: [k, tc]}
+known_source_limitations:
+  - source bundle itself calls for broader NIST parity checks / acceptance bands
+  - no uncertainty propagation or Monte Carlo in browser
+  - layered-wall calculator is screening-only, not an iterative interface solver
+  - source labels are not equivalent to independently verified coefficient provenance
+w3_evidence_rules:
+  - do_not_promote_SOURCE_SUPPORTED_CLAIM_to_VERIFIED_without_authoritative_crosscheck
+  - preserve exact source SHA and blob SHA for every imported evaluator/data artifact
+  - validate units and temperature ranges before numerical use
+  - require representative parity checks across at least steel, copper and one nonmetal/other family
+  - emit exact-head receipt for material-adapter tests
+next_gate: AUTHORITATIVE_NIST_PARITY_SPOTCHECKS

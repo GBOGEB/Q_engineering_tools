@@ -1,8 +1,11 @@
-name: M02A Engineering Outpost Numerics Probe
+name: M02A Engineering Outpost Source and Material Probe
 
 on:
   push:
-    branches: [mission/m02a-engineering-outpost-w0]
+    branches:
+      - main
+      - mission/m02a-engineering-outpost-w0
+      - mission/m02a-engineering-outpost-w3-provenance
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -11,7 +14,7 @@ permissions:
   contents: read
 
 jobs:
-  numerics-smoke:
+  engineering-source-smoke:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout exact source head
@@ -24,17 +27,19 @@ jobs:
           expected="${{ github.event.pull_request.head.sha || github.sha }}"
           actual="$(git rev-parse HEAD)"
           test "$actual" = "$expected"
-      - name: Verify recovered Git blob identity
+      - name: Verify recovered Git blob identities
         shell: bash
         run: |
-          actual="$(git hash-object mission/M02A/recovered/numerics.mjs)"
-          test "$actual" = "2d23e1d0ac041d85e45ba157088c699b3f1c9fe6"
-      - name: Execute independent and direct recovered numerical suite
+          test "$(git hash-object mission/M02A/recovered/numerics.mjs)" = "2d23e1d0ac041d85e45ba157088c699b3f1c9fe6"
+          test "$(git hash-object mission/M02A/recovered/materials.mjs)" = "2fff568b3b5f73874581a5004553f1046f7c15a4"
+          test "$(git hash-object mission/M02A/recovered/materials.json)" = "65be104be14dc694efb519c98e8939ae7184afec"
+      - name: Execute numerical and material adapter suites
         id: probe
         continue-on-error: true
         run: |
           node mission/M02A/numerics_probe.mjs
           node mission/M02A/direct_recovered_probe.mjs
+          node mission/M02A/material_adapter_probe.mjs
       - name: Emit fleet receipt
         if: always()
         env:
@@ -46,8 +51,8 @@ jobs:
             --repo GBOGEB/Q_engineering_tools \
             --source-sha "$SOURCE_SHA" \
             --outcome "$PROBE_OUTCOME" \
-            --kernel mission/M02A/direct_recovered_probe.mjs \
-            --evidence-class EXECUTED_EXACT_RECOVERED_BLOB \
+            --kernel mission/M02A/direct_recovered_probe.mjs+mission/M02A/material_adapter_probe.mjs \
+            --evidence-class EXECUTED_NIST_PARITY_MATERIAL_ADAPTER \
             --out mission/receipts/qps-receipt-M02A.json
       - name: Upload fleet receipt
         if: always()
@@ -58,4 +63,5 @@ jobs:
       - name: Enforce probe outcome
         if: always()
         shell: bash
-        run: test "${{ steps.probe.outcome }}" = "success"
+        run: |
+          test "${{ steps.probe.outcome }}" = "success"
