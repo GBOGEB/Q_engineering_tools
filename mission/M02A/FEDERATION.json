@@ -1,0 +1,20 @@
+{
+  "schema": "qps-frontier-federation-binding/v1",
+  "mission_id": "M02A",
+  "role": "FRONTIER_RECEIPT_PROVIDER",
+  "provider_repo": "GBOGEB/Q_engineering_tools",
+  "consumer_repo": "GBOGEB/pipeline-automation-hub",
+  "consumer_pr": 20,
+  "gate_id": "ULTRA-M02-FED-AND-001",
+  "receipt_schema": "qps-fleet-receipt/v1",
+  "receipt_artifact_prefix": "qps-receipt-M02A-",
+  "kernel": "mission/M02A/numerics_probe.mjs",
+  "source_lineage": {
+    "repo": "GBOGEB/document-organization-system",
+    "sha": "cea7bfb533c246c797ef43652579fe00a39dcd4d",
+    "blob": "2d23e1d0ac041d85e45ba157088c699b3f1c9fe6"
+  },
+  "authority_transfer": false,
+  "engineering_acceptance": false,
+  "next_after_receipt_gate": "EXECUTE_RECOVERED_SOURCE_MODULE_DIRECTLY"
+}
