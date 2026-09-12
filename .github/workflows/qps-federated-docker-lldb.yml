@@ -7,6 +7,7 @@ on:
       - 'runtime/debug/qps_federated_docker_manifest.json'
       - 'scripts/qps_federated_docker_lldb.py'
       - 'scripts/qps_federated_docker_lldb_r2.py'
+      - 'scripts/qps_federated_docker_lldb_r3.py'
       - '.github/workflows/qps-federated-docker-lldb.yml'
   workflow_dispatch:
 
@@ -29,7 +30,7 @@ jobs:
           lldb --version
           docker --version
       - name: Execute exact QPS Docker + lldb-server + dynamic port proof
-        run: python3 scripts/qps_federated_docker_lldb_r2.py
+        run: python3 scripts/qps_federated_docker_lldb_r3.py
       - name: Enforce Docker primitive victory condition
         run: |
           python3 - <<'PY'
@@ -49,6 +50,9 @@ jobs:
           assert p['minimum_victory_condition']['remote_stub_reachable'] is True
           assert p['container_security']['cap_add'] == ['SYS_PTRACE'], p
           assert p['container_security']['seccomp'] == 'unconfined', p
+          assert p['value_observation']['mode'] == \
+              'LLDB_FRAME_VARIABLE_AFTER_SECOND_STEP', p
+          assert p['value_observation']['expected'] == 42, p
           assert p['authority_guards']['qps_permanent_self_hosted_docker_gate'] \
               == 'WITHHELD_CAPACITY'
           PY
