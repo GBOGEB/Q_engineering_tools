@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Execute the exact QPS Docker/lldb-server primitive on a federated Linux runner.
 
-Important: lldb-server gdbserver is a debugger protocol endpoint, not a generic
-TCP health port. A raw socket connect can consume its single client session and
-terminate the server. The first protocol connection must therefore be LLDB.
+The runner is diagnostic as well as executable: failed containers are retained
+until `finally` so exit state and logs are available. `lldb-server gdbserver` is
+a single-client protocol endpoint, so no raw TCP health probe is permitted.
 """
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ import json
 import os
 import shutil
 import subprocess
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -64,12 +65,51 @@ def assigned_port(docker: str, container_id: str) -> int | None:
     return None
 
 
-def container_running(docker: str, container_id: str) -> bool:
-    result = run(
-        [docker, "inspect", "--format", "{{.State.Running}}", container_id],
+def inspect_state(docker: str, container_id: str) -> dict:
+    return run(
+        [
+            docker,
+            "inspect",
+            "--format",
+            "{{json .State}}",
+            container_id,
+        ],
         30,
     )
-    return result["returncode"] == 0 and result["stdout"].strip() == "true"
+
+
+def container_running(docker: str, container_id: str) -> bool:
+    state = inspect_state(docker, container_id)
+    if state["returncode"] != 0:
+        return False
+    try:
+        payload = json.loads(state["stdout"].strip())
+    except Exception:
+        return False
+    return bool(payload.get("Running"))
+
+
+def image_lldb_server_diagnostics(docker: str, tag: str) -> dict:
+    script = (
+        "set +e; "
+        "echo PATH=$PATH; "
+        "command -v lldb-server; "
+        "command -v lldb-server-18; "
+        "ls -l /usr/bin/lldb-server* /usr/lib/llvm-*/bin/lldb-server 2>/dev/null; "
+        "lldb-server --version 2>&1; "
+        "exit 0"
+    )
+    return run(
+        [docker, "run", "--rm", "--entrypoint", "/bin/sh", tag, "-lc", script],
+        60,
+    )
+
+
+def container_diagnostics(docker: str, container_id: str) -> dict:
+    return {
+        "state": inspect_state(docker, container_id),
+        "logs": run([docker, "logs", container_id], 30),
+    }
 
 
 def write_receipt(payload: dict) -> Path:
@@ -104,7 +144,7 @@ def main() -> int:
     docker = shutil.which("docker")
     lldb = shutil.which("lldb")
     base = {
-        "schema": "qps.federated_docker_lldb_receipt.v2",
+        "schema": "qps.federated_docker_lldb_receipt.v3",
         "receipt_id": "QPS-FEDERATED-DOCKER-LLDB-W2F-001",
         "created_utc": datetime.now(UTC).replace(microsecond=0).isoformat(),
         "classification": "MAINTENANCE_RUNTIME_ONLY",
@@ -170,8 +210,11 @@ def main() -> int:
         [docker, "image", "inspect", "--format", "{{.Id}}", tag],
         30,
     )["stdout"].strip()
+    image_diag = image_lldb_server_diagnostics(docker, tag)
+
+    # Do not use --rm: an early exit must remain inspectable until `finally`.
     launch = run(
-        [docker, "run", "-d", "--rm", "-p", "127.0.0.1::4711", tag],
+        [docker, "run", "-d", "-p", "127.0.0.1::4711", tag],
         60,
     )
     container_id = launch["stdout"].strip()
@@ -181,6 +224,7 @@ def main() -> int:
             dov_status="WITHHELD",
             reason="CONTAINER_LAUNCH_FAILED",
             build=build,
+            image_lldb_server_diagnostics=image_diag,
             launch=launch,
         )
         write_receipt(base)
@@ -189,25 +233,60 @@ def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     local_binary = OUT / "qps_docker_probe"
     try:
+        # Give the entrypoint enough time to fail deterministically if the
+        # lldb-server binary/arguments are invalid. This is non-destructive.
+        time.sleep(1.0)
         host_port = assigned_port(docker, container_id)
         running_before_attach = container_running(docker, container_id)
+        pre_attach_diag = container_diagnostics(docker, container_id)
+
+        if not running_before_attach:
+            base.update(
+                {
+                    "probe_status": "REJECT",
+                    "dov_status": "WITHHELD",
+                    "reason": "CONTAINER_EXITED_BEFORE_ATTACH",
+                    "build": {
+                        "returncode": build["returncode"],
+                        "image": tag,
+                        "image_id": image_id,
+                    },
+                    "image_lldb_server_diagnostics": image_diag,
+                    "container": {
+                        "id": container_id,
+                        "running_before_attach": False,
+                        "diagnostics": pre_attach_diag,
+                    },
+                    "port": {
+                        "host": "127.0.0.1",
+                        "host_port": host_port,
+                        "container_port": 4711,
+                        "scope": "loopback",
+                    },
+                }
+            )
+            write_receipt(base)
+            return 2
+
         # Copy symbols before any connection to lldb-server. A raw TCP probe is
         # forbidden because gdbserver is a single-client protocol endpoint.
         copy = run(
             [docker, "cp", f"{container_id}:/opt/qps-debug/probe", str(local_binary)],
             60,
         )
-        if not host_port or not running_before_attach or copy["returncode"] != 0:
+        if not host_port or copy["returncode"] != 0:
             base.update(
                 {
                     "probe_status": "REJECT",
                     "dov_status": "WITHHELD",
                     "reason": "CONTAINER_PORT_OR_SYMBOL_COPY_FAILED",
+                    "image_lldb_server_diagnostics": image_diag,
                     "container": {
                         "id": container_id,
                         "image": tag,
                         "image_id": image_id,
                         "running_before_attach": running_before_attach,
+                        "diagnostics": pre_attach_diag,
                     },
                     "port": {
                         "host": "127.0.0.1",
@@ -248,11 +327,7 @@ def main() -> int:
         )
         observed_42 = "observed=42" in combined
         remote_stub_reachable = debug["returncode"] == 0 and steps > 0
-        status = (
-            "ACCEPT"
-            if remote_stub_reachable and observed_42
-            else "REJECT"
-        )
+        status = "ACCEPT" if remote_stub_reachable and observed_42 else "REJECT"
         base.update(
             {
                 "probe_status": status,
@@ -267,9 +342,15 @@ def main() -> int:
                     "image": tag,
                     "image_id": image_id,
                 },
+                "image_lldb_server_diagnostics": image_diag,
                 "container": {
                     "id": container_id,
                     "running_before_attach": running_before_attach,
+                    "diagnostics_before_attach": pre_attach_diag,
+                    "diagnostics_after_debug": container_diagnostics(
+                        docker,
+                        container_id,
+                    ),
                 },
                 "port": {
                     "host": "127.0.0.1",
