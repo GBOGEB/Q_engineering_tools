@@ -1,0 +1,33 @@
+wave: W70
+program: MIP_PUBLICATION_PORTAL
+repository: GBOGEB/Q_engineering_tools
+role: controlled_engineering_publication_surface
+modernize:
+  - replace placeholder-only dashboard semantics with manifest-driven published products
+  - require product SHA256, source repo, source SHA, evidence state and limitation state on every TRIAGE publication card
+  - separate diagnostic dashboards from authoritative engineering products
+innovate:
+  - publish four repo-local readiness gauges plus TRIAGE federation gauge
+  - expose graph traversal from published artifact back to exact source receipt
+  - provide bidder-isolated LKT/ALAT/combined views without cross-bidder evidence promotion
+perpetuate:
+  - redeploy only from validated publication manifest
+  - retain publication manifest digest per deployment
+  - remove or mark stale any card whose source receipt no longer resolves
+inputs:
+  - cryoplant canonical products
+  - CODEX semantic receipts
+  - ABACUS analytics receipts
+  - support-worker validation receipts
+outputs:
+  - publication_manifest.json
+  - deployed_product_index
+  - source_receipt_links
+victory:
+  - one real governed TRIAGE artifact is published with exact source SHA and product digest
+  - source receipt traversal succeeds
+  - stale/diagnostic products are visibly distinguished
+claim_guards:
+  - PUBLISHED_NE_AUTHORITY
+  - DASHBOARD_SCORE_NE_ENGINEERING_CREDIT
+  - COMBINED_VIEW_NE_CROSS_BIDDER_EVIDENCE
