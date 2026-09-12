@@ -1,0 +1,54 @@
+{
+  "version": "2.1",
+  "as_of": "2026-09-12",
+  "authority": {
+    "table10": "hard_count_budget",
+    "poisson": "engineering_overlay",
+    "linac_parent_source": "ocd-adr/00_authority/source_receipts/MINERVA_RELIABILITY_IOP_1301_012104_v0.1.yaml",
+    "cost_master": "QPS_COST_Master.xlsx",
+    "html_target": "QPS_COST_Master_HTML_CURRENT.html"
+  },
+  "mission": {
+    "campaigns": 3,
+    "days_each": 90,
+    "beam_days_total": 270,
+    "calendar_months": 14,
+    "active_fraction_9_of_14": 0.6428571428571429,
+    "standby_fraction_5_of_14": 0.35714285714285715,
+    "three_campaign_cap_status": "derived_simple_rollup_not_separate_source_requirement"
+  },
+  "linac": {
+    "source_receipt": "ocd-adr/00_authority/source_receipts/MINERVA_RELIABILITY_IOP_1301_012104_v0.1.yaml",
+    "cap_per_T90": 10,
+    "cap_three_T90": 30,
+    "reference_mtbf_h": 250,
+    "mu_T90": 8.64,
+    "P_le10_T90": 0.7477221826241283,
+    "P_le30_3T90": 0.8177555045941611,
+    "P_all_three_le10": 0.4180428453768654
+  },
+  "qps_table10": {
+    "A": {"cap": 1, "years": 1},
+    "B": {"cap": 5, "years": 5},
+    "C": {"cap": 2, "years": 10}
+  },
+  "allocation": {
+    "1pct_lambda_y": 0.4055555555555556,
+    "2pct_lambda_y": 0.8111111111111112,
+    "5pct_lambda_y": 2.0277777777777777,
+    "working_lambda_y": 0.257
+  },
+  "cc_provisional": {
+    "lambda_y": 0.2502857143,
+    "mu5": 1.2514285715,
+    "P_le5": 0.9981514833754356,
+    "status": "source_qualified_provisional_B_not_verified"
+  },
+  "cost_duty": {
+    "existing_active": 0.6428,
+    "existing_standby": 0.3572,
+    "programme_active": 0.6428571428571429,
+    "programme_standby": 0.35714285714285715
+  },
+  "bridge_file": "QPS_COST_RELIABILITY_BRIDGE_v0.2.yaml"
+}
