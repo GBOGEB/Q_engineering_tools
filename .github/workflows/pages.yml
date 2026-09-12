@@ -1,21 +1,22 @@
-name: Deploy to GitHub Pages
+name: Deploy traceable Engineering Outpost to GitHub Pages
 
 on:
   push:
     branches: ["main"]
-  # Allow manual runs from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment; skip runs queued between the run in-progress and latest queued.
 concurrency:
   group: "pages"
   cancel-in-progress: false
+
+env:
+  RECOVERED_SOURCE_SHA: cea7bfb533c246c797ef43652579fe00a39dcd4d
+  RECOVERED_SOURCE_SUBTREE: cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0
 
 jobs:
   deploy:
@@ -24,20 +25,66 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout exact Engineering Outpost source
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Checkout exact recovered dashboard authority
+        uses: actions/checkout@v4
+        with:
+          repository: GBOGEB/document-organization-system
+          ref: ${{ env.RECOVERED_SOURCE_SHA }}
+          path: .qps-source
+          persist-credentials: false
+
+      - name: Build deterministic source-bound Pages artifact
+        run: |
+          python scripts/build_cryo_pages.py \
+            --repo-root . \
+            --source-root ".qps-source/${RECOVERED_SOURCE_SUBTREE}" \
+            --out _site \
+            --target-sha "${GITHUB_SHA}"
+
+      - name: Exercise traceable engineering calculation on built artifact
+        env:
+          LOCAL_SITE_ROOT: _site
+          EXPECTED_TARGET_SHA: ${{ github.sha }}
+          RECEIPT_PATH: qps-local-calculation-receipt.json
+        run: node scripts/exercise_engineering_calc.mjs
+
+      - name: Upload deterministic build evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: qps-pages-build-${{ github.sha }}
+          path: |
+            _site/artifact_manifest.json
+            _site/qps-pages-build-receipt.json
+            qps-local-calculation-receipt.json
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
 
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload the entire repository root
-          path: "."
+          path: "_site"
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Exercise calculation using assets fetched from public Pages URL
+        env:
+          PUBLIC_BASE_URL: ${{ steps.deployment.outputs.page_url }}
+          EXPECTED_TARGET_SHA: ${{ github.sha }}
+          RECEIPT_PATH: qps-public-calculation-receipt.json
+        run: node scripts/exercise_engineering_calc.mjs
+
+      - name: Upload public calculation receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: qps-pages-public-calc-${{ github.sha }}
+          path: qps-public-calculation-receipt.json

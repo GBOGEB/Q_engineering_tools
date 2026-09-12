@@ -1,0 +1,77 @@
+name: M02A Engineering Outpost Product Candidate
+
+on:
+  push:
+    branches: [mission/m02a-engineering-outpost-w3-productize]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RECOVERED_SOURCE_SHA: cea7bfb533c246c797ef43652579fe00a39dcd4d
+  RECOVERED_SOURCE_SUBTREE: cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0
+
+jobs:
+  build-and-exercise:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact Engineering Outpost head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Assert exact Engineering Outpost head
+        shell: bash
+        run: |
+          expected="${{ github.event.pull_request.head.sha || github.sha }}"
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$expected"
+
+      - name: Checkout exact recovered dashboard authority
+        uses: actions/checkout@v4
+        with:
+          repository: GBOGEB/document-organization-system
+          ref: ${{ env.RECOVERED_SOURCE_SHA }}
+          path: .qps-source
+          persist-credentials: false
+
+      - name: Build deterministic product candidate
+        env:
+          TARGET_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python scripts/build_cryo_pages.py \
+            --repo-root . \
+            --source-root ".qps-source/${RECOVERED_SOURCE_SUBTREE}" \
+            --out _site \
+            --target-sha "$TARGET_SHA"
+
+      - name: Exercise traceable engineering calculation on built candidate
+        env:
+          LOCAL_SITE_ROOT: _site
+          EXPECTED_TARGET_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          RECEIPT_PATH: qps-local-calculation-receipt.json
+        run: node scripts/exercise_engineering_calc.mjs
+
+      - name: Verify placeholder is retired and trace is intrinsic
+        shell: bash
+        run: |
+          test -f _site/cryo_dashboard_v0_3_0/index.html
+          test -f _site/cryo_dashboard_v0_3_0/qps_trace.json
+          test -f _site/cryo_dashboard_v0_3_0/js/export.js
+          ! grep -q 'Placeholder' _site/cryo_dashboard_v0_3_0/index.html
+          grep -q 'qps_trace.js' _site/cryo_dashboard_v0_3_0/index.html
+          grep -q 'qpsTraceCsvRows' _site/cryo_dashboard_v0_3_0/js/export.js
+          grep -q 'trace: qpsTrace()' _site/cryo_dashboard_v0_3_0/js/export.js
+
+      - name: Upload product candidate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: qps-m02a-product-candidate-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            _site/artifact_manifest.json
+            _site/qps-pages-build-receipt.json
+            _site/cryo_dashboard_v0_3_0/qps_trace.json
+            qps-local-calculation-receipt.json
