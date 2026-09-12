@@ -1,0 +1,67 @@
+name: QPS Reliability G3 Federated Exact
+
+on:
+  pull_request:
+    paths:
+      - 'ocd-adr/20_canonical/analysis/QPLANT_Reliability_Cost_Model_v2.json'
+      - 'scripts/qps_reliability_g3_math.py'
+      - '.github/workflows/qps-reliability-g3-federated.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  g3-exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prove exact child payload blobs
+        run: |
+          test "$(git hash-object ocd-adr/20_canonical/analysis/QPLANT_Reliability_Cost_Model_v2.json)" = "29294d697e1ccae4c0c3a298ddbe442a025756e3"
+          test "$(git hash-object scripts/qps_reliability_g3_math.py)" = "7d0322fb104afd7a9894e4b78d1af2c0a6b6b5ad"
+      - name: Execute exact G3 math generator
+        run: python3 scripts/qps_reliability_g3_math.py
+      - name: Bind federated execution provenance
+        env:
+          EXECUTOR_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path('artifacts/qps_reliability_g3/g3_receipt.json')
+          r = json.loads(p.read_text())
+          assert r['canonical_overlay_comparisons'] == 'PASS_6_OF_6'
+          assert r['T90_reproduced'] is True
+          assert r['three_T90_reproduced'] is True
+          assert r['five_year_reproduced'] is True
+          assert r['table10_authority_preserved'] is True
+          assert r['poisson_role'] == 'ENGINEERING_OVERLAY_ONLY'
+          fed = {
+              'schema': 'qps.reliability.g3.federated_execution_receipt.v0.1',
+              'source_repository': 'GBOGEB/cryoplant-project',
+              'source_candidate_head': '7ee65067418cfdae3dfa1dfa5cab5c2918113ad3',
+              'source_blobs': {
+                  'model': '29294d697e1ccae4c0c3a298ddbe442a025756e3',
+                  'generator': '7d0322fb104afd7a9894e4b78d1af2c0a6b6b5ad'
+              },
+              'executor_repository': 'GBOGEB/Q_engineering_tools',
+              'executor_sha': os.environ['EXECUTOR_SHA'],
+              'run_id': int(os.environ['RUN_ID']),
+              'run_attempt': int(os.environ['RUN_ATTEMPT']),
+              'result': 'PASS_FEDERATED_EXACT_PAYLOAD',
+              'G3_formal_control': 'WITHHELD_UNTIL_CHILD_BINDS_EXECUTED_RECEIPT',
+              'engineering_credit_delta': 0
+          }
+          Path('artifacts/qps_reliability_g3/federated_execution_receipt.json').write_text(
+              json.dumps(fed, indent=2, sort_keys=True) + '\n'
+          )
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qps-reliability-g3-federated-receipt
+          path: artifacts/qps_reliability_g3/
+          if-no-files-found: error
