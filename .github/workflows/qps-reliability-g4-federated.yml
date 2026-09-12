@@ -1,0 +1,67 @@
+name: QPS Reliability G4 Federated Exact
+
+on:
+  pull_request:
+    paths:
+      - 'ocd-adr/40_implementation/QPS_RELIABILITY_SHARED_STATE_LEDGER_G2_v0.1.json'
+      - 'scripts/qps_reliability_g4_native_beam.py'
+      - '.github/workflows/qps-reliability-g4-federated.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  g4-exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prove exact child payload blobs
+        run: |
+          test "$(git hash-object ocd-adr/40_implementation/QPS_RELIABILITY_SHARED_STATE_LEDGER_G2_v0.1.json)" = "525b34004838e9131f26d4d6068390274df0063c"
+          test "$(git hash-object scripts/qps_reliability_g4_native_beam.py)" = "26fd5e89922f64a2edc33cf4d9f6e084335f13fb"
+      - name: Execute exact G4 separation generator
+        run: python3 scripts/qps_reliability_g4_native_beam.py
+      - name: Bind federated execution provenance
+        env:
+          EXECUTOR_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path('artifacts/qps_reliability_g4/g4_receipt.json')
+          r = json.loads(p.read_text())
+          assert r['governed_rows_zero_imputation_detected'] is False
+          assert r['governed_rows_unknowns_preserved_as_null'] is True
+          assert r['native_and_beam_fields_distinct'] is True
+          assert r['beam_requires_explicit_p_prop'] is True
+          assert r['non_engineering_test_vectors'] == 'PASS_EXCLUDED_FROM_ENGINEERING'
+          assert r['G4_candidate'] == 'PASS_EXECUTABLE_NATIVE_BEAM_SEPARATION'
+          fed = {
+              'schema': 'qps.reliability.g4.federated_execution_receipt.v0.1',
+              'source_repository': 'GBOGEB/cryoplant-project',
+              'source_candidate_head': '1548579755dedbba1916057c72282f7d294a7e82',
+              'source_blobs': {
+                  'ledger': '525b34004838e9131f26d4d6068390274df0063c',
+                  'generator': '26fd5e89922f64a2edc33cf4d9f6e084335f13fb'
+              },
+              'executor_repository': 'GBOGEB/Q_engineering_tools',
+              'executor_sha': os.environ['EXECUTOR_SHA'],
+              'run_id': int(os.environ['RUN_ID']),
+              'run_attempt': int(os.environ['RUN_ATTEMPT']),
+              'result': 'PASS_FEDERATED_EXACT_PAYLOAD',
+              'G4_formal_control': 'WITHHELD_UNTIL_CHILD_BINDS_EXECUTED_RECEIPT',
+              'engineering_credit_delta': 0
+          }
+          Path('artifacts/qps_reliability_g4/federated_execution_receipt.json').write_text(
+              json.dumps(fed, indent=2, sort_keys=True) + '\n'
+          )
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qps-reliability-g4-federated-receipt
+          path: artifacts/qps_reliability_g4/
+          if-no-files-found: error
