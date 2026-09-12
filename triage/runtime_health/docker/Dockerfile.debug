@@ -1,0 +1,15 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates clang lldb python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /opt/qps-debug
+COPY triage/runtime_health/docker/Probe.c ./Probe.c
+COPY triage/runtime_health/docker/entrypoint-debug.sh ./entrypoint-debug.sh
+RUN clang -g -O0 Probe.c -o probe \
+    && chmod +x entrypoint-debug.sh
+
+EXPOSE 4711
+ENTRYPOINT ["/opt/qps-debug/entrypoint-debug.sh"]

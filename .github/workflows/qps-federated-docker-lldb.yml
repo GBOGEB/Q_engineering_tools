@@ -1,0 +1,57 @@
+name: QPS Federated Docker LLDB
+
+on:
+  pull_request:
+    paths:
+      - 'triage/runtime_health/docker/**'
+      - 'runtime/debug/qps_federated_docker_manifest.json'
+      - 'scripts/qps_federated_docker_lldb.py'
+      - '.github/workflows/qps-federated-docker-lldb.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qps-exact-docker-lldb:
+    name: execute exact QPS Docker lldb-server primitive
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure host LLDB client is available
+        run: |
+          if ! command -v lldb >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y lldb
+          fi
+          lldb --version
+          docker --version
+      - name: Execute exact QPS Docker + lldb-server + dynamic port proof
+        run: python3 scripts/qps_federated_docker_lldb.py
+      - name: Enforce Docker primitive victory condition
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(
+              Path('artifacts/qps_debug/qps_federated_docker_lldb_receipt.json')
+              .read_text()
+          )
+          assert p['probe_status'] == 'ACCEPT', p
+          assert p['dov_status'] == 'PASS', p
+          assert p['source']['exact_payload_match'] is True, p
+          assert p['real_probe_steps'] > 0, p
+          assert p['observed_value_42'] is True, p
+          assert p['port']['host'] == '127.0.0.1', p
+          assert p['port']['allocation'] == 'docker_dynamic_host_port', p
+          assert p['minimum_victory_condition']['remote_stub_reachable'] is True
+          assert p['authority_guards']['qps_permanent_self_hosted_docker_gate'] \
+              == 'WITHHELD_CAPACITY'
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qps-federated-docker-lldb-receipt
+          path: artifacts/qps_debug/qps_federated_docker_lldb_receipt.json
+          if-no-files-found: error
