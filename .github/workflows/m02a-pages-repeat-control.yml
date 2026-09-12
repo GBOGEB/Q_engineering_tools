@@ -1,0 +1,121 @@
+name: M02A Pages Exact-Merged Repeat Control
+
+on:
+  push:
+    branches: [control/m02a-pages-repeat-84ec]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: m02a-pages-repeat-control
+  cancel-in-progress: false
+
+env:
+  TARGET_PRODUCT_SHA: 84ec3846d749edaa0951717f7f8f1f606683c79f
+  EXPECTED_MANIFEST_SHA256: d6be92629b5e287be600b0b3cb0d38501c92733274cb256d5a104b2162b35d10
+  RECOVERED_SOURCE_SHA: cea7bfb533c246c797ef43652579fe00a39dcd4d
+  RECOVERED_SOURCE_SUBTREE: cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0
+
+jobs:
+  exact-merged-repeat:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout control workflow carrier
+        uses: actions/checkout@v4
+
+      - name: Checkout exact merged product source
+        uses: actions/checkout@v4
+        with:
+          repository: GBOGEB/Q_engineering_tools
+          ref: ${{ env.TARGET_PRODUCT_SHA }}
+          path: target
+          persist-credentials: false
+
+      - name: Assert exact merged product source
+        shell: bash
+        run: |
+          actual="$(git -C target rev-parse HEAD)"
+          test "$actual" = "$TARGET_PRODUCT_SHA"
+
+      - name: Checkout exact recovered dashboard authority
+        uses: actions/checkout@v4
+        with:
+          repository: GBOGEB/document-organization-system
+          ref: ${{ env.RECOVERED_SOURCE_SHA }}
+          path: .qps-source
+          persist-credentials: false
+
+      - name: Rebuild exact merged product
+        run: |
+          python target/scripts/build_cryo_pages.py \
+            --repo-root target \
+            --source-root ".qps-source/${RECOVERED_SOURCE_SUBTREE}" \
+            --out _site \
+            --target-sha "$TARGET_PRODUCT_SHA"
+
+      - name: Enforce deterministic artifact manifest identity
+        shell: bash
+        run: |
+          actual="$(python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          p=Path('_site/artifact_manifest.json')
+          print(hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+          )"
+          echo "repeat_manifest_sha256=$actual"
+          echo "expected_manifest_sha256=$EXPECTED_MANIFEST_SHA256"
+          test "$actual" = "$EXPECTED_MANIFEST_SHA256"
+
+      - name: Exercise local repeat calculation
+        env:
+          LOCAL_SITE_ROOT: _site
+          EXPECTED_TARGET_SHA: ${{ env.TARGET_PRODUCT_SHA }}
+          RECEIPT_PATH: qps-repeat-local-calculation-receipt.json
+        run: node target/scripts/exercise_engineering_calc.mjs
+
+      - name: Upload repeat control evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: qps-pages-repeat-evidence-${{ github.run_id }}
+          path: |
+            _site/artifact_manifest.json
+            _site/qps-pages-build-receipt.json
+            qps-repeat-local-calculation-receipt.json
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload uniquely named Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          name: github-pages-repeat-${{ github.run_id }}
+          path: _site
+
+      - name: Deploy exact merged product repeat
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-repeat-${{ github.run_id }}
+
+      - name: Re-exercise calculation from public Pages URL
+        env:
+          PUBLIC_BASE_URL: ${{ steps.deployment.outputs.page_url }}
+          EXPECTED_TARGET_SHA: ${{ env.TARGET_PRODUCT_SHA }}
+          RECEIPT_PATH: qps-repeat-public-calculation-receipt.json
+        run: node target/scripts/exercise_engineering_calc.mjs
+
+      - name: Upload repeat public receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: qps-pages-repeat-public-${{ github.run_id }}
+          path: qps-repeat-public-calculation-receipt.json
