@@ -1,0 +1,28 @@
+{
+  "schema": "qps.federated_docker_payload.v1",
+  "classification": "MAINTENANCE_RUNTIME_ONLY",
+  "source_repository": "GBOGEB/cryoplant-project",
+  "source_exact_sha": "b36c7ee6c0a6871c69aaaed135aaaf6fa6c75bcb",
+  "files": {
+    "triage/runtime_health/docker/Dockerfile.debug": {
+      "git_blob_sha": "e735d34f0653bbb8a27acae17af788bff8525e8d",
+      "sha256": "810f231aa15b18e3454a85eecb708801daa9f239191a181f1845924eb392fa33"
+    },
+    "triage/runtime_health/docker/Probe.c": {
+      "git_blob_sha": "b6647fb1d0a28a859adf697ce4991cbb5e96f132",
+      "sha256": "e545936c5318fcf48ff578f7830b5b39331b27ca932bbfbf7e059240dc7044ef"
+    },
+    "triage/runtime_health/docker/entrypoint-debug.sh": {
+      "git_blob_sha": "1017ba89a38d1167e71ffe28a93df43be5f92647",
+      "sha256": "87bd3ff41a7c3a7d384008df48111f76c371f8f4ee79c3ef0bec2bf710d38ed4"
+    }
+  },
+  "executor_repository": "GBOGEB/Q_engineering_tools",
+  "runner_lane": "ubuntu-latest",
+  "purpose": "Prove the exact QPS Docker/lldb-server execution primitive independently of permanent self-hosted pool capacity.",
+  "authority_guards": {
+    "permanent_qps_self_hosted_docker_gate_remains_separate": true,
+    "formal_engineering_credit_delta": 0,
+    "negotiation_credit_delta": 0
+  }
+}
