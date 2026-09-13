@@ -1,0 +1,88 @@
+schema: qps-visual-n400-expansion/0.2
+status: ACTIVE_EXPANSION_TARGET
+as_of: 2026-09-13
+scope: outward_visual_QA_only
+baseline:
+  artifact_N: 100
+  per_format: 25
+  formats: [HTML, PDF, PPTX, XLSX]
+  features: 12
+  strict_provenance_receipt: ocd-adr/40_implementation/QPS_VISUAL_PCA_PROVENANCE_N100_RECEIPT_v0.3.yaml
+  semantic_note: historical_N100_receipts_may_use_reverse_BT_field_names_but_mean_VISUAL_REVERSE_PRESSURE_not_Bradley_Terry
+
+target:
+  artifact_N: 400
+  per_format: 100
+  added_artifacts_required_total: 300
+  added_artifacts_required_per_format: {HTML: 75, PDF: 75, PPTX: 75, XLSX: 75}
+  observations_per_variable: 33.3333333333
+  raw_rows: at_least_400_and_likely_higher_due_to_multi_page_slide_sheet_sampling
+
+checkpoints:
+  N200: {per_format: 50, added_from_N100_per_format: 25, role: convergence_checkpoint_not_final_target}
+  N300: {per_format: 75, added_from_N100_per_format: 50, role: convergence_checkpoint}
+  N400: {per_format: 100, added_from_N100_per_format: 75, role: target_population}
+
+eligibility_gate:
+  required_fields: [artifact_id, artifact_format, artifact_version_or_snapshot, source_hash, render_locator_page_slide_sheet_view, render_hash, reviewer_or_validator, review_timestamp, content_parity_pass, visual_release_eligible]
+  statistical_artifact_key: artifact_format_plus_artifact_id
+  unique_source_hash_across_distinct_statistical_artifact_keys: required
+  unique_render_hash_across_distinct_statistical_artifact_keys: required
+  family_version_deduplication: required
+  stale_or_mismatched_rows: exclude
+  content_parity: PASS_required
+  release_eligibility: PASS_required
+  zero_imputation: prohibited
+
+sampling_strategy:
+  balance: exact_equal_format_counts
+  family_balance: >-
+    Avoid allowing a single repeated export family, wave, management pack or source document lineage to dominate
+    a format. Preserve current QPS operational artifacts while adding qualified public/SCK references and independent
+    technical, management, compliance, cost, reliability and architecture families.
+  within_artifact_multi_locator_rows: average_to_one_artifact_level_row
+  duplicate_outward_exports_of_same_render: one_statistical_artifact_only
+
+analysis:
+  PCA: standardized_correlation_matrix
+  parallel_analysis: {percentile: 95, simulations_per_N: 5000, seed: 777}
+  visual_reverse_pressure:
+    method_class: NON_BT_WEIGHTED_SCALAR_PRIORITY
+    formula: 70pct_normalized_maturity_gap_plus_30pct_absolute_PC1_loading
+    pairwise_outcomes_used: false
+    Bradley_Terry_fit_performed: false
+  compare_checkpoints: [N100, N200, N300, N400]
+  metrics:
+    - PC1_loading_congruence_to_N400
+    - PC2_loading_congruence_to_N400_after_axis_alignment
+    - PA95_component_retention
+    - visual_reverse_pressure_spearman_to_N400
+    - visual_reverse_pressure_top3_set_drift
+    - KMO_and_minimum_MSA
+
+N400_victory:
+  full_N400_PA95_PC1_retained: true
+  full_N400_PC2: report_without_forced_semantic_label
+  balanced_N320_PC2_retention_fraction_target: '>=0.90'
+  balanced_N240_PC2_retention_fraction_target: '>=0.80'
+  N100_to_N400_PC1_loading_congruence_target: '>=0.98'
+  N100_to_N400_visual_reverse_pressure_spearman_target: '>=0.90'
+  top3_set_drift_max_items: 1
+  minimum_MSA_target: '>=0.60'
+  project_global_PCA: WITHHELD
+  engineering_compliance_negotiation_credit: false
+  Bradley_Terry_claim_without_pairwise_fit: prohibited
+
+current_staging:
+  HTML_increment_first_25: RENDERED_CANDIDATES_NOT_YET_ELIGIBILITY_PROMOTED
+  PDF_increment: ACTIVE_MATERIALIZATION_AND_REVIEW
+  PPTX_increment: ACTIVE_CENSUS
+  XLSX_increment: ACTIVE_CENSUS
+
+stop_rules:
+  - no_duplicate_source_or_render_as_independent_artifact
+  - no_generated_view_as_engineering_authority
+  - no_visual_score_as_engineering_or_compliance_credit
+  - no_visual_reverse_pressure_as_Bradley_Terry_evidence
+  - no_PC2_semantic_name_without_calibration_and_N400_replication
+  - no_N400_claim_until_100_per_format_passes_provenance_and_dedupe_gate

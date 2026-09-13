@@ -1,0 +1,57 @@
+name: QPS W162 Visual Convergence Control
+
+on:
+  pull_request:
+    paths:
+      - 'triage/w162/QPS_W162_VISUAL_N200_CENSUS_v0.2.yaml'
+      - 'scripts/qps_w162_validate_visual_convergence.py'
+      - 'tests/test_qps_w162_visual_convergence.py'
+      - 'ocd-adr/40_implementation/QPS_VISUAL_PCA_N100_GENERATION_RECEIPT.json'
+      - 'ocd-adr/40_implementation/QPS_VISUAL_PCA_BALANCED_SAMPLE_CONVERGENCE.csv'
+      - 'ocd-adr/40_implementation/QPS_VISUAL_N400_EXPANSION_PLAN_v0.1.yaml'
+  push:
+    branches: [main]
+    paths:
+      - 'triage/w162/QPS_W162_VISUAL_N200_CENSUS_v0.2.yaml'
+      - 'scripts/qps_w162_validate_visual_convergence.py'
+      - 'tests/test_qps_w162_visual_convergence.py'
+      - 'ocd-adr/40_implementation/QPS_VISUAL_PCA_N100_GENERATION_RECEIPT.json'
+      - 'ocd-adr/40_implementation/QPS_VISUAL_PCA_BALANCED_SAMPLE_CONVERGENCE.csv'
+      - 'ocd-adr/40_implementation/QPS_VISUAL_N400_EXPANSION_PLAN_v0.1.yaml'
+
+permissions:
+  contents: read
+
+jobs:
+  visual-convergence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install validator dependency
+        run: python -m pip install PyYAML==6.0.3
+      - name: Execute W162 regression tests
+        run: python -m unittest discover -s tests -p 'test_qps_w162_visual_convergence.py' -v
+      - name: Validate measured convergence and N200 deficit
+        run: >-
+          python scripts/qps_w162_validate_visual_convergence.py
+          --output QPS_W162_VISUAL_CONVERGENCE_RUNTIME_RECEIPT.json
+      - name: Require fail-closed result
+        run: |
+          python - <<'PY'
+          import json
+          r = json.load(open('QPS_W162_VISUAL_CONVERGENCE_RUNTIME_RECEIPT.json', encoding='utf-8'))
+          assert r['status'] == 'PASS_W162_VISUAL_CONVERGENCE', r
+          assert r['validated_N'] == [60, 80, 100], r
+          assert r['N200_independent_new_artifacts'] == 0, r
+          assert r['N200_remaining_deficit_total'] == 100, r
+          assert all(v == 25 for v in r['N200_remaining_deficit_per_format'].values()), r
+          print('PASS_W162_VISUAL_CONVERGENCE_N200_UNEARNED')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qps-w162-visual-convergence-${{ github.sha }}
+          path: QPS_W162_VISUAL_CONVERGENCE_RUNTIME_RECEIPT.json
+          if-no-files-found: error
