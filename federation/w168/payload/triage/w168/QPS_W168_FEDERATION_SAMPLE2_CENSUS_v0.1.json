@@ -1,0 +1,112 @@
+{
+  "schema": "qps-w168-federation-sample2-census/v0.1",
+  "wave": "W168",
+  "sample_id": "FED-SAMPLE-002-ABACUS-W74",
+  "source": {
+    "repository": "GBOGEB/ABACUS",
+    "pr": 1178,
+    "head_sha": "0af0c834a9fdb6677fb62454096f9cf439b872ab",
+    "merge_sha": "54ca866d9a191fff69289ff4a74a3e299689aa18",
+    "changed_files": [
+      ".github/workflows/w74-qplant-k8s-contract.yml",
+      "qplant/deployment/k8s/deployment-api-server.yaml",
+      "qplant/deployment/k8s/network-policy.yaml",
+      "qplant/deployment/k8s/service.yaml",
+      "qplant/deployment/k8s/ssot-validation-init-container.yaml",
+      "qplant/deployment/scripts/validate_k8s_contract.py",
+      "tests/test_w74_qplant_k8s_contract.py",
+      "triage/W74_K8S_EDGE_READINESS.yaml"
+    ]
+  },
+  "observed_runtime": {
+    "run_id": 34772257778,
+    "job_id": 103763867689,
+    "runner_id": 1000265098,
+    "validator_receipt": {
+      "schema": "qplant-k8s-contract-receipt/v1",
+      "status": "PASS",
+      "api_port": 8100,
+      "namespace": "qplant-production",
+      "baseline_replicas": 3,
+      "max_replicas": 10
+    },
+    "regression": {
+      "status": "FAIL_COLLECTION",
+      "error": "ModuleNotFoundError: No module named 'numpy'",
+      "origin": "tests/conftest.py:5",
+      "interpretation": "GLOBAL_TEST_HARNESS_SCOPE_LEAKAGE"
+    }
+  },
+  "crossfeed": {
+    "repository": "GBOGEB/ABACUS",
+    "pr": 1183,
+    "head_sha": "faca2038eae08446e098fccb785a02adf8388fcd",
+    "repair": "pytest --noconftest tests/test_w74_qplant_k8s_contract.py -q",
+    "state": "OPEN_PENDING_RUNTIME"
+  },
+  "breadth": {
+    "repositories": {"covered": ["GBOGEB/ABACUS", "GBOGEB/cryoplant-project"], "numerator": 2, "denominator": 2},
+    "source_changed_files": {"numerator": 8, "denominator": 8},
+    "runtime_vectors": {"covered": ["ABACUS_W74_PR_HEAD_RUNTIME"], "numerator": 1, "denominator": 1},
+    "specialist_outputs": {
+      "covered": ["AMBASSADOR", "GEOGRAPHER", "GEOLOGIST", "CALLIGRAPHER", "NEURON_GRAPH_DECOMPOSER", "HISTORIAN"],
+      "numerator": 6,
+      "denominator": 6
+    },
+    "total": {"numerator": 17, "denominator": 17, "ratio": 1.0}
+  },
+  "depth": {
+    "passed": ["DISCOVERY", "SOURCE_BINDING", "SEMANTIC_CONTRACT", "OBSERVED_SOURCE_RUNTIME", "DEFECT_LINEAGE_CLASSIFICATION", "SOURCE_AUTHORITY_CROSSFEED"],
+    "pending": ["REPAIRED_SOURCE_RUNTIME", "AUTHORITATIVE_RETURN"],
+    "numerator": 6,
+    "denominator": 8,
+    "ratio": 0.75
+  },
+  "penetration": {"formula": "B*D", "value": 0.75},
+  "historian": {
+    "observed_nodes": [
+      "ABACUS_PR1178",
+      "W74_HEAD_0af0c834",
+      "W74_RUN_34772257778",
+      "W74_VALIDATOR_PASS",
+      "W74_PYTEST_COLLECTION_FAIL",
+      "W168_DEFECT_CLASSIFICATION",
+      "ABACUS_MAIN_b48c2dc8",
+      "W168_CROSSFEED_faca2038",
+      "ABACUS_PR1183"
+    ],
+    "observed_edges": [
+      ["ABACUS_PR1178", "W74_HEAD_0af0c834"],
+      ["W74_HEAD_0af0c834", "W74_RUN_34772257778"],
+      ["W74_RUN_34772257778", "W74_VALIDATOR_PASS"],
+      ["W74_VALIDATOR_PASS", "W74_PYTEST_COLLECTION_FAIL"],
+      ["W74_PYTEST_COLLECTION_FAIL", "W168_DEFECT_CLASSIFICATION"],
+      ["ABACUS_MAIN_b48c2dc8", "W168_CROSSFEED_faca2038"],
+      ["W168_DEFECT_CLASSIFICATION", "W168_CROSSFEED_faca2038"],
+      ["W168_CROSSFEED_faca2038", "ABACUS_PR1183"]
+    ],
+    "pending_nodes": ["W168_REPAIRED_RUNTIME", "W168_AUTHORITATIVE_RETURN"]
+  },
+  "neuron": {
+    "observed_node_count": 9,
+    "observed_edge_count": 8,
+    "connected_components": 1,
+    "rule": "VALIDATOR_PASS_AND_HARNESS_FAIL_ARE_DISTINCT_NODES"
+  },
+  "ambassador": {
+    "outbound": "ABACUS_W74_TO_MISSION_CONTROL",
+    "return": "MISSION_CONTROL_TO_ABACUS_PR1183",
+    "authority_transfer": false,
+    "round_trip_complete": false
+  },
+  "calligrapher": {
+    "ascii": "ABACUS PR1178 -> W74 RUN -> VALIDATOR PASS -> HARNESS FAIL -> W168 CLASSIFY -> PR1183 REPAIR -> [RUNTIME PENDING] -> [RETURN PENDING]",
+    "mermaid": "flowchart LR; A[ABACUS PR1178]-->B[W74 runtime]; B-->C[validator PASS]; C-->D[harness FAIL]; D-->E[W168 classify]; E-->F[ABACUS PR1183 repair]; F-.->G[repaired runtime pending]; G-.->H[authoritative return pending]"
+  },
+  "promotion_guard": {
+    "specialists_second_sample_output": true,
+    "specialists_second_sample_accepted": false,
+    "control_eligibility": false,
+    "reason": "REPAIRED_SOURCE_RUNTIME_AND_AUTHORITATIVE_RETURN_PENDING"
+  }
+}

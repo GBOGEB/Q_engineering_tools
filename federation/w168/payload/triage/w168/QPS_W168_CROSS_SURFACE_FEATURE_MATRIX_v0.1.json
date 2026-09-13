@@ -1,0 +1,76 @@
+{
+  "schema": "qps-federation-cross-surface-feature-matrix/v0.1",
+  "wave": "W168",
+  "purpose": "START_MEASURED_CROSS_SURFACE_PCA_BT_INPUT_WITHOUT_PREMATURE_FIT",
+  "rows": [
+    {
+      "sample_id": "FED-SAMPLE-001-W164-CONTROL",
+      "surface": "MISSION_FEDERATION_CONTROL",
+      "repositories_observed": 2,
+      "artifact_units": 5,
+      "runtime_vectors": 3,
+      "specialist_outputs": 6,
+      "breadth_ratio": 1.0,
+      "depth_ratio": 1.0,
+      "penetration": 1.0,
+      "lineage_nodes": 9,
+      "lineage_edges": 8,
+      "runner_assigned": 1,
+      "runtime_first_red_present": 1,
+      "accepted_sample": 1
+    },
+    {
+      "sample_id": "FED-SAMPLE-002-ABACUS-W74",
+      "surface": "KUBERNETES_DEPLOYMENT_CONTRACT",
+      "repositories_observed": 2,
+      "artifact_units": 8,
+      "runtime_vectors": 1,
+      "specialist_outputs": 6,
+      "breadth_ratio": 1.0,
+      "depth_ratio": 0.75,
+      "penetration": 0.75,
+      "lineage_nodes": 9,
+      "lineage_edges": 8,
+      "runner_assigned": 1,
+      "runtime_first_red_present": 1,
+      "accepted_sample": 0
+    }
+  ],
+  "feature_columns": [
+    "repositories_observed",
+    "artifact_units",
+    "runtime_vectors",
+    "specialist_outputs",
+    "breadth_ratio",
+    "depth_ratio",
+    "penetration",
+    "lineage_nodes",
+    "lineage_edges",
+    "runner_assigned",
+    "runtime_first_red_present",
+    "accepted_sample"
+  ],
+  "analytics_gate": {
+    "row_count": 2,
+    "pca_minimum_rows": 3,
+    "pca_state": "WITHHELD_N_LT_3",
+    "bt_observed_pairwise_outcomes": 0,
+    "bt_minimum_pairwise_outcomes": 3,
+    "bt_state": "WITHHELD_NO_OBSERVED_PAIRWISE_OUTCOME_EVIDENCE",
+    "reverse_pressure_ranking": "DESCRIPTIVE_ONLY_NOT_MODEL_DERIVED"
+  },
+  "descriptive_delta_sample2_minus_sample1": {
+    "artifact_units": 3,
+    "runtime_vectors": -2,
+    "breadth_ratio": 0.0,
+    "depth_ratio": -0.25,
+    "penetration": -0.25,
+    "accepted_sample": -1
+  },
+  "next_information_gain": [
+    "ABACUS_PR1183_REPAIRED_RUNTIME",
+    "AUTHORITATIVE_RETURN_TO_CRYOPLANT",
+    "THIRD_DISTINCT_FEDERATION_SURFACE_FOR_PCA_ADMISSION",
+    "OBSERVED_PAIRWISE_DISPOSITION_OUTCOMES_FOR_BT"
+  ]
+}

@@ -1,0 +1,148 @@
+name: W168F Exact Federation Expansion Executor
+
+on:
+  pull_request:
+    paths:
+      - 'federation/w168/**'
+      - '.github/workflows/w168f-federation-expansion-exact.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'federation/w168/**'
+      - '.github/workflows/w168f-federation-expansion-exact.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  execute-w168-exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install test dependency
+        run: python -m pip install --disable-pip-version-check pytest==9.0.3
+
+      - name: Verify byte-identical source payload
+        run: |
+          test "$(git hash-object federation/w168/payload/controls/QPS_FEDERATION_EXPANSION_SAMPLE2_CURRENT_v1.json)" = "f712567d4211db645dd0cc4da4b434492fe90eca"
+          test "$(git hash-object federation/w168/payload/triage/w168/QPS_W168_FEDERATION_SAMPLE2_CENSUS_v0.1.json)" = "b567d112a628fb01cdde1f36c31d69e9bbe6c6a4"
+          test "$(git hash-object federation/w168/payload/triage/w168/QPS_W168_CROSS_SURFACE_FEATURE_MATRIX_v0.1.json)" = "fdc977f2057a6368eb3719b50c4afd11a536e465"
+          test "$(git hash-object federation/w168/payload/scripts/qps_w168_validate_federation_expansion.py)" = "ad7adbb810489be1bfaf4394d801b7fcd3902018"
+          test "$(git hash-object federation/w168/payload/tests/test_qps_w168_federation_expansion.py)" = "e96bdcffdf72e61225ae961fe774219b5f57f486"
+
+      - name: Validate exact W168 source payload
+        working-directory: federation/w168/payload
+        run: python scripts/qps_w168_validate_federation_expansion.py
+
+      - name: Run exact W168 regression tests
+        working-directory: federation/w168/payload
+        run: python -m pytest tests/test_qps_w168_federation_expansion.py -q
+
+      - name: Emit W168F exact execution receipt
+        env:
+          EXACT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          observed = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          expected = os.environ['EXACT_SHA']
+          if observed != expected:
+              raise SystemExit(f'exact-head mismatch expected={expected} observed={observed}')
+
+          receipt = {
+              'schema': 'qps-w168f-exact-federation-expansion-receipt/v0.1',
+              'source_repository': 'GBOGEB/cryoplant-project',
+              'source_pr': 1097,
+              'source_head_sha': '43f75756ebe967f4903ddcbded06a840de128cff',
+              'source_payload_blobs': {
+                  'control': 'f712567d4211db645dd0cc4da4b434492fe90eca',
+                  'census': 'b567d112a628fb01cdde1f36c31d69e9bbe6c6a4',
+                  'matrix': 'fdc977f2057a6368eb3719b50c4afd11a536e465',
+                  'validator': 'ad7adbb810489be1bfaf4394d801b7fcd3902018',
+                  'tests': 'e96bdcffdf72e61225ae961fe774219b5f57f486',
+              },
+              'native_runtime': {
+                  'run_id': 34774474668,
+                  'job_id': 103769929432,
+                  'runner_id': 0,
+                  'recorded_steps': 0,
+                  'classification': 'PREEXECUTION_ADMISSION_GATE_923_REX_006',
+              },
+              'abacus_original_runtime': {
+                  'run_id': 34772257778,
+                  'job_id': 103763867689,
+                  'runner_id': 1000265098,
+                  'validator': 'PASS',
+                  'regression': 'FAIL_COLLECTION_NUMPY',
+              },
+              'abacus_crossfeed': {
+                  'pr': 1183,
+                  'head_sha': 'faca2038eae08446e098fccb785a02adf8388fcd',
+                  'repair_run_id': 34774368482,
+                  'repair_job_id': 103769636936,
+                  'repair_runner_id': 1000266616,
+                  'repair_result': 'PASS',
+                  'merge_sha': 'e53a92490a9ae8b5b67cb75eb7f522f84ccb0188',
+              },
+              'runner_repository': 'GBOGEB/Q_engineering_tools',
+              'runner_head_sha': observed,
+              'run_id': int(os.environ['RUN_ID']),
+              'run_attempt': int(os.environ['RUN_ATTEMPT']),
+              'steps_gt_zero': True,
+              'exact_blob_identity': 'PASS_5_OF_5',
+              'bounded_source_measurement': {
+                  'B': {'numerator': 17, 'denominator': 17, 'value': 1.0},
+                  'D': {'numerator': 6, 'denominator': 8, 'value': 0.75},
+                  'PEN': 0.75,
+              },
+              'repair_depth_d7_observed_after_source_payload': True,
+              'authoritative_return_d8': False,
+              'specialist_control_eligibility': False,
+              'cross_surface_matrix_rows': 2,
+              'pca': 'WITHHELD_N_LT_3',
+              'bt': 'WITHHELD_NO_OBSERVED_PAIRWISE_OUTCOME_EVIDENCE',
+              'global_fleet_denominator': None,
+              'global_fleet_penetration': None,
+              'grand_mission_penetration': None,
+              'authority_transfer': False,
+              'preserved_non_compensating_gates': [
+                  'QPS_REPO_LOCAL_RUNNER_923',
+                  'G6_CURRENT_RELEASE_IDENTITY_AND_PARITY',
+                  'W165_EDGE_K8S_MEASUREMENT_GATE',
+                  'W167_VISUAL_N200_RENDER_IDENTITY_HUNT',
+                  'EXTERNAL_SOURCE_AND_AUTHORITY_GATES',
+                  'VISUAL_N200_INDEPENDENT_COLLECTION',
+              ],
+              'formal_credit_delta': {'engineering': 0, 'compliance': 0, 'negotiation': 0, 'release': 0},
+              'status': 'PASS_EXACT_W168_SOURCE_PAYLOAD_D7_EXTERNAL_OBSERVED_D8_PENDING',
+          }
+          out = Path('artifacts/w168f')
+          out.mkdir(parents=True, exist_ok=True)
+          (out / 'QPS_W168F_EXACT_FEDERATION_EXPANSION_RECEIPT.json').write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Upload W168F exact receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: qps-w168f-exact-federation-expansion-receipt
+          path: artifacts/w168f/QPS_W168F_EXACT_FEDERATION_EXPANSION_RECEIPT.json
+          if-no-files-found: error
