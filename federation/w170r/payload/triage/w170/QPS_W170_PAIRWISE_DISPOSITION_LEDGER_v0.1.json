@@ -1,0 +1,64 @@
+{
+  "schema": "qps-federation-observed-pairwise-ledger/v0.1",
+  "wave": "W170",
+  "purpose": "CAPTURE_REAL_PAIRWISE_DISPOSITIONS_INDEPENDENTLY_FROM_PCA",
+  "outcomes": [
+    {
+      "outcome_id": "PAIR-001-M05-ATTEST-IMPLEMENTATION",
+      "decision_domain": "PROVENANCE_IMPLEMENTATION",
+      "winner": "DIRECT_ACTIONS_ATTEST",
+      "loser": "ATTEST_BUILD_PROVENANCE_WRAPPER_FOR_NEW_IMPLEMENTATION",
+      "result": 1,
+      "evidence_repo": "GBOGEB/CODEX",
+      "evidence_pr": 648,
+      "evidence_head": "097cb1bf0bea3f1d64e86d7d6496d6dae56aacd6",
+      "evidence_kind": "SOURCE_CENSUS_AND_IMPLEMENTATION_SELECTION",
+      "observed": true,
+      "notes": "M05 selected actions/attest directly; wrapper retained as reference for existing applications."
+    },
+    {
+      "outcome_id": "PAIR-002-W168-TEST-HARNESS",
+      "decision_domain": "BOUNDED_TEST_HARNESS",
+      "winner": "TARGETED_NOCONFTEST_ISOLATION",
+      "loser": "INHERIT_UNRELATED_GLOBAL_FIXTURES",
+      "result": 1,
+      "evidence_repo": "GBOGEB/ABACUS",
+      "evidence_pr": 1183,
+      "evidence_head": "faca2038eae08446e098fccb785a02adf8388fcd",
+      "evidence_kind": "OBSERVED_FIRST_RED_REPAIR",
+      "observed": true,
+      "notes": "W74 validator passed; pytest collection failed through unrelated global NumPy fixture. Repair isolated the bounded test with --noconftest."
+    },
+    {
+      "outcome_id": "PAIR-003-W168-PRIVATE-SIBLING-TRANSPORT",
+      "decision_domain": "PRIVATE_SIBLING_EVIDENCE_TRANSPORT",
+      "winner": "EXACT_GIT_BLOB_MIRRORING",
+      "loser": "WIDEN_REPOSITORY_CREDENTIAL_SCOPE",
+      "result": 1,
+      "evidence_repo": "GBOGEB/Q_engineering_tools",
+      "evidence_pr": 35,
+      "evidence_head": "311153d0997cedaf90998f9d4c481e60cd8c7d31",
+      "evidence_kind": "OBSERVED_TRANSPORT_FAILURE_AND_REPAIR",
+      "observed": true,
+      "notes": "Private sibling checkout failed under repo-scoped token; exact blob mirroring was chosen without credential widening."
+    }
+  ],
+  "bt_gate": {
+    "observed_pairwise_outcomes": 3,
+    "minimum_outcomes": 3,
+    "connected_comparison_graph": false,
+    "repeated_comparable_items": false,
+    "fit_state": "WITHHELD_DISCONNECTED_HETEROGENEOUS_COMPARISON_GRAPH",
+    "rule": "COUNT_ALONE_DOES_NOT_ADMIT_BT; OUTCOMES_MUST_FORM_A_COMPARABLE_CONNECTED_GRAPH"
+  },
+  "guards": [
+    "NO_PAIRWISE_OUTCOME_DERIVED_FROM_PCA_SCORE",
+    "NO_SYNTHETIC_WIN_LOSS_FROM_BREADTH_DEPTH_OR_PENETRATION",
+    "NO_BT_RANKING_UNTIL_CONNECTED_COMPARABLE_GRAPH"
+  ],
+  "next_capture": [
+    "REPEAT_DISPOSITIONS_WITH_SHARED_CANDIDATE_CLASSES",
+    "RECORD_TIES_OR_REJECTIONS_EXPLICITLY_IF_OBSERVED",
+    "FIT_BT_ONLY_AFTER_GRAPH_CONNECTIVITY_AND_IDENTIFIABILITY_CHECK"
+  ]
+}
