@@ -1,0 +1,73 @@
+{
+  "schema": "qps-federation-measurement-control/v1.0",
+  "as_of": "2026-09-13T19:52:00+02:00",
+  "repository": "GBOGEB/cryoplant-project",
+  "wave": "W166",
+  "authority": "MISSION_CONTROL_MEASUREMENT_AND_CREW_REX_ONLY",
+  "status": "PILOT_BOUND_PENDING_RUNTIME",
+  "predecessor": {
+    "wave": "W164",
+    "receipt": "triage/w164/QPS_W164_MISSION_FEDERATION_RUNTIME_CONTROL_v0.1.yaml",
+    "receipt_blob": "476c7d80f42b2850555477a837cb645f3675800a",
+    "state": "CONTROL_FEDERATED_EXACT_PAYLOAD_REPEAT_NATIVE_PREEXECUTION_PRESERVED"
+  },
+  "scope_guard": {
+    "pilot_scope": "W164_CONTROL_SURFACE_ONLY",
+    "global_fleet_penetration_claim": false,
+    "grand_mission_coverage_claim": false,
+    "grand_mission_authority_changed": false,
+    "formal_credit_delta": {"engineering": 0, "compliance": 0, "negotiation": 0, "release": 0}
+  },
+  "measurement_rules": {
+    "penetration_formula": "PEN=B*D",
+    "ratio_rule": "EVERY_RATIO_REQUIRES_EXPLICIT_NUMERATOR_AND_DENOMINATOR",
+    "unknown_rule": "NULL_NOT_ZERO",
+    "aggregation_rule": "BOUNDED_SCOPE_ONLY_NO_GLOBAL_EXTRAPOLATION",
+    "breadth_owner": "GEOGRAPHER",
+    "depth_owner": "GEOLOGIST"
+  },
+  "breadth_dimensions": [
+    "repository_coverage",
+    "artifact_class_coverage",
+    "runtime_vector_coverage",
+    "specialist_output_coverage"
+  ],
+  "depth_dimensions": [
+    "discovery",
+    "source_binding",
+    "semantic_contract",
+    "native_runtime_attempt",
+    "federated_pr_head_execution",
+    "postmerge_repeat",
+    "authoritative_return"
+  ],
+  "specialist_roles": {
+    "AMBASSADOR": "ROUND_TRIP_CROSS_REPO_HANDSHAKE",
+    "GEOGRAPHER": "BREADTH_DENOMINATOR_AND_COVERAGE",
+    "GEOLOGIST": "DEPTH_LAYER_PENETRATION",
+    "CALLIGRAPHER": "ASCII_AND_MERMAID_FLOW_RENDERING",
+    "NEURON_GRAPH_DECOMPOSER": "NODE_EDGE_DEPENDENCY_DECOMPOSITION",
+    "HISTORIAN": "PR_COMMIT_RUN_ARTIFACT_LINEAGE"
+  },
+  "crew_promotion_rule": {
+    "static_binding": "NO_PROMOTION",
+    "runtime_validated_specialist_output": "ELIGIBLE_FOR_SEEDED_TO_MEASURED",
+    "repeatable_accepted_output": "ELIGIBLE_FOR_MEASURED_TO_CONTROLLED",
+    "control_eligibility_never_inferred_from_role_name": true
+  },
+  "required_runtime_dov": [
+    "EXACT_HEAD_BOUND",
+    "STEPS_GT_ZERO",
+    "PILOT_VALIDATOR_PASS",
+    "REGRESSION_TESTS_PASS",
+    "MEASURED_SPECIALIST_RECEIPT_EMITTED",
+    "POSTMERGE_REPEAT_PASS"
+  ],
+  "preserved_non_compensating_gates": [
+    "QPS_REPO_LOCAL_RUNNER_923",
+    "G6_CURRENT_RELEASE_IDENTITY_AND_PARITY",
+    "W165_EDGE_K8S_MEASUREMENT_GATE",
+    "EXTERNAL_SOURCE_AND_AUTHORITY_GATES",
+    "VISUAL_N200_INDEPENDENT_COLLECTION"
+  ]
+}
