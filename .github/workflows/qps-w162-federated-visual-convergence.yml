@@ -1,0 +1,100 @@
+name: W162F Visual Convergence Exact Payload
+
+on:
+  pull_request:
+    paths:
+      - 'federation/w162/**'
+      - '.github/workflows/qps-w162-federated-visual-convergence.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'federation/w162/**'
+      - '.github/workflows/qps-w162-federated-visual-convergence.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  exact-w162-payload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prove exact cryoplant W162 Git blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          check_blob() {
+            local path="$1" expected="$2"
+            actual="$(git hash-object "$path")"
+            echo "$path $actual"
+            test "$actual" = "$expected"
+          }
+          check_blob federation/w162/payload/triage/w162/QPS_W162_VISUAL_N200_CENSUS_v0.2.yaml 175e76a66c9e75c3cf6e1c258d3094c6744a7a42
+          check_blob federation/w162/payload/scripts/qps_w162_validate_visual_convergence.py 88c3674a9aab170e45eabe169e500aa3e1f4f204
+          check_blob federation/w162/payload/tests/test_qps_w162_visual_convergence.py 95b7f52d0c8bbfada247c0ec8dd37dd82773f3ee
+          check_blob federation/w162/payload/ocd-adr/40_implementation/QPS_VISUAL_PCA_N100_GENERATION_RECEIPT.json 98249f0ae574d2d97292dc415d421bfc7a128202
+          check_blob federation/w162/payload/ocd-adr/40_implementation/QPS_VISUAL_PCA_BALANCED_SAMPLE_CONVERGENCE.csv ebe87e800e4b8614127787b63c12e768a9eaf8b0
+          check_blob federation/w162/payload/ocd-adr/40_implementation/QPS_VISUAL_N400_EXPANSION_PLAN_v0.1.yaml 4db6deabb05f7a77d17326a5dad332c7e0490c3e
+      - name: Install validator dependency
+        run: python -m pip install PyYAML==6.0.3
+      - name: Execute exact child regression tests
+        working-directory: federation/w162/payload
+        run: python -m unittest discover -s tests -p 'test_qps_w162_visual_convergence.py' -v
+      - name: Execute exact child visual convergence validator
+        working-directory: federation/w162/payload
+        run: >-
+          python scripts/qps_w162_validate_visual_convergence.py
+          --output W162F_CHILD_VISUAL_CONVERGENCE_RECEIPT.json
+      - name: Emit federated execution receipt
+        shell: bash
+        env:
+          SOURCE_REPO: GBOGEB/cryoplant-project
+          SOURCE_PR: '1078'
+          SOURCE_HEAD: 4db05943868af1f502dba3090485534600349bd3
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          child_path = 'federation/w162/payload/W162F_CHILD_VISUAL_CONVERGENCE_RECEIPT.json'
+          child = json.load(open(child_path, encoding='utf-8'))
+          assert child['status'] == 'PASS_W162_VISUAL_CONVERGENCE', child
+          assert child['validated_N'] == [60, 80, 100], child
+          assert child['N200_independent_new_artifacts'] == 0, child
+          assert child['N200_remaining_deficit_total'] == 100, child
+          assert all(v == 25 for v in child['N200_remaining_deficit_per_format'].values()), child
+          executor_head = subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip()
+          out = {
+            'schema': 'qps.w162f.federated_visual_convergence_receipt.v1',
+            'status': 'PASS_FEDERATED_EXACT_PAYLOAD',
+            'authority': 'FEDERATED_EXECUTION_ONLY_VISUAL_QA_MEASUREMENT',
+            'source_repo': os.environ['SOURCE_REPO'],
+            'source_pr': int(os.environ['SOURCE_PR']),
+            'source_head': os.environ['SOURCE_HEAD'],
+            'source_blobs': {
+              'w162_receipt': '175e76a66c9e75c3cf6e1c258d3094c6744a7a42',
+              'validator': '88c3674a9aab170e45eabe169e500aa3e1f4f204',
+              'tests': '95b7f52d0c8bbfada247c0ec8dd37dd82773f3ee',
+              'generation_receipt': '98249f0ae574d2d97292dc415d421bfc7a128202',
+              'convergence_csv': 'ebe87e800e4b8614127787b63c12e768a9eaf8b0',
+              'expansion_plan': '4db6deabb05f7a77d17326a5dad332c7e0490c3e'
+            },
+            'executor_repo': 'GBOGEB/Q_engineering_tools',
+            'executor_head': executor_head,
+            'child_validation': child,
+            'native_child_runtime': 'INDEPENDENTLY_WITHHELD_RUNNER_ID_0_ZERO_STEPS',
+            'N200_credit_delta': 0,
+            'formal_credit_delta': {'engineering':0,'compliance':0,'negotiation':0,'release':0}
+          }
+          with open('QPS_W162F_FEDERATED_VISUAL_CONVERGENCE_RECEIPT.json','w',encoding='utf-8') as f:
+              json.dump(out,f,indent=2,sort_keys=True); f.write('\n')
+          print('PASS_W162F_FEDERATED_EXACT_PAYLOAD', executor_head)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qps-w162f-visual-convergence-${{ github.sha }}
+          path: |
+            federation/w162/payload/W162F_CHILD_VISUAL_CONVERGENCE_RECEIPT.json
+            QPS_W162F_FEDERATED_VISUAL_CONVERGENCE_RECEIPT.json
+          if-no-files-found: error

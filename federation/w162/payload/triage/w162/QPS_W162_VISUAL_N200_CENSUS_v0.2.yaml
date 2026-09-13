@@ -1,0 +1,191 @@
+schema: qps-w162-visual-n200-census/0.2
+as_of: '2026-09-13T18:23:00+02:00'
+repo: GBOGEB/cryoplant-project
+wave: W162
+status: MEASURED_N60_N80_N100_CONVERGENCE_BOUND_N200_NOT_ACHIEVED
+authority: VISUAL_QA_MEASUREMENT_ONLY
+
+parallel_boundary:
+  W163_namespace_control: INDEPENDENT_CONTROL_LANE_ALREADY_CLOSED
+  rule: W162_VISUAL_MEASUREMENT_DOES_NOT_RENUMBER_REWRITE_OR_PROMOTE_W163
+
+basis:
+  current_main_at_restart: b2a8b80dc6864b1569c943e72444db954dc0c3f5
+  frozen_N100_control: controls/QPS_VISUAL_QA_PCA_BT_CURRENT_v0.2.yaml
+  generation_receipt: ocd-adr/40_implementation/QPS_VISUAL_PCA_N100_GENERATION_RECEIPT.json
+  convergence_csv: ocd-adr/40_implementation/QPS_VISUAL_PCA_BALANCED_SAMPLE_CONVERGENCE.csv
+  convergence_csv_git_blob: ebe87e800e4b8614127787b63c12e768a9eaf8b0
+  expansion_plan: ocd-adr/40_implementation/QPS_VISUAL_N400_EXPANSION_PLAN_v0.1.yaml
+  generation_method:
+    balanced_sampling_seed: 20260913
+    parallel_analysis_seed: 777
+    parallel_analysis_simulations_per_N: 5000
+    sample_sizes: [60, 80, 100]
+    formats: [HTML, PDF, PPTX, XLSX]
+
+measurement_reconciliation:
+  raw_rows: 112
+  eligible_raw_rows: 112
+  statistical_artifact_key: artifact_format_plus_artifact_id
+  governed_artifact_N: 100
+  governed_format_counts: {HTML: 25, PDF: 25, PPTX: 25, XLSX: 25}
+  raw_feature_completeness_pct: 100.0
+  key_finding: N112_IS_RAW_ROW_COUNT_NOT_ARTIFACT_LEVEL_N
+  forbidden_interpretation: SUBTRACT_112_FROM_N200
+  correct_interpretation: >-
+    Multi-page, slide, sheet and view observations aggregate to one governed statistical artifact.
+    The canonical measured CONTROL population is N100, balanced 25 per format.
+
+incremental_N_convergence:
+  evidence_class: OBSERVED_BALANCED_SUBSAMPLING_TO_FROZEN_N100
+  independence_class: NOT_NEW_FUTURE_ARTIFACT_EVIDENCE
+  canonical_metric_note: >-
+    Historical generator fields named BT_spearman are frozen legacy labels. They canonically mean
+    VISUAL_REVERSE_PRESSURE rank Spearman because no Bradley-Terry pairwise fit was performed.
+  N60:
+    artifact_N: 60
+    per_format: 15
+    repetitions: 500
+    KMO: {median: 0.783253575554282, p05: 0.7365514796781952, p95: 0.817489289275315}
+    PC1_explained_pct: {median: 51.81412496112178, p05: 46.45197189764534, p95: 56.72990590688978}
+    PC1_loading_congruence_to_N100: {median: 0.998236307966681, p05: 0.9928003054658305}
+    PC2_eigen_median: 2.052139168888031
+    PA95_PC2_threshold: 1.7254721066320895
+    PC2_retention_fraction: 0.91
+    visual_reverse_pressure_spearman_to_N100: {median: 0.9790209790209792, p05: 0.9510489510489512}
+  N80:
+    artifact_N: 80
+    per_format: 20
+    repetitions: 500
+    KMO: {median: 0.7986097452653671, p05: 0.7718739367713574, p95: 0.8182596391938621}
+    PC1_explained_pct: {median: 51.77058276710012, p05: 48.285516289113154, p95: 54.67876585346599}
+    PC1_loading_congruence_to_N100: {median: 0.9993189578054704, p05: 0.997469113836098}
+    PC2_eigen_median: 2.0137511897774623
+    PA95_PC2_threshold: 1.6182764225018427
+    PC2_retention_fraction: 0.994
+    visual_reverse_pressure_spearman_to_N100: {median: 0.9860139860139862, p05: 0.9720279720279721}
+  N100:
+    artifact_N: 100
+    per_format: 25
+    repetitions: 1
+    KMO: {median: 0.8055670343149524, p05: 0.8055670343149524, p95: 0.8055670343149524}
+    PC1_explained_pct: {median: 51.51525910515503, p05: 51.51525910515503, p95: 51.51525910515503}
+    PC1_loading_congruence_to_N100: {median: 0.9999999999999999, p05: 0.9999999999999999}
+    PC2_eigen_median: 1.993500585436612
+    PA95_PC2_threshold: 1.5515921304031135
+    PC2_retention_fraction: 1.0
+    visual_reverse_pressure_spearman_to_N100: {median: 1.0, p05: 1.0}
+
+convergence_interpretation:
+  PC1_loading:
+    observation: VERY_HIGH_AND_TIGHTENING_CONGRUENCE
+    sequence_median: [0.998236307966681, 0.9993189578054704, 0.9999999999999999]
+    sequence_p05: [0.9928003054658305, 0.997469113836098, 0.9999999999999999]
+  visual_reverse_pressure_rank:
+    observation: HIGH_AND_TIGHTENING_RANK_STABILITY
+    sequence_median: [0.9790209790209792, 0.9860139860139862, 1.0]
+    sequence_p05: [0.9510489510489512, 0.9720279720279721, 1.0]
+  KMO:
+    observation: ADEQUACY_IMPROVES_WITH_N
+    sequence_median: [0.783253575554282, 0.7986097452653671, 0.8055670343149524]
+  PC2_PA95:
+    observation: RETENTION_STABILIZES_OVER_BALANCED_SUBSAMPLING
+    retention_fraction: [0.91, 0.994, 1.0]
+    guard: DOES_NOT_AUTHORIZE_PC2_SEMANTIC_LABEL_OR_PREDICT_FUTURE_N200
+  overall: >-
+    The frozen N100 visual structure is internally stable under balanced N60 and N80 subsampling:
+    PC1 loadings and visual reverse-pressure ranks converge tightly, KMO improves with N, and PC2
+    retention approaches unity. This is a within-N100 convergence result only. It is not independent
+    N200, N300 or N400 evidence and does not reduce the collection denominator.
+
+N100_control_anchor:
+  adequacy:
+    KMO: 0.8055670343149527
+    minimum_MSA: {dimension: table_readability, value: 0.6745447809300354}
+    bartlett_p_value: 3.422180744045811e-207
+  PCA:
+    PC1_eigen: 6.181831092618602
+    PC1_explained_pct: 51.51525910515502
+    PC2_eigen: 1.993500585436613
+    PC2_explained_pct: 16.612504878638443
+    PC3_eigen: 1.2487643969822173
+    PC3_explained_pct: 10.40636997485181
+    PA95_thresholds_first3: [1.7740592338457408, 1.5515921304031135, 1.3998328787124423]
+    retained_PA95_first3: [true, true, false]
+  sensitivity_without_extreme_PC1_score_outliers:
+    excluded_count: 1
+    retained_count: 99
+    PC1_loading_congruence_to_full: 0.9996642176017557
+
+N200_gate:
+  target_artifact_N: 200
+  target_per_format: 50
+  current_governed_artifact_N: 100
+  current_per_format: {HTML: 25, PDF: 25, PPTX: 25, XLSX: 25}
+  independently_new_eligible_artifacts_bound_after_N100: 0
+  governed_increment_required_total: 100
+  governed_increment_required_per_format: {HTML: 25, PDF: 25, PPTX: 25, XLSX: 25}
+  remaining_deficit_total: 100
+  remaining_deficit_per_format: {HTML: 25, PDF: 25, PPTX: 25, XLSX: 25}
+  progress_credit_from_N60_N80_subsampling: 0
+  state: OPEN_UNEARNED_COLLECTION_GATE
+  hard_guard: N200_EQUALS_200_INDEPENDENT_ELIGIBLE_ARTIFACTS_NOT_200_RAW_ROWS_OR_RESAMPLES
+
+candidate_staging_from_existing_plan:
+  HTML: RENDERED_CANDIDATES_NOT_YET_ELIGIBILITY_PROMOTED
+  PDF: ACTIVE_MATERIALIZATION_AND_REVIEW
+  PPTX: ACTIVE_CENSUS
+  XLSX: ACTIVE_CENSUS
+  credit_rule: CANDIDATE_EXISTENCE_IS_NOT_GOVERNED_ARTIFACT_CREDIT
+
+eligibility_gate:
+  required_fields:
+    - artifact_id
+    - artifact_format
+    - artifact_version_or_snapshot
+    - source_hash
+    - render_locator_page_slide_sheet_view
+    - render_hash
+    - reviewer_or_validator
+    - review_timestamp
+    - content_parity_pass
+    - visual_release_eligible
+  require_unique_source_hash_across_distinct_statistical_artifact_keys: true
+  require_unique_render_hash_across_distinct_statistical_artifact_keys: true
+  require_family_version_deduplication: true
+  content_parity: PASS_REQUIRED
+  visual_release_eligible: PASS_REQUIRED
+  stale_or_mismatched_rows: EXCLUDE
+  zero_imputation: PROHIBITED
+
+analysis_disposition:
+  N60_N80_N100_convergence: PASS_MEASURED_WITHIN_N100
+  N100: FROZEN_CONTROL_REFERENCE
+  N200: NOT_ACHIEVED
+  N300: NOT_ACHIEVED
+  N400: NOT_ACHIEVED
+  PCA_recompute: NOT_AUTHORIZED_UNTIL_BALANCED_N200_IS_BOUND
+  visual_reverse_pressure: KEEP_CURRENT_N100_CONTROL_UNTIL_N200_CHECKPOINT
+  Bradley_Terry_fit: NOT_PERFORMED
+  project_global_PCA: WITHHELD
+  formal_credit_delta: {engineering: 0, compliance: 0, negotiation: 0, release: 0}
+  terminal_DOV: false
+
+next_bounded_action:
+  id: VBD-N200-01
+  action: >-
+    Materialize or return exactly 25 additional independent eligible artifacts per format
+    (HTML, PDF, PPTX, XLSX), bind required provenance fields and exact hashes, apply source/render/family
+    deduplication, aggregate multi-locator rows to artifact level, and only then recompute balanced N200
+    against the frozen N100 control.
+  stop_on_first_red: true
+  no_synthetic_rows: true
+
+preserved_global_guards:
+  unknown_numeric_semantics: NULL_NOT_ZERO
+  numeric_cost_rows_ready: 0_of_3
+  numeric_cost_release: WITHHELD_SOURCE_VALUES
+  source_value_gates: [974, 981]
+  forbidden_inferences: [ENERGY_TO_SPARES, RELIABILITY_TO_SPARE_PRICE, MISSING_COST_MDT_LEADTIME_IMPUTATION]
+  repo_local_runner_veto_923: INDEPENDENT_NON_COMPENSATING
+  global_DOV: WITHHELD
