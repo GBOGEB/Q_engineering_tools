@@ -1,0 +1,128 @@
+{
+  "schema": "qps-federation-cross-surface-feature-matrix/v0.3",
+  "wave": "W170R",
+  "purpose": "THIRD_DISTINCT_ACCEPTED_SAMPLE_AND_FIRST_MEASURED_SMALL_N_PCA",
+  "rows": [
+    {
+      "sample_id": "FED-SAMPLE-001-W164-CONTROL",
+      "surface": "MISSION_FEDERATION_CONTROL",
+      "repositories_observed": 2,
+      "artifact_units": 5,
+      "runtime_vectors": 3,
+      "specialist_outputs": 6,
+      "breadth_ratio": 1.0,
+      "depth_ratio": 1.0,
+      "penetration": 1.0,
+      "lineage_nodes": 9,
+      "lineage_edges": 8,
+      "runner_assigned": 1,
+      "runtime_first_red_present": 1,
+      "accepted_sample": 1
+    },
+    {
+      "sample_id": "FED-SAMPLE-002-ABACUS-W74",
+      "surface": "KUBERNETES_DEPLOYMENT_CONTRACT",
+      "repositories_observed": 2,
+      "artifact_units": 8,
+      "runtime_vectors": 1,
+      "specialist_outputs": 6,
+      "breadth_ratio": 1.0,
+      "depth_ratio": 1.0,
+      "penetration": 1.0,
+      "lineage_nodes": 9,
+      "lineage_edges": 8,
+      "runner_assigned": 1,
+      "runtime_first_red_present": 1,
+      "accepted_sample": 1
+    },
+    {
+      "sample_id": "FED-SAMPLE-003-CODEX-M05",
+      "surface": "SUPPLY_CHAIN_PROVENANCE_ATTESTATION",
+      "repositories_observed": 5,
+      "artifact_units": 4,
+      "runtime_vectors": 3,
+      "specialist_outputs": 6,
+      "breadth_ratio": 1.0,
+      "depth_ratio": 1.0,
+      "penetration": 1.0,
+      "lineage_nodes": 8,
+      "lineage_edges": 7,
+      "runner_assigned": 1,
+      "runtime_first_red_present": 0,
+      "accepted_sample": 1
+    }
+  ],
+  "pca_feature_columns": [
+    "repositories_observed",
+    "artifact_units",
+    "runtime_vectors",
+    "lineage_nodes",
+    "lineage_edges",
+    "runtime_first_red_present"
+  ],
+  "constant_columns_excluded_from_pca": [
+    "specialist_outputs",
+    "breadth_ratio",
+    "runner_assigned"
+  ],
+  "acceptance_dependent_columns_excluded_from_pca": [
+    "depth_ratio",
+    "penetration",
+    "accepted_sample"
+  ],
+  "measured_small_n_pca": {
+    "standardization": "COLUMN_ZSCORE_SAMPLE_STD_DDOF_1",
+    "solver": "SVD",
+    "n_rows": 3,
+    "n_features": 6,
+    "explained_variance_ratio": [0.827676357, 0.172323643],
+    "scores": {
+      "FED-SAMPLE-001-W164-CONTROL": [-0.702395923, 1.12954448],
+      "FED-SAMPLE-002-ABACUS-W74": [-1.79263928, -0.842330895],
+      "FED-SAMPLE-003-CODEX-M05": [2.49503520, -0.287213587]
+    },
+    "loadings": {
+      "repositories_observed": [0.43510644, -0.24056891],
+      "artifact_units": [-0.38078937, -0.52031701],
+      "runtime_vectors": [0.31261639, 0.70553286],
+      "lineage_nodes": [-0.43510644, 0.24056891],
+      "lineage_edges": [-0.43510644, 0.24056891],
+      "runtime_first_red_present": [-0.43510644, 0.24056891]
+    },
+    "interpretation": {
+      "pc1": "primarily separates CODEX M05 provenance by broader repository reach and fewer lineage/first-red markers from the two earlier surfaces",
+      "pc2": "contrasts runtime-vector density against artifact-unit density",
+      "guard": "EARLY_SMALL_SAMPLE_DESCRIPTIVE_ONLY; NO_CAUSAL_GLOBAL_OR_RESOURCE_OPTIMALITY_CLAIM"
+    }
+  },
+  "execution_evidence": {
+    "source_package_merge": "21374d6b8bfb6ff68ba5a50a9d4391d79556a64d",
+    "federated_pr_head_run": 34776599985,
+    "federated_pr_head_runner": 1000268076,
+    "federated_postmerge_run": 34776674902,
+    "federated_postmerge_runner": 1000268137,
+    "authoritative_return": "triage/w170/QPS_W170_FEDERATION_EXPANSION_RUNTIME_CONTROL_v0.1.json"
+  },
+  "analytics_gate": {
+    "row_count": 3,
+    "accepted_row_count": 3,
+    "pca_minimum_rows": 3,
+    "pca_state": "MEASURED_SMALL_N_ACCEPTED",
+    "bt_observed_pairwise_outcomes": 3,
+    "bt_connected_comparison_graph": false,
+    "bt_state": "WITHHELD_DISCONNECTED_HETEROGENEOUS_COMPARISON_GRAPH"
+  },
+  "fleet_sampling_guard": {
+    "accepted_bounded_samples": 3,
+    "known_sample_set_denominator": 3,
+    "global_fleet_denominator": null,
+    "global_fleet_penetration": null,
+    "grand_mission_penetration": null,
+    "rule": "SAMPLE_SET_DENOMINATOR_IS_NOT_GLOBAL_FLEET_DENOMINATOR"
+  },
+  "next_information_gain": [
+    "FOURTH_DISTINCT_SURFACE_TO_TEST_PCA_STABILITY",
+    "PAIRWISE_OUTCOMES_WITH_SHARED_COMPARABLE_CANDIDATES_TO_CONNECT_BT_GRAPH",
+    "GLOBAL_REPOSITORY_AND_SURFACE_DENOMINATOR_CENSUS"
+  ]
+}

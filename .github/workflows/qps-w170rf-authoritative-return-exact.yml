@@ -1,0 +1,94 @@
+name: W170RF Exact Authoritative Return
+
+on:
+  pull_request:
+    paths:
+      - "federation/w170r/payload/**"
+      - ".github/workflows/qps-w170rf-authoritative-return-exact.yml"
+  push:
+    branches: [main]
+    paths:
+      - "federation/w170r/payload/**"
+      - ".github/workflows/qps-w170rf-authoritative-return-exact.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-w170r:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact consumer head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Verify exact W170R source blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          check_blob() {
+            path="$1"
+            expected="$2"
+            actual="$(git hash-object "$path")"
+            echo "$path $actual"
+            test "$actual" = "$expected"
+          }
+          check_blob federation/w170r/payload/controls/QPS_W170_FEDERATION_SAMPLE3_CURRENT_v1.json 786d057831bb58d60009c21c974e35d477b5a8ee
+          check_blob federation/w170r/payload/triage/w170/QPS_W170_FEDERATION_EXPANSION_RUNTIME_CONTROL_v0.1.json b01997711aee4ac3956ff39c746e214b1738f729
+          check_blob federation/w170r/payload/triage/w170/QPS_W170_CROSS_SURFACE_FEATURE_MATRIX_v0.1.json d7d4e5b98e26bba4d9ca1f38cdbec6fe511f7899
+          check_blob federation/w170r/payload/triage/w170/QPS_W170_PAIRWISE_DISPOSITION_LEDGER_v0.1.json 829bd51a37b6a610673f323bb33c9969f1595ac9
+          check_blob federation/w170r/payload/scripts/qps_w170_validate_federation_expansion.py c5801dac2f5bf3708d6e20d2c880fc24d8fab64d
+          check_blob federation/w170r/payload/scripts/qps_w170_compute_pca.py 5dd36b58cfd20e052b0b3b1eedcefcdcfd01922f
+          check_blob federation/w170r/payload/tests/test_qps_w170_federation_expansion.py 3471b367daaca07bc3a59a7c8e5a933e89c56f24
+
+      - name: Install PCA dependency
+        run: python -m pip install --disable-pip-version-check numpy
+
+      - name: Execute authoritative-return validator
+        working-directory: federation/w170r/payload
+        run: python scripts/qps_w170_validate_federation_expansion.py
+
+      - name: Recompute measured small-n PCA
+        working-directory: federation/w170r/payload
+        run: python scripts/qps_w170_compute_pca.py
+
+      - name: Execute authoritative-return tests
+        working-directory: federation/w170r/payload
+        run: python -m unittest tests.test_qps_w170_federation_expansion -v
+
+      - name: Emit exact authoritative-return receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p federation/w170r/runtime
+          python - <<'PY'
+          import json, os, pathlib
+          receipt = {
+            "schema": "qps-w170rf-exact-authoritative-return/v1",
+            "consumer_repo": os.environ["GITHUB_REPOSITORY"],
+            "consumer_sha": os.environ["GITHUB_SHA"],
+            "run_id": int(os.environ["GITHUB_RUN_ID"]),
+            "source_repo": "GBOGEB/cryoplant-project",
+            "source_pr": 1107,
+            "source_head": "a646417b01cdc8196bf75092af9505d9982eeefb",
+            "exact_blob_count": 7,
+            "state": "PASS_EXACT_AUTHORITATIVE_RETURN_PAYLOAD",
+            "sample3": "ACCEPTED_BOUNDED_B1_D1_PEN1",
+            "accepted_sample_count": 3,
+            "pca": "MEASURED_SMALL_N_ACCEPTED_N3",
+            "bt": "CAPTURE_3_FIT_WITHHELD_DISCONNECTED_HETEROGENEOUS_GRAPH",
+            "native_gate_compensated": False,
+            "global_fleet_denominator": None,
+            "formal_credit_delta": 0
+          }
+          pathlib.Path("federation/w170r/runtime/W170RF_RUNTIME_RECEIPT.json").write_text(json.dumps(receipt, indent=2, sort_keys=True)+"\n")
+          PY
+
+      - name: Upload W170RF receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: qps-w170rf-${{ github.sha }}
+          path: |
+            federation/w170r/runtime/W170RF_RUNTIME_RECEIPT.json
+            federation/w170r/payload/triage/w170/QPS_W170_PCA_RUNTIME_RECEIPT.json
+          if-no-files-found: error

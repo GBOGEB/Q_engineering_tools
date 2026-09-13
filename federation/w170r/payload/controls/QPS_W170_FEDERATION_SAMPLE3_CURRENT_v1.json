@@ -1,0 +1,82 @@
+{
+  "schema": "qps-w170-federation-sample3-control/v2",
+  "wave": "W170R",
+  "sample_id": "FED-SAMPLE-003-CODEX-M05",
+  "authority": "MISSION_CONTROL_AUTHORITATIVE_RETURN_CANDIDATE",
+  "activation_rule": "EFFECTIVE_ON_W170R_MERGE_AFTER_EXACT_RETURN_PAYLOAD_PR_HEAD_AND_POSTMERGE_REPEAT",
+  "namespace": {
+    "w169": "OCCUPIED_ABACUS_REAL_KUBERNETES_RUNTIME",
+    "w170": "FEDERATION_EXPANSION_SAMPLE_3"
+  },
+  "surface": {
+    "type": "SUPPLY_CHAIN_PROVENANCE_ATTESTATION",
+    "source_repo": "GBOGEB/CODEX",
+    "source_control_pr": 648,
+    "source_control_head": "097cb1bf0bea3f1d64e86d7d6496d6dae56aacd6",
+    "source_control_merge": "077b7a39ef091eb47b30d6134d70d95bc945ad97",
+    "source_return_pr": 649,
+    "source_return_head": "87c3a24d870d32fcb996c858905a05820fba1454",
+    "source_return_merge": "49fb7c132c3689cf83f85b4afe997b9ad0810bee",
+    "action_repo": "actions/attest",
+    "action_sha": "1e69f48acb82d1966a394da916b4c1698aa569d6",
+    "action_version": "v4.2.2"
+  },
+  "source_package": {
+    "pr": 1105,
+    "head": "fca2625bff949e84ae67ab335659eccbecceddf2",
+    "merge": "21374d6b8bfb6ff68ba5a50a9d4391d79556a64d"
+  },
+  "observed_source_runtime": {
+    "exact_pinned_pr": {"run_id": 34684775435, "job_id": 103529746206, "runner_id": 1000252101, "result": "PASS"},
+    "automatic_main_repeat": {"run_id": 34684810640, "job_id": 103529841527, "runner_id": 1000252142, "result": "PASS"}
+  },
+  "native_missioncontrol_runtime": {
+    "run_id": 34776461792,
+    "job_id": 103775362816,
+    "recorded_steps": 0,
+    "classification": "WITHHELD_INFRA_PREEXECUTION_REX_006",
+    "compensated": false
+  },
+  "federated_exact_proof": {
+    "repo": "GBOGEB/Q_engineering_tools",
+    "pr": 36,
+    "pr_head": {"sha": "c2838d2fc34ce7303369a1ff3791205c2a2bff99", "run_id": 34776599985, "runner_id": 1000268076, "result": "PASS"},
+    "postmerge": {"sha": "14c617b900571bd68dd35e9c86340d422144bad4", "run_id": 34776674902, "runner_id": 1000268137, "result": "PASS"}
+  },
+  "measurement": {
+    "breadth": {"numerator": 23, "denominator": 23, "value": 1.0},
+    "depth": {"numerator": 8, "denominator": 8, "value": 1.0},
+    "penetration_formula": "PEN=B*D",
+    "penetration": 1.0,
+    "scope": "BOUNDED_CODEX_M05_PROVENANCE_SURFACE_ONLY"
+  },
+  "specialists": [
+    "CREW-FED-AMBASSADOR",
+    "CREW-FED-GEOGRAPHER",
+    "CREW-FED-GEOLOGIST",
+    "CREW-FED-CALLIGRAPHER",
+    "CREW-FED-NEURON",
+    "CREW-H2-HISTORIAN"
+  ],
+  "analytics": {
+    "accepted_bounded_samples": 3,
+    "known_sample_set_denominator": 3,
+    "pca": "MEASURED_SMALL_N_ACCEPTED",
+    "bt": "CAPTURE_ACTIVE_FIT_WITHHELD_DISCONNECTED_HETEROGENEOUS_COMPARISON_GRAPH"
+  },
+  "global_denominators": {
+    "fleet": null,
+    "grand_mission": null,
+    "rule": "NULL_NOT_ZERO_AND_SAMPLE_SET_IS_NOT_GLOBAL_FLEET"
+  },
+  "preserved_non_compensating_gates": [
+    "QPS_REPO_LOCAL_RUNNER_923",
+    "G6_CURRENT_RELEASE_IDENTITY_AND_PARITY",
+    "W165_EDGE_K8S_MEASUREMENT_GATE",
+    "W167_VISUAL_N200_RENDER_IDENTITY_HUNT",
+    "W169_ABACUS_REAL_KUBERNETES_RUNTIME",
+    "EXTERNAL_SOURCE_AND_AUTHORITY_GATES",
+    "VISUAL_N200_INDEPENDENT_COLLECTION"
+  ],
+  "formal_credit_delta": {"engineering": 0, "compliance": 0, "negotiation": 0, "release": 0}
+}

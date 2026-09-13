@@ -1,0 +1,87 @@
+{
+  "schema": "qps-w170-federation-expansion-runtime-control/v1",
+  "wave": "W170R",
+  "sample_id": "FED-SAMPLE-003-CODEX-M05",
+  "status": "AUTHORITATIVE_RETURN_CANDIDATE",
+  "source_package": {
+    "repo": "GBOGEB/cryoplant-project",
+    "pr": 1105,
+    "head": "fca2625bff949e84ae67ab335659eccbecceddf2",
+    "merge": "21374d6b8bfb6ff68ba5a50a9d4391d79556a64d"
+  },
+  "native_source_runtime": {
+    "run_id": 34776461792,
+    "job_id": 103775362816,
+    "recorded_steps": 0,
+    "classification": "WITHHELD_INFRA_PREEXECUTION_REX_006",
+    "compensated": false
+  },
+  "federated_exact_execution": {
+    "repo": "GBOGEB/Q_engineering_tools",
+    "pr": 36,
+    "source_exact_blob_count": 6,
+    "pr_head": {
+      "sha": "c2838d2fc34ce7303369a1ff3791205c2a2bff99",
+      "run_id": 34776599985,
+      "job_id": 103775730959,
+      "runner_id": 1000268076,
+      "artifact_id": 10323292526,
+      "artifact_digest": "sha256:230213dcc69d8b7f454f1999672f56a60874696341017a1db6af71a08020e067",
+      "result": "PASS"
+    },
+    "postmerge_repeat": {
+      "merge_sha": "14c617b900571bd68dd35e9c86340d422144bad4",
+      "run_id": 34776674902,
+      "job_id": 103775932571,
+      "runner_id": 1000268137,
+      "artifact_id": 10323976599,
+      "artifact_digest": "sha256:0b98beafdb66a0fec1839207c8cf240a14ca2643e5203ea1208f275a4083f599",
+      "result": "PASS"
+    }
+  },
+  "acceptance": {
+    "breadth": {"numerator": 23, "denominator": 23, "value": 1.0},
+    "depth": {"numerator": 8, "denominator": 8, "value": 1.0},
+    "penetration": 1.0,
+    "accepted_sample": true,
+    "accepted_bounded_sample_count": 3,
+    "known_sample_set_denominator": 3,
+    "global_fleet_denominator": null,
+    "global_fleet_penetration": null
+  },
+  "pca": {
+    "state": "MEASURED_SMALL_N_ACCEPTED",
+    "n": 3,
+    "features": 6,
+    "explained_variance_ratio": [0.827676357, 0.172323643],
+    "guard": "DESCRIPTIVE_SMALL_N_ONLY_NO_CAUSAL_OR_GLOBAL_FLEET_CLAIM"
+  },
+  "bt": {
+    "observed_pairwise_outcomes": 3,
+    "state": "CAPTURE_ACTIVE_FIT_WITHHELD_DISCONNECTED_HETEROGENEOUS_COMPARISON_GRAPH",
+    "rule": "DO_NOT_FIT_UNTIL_COMPARISON_GRAPH_IS_CONNECTED_COMPARABLE_AND_IDENTIFIABLE"
+  },
+  "specialists": {
+    "roles": [
+      "CREW-FED-AMBASSADOR",
+      "CREW-FED-GEOGRAPHER",
+      "CREW-FED-GEOLOGIST",
+      "CREW-FED-CALLIGRAPHER",
+      "CREW-FED-NEURON",
+      "CREW-H2-HISTORIAN"
+    ],
+    "distinct_accepted_samples": 3,
+    "control_eligibility_already_true_before_w170": true,
+    "automatic_control_promotion": false
+  },
+  "preserved_non_compensating_gates": [
+    "QPS_REPO_LOCAL_RUNNER_923",
+    "G6_CURRENT_RELEASE_IDENTITY_AND_PARITY",
+    "W165_EDGE_K8S_MEASUREMENT_GATE",
+    "W167_VISUAL_N200_RENDER_IDENTITY_HUNT",
+    "W169_ABACUS_REAL_KUBERNETES_RUNTIME",
+    "EXTERNAL_SOURCE_AND_AUTHORITY_GATES",
+    "VISUAL_N200_INDEPENDENT_COLLECTION"
+  ],
+  "formal_credit_delta": {"engineering": 0, "compliance": 0, "negotiation": 0, "release": 0}
+}
