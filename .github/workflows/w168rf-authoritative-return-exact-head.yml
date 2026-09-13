@@ -27,6 +27,15 @@ jobs:
           ref: d46e3689396db1e89c1d03848cd5db5597818cd2
           path: source
           persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            controls/QPS_CREW_REGISTRY_CURRENT_v1.json
+            triage/w168/QPS_W168_FEDERATION_EXPANSION_RUNTIME_CONTROL_v0.1.json
+            triage/w168/QPS_W168_SPECIALIST_CONTROL_ELIGIBILITY_DELTA_v0.1.json
+            triage/w168/QPS_W168_CROSS_SURFACE_FEATURE_MATRIX_v0.1.json
+            scripts/qps_w168r_validate_authoritative_return.py
+            tests/test_qps_w168r_authoritative_return.py
 
       - name: Set up Python
         uses: actions/setup-python@v5
