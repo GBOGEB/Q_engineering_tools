@@ -4,10 +4,12 @@ on:
   pull_request:
     paths:
       - ".github/workflows/qps-g6-identity-validator-exact.yml"
+      - "payload/g6/qps_g6_validate_release_identity.py"
   push:
     branches: [main]
     paths:
       - ".github/workflows/qps-g6-identity-validator-exact.yml"
+      - "payload/g6/qps_g6_validate_release_identity.py"
   workflow_dispatch:
 
 permissions:
@@ -24,20 +26,20 @@ jobs:
       - name: Checkout executor exact head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Fetch exact cryoplant W160 validator
+      - name: Verify exact tracked W160 validator carrier
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p payload artifacts/g6
-          url="https://raw.githubusercontent.com/GBOGEB/cryoplant-project/${CRYOPLANT_HEAD}/scripts/qps_g6_validate_release_identity.py"
-          curl -fsSL "$url" -o payload/qps_g6_validate_release_identity.py
-          test "$(git hash-object payload/qps_g6_validate_release_identity.py)" = "$VALIDATOR_BLOB"
+          mkdir -p artifacts/g6
+          payload="payload/g6/qps_g6_validate_release_identity.py"
+          test -f "$payload"
+          test "$(git hash-object "$payload")" = "$VALIDATOR_BLOB"
 
       - name: Execute non-engineering contract self-test
         shell: bash
         run: |
           set -euo pipefail
-          python payload/qps_g6_validate_release_identity.py --self-test | tee artifacts/g6/selftest.jsonl
+          python payload/g6/qps_g6_validate_release_identity.py --self-test | tee artifacts/g6/selftest.jsonl
 
       - name: Bind readiness receipt
         shell: bash
@@ -63,6 +65,7 @@ jobs:
               "source_pr": 1067,
               "source_head_sha": os.environ["CRYOPLANT_HEAD"],
               "validator_blob": os.environ["VALIDATOR_BLOB"],
+              "transport": "TRACKED_EXACT_BLOB_CARRIER",
               "executor_repo": os.environ["GITHUB_REPOSITORY"],
               "executor_head_sha": os.environ["GITHUB_SHA"],
               "run_id": int(os.environ["GITHUB_RUN_ID"]),
