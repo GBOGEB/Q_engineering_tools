@@ -1,0 +1,94 @@
+name: W163F Namespace Control Exact Payload
+
+on:
+  pull_request:
+    paths:
+      - 'federation/w163/**'
+      - '.github/workflows/qps-w163-federated-namespace-control.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'federation/w163/**'
+      - '.github/workflows/qps-w163-federated-namespace-control.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  exact-w163-payload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prove exact cryoplant W163 Git blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          check_blob() {
+            local path="$1" expected="$2"
+            actual="$(git hash-object "$path")"
+            echo "$path $actual"
+            test "$actual" = "$expected"
+          }
+          check_blob federation/w163/payload/controls/QPS_MISSION_CONTROL_NAMESPACE_TAXONOMY_v1.yaml 46b4bb142946959e786db234795aa3cf791ece98
+          check_blob federation/w163/payload/controls/QPS_MISSION_CONTROL_LEGACY_ALIAS_REGISTRY_v1.yaml 5173f81b4d5d5c36f68745f96fa8faf7bbb6ef39
+          check_blob federation/w163/payload/scripts/qps_w163_validate_namespace_collisions.py efee166d0169d522fbc40d1c82016b6f00c101c1
+          check_blob federation/w163/payload/tests/test_qps_w163_namespace_collisions.py ae8d3eeceb55ac96b1709c2ae77b4f87bfb0c17b
+          check_blob federation/w163/payload/triage/w163/QPS_W163_RECENT_PR_COLLISION_CENSUS_v0.1.json cb604d7ec0c80d83491c71a94df8e0a2fd8dfd8b
+      - name: Install validator dependency
+        run: python -m pip install PyYAML==6.0.3
+      - name: Execute exact child regression tests
+        working-directory: federation/w163/payload
+        run: python -m unittest discover -s tests -p 'test_qps_w163_namespace_collisions.py' -v
+      - name: Execute exact child namespace scanner
+        working-directory: federation/w163/payload
+        run: >-
+          python scripts/qps_w163_validate_namespace_collisions.py
+          --recent-pr-json triage/w163/QPS_W163_RECENT_PR_COLLISION_CENSUS_v0.1.json
+          --receipt W163F_CHILD_SCANNER_RECEIPT.json
+      - name: Emit federated execution receipt
+        shell: bash
+        env:
+          SOURCE_REPO: GBOGEB/cryoplant-project
+          SOURCE_PR: '1073'
+          SOURCE_HEAD: a3dda33348616d94d6c9b3c83e564265463ba0cc
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          child = json.load(open('federation/w163/payload/W163F_CHILD_SCANNER_RECEIPT.json', encoding='utf-8'))
+          assert child['status'] == 'PASS_NAMESPACE_CONTROL', child
+          assert child['recent_prs_scanned'] == 19, child
+          executor_head = subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip()
+          out = {
+            'schema': 'qps.w163f.federated_namespace_control_receipt.v1',
+            'status': 'PASS_FEDERATED_EXACT_PAYLOAD',
+            'authority': 'FEDERATED_EXECUTION_ONLY_NOT_CHILD_OR_ENGINEERING_PROMOTION',
+            'source_repo': os.environ['SOURCE_REPO'],
+            'source_pr': int(os.environ['SOURCE_PR']),
+            'source_head': os.environ['SOURCE_HEAD'],
+            'source_blobs': {
+              'taxonomy': '46b4bb142946959e786db234795aa3cf791ece98',
+              'aliases': '5173f81b4d5d5c36f68745f96fa8faf7bbb6ef39',
+              'validator': 'efee166d0169d522fbc40d1c82016b6f00c101c1',
+              'tests': 'ae8d3eeceb55ac96b1709c2ae77b4f87bfb0c17b',
+              'recent_pr_census': 'cb604d7ec0c80d83491c71a94df8e0a2fd8dfd8b'
+            },
+            'executor_repo': 'GBOGEB/Q_engineering_tools',
+            'executor_head': executor_head,
+            'child_scanner': child,
+            'native_child_runtime': 'INDEPENDENTLY_WITHHELD_RUNNER_ID_0_ZERO_STEPS',
+            'formal_credit_delta': {'engineering':0,'compliance':0,'negotiation':0,'release':0}
+          }
+          with open('QPS_W163F_FEDERATED_NAMESPACE_CONTROL_RECEIPT.json','w',encoding='utf-8') as f:
+              json.dump(out,f,indent=2,sort_keys=True); f.write('\n')
+          print('PASS_W163F_FEDERATED_EXACT_PAYLOAD', executor_head)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qps-w163f-namespace-control-${{ github.sha }}
+          path: |
+            federation/w163/payload/W163F_CHILD_SCANNER_RECEIPT.json
+            QPS_W163F_FEDERATED_NAMESPACE_CONTROL_RECEIPT.json
+          if-no-files-found: error

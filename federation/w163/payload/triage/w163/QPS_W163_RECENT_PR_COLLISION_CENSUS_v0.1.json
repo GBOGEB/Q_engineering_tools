@@ -1,0 +1,21 @@
+[
+  {"repository":"GBOGEB/cryoplant-project","number":1050,"title":"W153: harden parent-constrained cost decomposition and publish rationale","body":""},
+  {"repository":"GBOGEB/cryoplant-project","number":1061,"title":"W153: bind executed G5 receipt and advance parity first-red","body":""},
+  {"repository":"GBOGEB/cryoplant-project","number":1043,"title":"W152: execute COST / RCM / spares hook topology","body":""},
+  {"repository":"GBOGEB/cryoplant-project","number":1044,"title":"W152: bind RTM evidence ontology and SCK phase V&V into QPS TRIAGE","body":""},
+  {"repository":"GBOGEB/cryoplant-project","number":1046,"title":"W152-P1: extend W80 RTM/EVAL with evidence and SCK phase V&V","body":""},
+  {"repository":"GBOGEB/cryoplant-project","number":1048,"title":"W152-P1: close real exact-source execution and repair stale LKT pin","body":""},
+  {"repository":"GBOGEB/cryoplant-project","number":1052,"title":"W152: add digest-bound evidence data view to QPS navigation","body":"W152 is added as the first drill-down in G3 Evidence / Delivery rather than creating a new top-level portal."},
+  {"repository":"GBOGEB/cryoplant-project","number":1029,"title":"W147 NUMERICAL: close source-known SAT/HP/PVPS semantics and isolate external DoV gates","body":""},
+  {"repository":"GBOGEB/cryoplant-project","number":1030,"title":"W147 CONTROL: close numerical source-federation and stop on external evidence gates","body":""},
+  {"repository":"GBOGEB/CODEX","number":661,"title":"W147 KEB: type QPS numerical source closures without engineering promotion","body":""},
+  {"repository":"GBOGEB/ABACUS","number":1155,"title":"W147 DOW: project QPS numerical source closure and reverse-pressure gates","body":""},
+  {"repository":"GBOGEB/ABACUS","number":1171,"title":"W70/MC-2: recover exact semantic pulse and repair retention boundary","body":""},
+  {"repository":"GBOGEB/pipeline-automation-hub","number":40,"title":"W70 MIP: federate document ingestion and source atoms","body":""},
+  {"repository":"GBOGEB/Q_engineering_tools","number":14,"title":"W70 MIP: govern TRIAGE engineering publication portal","body":""},
+  {"repository":"GBOGEB/cryogenic-accelerator-workspace","number":18,"title":"W70 MIP: reconcile workspace engineering authority with TRIAGE","body":""},
+  {"repository":"GBOGEB/CoolProp","number":8,"title":"Mission I W4: bind status to runtime evidence and measure phase loading","body":""},
+  {"repository":"GBOGEB/CoolProp","number":9,"title":"Mission I W4: repair first red in docs Docker PR path","body":""},
+  {"repository":"GBOGEB/CoolProp","number":10,"title":"Mission I W4: classify CI reds before repair","body":""},
+  {"repository":"GBOGEB/CoolProp","number":11,"title":"Mission I W4: repair Linux wheel test compatibility across NumPy baselines","body":""}
+]
