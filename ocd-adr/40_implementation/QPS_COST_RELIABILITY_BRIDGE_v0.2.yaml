@@ -1,0 +1,76 @@
+schema: qps-cost-reliability-bridge/v0.2
+status: CONTROL_CANDIDATE_ANALYTICAL_BRIDGE
+as_of: 2026-09-12
+authority_guardrail: >-
+  Contract Table-10 count budgets remain hard cumulative ceilings. Poisson rates,
+  confidence curves, accelerator causal allocation and reliability-adjusted cost are
+  engineering overlays and shall not be represented as replacement contractual MTBF values.
+source_lineage:
+  table10: ocd-adr/20_canonical/evidence/QPS_TABLE10_RELIABILITY_BUDGET_v0.1.yaml
+  event_allocation: ocd-adr/20_canonical/evidence/QPS_TABLE10_EVENT_BUDGET_ALLOCATION_v0.1.yaml
+  reliability_adr: ocd-adr/20_canonical/adr/ADR-QPS-010-reliability-redundancy.md
+  linac_parent_reliability: ocd-adr/00_authority/source_receipts/MINERVA_RELIABILITY_IOP_1301_012104_v0.1.yaml
+  pvps_lifecycle: ocd-adr/20_canonical/analysis/QPS_PVPS_DRY_OIL_LIFECYCLE_COST_RELIABILITY_v0.1.yaml
+  wcs_cost_front: ocd-adr/40_implementation/QPS_WCS_ENERGY_COST_FRONT_P03B_v0.1.yaml
+  current_masters: ocd-adr/40_implementation/QPS_CURRENT_MASTERS_REGISTRY_v0.1.yaml
+  html_convergence: docs/QPS_HTML_INVENTORY_AND_CONVERGENCE_W21.md
+mission_basis:
+  linac:
+    source_receipt: ocd-adr/00_authority/source_receipts/MINERVA_RELIABILITY_IOP_1301_012104_v0.1.yaml
+    campaign_days: 90
+    campaigns_per_14_month_programme: 3
+    qualifying_trip_cap_per_campaign: 10
+    cumulative_reference_cap_three_campaigns: 30
+    cumulative_reference_cap_status: DERIVED_SIMPLE_ROLLUP_NOT_SEPARATE_SOURCE_REQUIREMENT
+    paper_reference_mtbf_h: 250
+  qplant:
+    active_fraction_9_of_14: 0.642857143
+    standby_fraction_5_of_14: 0.357142857
+    cost_model_active_fraction_existing: 0.6428
+    cost_model_standby_fraction_existing: 0.3572
+contract_budgets:
+  A: {max_events: 1, cumulative_years: 1, normalized_rate_ceiling_per_year: 1.0}
+  B: {max_events: 5, cumulative_years: 5, normalized_rate_ceiling_per_year: 1.0}
+  C: {max_events: 2, cumulative_years: 10, normalized_rate_ceiling_per_year: 0.2}
+analytical_targets:
+  beam_allocation_1pct_lambda_per_year: 0.405555556
+  beam_allocation_2pct_lambda_per_year: 0.811111111
+  beam_allocation_5pct_lambda_per_year: 2.027777778
+  working_internal_lambda_per_year: 0.257000
+  cc_provisional_class_B_lambda_per_year: 0.2502857143
+shared_state_ledger_fields:
+  - state_id
+  - exposure_h
+  - power_kW
+  - energy_kWh
+  - starts
+  - load_fraction
+  - pressure_ratio
+  - degraded_state_hours
+  - redundancy_utilisation
+  - lambda_native_per_h
+  - p_propagate_to_beam
+  - event_class_NONE_A_B_C
+  - MTTR_h
+  - MDT_h
+  - spare_id
+  - spare_cost
+  - spare_lead_time_h
+  - labour_cost
+  - recovery_energy_cost
+  - helium_or_consumables_cost
+  - downtime_cost_rate
+  - evidence_class
+  - source_reference
+derived_fields:
+  mu_native_state: lambda_native_per_h * exposure_h
+  lambda_beam_impact_per_h: lambda_native_per_h * p_propagate_to_beam
+  mu_beam_state: mu_native_state * p_propagate_to_beam
+  expected_corrective_cost: >-
+    mu_native_state * (spare_cost + labour_cost + recovery_energy_cost +
+    helium_or_consumables_cost + MDT_h * downtime_cost_rate)
+publication:
+  cost_master_numerical_ssot: QPS_COST_Master.xlsx
+  consolidated_html_target: QPS_COST_Master_HTML_CURRENT.html
+  reliability_specialist_view: QPLANT_Reliability_Cost_Dashboard_v2.html
+  generated_views_are_not_authority: true
