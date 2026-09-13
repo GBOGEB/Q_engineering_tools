@@ -1,0 +1,92 @@
+name: W170F Exact Federation Sample 3
+
+on:
+  pull_request:
+    paths:
+      - "federation/w170/payload/**"
+      - ".github/workflows/qps-w170f-federation-sample3-exact.yml"
+  push:
+    branches: [main]
+    paths:
+      - "federation/w170/payload/**"
+      - ".github/workflows/qps-w170f-federation-sample3-exact.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-w170:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact consumer head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Verify exact W170 source blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          check_blob() {
+            path="$1"
+            expected="$2"
+            actual="$(git hash-object "$path")"
+            echo "$path $actual"
+            test "$actual" = "$expected"
+          }
+          check_blob federation/w170/payload/controls/QPS_W170_FEDERATION_SAMPLE3_CURRENT_v1.json 8785f71f39e0541b728264ef4255572708a15e64
+          check_blob federation/w170/payload/triage/w170/QPS_W170_CROSS_SURFACE_FEATURE_MATRIX_v0.1.json 0c82e8328fe7f53a93ec3225438f7e3df8e167a2
+          check_blob federation/w170/payload/triage/w170/QPS_W170_PAIRWISE_DISPOSITION_LEDGER_v0.1.json 829bd51a37b6a610673f323bb33c9969f1595ac9
+          check_blob federation/w170/payload/scripts/qps_w170_validate_federation_expansion.py 60bce5d20f8601d268975d33d8a1e9e5b4c80c4a
+          check_blob federation/w170/payload/scripts/qps_w170_compute_pca.py 7dfa210c6473eedf9eca4d5cddd8a3cb70f2aa2b
+          check_blob federation/w170/payload/tests/test_qps_w170_federation_expansion.py 1a6152942401b902ad131d47713228d8cafc769e
+
+      - name: Install PCA dependency
+        run: python -m pip install --disable-pip-version-check numpy
+
+      - name: Execute exact validator
+        working-directory: federation/w170/payload
+        run: python scripts/qps_w170_validate_federation_expansion.py
+
+      - name: Execute exact small-n PCA
+        working-directory: federation/w170/payload
+        run: python scripts/qps_w170_compute_pca.py
+
+      - name: Execute exact tests
+        working-directory: federation/w170/payload
+        run: python -m unittest tests.test_qps_w170_federation_expansion -v
+
+      - name: Emit federated exact receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p federation/w170/runtime
+          python - <<'PY'
+          import json, os, pathlib
+          receipt = {
+            "schema": "qps-w170f-exact-federated-runtime/v1",
+            "consumer_repo": os.environ["GITHUB_REPOSITORY"],
+            "consumer_sha": os.environ["GITHUB_SHA"],
+            "run_id": int(os.environ["GITHUB_RUN_ID"]),
+            "source_repo": "GBOGEB/cryoplant-project",
+            "source_pr": 1105,
+            "source_head": "fca2625bff949e84ae67ab335659eccbecceddf2",
+            "exact_blob_count": 6,
+            "state": "PASS_EXACT_PAYLOAD_SAMPLE3_CANDIDATE",
+            "pca": "PASS_CANDIDATE_N3_NOT_YET_AUTHORIZED",
+            "bt": "CAPTURE_3_FIT_WITHHELD_DISCONNECTED",
+            "authority_transfer": False,
+            "native_gate_compensated": False,
+            "global_fleet_denominator": None,
+            "formal_credit_delta": 0
+          }
+          pathlib.Path("federation/w170/runtime/W170F_RUNTIME_RECEIPT.json").write_text(json.dumps(receipt, indent=2, sort_keys=True)+"\n")
+          PY
+
+      - name: Upload W170F receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: qps-w170f-${{ github.sha }}
+          path: |
+            federation/w170/runtime/W170F_RUNTIME_RECEIPT.json
+            federation/w170/payload/triage/w170/QPS_W170_PCA_RUNTIME_RECEIPT.json
+          if-no-files-found: error
