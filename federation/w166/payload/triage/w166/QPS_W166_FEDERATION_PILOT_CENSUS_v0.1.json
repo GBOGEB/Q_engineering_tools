@@ -1,0 +1,125 @@
+{
+  "schema": "qps-w166-federation-pilot-census/v0.1",
+  "as_of": "2026-09-13T19:54:00+02:00",
+  "authority": "MISSION_CONTROL_MEASUREMENT_ONLY",
+  "scope": "W164_CONTROL_SURFACE_ONLY",
+  "source_receipt": {
+    "path": "triage/w164/QPS_W164_MISSION_FEDERATION_RUNTIME_CONTROL_v0.1.yaml",
+    "blob": "476c7d80f42b2850555477a837cb645f3675800a"
+  },
+  "breadth": {
+    "formula": "covered_units/declared_units",
+    "repositories": {
+      "denominator": 2,
+      "numerator": 2,
+      "units": ["GBOGEB/cryoplant-project", "GBOGEB/Q_engineering_tools"]
+    },
+    "exact_payload_classes": {
+      "denominator": 5,
+      "numerator": 5,
+      "units": ["federation_control", "crew_registry", "schema", "validator", "regression_tests"]
+    },
+    "runtime_vectors": {
+      "denominator": 3,
+      "numerator": 3,
+      "units": ["native_runtime_attempt", "federated_pr_head_execution", "federated_postmerge_repeat"]
+    },
+    "specialist_outputs": {
+      "denominator": 6,
+      "numerator": 6,
+      "units": ["AMBASSADOR", "GEOGRAPHER", "GEOLOGIST", "CALLIGRAPHER", "NEURON_GRAPH_DECOMPOSER", "HISTORIAN"],
+      "qualification": "STATIC_OUTPUTS_BOUND_PENDING_RUNTIME_ACCEPTANCE"
+    },
+    "declared_units": 16,
+    "covered_units": 16,
+    "B": 1.0,
+    "interpretation": "COMPLETE_ONLY_WITHIN_DECLARED_W164_PILOT_SURFACE"
+  },
+  "depth": {
+    "formula": "observed_layers/declared_layers",
+    "layers": [
+      {"level": 1, "id": "DISCOVERY", "observed": true},
+      {"level": 2, "id": "SOURCE_BINDING", "observed": true},
+      {"level": 3, "id": "SEMANTIC_CONTRACT", "observed": true},
+      {"level": 4, "id": "NATIVE_RUNTIME_ATTEMPT", "observed": true, "qualification": "ATTEMPT_OBSERVED_PREEXECUTION_FAILURE"},
+      {"level": 5, "id": "FEDERATED_PR_HEAD_EXECUTION", "observed": true},
+      {"level": 6, "id": "POSTMERGE_REPEAT", "observed": true},
+      {"level": 7, "id": "AUTHORITATIVE_RETURN", "observed": true}
+    ],
+    "declared_layers": 7,
+    "observed_layers": 7,
+    "D": 1.0,
+    "max_depth_level": 7,
+    "interpretation": "FULL_CHAIN_DEPTH_ONLY_FOR_W164_CONTROL_SURFACE"
+  },
+  "penetration": {
+    "formula": "PEN=B*D",
+    "B": 1.0,
+    "D": 1.0,
+    "PEN": 1.0,
+    "global_fleet_penetration": null,
+    "grand_mission_penetration": null,
+    "guard": "PILOT_PENETRATION_MUST_NOT_BE_EXTRAPOLATED"
+  },
+  "historian_lineage": {
+    "nodes": [
+      "cryoplant_PR_1081",
+      "cryoplant_merge_17558b08",
+      "native_run_34771823533",
+      "Q_engineering_tools_PR_31",
+      "federated_run_34772055493",
+      "Q_engineering_tools_merge_f87fcb68",
+      "postmerge_run_34772070746",
+      "cryoplant_PR_1082",
+      "cryoplant_merge_35ac13f0"
+    ],
+    "edges": [
+      ["cryoplant_PR_1081", "cryoplant_merge_17558b08", "MERGED_AS"],
+      ["cryoplant_PR_1081", "native_run_34771823533", "TRIGGERED_NATIVE_ATTEMPT"],
+      ["native_run_34771823533", "Q_engineering_tools_PR_31", "PREEXECUTION_FAILURE_CAUSED_FEDERATED_EXECUTION"],
+      ["Q_engineering_tools_PR_31", "federated_run_34772055493", "TRIGGERED"],
+      ["Q_engineering_tools_PR_31", "Q_engineering_tools_merge_f87fcb68", "MERGED_AS"],
+      ["Q_engineering_tools_merge_f87fcb68", "postmerge_run_34772070746", "TRIGGERED_CONTROL_REPEAT"],
+      ["postmerge_run_34772070746", "cryoplant_PR_1082", "RETURNED_EVIDENCE_TO_AUTHORITY"],
+      ["cryoplant_PR_1082", "cryoplant_merge_35ac13f0", "MERGED_AS"]
+    ]
+  },
+  "ambassador_round_trip": {
+    "source_authority": "GBOGEB/cryoplant-project",
+    "executor": "GBOGEB/Q_engineering_tools",
+    "return_authority": "GBOGEB/cryoplant-project",
+    "authority_transfer": false,
+    "round_trip_complete": true
+  },
+  "neuron_graph": {
+    "node_count": 9,
+    "edge_count": 8,
+    "connected_components": 1,
+    "source_authority_nodes": 4,
+    "executor_nodes": 3,
+    "runtime_nodes": 3,
+    "dependency_rule": "EVIDENCE_FLOWS_FORWARD_AUTHORITY_DOES_NOT"
+  },
+  "calligrapher": {
+    "ascii": "SOURCE(PR1081)->NATIVE_FAIL->FED_EXEC(PR31)->PR_HEAD_PASS->MERGE->REPEAT_PASS->RETURN(PR1082)->CONTROL",
+    "mermaid": "flowchart LR; A[PR1081 Source]-->B[Native 0-step]; B-->C[PR31 Federated]; C-->D[PR-head PASS]; D-->E[Merge]; E-->F[Postmerge PASS]; F-->G[PR1082 Return]; G-->H[W164 CONTROL]"
+  },
+  "crew_candidate_receipts": [
+    {"CREW_ID": "CREW-FED-AMBASSADOR", "output": "ROUND_TRIP_HANDSHAKE", "state": "CANDIDATE_PENDING_W166_RUNTIME"},
+    {"CREW_ID": "CREW-FED-GEOGRAPHER", "output": "BREADTH_16_OF_16", "state": "CANDIDATE_PENDING_W166_RUNTIME"},
+    {"CREW_ID": "CREW-FED-GEOLOGIST", "output": "DEPTH_7_OF_7", "state": "CANDIDATE_PENDING_W166_RUNTIME"},
+    {"CREW_ID": "CREW-FED-CALLIGRAPHER", "output": "ASCII_AND_MERMAID", "state": "CANDIDATE_PENDING_W166_RUNTIME"},
+    {"CREW_ID": "CREW-FED-NEURON", "output": "GRAPH_9_NODES_8_EDGES", "state": "CANDIDATE_PENDING_W166_RUNTIME"},
+    {"CREW_ID": "CREW-H2-HISTORIAN", "output": "LINEAGE_9_NODES_8_EDGES", "state": "CANDIDATE_PENDING_W166_RUNTIME"}
+  ],
+  "unknowns": {
+    "global_repo_denominator": null,
+    "global_subrepo_denominator": null,
+    "global_folder_denominator": null,
+    "global_dependency_denominator": null,
+    "global_semantic_denominator": null,
+    "global_historical_denominator": null,
+    "global_runtime_denominator": null
+  },
+  "formal_credit_delta": {"engineering": 0, "compliance": 0, "negotiation": 0, "release": 0}
+}
