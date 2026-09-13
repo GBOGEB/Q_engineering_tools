@@ -32,6 +32,11 @@ NAV_GROUP_RE = re.compile(
     r"EVIDENCE_DELIVERY|GOVERNANCE_LINEAGE|HANDOVER)\b"
 )
 MISSION_ROMAN_RE = re.compile(r"\bMission\s+([IVXLCDM]+)\b", re.IGNORECASE)
+DESCRIPTOR_PATHS = {
+    "controls/QPS_MISSION_CONTROL_NAMESPACE_TAXONOMY_v1.yaml",
+    "controls/QPS_MISSION_CONTROL_LEGACY_ALIAS_REGISTRY_v1.yaml",
+    "tests/test_qps_w163_namespace_collisions.py",
+}
 
 
 def load_yaml(path: Path) -> dict:
@@ -138,6 +143,8 @@ def scan_repository_files(root: Path, nav_paths: set[str], errors: list[str], wa
             continue
         checked += 1
         rel = path.relative_to(root).as_posix()
+        if rel in DESCRIPTOR_PATHS:
+            continue
         if NAV_ID_RE.search(text) or NAV_GROUP_RE.search(text):
             if rel in nav_paths:
                 warnings.append(f"grandfathered navigation G-prefix identifiers remain in {rel}")

@@ -97,7 +97,7 @@ class NamespaceControlTests(unittest.TestCase):
             bad.write_text("const x={id:'G4'};", encoding="utf-8")
             errors, warnings = [], []
             w163.scan_repository_files(root, self.nav_paths, errors, warnings)
-            self.assertTrue(any("unregistered navigation bare-G" in item for item in errors))
+            self.assertTrue(any("unregistered navigation G-prefix" in item for item in errors))
 
 
 if __name__ == "__main__":
