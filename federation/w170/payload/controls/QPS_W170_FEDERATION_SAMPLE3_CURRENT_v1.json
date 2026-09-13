@@ -1,0 +1,155 @@
+{
+  "schema": "qps-w170-federation-sample3-control/v1",
+  "wave": "W170",
+  "sample_id": "FED-SAMPLE-003-CODEX-M05",
+  "authority": "MISSION_CONTROL_CANDIDATE_ON_MERGE",
+  "activation_rule": "EFFECTIVE_ONLY_AFTER_EXACT_FEDERATED_PR_HEAD_AND_POSTMERGE_REPEAT_THEN_MERGE_TO_CRYOPLANT_MAIN",
+  "namespace": {
+    "w169": "OCCUPIED_ABACUS_REAL_KUBERNETES_RUNTIME",
+    "w170": "FEDERATION_EXPANSION_SAMPLE_3"
+  },
+  "surface": {
+    "type": "SUPPLY_CHAIN_PROVENANCE_ATTESTATION",
+    "source_repo": "GBOGEB/CODEX",
+    "source_control_pr": 648,
+    "source_control_head": "097cb1bf0bea3f1d64e86d7d6496d6dae56aacd6",
+    "source_control_merge": "077b7a39ef091eb47b30d6134d70d95bc945ad97",
+    "source_return_pr": 649,
+    "source_return_head": "87c3a24d870d32fcb996c858905a05820fba1454",
+    "source_return_merge": "49fb7c132c3689cf83f85b4afe997b9ad0810bee",
+    "action_repo": "actions/attest",
+    "action_sha": "1e69f48acb82d1966a394da916b4c1698aa569d6",
+    "action_version": "v4.2.2"
+  },
+  "exact_source_blobs": {
+    "workflow": "1ee9b60dad1016731dd3b2c40b7f618b3648f93c",
+    "delegate_retain": "b49ecd5ddc9d53f20ac2eed06df5cc28ba9ce955",
+    "runtime_control": "6412e44d3edc169afc33cfd4d58f2dab8e0dcb4a",
+    "source_owner_return": "9c4dcfbd37117a226cd30185f93984b06042261e"
+  },
+  "observed_runtime": {
+    "initial_tag_resolved": {
+      "run_id": 34684195078,
+      "job_id": 103528177890,
+      "result": "PASS",
+      "attestation_id": 47037248,
+      "rekor_log_index": 2805327800,
+      "artifact_id": 10294693929
+    },
+    "exact_pinned_pr": {
+      "run_id": 34684775435,
+      "job_id": 103529746206,
+      "runner_id": 1000252101,
+      "result": "PASS",
+      "artifact_id": 10294739476,
+      "artifact_digest": "sha256:5a4bbc7b53094511b1bcb4a2d6efa9900a0e2c995065b5f9180fbadfa1e3bdcd"
+    },
+    "automatic_main_repeat": {
+      "run_id": 34684810640,
+      "job_id": 103529841527,
+      "runner_id": 1000252142,
+      "result": "PASS",
+      "artifact_id": 10295112538,
+      "artifact_digest": "sha256:e08a1ff6ff3040f27416efab50ae82f4f335eea7094f2ee11fc27769c3f73101"
+    }
+  },
+  "measurement": {
+    "breadth": {
+      "numerator": 23,
+      "denominator": 23,
+      "value": 1.0,
+      "components": {
+        "repositories": {"numerator": 5, "denominator": 5},
+        "governed_artifacts": {"numerator": 4, "denominator": 4},
+        "runtime_vectors": {"numerator": 3, "denominator": 3},
+        "provenance_primitives": {"numerator": 5, "denominator": 5},
+        "specialist_outputs": {"numerator": 6, "denominator": 6}
+      }
+    },
+    "depth_candidate": {
+      "numerator": 7,
+      "denominator": 8,
+      "value": 0.875,
+      "layers_complete": [
+        "DISCOVERY",
+        "SOURCE_CENSUS",
+        "EXACT_ACTION_PINNING",
+        "PR_HEAD_EXECUTION",
+        "POSTMERGE_AUTOMATIC_REPEAT",
+        "SOURCE_OWNER_RETURN_RECEIPT",
+        "AUTHORITY_BOUNDARY"
+      ],
+      "layer_pending": "MISSION_CONTROL_AUTHORITATIVE_RETURN"
+    },
+    "depth_on_activation": {"numerator": 8, "denominator": 8, "value": 1.0},
+    "penetration_formula": "PEN=B*D",
+    "penetration_candidate": 0.875,
+    "penetration_on_activation": 1.0,
+    "scope": "BOUNDED_CODEX_M05_PROVENANCE_SURFACE_ONLY"
+  },
+  "specialists": [
+    "CREW-FED-AMBASSADOR",
+    "CREW-FED-GEOGRAPHER",
+    "CREW-FED-GEOLOGIST",
+    "CREW-FED-CALLIGRAPHER",
+    "CREW-FED-NEURON",
+    "CREW-H2-HISTORIAN"
+  ],
+  "historian": {
+    "nodes": [
+      "CODEX_PR647_INITIAL_ATTEST_RUNTIME",
+      "CODEX_PR648_EXACT_PIN_SOURCE",
+      "CODEX_PR648_EXACT_PIN_RUNTIME",
+      "CODEX_PR648_MERGE",
+      "CODEX_MAIN_AUTOMATIC_REPEAT",
+      "CODEX_PR649_SOURCE_OWNER_RETURN",
+      "CODEX_PR649_RETURN_MERGE",
+      "W170_MISSION_CONTROL_RETURN_CANDIDATE"
+    ],
+    "edge_count": 7
+  },
+  "neuron": {
+    "node_count": 8,
+    "edge_count": 7,
+    "connected_components": 1,
+    "rule": "PROVENANCE_EVIDENCE_FLOWS_FORWARD_AUTHORITY_DOES_NOT"
+  },
+  "ambassador": {
+    "round_trip_candidate": true,
+    "authority_transfer": false,
+    "source_authority_retained_by": "GBOGEB/CODEX",
+    "mission_control_activation_required": true
+  },
+  "calligrapher": {
+    "ascii": "CODEX PR647 PASS -> PR648 EXACT PIN -> PR PASS -> MAIN REPEAT -> PR649 RETURN -> W170 MC CANDIDATE -> EXACT FEDERATED PROOF -> MC ACTIVATE",
+    "mermaid": "flowchart LR; A[PR647 initial PASS]-->B[PR648 exact pin]; B-->C[exact-pin runtime PASS]; C-->D[PR648 merge]; D-->E[main repeat PASS]; E-->F[PR649 source-owner return]; F-->G[W170 MC candidate]; G-->H[exact federated proof]; H-->I[MC activate]"
+  },
+  "native_runtime": {
+    "run_id": null,
+    "job_id": null,
+    "runner_id": null,
+    "recorded_steps": null,
+    "classification": "PENDING_OBSERVATION"
+  },
+  "analytics": {
+    "accepted_samples_before_activation": 2,
+    "accepted_samples_on_activation": 3,
+    "pca": "CANDIDATE_AT_N3_REQUIRES_EXACT_RUNTIME",
+    "bt": "CAPTURE_ACTIVE_FIT_WITHHELD"
+  },
+  "global_denominators": {
+    "fleet": null,
+    "grand_mission": null,
+    "rule": "NULL_NOT_ZERO_AND_SAMPLE_SET_IS_NOT_GLOBAL_FLEET"
+  },
+  "preserved_non_compensating_gates": [
+    "QPS_REPO_LOCAL_RUNNER_923",
+    "G6_CURRENT_RELEASE_IDENTITY_AND_PARITY",
+    "W165_EDGE_K8S_MEASUREMENT_GATE",
+    "W167_VISUAL_N200_RENDER_IDENTITY_HUNT",
+    "W169_ABACUS_REAL_KUBERNETES_RUNTIME",
+    "EXTERNAL_SOURCE_AND_AUTHORITY_GATES",
+    "VISUAL_N200_INDEPENDENT_COLLECTION"
+  ],
+  "formal_credit_delta": {"engineering": 0, "compliance": 0, "negotiation": 0, "release": 0}
+}
