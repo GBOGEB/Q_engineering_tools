@@ -35,6 +35,7 @@ MISSION_ROMAN_RE = re.compile(r"\bMission\s+([IVXLCDM]+)\b", re.IGNORECASE)
 DESCRIPTOR_PATHS = {
     "controls/QPS_MISSION_CONTROL_NAMESPACE_TAXONOMY_v1.yaml",
     "controls/QPS_MISSION_CONTROL_LEGACY_ALIAS_REGISTRY_v1.yaml",
+    "tests/test_qps_w163_namespace_collisions.py",
 }
 
 
