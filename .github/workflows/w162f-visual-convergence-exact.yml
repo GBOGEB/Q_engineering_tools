@@ -1,0 +1,125 @@
+name: W162F Exact Visual Convergence Executor
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/w162f-visual-convergence-exact.yml'
+      - 'scripts/qps_w162_validate_visual_convergence.py'
+      - 'tests/test_qps_w162_visual_convergence.py'
+      - 'triage/w162/QPS_W162_VISUAL_N200_CENSUS_v0.2.yaml'
+      - 'ocd-adr/40_implementation/QPS_VISUAL_PCA_N100_GENERATION_RECEIPT.json'
+      - 'ocd-adr/40_implementation/QPS_VISUAL_PCA_BALANCED_SAMPLE_CONVERGENCE.csv'
+      - 'ocd-adr/40_implementation/QPS_VISUAL_N400_EXPANSION_PLAN_v0.1.yaml'
+      - 'carriers/w162/qps-w162-source-workflow.yml'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CRYOPLANT_HEAD: 4db05943868af1f502dba3090485534600349bd3
+  VALIDATOR_BLOB: 88c3674a9aab170e45eabe169e500aa3e1f4f204
+  TEST_BLOB: 95b7f52d0c8bbfada247c0ec8dd37dd82773f3ee
+  RECEIPT_BLOB: 175e76a66c9e75c3cf6e1c258d3094c6744a7a42
+  GENERATION_BLOB: 98249f0ae574d2d97292dc415d421bfc7a128202
+  CONVERGENCE_BLOB: ebe87e800e4b8614127787b63c12e768a9eaf8b0
+  PLAN_BLOB: 4db6deabb05f7a77d17326a5dad332c7e0490c3e
+  SOURCE_WORKFLOW_BLOB: d09ce8253801f478a6cbc06aa4f7f33f3fceeb75
+
+jobs:
+  w162f-exact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout executor exact head
+        uses: actions/checkout@v4
+
+      - name: Prove exact cryoplant payload blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object scripts/qps_w162_validate_visual_convergence.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object tests/test_qps_w162_visual_convergence.py)" = "$TEST_BLOB"
+          test "$(git hash-object triage/w162/QPS_W162_VISUAL_N200_CENSUS_v0.2.yaml)" = "$RECEIPT_BLOB"
+          test "$(git hash-object ocd-adr/40_implementation/QPS_VISUAL_PCA_N100_GENERATION_RECEIPT.json)" = "$GENERATION_BLOB"
+          test "$(git hash-object ocd-adr/40_implementation/QPS_VISUAL_PCA_BALANCED_SAMPLE_CONVERGENCE.csv)" = "$CONVERGENCE_BLOB"
+          test "$(git hash-object ocd-adr/40_implementation/QPS_VISUAL_N400_EXPANSION_PLAN_v0.1.yaml)" = "$PLAN_BLOB"
+          test "$(git hash-object carriers/w162/qps-w162-source-workflow.yml)" = "$SOURCE_WORKFLOW_BLOB"
+          echo PASS_EXACT_W162_BLOBS_7_OF_7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install exact validator dependency
+        run: python -m pip install PyYAML==6.0.3
+
+      - name: Execute unchanged W162 regression tests
+        run: python -m unittest discover -s tests -p 'test_qps_w162_visual_convergence.py' -v
+
+      - name: Execute unchanged W162 validator
+        run: >-
+          python scripts/qps_w162_validate_visual_convergence.py
+          --output QPS_W162_VISUAL_CONVERGENCE_RUNTIME_RECEIPT.json
+
+      - name: Require fail-closed N200 disposition and emit federation receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          runtime_path = Path('QPS_W162_VISUAL_CONVERGENCE_RUNTIME_RECEIPT.json')
+          r = json.loads(runtime_path.read_text(encoding='utf-8'))
+          assert r['status'] == 'PASS_W162_VISUAL_CONVERGENCE', r
+          assert r['validated_N'] == [60, 80, 100], r
+          assert r['N200_independent_new_artifacts'] == 0, r
+          assert r['N200_remaining_deficit_total'] == 100, r
+          assert all(v == 25 for v in r['N200_remaining_deficit_per_format'].values()), r
+          assert all(v == 0 for v in r['formal_credit_delta'].values()), r
+          out = {
+              'schema': 'qps.w162f.federated_exact_execution.v1',
+              'status': 'PASS_EXECUTED_EXACT_PAYLOAD',
+              'authority': 'FEDERATED_EXECUTION_ONLY_NOT_VISUAL_OR_ENGINEERING_PROMOTION',
+              'source_repo': 'GBOGEB/cryoplant-project',
+              'source_head_sha': os.environ['CRYOPLANT_HEAD'],
+              'executor_repo': os.environ['GITHUB_REPOSITORY'],
+              'executor_head_sha': os.environ['GITHUB_SHA'],
+              'run_id': int(os.environ['GITHUB_RUN_ID']),
+              'run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'runtime_receipt_sha256': hashlib.sha256(runtime_path.read_bytes()).hexdigest(),
+              'exact_source_blobs': {
+                  'validator': os.environ['VALIDATOR_BLOB'],
+                  'tests': os.environ['TEST_BLOB'],
+                  'w162_receipt': os.environ['RECEIPT_BLOB'],
+                  'n100_generation': os.environ['GENERATION_BLOB'],
+                  'convergence_csv': os.environ['CONVERGENCE_BLOB'],
+                  'n400_plan': os.environ['PLAN_BLOB'],
+                  'source_workflow': os.environ['SOURCE_WORKFLOW_BLOB'],
+              },
+              'validated_N': r['validated_N'],
+              'N200_independent_new_artifacts': 0,
+              'N200_remaining_deficit_total': 100,
+              'N200_remaining_deficit_per_format': r['N200_remaining_deficit_per_format'],
+              'formal_credit_delta': {'engineering': 0, 'compliance': 0, 'negotiation': 0, 'release': 0},
+              'next': 'DISCOVER_AND_QUALIFY_25_NEW_INDEPENDENT_ARTIFACTS_PER_FORMAT',
+          }
+          Path('W162F_FEDERATED_EXECUTION_RECEIPT.json').write_text(
+              json.dumps(out, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(out, sort_keys=True))
+          PY
+
+      - name: Upload W162 exact execution evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: qps-w162f-exact-${{ github.sha }}
+          path: |
+            QPS_W162_VISUAL_CONVERGENCE_RUNTIME_RECEIPT.json
+            W162F_FEDERATED_EXECUTION_RECEIPT.json
+          if-no-files-found: error
