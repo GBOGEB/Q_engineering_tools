@@ -41,7 +41,7 @@ jobs:
         run: python -m pip install PyYAML==6.0.3
       - name: Execute exact child regression tests
         working-directory: federation/w163/payload
-        run: python -m unittest tests.test_qps_w163_namespace_collisions -v
+        run: python -m unittest discover -s tests -p 'test_qps_w163_namespace_collisions.py' -v
       - name: Execute exact child namespace scanner
         working-directory: federation/w163/payload
         run: >-
@@ -53,7 +53,7 @@ jobs:
         env:
           SOURCE_REPO: GBOGEB/cryoplant-project
           SOURCE_PR: '1073'
-          SOURCE_HEAD: 6611cb3f6fecd38a0ee1e23b73450d93aa73892e
+          SOURCE_HEAD: a3dda33348616d94d6c9b3c83e564265463ba0cc
         run: |
           python - <<'PY'
           import json, os, subprocess
