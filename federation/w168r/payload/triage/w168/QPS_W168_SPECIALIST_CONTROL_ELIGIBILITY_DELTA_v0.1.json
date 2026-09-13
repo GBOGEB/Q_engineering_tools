@@ -1,0 +1,73 @@
+{
+  "schema": "qps-specialist-control-eligibility-delta/v0.1",
+  "wave": "W168R",
+  "activation": "ON_MERGE_TO_MAIN",
+  "basis": {
+    "sample_1": "FED-SAMPLE-001-W164-CONTROL",
+    "sample_2": "FED-SAMPLE-002-ABACUS-W74",
+    "sample_2_return": "triage/w168/QPS_W168_FEDERATION_EXPANSION_RUNTIME_CONTROL_v0.1.json",
+    "rule": "MEASURED_TO_CONTROLLED_REQUIRES_REPEATABLE_EVIDENCE_AND_BOUND_AUTHORITY"
+  },
+  "updates": [
+    {
+      "CREW_ID": "CREW-FED-AMBASSADOR",
+      "maturity": "MEASURED_DISTINCT_REPEAT_ACCEPTED",
+      "CONTROL_eligibility": true,
+      "accepted_work": ["W166_FED_SAMPLE_001", "W168_FED_SAMPLE_002"],
+      "runtime_receipts": ["W166F_EXACT_REPEAT", "W168F_EXACT_REPEAT"],
+      "REX_generated": ["W168_TEST_HARNESS_SCOPE_LEAKAGE"],
+      "control_state": "ELIGIBLE_NOT_AUTOMATICALLY_PROMOTED"
+    },
+    {
+      "CREW_ID": "CREW-FED-GEOGRAPHER",
+      "maturity": "MEASURED_DISTINCT_REPEAT_ACCEPTED",
+      "CONTROL_eligibility": true,
+      "accepted_work": ["W166_BREADTH_CENSUS", "W168_BREADTH_CENSUS"],
+      "runtime_receipts": ["W166F_EXACT_REPEAT", "W168F_EXACT_REPEAT"],
+      "REX_generated": [],
+      "control_state": "ELIGIBLE_NOT_AUTOMATICALLY_PROMOTED"
+    },
+    {
+      "CREW_ID": "CREW-FED-GEOLOGIST",
+      "maturity": "MEASURED_DISTINCT_REPEAT_ACCEPTED",
+      "CONTROL_eligibility": true,
+      "accepted_work": ["W166_DEPTH_CENSUS", "W168_DEPTH_CENSUS"],
+      "runtime_receipts": ["W166F_EXACT_REPEAT", "W168F_EXACT_REPEAT"],
+      "REX_generated": [],
+      "control_state": "ELIGIBLE_NOT_AUTOMATICALLY_PROMOTED"
+    },
+    {
+      "CREW_ID": "CREW-FED-CALLIGRAPHER",
+      "maturity": "MEASURED_DISTINCT_REPEAT_ACCEPTED",
+      "CONTROL_eligibility": true,
+      "accepted_work": ["W166_FLOW_RENDER", "W168_FLOW_RENDER"],
+      "runtime_receipts": ["W166F_EXACT_REPEAT", "W168F_EXACT_REPEAT"],
+      "REX_generated": [],
+      "control_state": "ELIGIBLE_NOT_AUTOMATICALLY_PROMOTED"
+    },
+    {
+      "CREW_ID": "CREW-FED-NEURON",
+      "maturity": "MEASURED_DISTINCT_REPEAT_ACCEPTED",
+      "CONTROL_eligibility": true,
+      "accepted_work": ["W166_GRAPH_DECOMPOSITION", "W168_GRAPH_DECOMPOSITION"],
+      "runtime_receipts": ["W166F_EXACT_REPEAT", "W168F_EXACT_REPEAT"],
+      "REX_generated": ["VALIDATOR_PASS_AND_HARNESS_FAIL_MUST_REMAIN_DISTINCT_GRAPH_NODES"],
+      "control_state": "ELIGIBLE_NOT_AUTOMATICALLY_PROMOTED"
+    },
+    {
+      "CREW_ID": "CREW-H2-HISTORIAN",
+      "maturity": "MEASURED_DISTINCT_REPEAT_ACCEPTED",
+      "CONTROL_eligibility": true,
+      "accepted_work": ["W166_LINEAGE", "W168_W74_DEFECT_LINEAGE"],
+      "runtime_receipts": ["W166F_EXACT_REPEAT", "W168F_EXACT_REPEAT"],
+      "REX_generated": ["TARGETED_CONTRACT_TEST_MUST_NOT_INHERIT_UNRELATED_REPOSITORY_WIDE_FIXTURES"],
+      "control_state": "ELIGIBLE_NOT_AUTOMATICALLY_PROMOTED"
+    }
+  ],
+  "registry_reconciliation": {
+    "canonical_registry": "controls/QPS_CREW_REGISTRY_CURRENT_v1.json",
+    "current_registry_precedes_W166_runtime_promotion": true,
+    "delta_is_authoritative_until_registry_reconciled": true,
+    "automatic_CONTROL_promotion": false
+  }
+}

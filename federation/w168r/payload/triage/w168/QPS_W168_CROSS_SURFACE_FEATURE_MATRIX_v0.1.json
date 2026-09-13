@@ -1,0 +1,90 @@
+{
+  "schema": "qps-federation-cross-surface-feature-matrix/v0.1",
+  "wave": "W168R",
+  "purpose": "MEASURED_CROSS_SURFACE_PCA_BT_INPUT_WITHOUT_PREMATURE_FIT",
+  "rows": [
+    {
+      "sample_id": "FED-SAMPLE-001-W164-CONTROL",
+      "surface": "MISSION_FEDERATION_CONTROL",
+      "repositories_observed": 2,
+      "artifact_units": 5,
+      "runtime_vectors": 3,
+      "specialist_outputs": 6,
+      "breadth_ratio": 1.0,
+      "depth_ratio": 1.0,
+      "penetration": 1.0,
+      "lineage_nodes": 9,
+      "lineage_edges": 8,
+      "runner_assigned": 1,
+      "runtime_first_red_present": 1,
+      "accepted_sample": 1
+    },
+    {
+      "sample_id": "FED-SAMPLE-002-ABACUS-W74",
+      "surface": "KUBERNETES_DEPLOYMENT_CONTRACT",
+      "repositories_observed": 2,
+      "artifact_units": 8,
+      "runtime_vectors": 1,
+      "specialist_outputs": 6,
+      "breadth_ratio": 1.0,
+      "depth_ratio": 1.0,
+      "penetration": 1.0,
+      "lineage_nodes": 9,
+      "lineage_edges": 8,
+      "runner_assigned": 1,
+      "runtime_first_red_present": 1,
+      "accepted_sample": 1
+    }
+  ],
+  "feature_columns": [
+    "repositories_observed",
+    "artifact_units",
+    "runtime_vectors",
+    "specialist_outputs",
+    "breadth_ratio",
+    "depth_ratio",
+    "penetration",
+    "lineage_nodes",
+    "lineage_edges",
+    "runner_assigned",
+    "runtime_first_red_present",
+    "accepted_sample"
+  ],
+  "sample_2_acceptance_evidence": {
+    "source_repair_run": 34774368482,
+    "source_repair_merge": "e53a92490a9ae8b5b67cb75eb7f522f84ccb0188",
+    "exact_carrier_pr_head_run": 34774633112,
+    "exact_carrier_postmerge_run": 34774657192,
+    "authoritative_return": "triage/w168/QPS_W168_FEDERATION_EXPANSION_RUNTIME_CONTROL_v0.1.json"
+  },
+  "analytics_gate": {
+    "row_count": 2,
+    "accepted_row_count": 2,
+    "pca_minimum_rows": 3,
+    "pca_state": "WITHHELD_N_LT_3",
+    "bt_observed_pairwise_outcomes": 0,
+    "bt_minimum_pairwise_outcomes": 3,
+    "bt_state": "WITHHELD_NO_OBSERVED_PAIRWISE_OUTCOME_EVIDENCE",
+    "reverse_pressure_ranking": "DESCRIPTIVE_ONLY_NOT_MODEL_DERIVED"
+  },
+  "descriptive_delta_sample2_minus_sample1": {
+    "artifact_units": 3,
+    "runtime_vectors": -2,
+    "breadth_ratio": 0.0,
+    "depth_ratio": 0.0,
+    "penetration": 0.0,
+    "accepted_sample": 0
+  },
+  "fleet_sampling_guard": {
+    "accepted_bounded_samples": 2,
+    "known_sample_set_denominator": 2,
+    "global_fleet_denominator": null,
+    "global_fleet_penetration": null,
+    "rule": "SAMPLE_SET_DENOMINATOR_IS_NOT_GLOBAL_FLEET_DENOMINATOR"
+  },
+  "next_information_gain": [
+    "THIRD_DISTINCT_ACCEPTED_FEDERATION_SURFACE_FOR_PCA_ADMISSION",
+    "OBSERVED_PAIRWISE_DISPOSITION_OUTCOMES_FOR_BT",
+    "GLOBAL_REPOSITORY_AND_SURFACE_DENOMINATOR_CENSUS"
+  ]
+}
