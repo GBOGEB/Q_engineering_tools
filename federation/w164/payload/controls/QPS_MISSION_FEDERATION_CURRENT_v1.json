@@ -1,0 +1,105 @@
+{
+  "schema": "qps-mission-federation-control/v1.0",
+  "as_of": "2026-09-13T19:24:00+02:00",
+  "authority": "MISSION_CONTROL_DEVOPS_EXECUTION_ONLY",
+  "repository": "GBOGEB/cryoplant-project",
+  "base_commit": "ef00df7ef35f9a6a505e1321285311292e63336d",
+  "legacy_control": "controls/QPS_MISSION_CONTROL_CURRENT_v1.yaml",
+  "wave": "W164",
+  "status": "BOUND_PENDING_RUNTIME_PROOF",
+  "grand_mission_boundary": {
+    "machine_namespace": ["GM-I", "GM-II", "GM-III", "GM-IV", "GM-V"],
+    "rule": "REFERENCE_ONLY_DO_NOT_REDEFINE_HERE",
+    "early_learning_does_not_equal_launch": true
+  },
+  "ten_point_control": [
+    {"point": 1, "id": "VERTICAL_GRAND_MISSIONS", "state": "BOUND", "owner": "GRAND_MISSION_PLANE", "invariant": "Grand Missions retain target, lifecycle, execution evidence, DoV/DoD and local disposition authority."},
+    {"point": 2, "id": "HORIZONTAL_MISSIONS", "state": "BOUND", "owner": "MISSION_CONTROL", "invariant": "H1-H4 are persistent cross-cutting capabilities and never become GM children."},
+    {"point": 3, "id": "FEDERATION_MISSION", "state": "BOUND", "owner": "MISSION_FED", "invariant": "Federation transports and normalises evidence but never steals source or child authority."},
+    {"point": 4, "id": "PENETRATION_MODEL", "state": "BOUND", "owner": "MISSION_FED", "invariant": "PEN equals breadth multiplied by depth; breadth and depth are reported separately as well as together."},
+    {"point": 5, "id": "EARLY_LEARNING_WITHOUT_EARLY_LAUNCH", "state": "BOUND", "owner": "MISSION_FED", "invariant": "HELD missions may be SCOUTED, READ, MAPPED and PRIMED but cannot fabricate canonical children, acceptance or runtime proof."},
+    {"point": 6, "id": "BIDIRECTIONAL_MISSION_CONTROL", "state": "BOUND", "owner": "MISSION_CONTROL", "invariant": "MissionControl supplies intent and constraints; missions return evidence, REX, uncertainty and telemetry."},
+    {"point": 7, "id": "BIDIRECTIONAL_CREW_LEARNING", "state": "BOUND", "owner": "CREW_REGISTRY", "invariant": "Mission evidence updates competency and future allocation; competency claims require receipts."},
+    {"point": 8, "id": "CROSS_FEED_INVARIANT", "state": "BOUND", "owner": "MISSION_FED", "invariant": "Every mission returns all reusable knowledge; local evidence is not automatically global authority."},
+    {"point": 9, "id": "TRIAGE_FEDERATION_LOOP", "state": "BOUND", "owner": "H4_QPS_TRIAGE", "invariant": "Federation answers what was learned; triage selects the next bounded action from governed evidence."},
+    {"point": 10, "id": "CANONICAL_OPERATING_LOOP", "state": "BOUND", "owner": "MISSION_CONTROL", "invariant": "DISCOVER->PRIME->AUTHORISE->EXECUTE->PROVE->RETURN->FEDERATE->LEARN->TRIAGE->REDEPLOY."}
+  ],
+  "horizontal_missions": {
+    "H1_QPS": {
+      "role": "ENGINEERING_RUNTIME_AND_FINAL_CHILD_DISPOSITION",
+      "authority": ["RUNTIME_TRUTH", "CHILD_PROOF", "FINAL_CHILD_DISPOSITION"],
+      "crew": ["RUNNER", "BUILDER", "DEBUGGER", "TESTER", "RUNTIME_ENGINEER", "PERFORMANCE_ENGINEER", "VALIDATOR"]
+    },
+    "H2_KEB": {
+      "role": "SEMANTIC_PROVENANCE_AND_EVIDENCE_TRUTH",
+      "authority": ["SEMANTIC_CHALLENGE", "PROVENANCE", "CONTRACTS", "EXACT_SOURCE_EXACT_SHA"],
+      "crew": ["READER", "EVIDENCE_ANALYST", "SEMANTIC_ENGINEER", "CONTRACT_ENGINEER", "PROVENANCE_ANALYST", "LIBRARIAN", "HISTORIAN"]
+    },
+    "H3_DOW": {
+      "role": "WORK_EXECUTION_DELIVERY_AND_CLOSURE_TRUTH",
+      "authority": ["WORK_DECOMPOSITION", "INDEPENDENT_CONSUMPTION", "RETURNED_EVIDENCE", "DELIVERY_CLOSURE"],
+      "crew": ["PLANNER", "WORKSTREAM_LEAD", "DELIVERY_ENGINEER", "INTEGRATOR", "CLOSURE_OFFICER", "INDEPENDENT_REVIEWER"]
+    },
+    "H4_QPS_TRIAGE": {
+      "role": "GLOBAL_PRIORITY_RESOURCE_AND_FIRST_RED_CONTROL",
+      "authority": ["FIRST_RED_ROUTING", "VETO_HANDLING", "BOUNDED_NEXT_ACTION", "RESOURCE_ALLOCATION"],
+      "crew": ["TRIAGE_OFFICER", "DISPATCHER", "SCHEDULER", "RESOURCE_ALLOCATOR", "PCA_ANALYST", "BT_ANALYST", "GATEKEEPER", "RISK_VETO_OFFICER"],
+      "scheduling_rule": "VETO_GT_BT_GT_VALUE",
+      "global_pca_policy": "WITHHOLD_UNTIL_MEASURED_MATRIX_ADEQUATE"
+    }
+  },
+  "federation_mission": {
+    "id": "MISSION_FED",
+    "class": "CROSS_FLEET_PLANE_NOT_GM_VI",
+    "stages": ["DISCOVER", "NORMALISE", "DISTRIBUTE", "ASSIMILATE"],
+    "crew": ["AMBASSADOR", "GEOGRAPHER", "GEOLOGIST", "CALLIGRAPHER", "NEURON_GRAPH_DECOMPOSER", "HISTORIAN", "SCOUT", "READER", "LIBRARIAN", "FEDERATION_INTEGRATOR"],
+    "returns": ["EVIDENCE", "TOPOLOGY_DELTA", "HISTORICAL_DELTA", "SEMANTIC_DELTA", "REUSABLE_METHOD", "REX", "CREW_LEARNING"],
+    "authority_guard": "FEDERATION_SOLVES_EXCHANGE_NOT_SOURCE_AUTHORITY_OR_CHILD_AUTHORITY"
+  },
+  "penetration_model": {
+    "formula": "PEN=B*D",
+    "breadth_owner": "GEOGRAPHER",
+    "depth_owner": "GEOLOGIST",
+    "required_measures": ["repo_coverage", "subrepo_coverage", "folder_coverage", "dependency_coverage", "semantic_coverage", "historical_coverage", "runtime_coverage", "verified_evidence_coverage", "depth_level", "dependency_depth"],
+    "reporting_rule": "NEVER_COLLAPSE_BREADTH_AND_DEPTH_TO_ONE_UNEXPLAINED_PERCENTAGE"
+  },
+  "early_learning_state_machine": {
+    "prelaunch_states": ["HELD", "SCOUTED", "READ", "MAPPED", "PRIMED"],
+    "launch_state": "AUTHORISED",
+    "execution_states": ["EXECUTING", "PROVING", "RETURNING", "CONTROL"],
+    "allowed_prelaunch_outputs": ["TOPOLOGY", "HISTORY", "DEPENDENCY_MAP", "CANDIDATE_TARGETS", "RISKS", "MISSION_BRIEF", "CREW_ESTIMATE", "RESOURCE_ESTIMATE"],
+    "forbidden_prelaunch_claims": ["CANONICAL_CHILD", "RUNTIME_RECEIPT", "ACCEPTANCE", "MISSION_COMPLETE"],
+    "invariant": "EARLY_LEARNING_NEVER_IMPLIES_EARLY_LAUNCH"
+  },
+  "bidirectional_control": {
+    "mission_control_to_mission": ["MISSION_BRIEF", "CONSTRAINTS", "REX", "CREW", "TOOLS", "RESOURCES", "HORIZONTAL_CAPABILITIES", "FEDERATED_DISCOVERIES", "CONTRACTS", "PRIORITY", "LAUNCH_STATE", "EXPECTED_DOV"],
+    "mission_to_mission_control": ["FINDINGS", "RUNTIME_RECEIPTS", "FAILURES", "REJECTED_APPROACHES", "DEPENDENCIES", "TOPOLOGY_DELTA", "CREW_UTILISATION", "QUEUE_TIME", "EXECUTION_TIME", "INFORMATION_GAIN", "REX", "UNCERTAINTY", "NEXT_ACTION_CANDIDATES"],
+    "control_cycle": ["RECEIVE", "VALIDATE", "NORMALISE", "ASSIMILATE", "FEDERATE", "REPRIORITISE", "REDEPLOY"]
+  },
+  "crew_learning": {
+    "registry": "controls/QPS_CREW_REGISTRY_CURRENT_v1.json",
+    "required_receipt_for_competency_promotion": true,
+    "fields": ["CREW_ID", "home_base", "roles", "competency_vector", "authority", "tools_resources", "active_mission", "secondment", "runtime_receipts", "accepted_work", "rejected_work", "REX_learned", "REX_generated", "current_load", "PCA_contribution", "last_evidence_sha", "maturity", "CONTROL_eligibility"]
+  },
+  "cross_feed": {
+    "required_return_classes": ["LOCAL_RESULT", "RUNTIME_EVIDENCE", "TOPOLOGY_DELTA", "HISTORICAL_DELTA", "SEMANTIC_DELTA", "REUSABLE_METHOD", "REX", "CREW_LEARNING"],
+    "route": ["MISSION", "MISSION_FED", "MISSION_CONTROL", "ELIGIBLE_MISSIONS_HORIZONTALS_TRIAGE"],
+    "non_promotion_guard": "REUSE_DOES_NOT_IMPLY_ACCEPTANCE"
+  },
+  "triage_federation": {
+    "federation_question": "WHAT_HAS_THE_FLEET_LEARNED",
+    "triage_question": "WHAT_SHOULD_THE_FLEET_DO_NEXT",
+    "sequence": ["OBSERVATIONS", "FEDERATION", "CANONICAL_FLEET_KNOWLEDGE", "TRIAGE", "PRIORITY_CREW_RESOURCES", "MISSIONS", "NEW_OBSERVATIONS"],
+    "resource_inputs": ["VETO", "FIRST_RED", "QUEUE_TIME", "EXECUTION_TIME", "INFORMATION_GAIN", "CREW_LOAD", "PENETRATION_B", "PENETRATION_D", "PENETRATION_BXD", "MEASURED_PCA_WHEN_ADEQUATE", "BT_WHEN_SUPPORTED"]
+  },
+  "canonical_operating_loop": ["DISCOVER", "PRIME", "AUTHORISE", "EXECUTE", "PROVE", "RETURN", "FEDERATE", "LEARN", "TRIAGE", "REDEPLOY"],
+  "preserved_non_compensating_gates": ["QPS_REPO_LOCAL_RUNNER_923", "G6_CURRENT_RELEASE_IDENTITY_AND_PARITY", "EXTERNAL_SOURCE_AND_AUTHORITY_GATES", "VISUAL_N200_INDEPENDENT_COLLECTION"],
+  "formal_credit_delta": {"engineering": 0, "compliance": 0, "negotiation": 0, "release": 0},
+  "runtime_dov": {
+    "validator": "scripts/qps_w164_validate_mission_federation.py",
+    "tests": "tests/test_qps_w164_mission_federation.py",
+    "workflow": ".github/workflows/qps-w164-mission-federation.yml",
+    "required": ["RUNNER_ID_NONZERO", "STEPS_GT_ZERO", "VALIDATOR_PASS", "UNIT_TESTS_PASS", "EXACT_HEAD_BOUND", "REPEAT_PASS"],
+    "state": "PENDING"
+  }
+}

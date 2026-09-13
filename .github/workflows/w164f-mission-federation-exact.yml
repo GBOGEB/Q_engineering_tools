@@ -1,0 +1,118 @@
+name: W164F Exact Mission Federation Executor
+
+on:
+  pull_request:
+    paths:
+      - 'federation/w164/**'
+      - '.github/workflows/w164f-mission-federation-exact.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'federation/w164/**'
+      - '.github/workflows/w164f-mission-federation-exact.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  execute-w164-exact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify byte-identical source payload
+        run: |
+          test "$(git hash-object federation/w164/payload/controls/QPS_MISSION_FEDERATION_CURRENT_v1.json)" = "25ad64142660e89f2dda9c7b404b21b65faa1bfa"
+          test "$(git hash-object federation/w164/payload/controls/QPS_CREW_REGISTRY_CURRENT_v1.json)" = "1aa9b9955677522ef732feb25e5a5b58c6f85b51"
+          test "$(git hash-object federation/w164/payload/contracts/qps-mission-federation-control-v1.schema.json)" = "1a49dc2d1e85adfed69cd1be53bff62d7edefd0b"
+          test "$(git hash-object federation/w164/payload/scripts/qps_w164_validate_mission_federation.py)" = "582e22a9af23d94c8a28a092eed0ed6f2bf396a7"
+          test "$(git hash-object federation/w164/payload/tests/test_qps_w164_mission_federation.py)" = "05ff2bca36c2bdaaee804d94c8b330efe2bb0592"
+
+      - name: Validate exact W164 payload
+        working-directory: federation/w164/payload
+        run: python scripts/qps_w164_validate_mission_federation.py
+
+      - name: Run exact W164 regression tests
+        working-directory: federation/w164/payload
+        run: python -m unittest tests/test_qps_w164_mission_federation.py -v
+
+      - name: Emit federated runtime receipt
+        env:
+          RUNNER_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          RUN_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          expected_runner = os.environ["RUNNER_SHA"]
+          observed_runner = subprocess.check_output(
+              ["git", "rev-parse", "HEAD"], text=True
+          ).strip()
+          if observed_runner != expected_runner:
+              raise SystemExit(
+                  f"runner exact-head mismatch: expected={expected_runner} observed={observed_runner}"
+              )
+
+          receipt = {
+              "schema": "qps-w164f-exact-execution-receipt/v1.0",
+              "source_repository": "GBOGEB/cryoplant-project",
+              "source_pr": 1081,
+              "source_implementation_head_sha": "a12c5035a2b47524b8a7c92840e4662b4262b427",
+              "source_native_runtime": {
+                  "run_id": 34771823533,
+                  "job_id": 103762682228,
+                  "recorded_steps": 0,
+                  "classification": "PREEXECUTION_ADMISSION_GATE"
+              },
+              "runner_repository": os.environ["RUN_REPOSITORY"],
+              "runner_head_sha": observed_runner,
+              "run_id": int(os.environ["RUN_ID"]),
+              "run_attempt": int(os.environ["RUN_ATTEMPT"]),
+              "steps_gt_zero": True,
+              "source_blob_identity": {
+                  "controls/QPS_MISSION_FEDERATION_CURRENT_v1.json": "25ad64142660e89f2dda9c7b404b21b65faa1bfa",
+                  "controls/QPS_CREW_REGISTRY_CURRENT_v1.json": "1aa9b9955677522ef732feb25e5a5b58c6f85b51",
+                  "contracts/qps-mission-federation-control-v1.schema.json": "1a49dc2d1e85adfed69cd1be53bff62d7edefd0b",
+                  "scripts/qps_w164_validate_mission_federation.py": "582e22a9af23d94c8a28a092eed0ed6f2bf396a7",
+                  "tests/test_qps_w164_mission_federation.py": "05ff2bca36c2bdaaee804d94c8b330efe2bb0592"
+              },
+              "exact_blob_identity": "PASS_5_OF_5",
+              "ten_point_control": "PASS_10_OF_10",
+              "validator": "PASS",
+              "regression_tests": "PASS_7_OF_7",
+              "authority": "FEDERATED_EXECUTION_ONLY_SOURCE_AUTHORITY_REMAINS_CRYOPLANT",
+              "formal_credit_delta": {
+                  "engineering": 0,
+                  "compliance": 0,
+                  "negotiation": 0,
+                  "release": 0
+              },
+              "status": "PASS_EXACT_PAYLOAD"
+          }
+          out = Path("artifacts/w164f")
+          out.mkdir(parents=True, exist_ok=True)
+          (out / "QPS_W164F_EXACT_EXECUTION_RECEIPT.json").write_text(
+              json.dumps(receipt, indent=2) + "\n", encoding="utf-8"
+          )
+          PY
+
+      - name: Upload federated receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: qps-w164f-exact-execution-receipt
+          path: artifacts/w164f/QPS_W164F_EXACT_EXECUTION_RECEIPT.json
+          if-no-files-found: error

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "qps-mission-federation-control-v1.schema.json",
+  "title": "QPS Mission Federation Control v1",
+  "type": "object",
+  "required": ["schema", "authority", "repository", "wave", "status", "grand_mission_boundary", "ten_point_control", "horizontal_missions", "federation_mission", "penetration_model", "early_learning_state_machine", "bidirectional_control", "crew_learning", "cross_feed", "triage_federation", "canonical_operating_loop", "preserved_non_compensating_gates", "formal_credit_delta", "runtime_dov"],
+  "properties": {
+    "schema": {"const": "qps-mission-federation-control/v1.0"},
+    "authority": {"const": "MISSION_CONTROL_DEVOPS_EXECUTION_ONLY"},
+    "repository": {"const": "GBOGEB/cryoplant-project"},
+    "wave": {"const": "W164"},
+    "status": {"enum": ["BOUND_PENDING_RUNTIME_PROOF", "PASS_PR_HEAD", "CONTROL_REPEAT_PASS"]},
+    "ten_point_control": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["point", "id", "state", "owner", "invariant"],
+        "properties": {"point": {"type": "integer", "minimum": 1, "maximum": 10}, "state": {"const": "BOUND"}}
+      }
+    },
+    "horizontal_missions": {
+      "type": "object",
+      "required": ["H1_QPS", "H2_KEB", "H3_DOW", "H4_QPS_TRIAGE"]
+    },
+    "federation_mission": {
+      "type": "object",
+      "required": ["id", "class", "stages", "crew", "returns", "authority_guard"],
+      "properties": {"id": {"const": "MISSION_FED"}, "class": {"const": "CROSS_FLEET_PLANE_NOT_GM_VI"}}
+    },
+    "penetration_model": {"type": "object", "required": ["formula", "breadth_owner", "depth_owner", "required_measures", "reporting_rule"], "properties": {"formula": {"const": "PEN=B*D"}}},
+    "early_learning_state_machine": {"type": "object", "required": ["prelaunch_states", "launch_state", "execution_states", "allowed_prelaunch_outputs", "forbidden_prelaunch_claims", "invariant"]},
+    "bidirectional_control": {"type": "object", "required": ["mission_control_to_mission", "mission_to_mission_control", "control_cycle"]},
+    "crew_learning": {"type": "object", "required": ["registry", "required_receipt_for_competency_promotion", "fields"]},
+    "cross_feed": {"type": "object", "required": ["required_return_classes", "route", "non_promotion_guard"]},
+    "triage_federation": {"type": "object", "required": ["federation_question", "triage_question", "sequence", "resource_inputs"]},
+    "canonical_operating_loop": {"const": ["DISCOVER", "PRIME", "AUTHORISE", "EXECUTE", "PROVE", "RETURN", "FEDERATE", "LEARN", "TRIAGE", "REDEPLOY"]},
+    "formal_credit_delta": {"const": {"engineering": 0, "compliance": 0, "negotiation": 0, "release": 0}}
+  },
+  "additionalProperties": true
+}
