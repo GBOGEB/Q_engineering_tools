@@ -1,0 +1,107 @@
+name: W166F Exact Federation Measurement Executor
+
+on:
+  pull_request:
+    paths:
+      - 'federation/w166/**'
+      - '.github/workflows/w166f-federation-measurement-exact.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'federation/w166/**'
+      - '.github/workflows/w166f-federation-measurement-exact.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  execute-w166-exact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify byte-identical source payload
+        run: |
+          test "$(git hash-object federation/w166/payload/controls/QPS_FEDERATION_MEASUREMENT_CURRENT_v1.json)" = "edc9620039f009a6f01ba7ebc8b4d19a73da4cdc"
+          test "$(git hash-object federation/w166/payload/triage/w166/QPS_W166_FEDERATION_PILOT_CENSUS_v0.1.json)" = "9a3d51e206d8351631e399702965a90a7d09a521"
+          test "$(git hash-object federation/w166/payload/scripts/qps_w166_validate_federation_measurement.py)" = "f57ff9d57dc6ffc6c69c6478b66ce0266355958e"
+          test "$(git hash-object federation/w166/payload/tests/test_qps_w166_federation_measurement.py)" = "c99cf68ddcd1e40020412381454ba1ca55402283"
+          test "$(git hash-object federation/w166/payload/triage/w164/QPS_W164_MISSION_FEDERATION_RUNTIME_CONTROL_v0.1.yaml)" = "476c7d80f42b2850555477a837cb645f3675800a"
+      - name: Validate exact W166 measurement payload
+        working-directory: federation/w166/payload
+        run: python scripts/qps_w166_validate_federation_measurement.py
+      - name: Run exact W166 regression tests
+        working-directory: federation/w166/payload
+        run: python -m unittest tests/test_qps_w166_federation_measurement.py -v
+      - name: Emit measured specialist receipt
+        env:
+          EXACT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          observed = subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip()
+          expected = os.environ['EXACT_SHA']
+          if observed != expected:
+              raise SystemExit(f'exact-head mismatch expected={expected} observed={observed}')
+          receipt = {
+              'schema': 'qps-w166f-exact-measurement-receipt/v0.1',
+              'source_repository': 'GBOGEB/cryoplant-project',
+              'source_pr': 1094,
+              'source_head_sha': '6dee5f7b286acd0e5445f2b90d56a167191ccd39',
+              'native_runtime': {
+                  'run_id': 34773256412,
+                  'job_id': 103766614046,
+                  'runner_id': 0,
+                  'recorded_steps': 0,
+                  'classification': 'PREEXECUTION_ADMISSION_GATE_923'
+              },
+              'runner_repository': 'GBOGEB/Q_engineering_tools',
+              'runner_head_sha': observed,
+              'run_id': int(os.environ['RUN_ID']),
+              'run_attempt': int(os.environ['RUN_ATTEMPT']),
+              'steps_gt_zero': True,
+              'exact_blob_identity': 'PASS_5_OF_5',
+              'pilot_scope': 'W164_CONTROL_SURFACE_ONLY',
+              'B': {'numerator': 16, 'denominator': 16, 'value': 1.0},
+              'D': {'numerator': 7, 'denominator': 7, 'value': 1.0},
+              'PEN': 1.0,
+              'specialist_receipts': {
+                  'CREW-FED-AMBASSADOR': 'MEASURED_W166_PILOT',
+                  'CREW-FED-GEOGRAPHER': 'MEASURED_W166_PILOT',
+                  'CREW-FED-GEOLOGIST': 'MEASURED_W166_PILOT',
+                  'CREW-FED-CALLIGRAPHER': 'MEASURED_W166_PILOT',
+                  'CREW-FED-NEURON': 'MEASURED_W166_PILOT',
+                  'CREW-H2-HISTORIAN': 'MEASURED_W166_PILOT'
+              },
+              'global_fleet_penetration': None,
+              'grand_mission_penetration': None,
+              'authority_transfer': False,
+              'preserved_non_compensating_gates': [
+                  'QPS_REPO_LOCAL_RUNNER_923',
+                  'G6_CURRENT_RELEASE_IDENTITY_AND_PARITY',
+                  'W165_EDGE_K8S_MEASUREMENT_GATE',
+                  'EXTERNAL_SOURCE_AND_AUTHORITY_GATES',
+                  'VISUAL_N200_INDEPENDENT_COLLECTION'
+              ],
+              'formal_credit_delta': {'engineering':0,'compliance':0,'negotiation':0,'release':0},
+              'status': 'PASS_BOUNDED_SPECIALIST_MEASUREMENT'
+          }
+          out = Path('artifacts/w166f')
+          out.mkdir(parents=True, exist_ok=True)
+          (out/'QPS_W166F_EXACT_MEASUREMENT_RECEIPT.json').write_text(json.dumps(receipt, indent=2)+'\n', encoding='utf-8')
+          PY
+      - name: Upload measured specialist receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: qps-w166f-exact-measurement-receipt
+          path: artifacts/w166f/QPS_W166F_EXACT_MEASUREMENT_RECEIPT.json
+          if-no-files-found: error
