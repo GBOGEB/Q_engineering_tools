@@ -1,0 +1,99 @@
+{
+  "schema": "qps-federation-expansion-sample/v1.0",
+  "as_of": "2026-09-13T20:24:00+02:00",
+  "repository": "GBOGEB/cryoplant-project",
+  "wave": "W168",
+  "requested_frontier": "W167_FEDERATION_EXPANSION_SAMPLE_2",
+  "namespace_resolution": {
+    "requested_namespace": "W167",
+    "collision": true,
+    "existing_owner": "cryoplant-project PR #1093 N200 HTML render-identity hunt",
+    "resolved_namespace": "W168",
+    "rule": "EXISTING_WAVE_MEANING_MUST_NOT_BE_OVERWRITTEN"
+  },
+  "authority": "MISSION_FED_MEASUREMENT_REX_AND_CROSS_FEED_ONLY",
+  "status": "SAMPLE_2_BOUND_DEPTH_INCOMPLETE",
+  "sample_surface": {
+    "source_repository": "GBOGEB/ABACUS",
+    "source_wave": "W74",
+    "source_pr": 1178,
+    "source_head_sha": "0af0c834a9fdb6677fb62454096f9cf439b872ab",
+    "source_merge_sha": "54ca866d9a191fff69289ff4a74a3e299689aa18",
+    "surface_type": "KUBERNETES_DEPLOYMENT_CONTRACT",
+    "consumer_repository": "GBOGEB/cryoplant-project",
+    "crossfeed_pr": 1183,
+    "crossfeed_head_sha": "faca2038eae08446e098fccb785a02adf8388fcd"
+  },
+  "observed_runtime": {
+    "run_id": 34772257778,
+    "job_id": 103763867689,
+    "runner_id": 1000265098,
+    "steps_gt_zero": true,
+    "validator_status": "PASS",
+    "regression_status": "FAIL_COLLECTION",
+    "first_red": "tests/conftest.py imports numpy but W74 contract workflow does not install numpy",
+    "classification": "TEST_HARNESS_SCOPE_LEAKAGE_NOT_KUBERNETES_CONTRACT_FAILURE"
+  },
+  "measurement": {
+    "penetration_formula": "PEN=B*D",
+    "breadth": {
+      "repositories": {"numerator": 2, "denominator": 2},
+      "source_changed_files": {"numerator": 8, "denominator": 8},
+      "observed_runtime_vectors": {"numerator": 1, "denominator": 1},
+      "specialist_outputs": {"numerator": 6, "denominator": 6},
+      "total": {"numerator": 17, "denominator": 17, "ratio": 1.0}
+    },
+    "depth": {
+      "layers": [
+        {"id": "D1", "name": "DISCOVERY", "state": "PASS"},
+        {"id": "D2", "name": "SOURCE_BINDING", "state": "PASS"},
+        {"id": "D3", "name": "SEMANTIC_CONTRACT", "state": "PASS"},
+        {"id": "D4", "name": "OBSERVED_SOURCE_RUNTIME", "state": "PASS"},
+        {"id": "D5", "name": "DEFECT_LINEAGE_CLASSIFICATION", "state": "PASS"},
+        {"id": "D6", "name": "SOURCE_AUTHORITY_CROSSFEED", "state": "PASS"},
+        {"id": "D7", "name": "REPAIRED_SOURCE_RUNTIME", "state": "PENDING"},
+        {"id": "D8", "name": "AUTHORITATIVE_RETURN", "state": "PENDING"}
+      ],
+      "numerator": 6,
+      "denominator": 8,
+      "ratio": 0.75
+    },
+    "pen": 0.75,
+    "scope_rule": "BOUNDED_W74_W168_SURFACE_ONLY_NO_GLOBAL_EXTRAPOLATION"
+  },
+  "specialist_stack": {
+    "CREW-FED-GEOGRAPHER": "SECOND_SAMPLE_OUTPUT_BOUND",
+    "CREW-FED-GEOLOGIST": "SECOND_SAMPLE_OUTPUT_BOUND",
+    "CREW-H2-HISTORIAN": "SECOND_SAMPLE_OUTPUT_BOUND",
+    "CREW-FED-NEURON": "SECOND_SAMPLE_OUTPUT_BOUND",
+    "CREW-FED-AMBASSADOR": "SECOND_SAMPLE_OUTPUT_BOUND",
+    "CREW-FED-CALLIGRAPHER": "SECOND_SAMPLE_OUTPUT_BOUND"
+  },
+  "crew_promotion": {
+    "sample_count": 2,
+    "second_sample_accepted": false,
+    "measured_to_controlled": "WITHHELD_UNTIL_D7_AND_D8_PASS",
+    "rule": "SECOND_DISTINCT_SAMPLE_MUST_COMPLETE_RUNTIME_AND_AUTHORITATIVE_RETURN"
+  },
+  "cross_surface_analytics": {
+    "feature_matrix_started": true,
+    "sample_rows": 2,
+    "pca": "WITHHELD_N_LT_3",
+    "bt": "WITHHELD_NO_OBSERVED_PAIRWISE_OUTCOME_EVIDENCE"
+  },
+  "scope_guard": {
+    "global_fleet_denominator": null,
+    "global_fleet_penetration": null,
+    "grand_mission_penetration": null,
+    "grand_mission_authority_changed": false,
+    "formal_credit_delta": {"engineering": 0, "compliance": 0, "negotiation": 0, "release": 0}
+  },
+  "preserved_non_compensating_gates": [
+    "QPS_REPO_LOCAL_RUNNER_923",
+    "G6_CURRENT_RELEASE_IDENTITY_AND_PARITY",
+    "W165_EDGE_K8S_MEASUREMENT_GATE",
+    "W167_VISUAL_N200_RENDER_IDENTITY_HUNT",
+    "EXTERNAL_SOURCE_AND_AUTHORITY_GATES",
+    "VISUAL_N200_INDEPENDENT_COLLECTION"
+  ]
+}
