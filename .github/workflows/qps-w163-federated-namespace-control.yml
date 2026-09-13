@@ -34,7 +34,7 @@ jobs:
           }
           check_blob federation/w163/payload/controls/QPS_MISSION_CONTROL_NAMESPACE_TAXONOMY_v1.yaml 46b4bb142946959e786db234795aa3cf791ece98
           check_blob federation/w163/payload/controls/QPS_MISSION_CONTROL_LEGACY_ALIAS_REGISTRY_v1.yaml 5173f81b4d5d5c36f68745f96fa8faf7bbb6ef39
-          check_blob federation/w163/payload/scripts/qps_w163_validate_namespace_collisions.py 44200ca30f65a284937a94530bbaae9d6d1511d3
+          check_blob federation/w163/payload/scripts/qps_w163_validate_namespace_collisions.py d66f6ed28ac6bfc86cab08eec072c092b29dce0a
           check_blob federation/w163/payload/tests/test_qps_w163_namespace_collisions.py 8b4a7dba4c1d5ba0be2d7f027ba97a9539e0eed9
           check_blob federation/w163/payload/triage/w163/QPS_W163_RECENT_PR_COLLISION_CENSUS_v0.1.json cb604d7ec0c80d83491c71a94df8e0a2fd8dfd8b
       - name: Install validator dependency
@@ -53,7 +53,7 @@ jobs:
         env:
           SOURCE_REPO: GBOGEB/cryoplant-project
           SOURCE_PR: '1073'
-          SOURCE_HEAD: 3c35cd78f77576b44e3e9689f1cf07bcc5e8d239
+          SOURCE_HEAD: 408ef8221cb136a28e5daca116abc0206ade1f91
         run: |
           python - <<'PY'
           import json, os, subprocess
@@ -71,7 +71,7 @@ jobs:
             'source_blobs': {
               'taxonomy': '46b4bb142946959e786db234795aa3cf791ece98',
               'aliases': '5173f81b4d5d5c36f68745f96fa8faf7bbb6ef39',
-              'validator': '44200ca30f65a284937a94530bbaae9d6d1511d3',
+              'validator': 'd66f6ed28ac6bfc86cab08eec072c092b29dce0a',
               'tests': '8b4a7dba4c1d5ba0be2d7f027ba97a9539e0eed9',
               'recent_pr_census': 'cb604d7ec0c80d83491c71a94df8e0a2fd8dfd8b'
             },
