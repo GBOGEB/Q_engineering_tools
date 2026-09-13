@@ -3,10 +3,12 @@ name: W168RF Exact Authoritative Return Consumer
 on:
   pull_request:
     paths:
+      - 'federation/w168r/**'
       - '.github/workflows/w168rf-authoritative-return-exact-head.yml'
   push:
     branches: [main]
     paths:
+      - 'federation/w168r/**'
       - '.github/workflows/w168rf-authoritative-return-exact-head.yml'
 
 permissions:
@@ -17,52 +19,36 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout consumer revision
-        uses: actions/checkout@v4
-
-      - name: Checkout exact cryoplant W168R head
+      - name: Checkout exact consumer revision
         uses: actions/checkout@v4
         with:
-          repository: GBOGEB/cryoplant-project
-          ref: d46e3689396db1e89c1d03848cd5db5597818cd2
-          path: source
-          persist-credentials: false
-          fetch-depth: 1
-          sparse-checkout-cone-mode: false
-          sparse-checkout: |
-            controls/QPS_CREW_REGISTRY_CURRENT_v1.json
-            triage/w168/QPS_W168_FEDERATION_EXPANSION_RUNTIME_CONTROL_v0.1.json
-            triage/w168/QPS_W168_SPECIALIST_CONTROL_ELIGIBILITY_DELTA_v0.1.json
-            triage/w168/QPS_W168_CROSS_SURFACE_FEATURE_MATRIX_v0.1.json
-            scripts/qps_w168r_validate_authoritative_return.py
-            tests/test_qps_w168r_authoritative_return.py
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Verify exact W168R head and six payload blobs
+      - name: Verify six byte-identical W168R source blobs
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git -C source rev-parse HEAD)" = "d46e3689396db1e89c1d03848cd5db5597818cd2"
-          test "$(git -C source hash-object triage/w168/QPS_W168_FEDERATION_EXPANSION_RUNTIME_CONTROL_v0.1.json)" = "daae9de97fa7304cfd60ee84c7eacaf24fb2c5ba"
-          test "$(git -C source hash-object triage/w168/QPS_W168_SPECIALIST_CONTROL_ELIGIBILITY_DELTA_v0.1.json)" = "7a7a32e7ef152de0b161ff6c4289aa1da30f252c"
-          test "$(git -C source hash-object triage/w168/QPS_W168_CROSS_SURFACE_FEATURE_MATRIX_v0.1.json)" = "21d70c52203338d12ed465f909b7b0a73fee4e22"
-          test "$(git -C source hash-object controls/QPS_CREW_REGISTRY_CURRENT_v1.json)" = "9c0405ebba6bcc8b23f0980d75bfee733ddb2f44"
-          test "$(git -C source hash-object scripts/qps_w168r_validate_authoritative_return.py)" = "b91ec381dd8c4b3c160cce13eca407f3b6aaa2a9"
-          test "$(git -C source hash-object tests/test_qps_w168r_authoritative_return.py)" = "bd0dceeba418b67f34cc5c979ef09322277bdf26"
+          test "$(git hash-object federation/w168r/payload/triage/w168/QPS_W168_FEDERATION_EXPANSION_RUNTIME_CONTROL_v0.1.json)" = "daae9de97fa7304cfd60ee84c7eacaf24fb2c5ba"
+          test "$(git hash-object federation/w168r/payload/triage/w168/QPS_W168_SPECIALIST_CONTROL_ELIGIBILITY_DELTA_v0.1.json)" = "7a7a32e7ef152de0b161ff6c4289aa1da30f252c"
+          test "$(git hash-object federation/w168r/payload/triage/w168/QPS_W168_CROSS_SURFACE_FEATURE_MATRIX_v0.1.json)" = "21d70c52203338d12ed465f909b7b0a73fee4e22"
+          test "$(git hash-object federation/w168r/payload/controls/QPS_CREW_REGISTRY_CURRENT_v1.json)" = "9c0405ebba6bcc8b23f0980d75bfee733ddb2f44"
+          test "$(git hash-object federation/w168r/payload/scripts/qps_w168r_validate_authoritative_return.py)" = "b91ec381dd8c4b3c160cce13eca407f3b6aaa2a9"
+          test "$(git hash-object federation/w168r/payload/tests/test_qps_w168r_authoritative_return.py)" = "bd0dceeba418b67f34cc5c979ef09322277bdf26"
 
-      - name: Validate W168R authoritative return
-        working-directory: source
+      - name: Validate exact W168R authoritative return
+        working-directory: federation/w168r/payload
         run: python scripts/qps_w168r_validate_authoritative_return.py
 
-      - name: Run W168R authoritative return tests
-        working-directory: source
+      - name: Run exact W168R authoritative return tests
+        working-directory: federation/w168r/payload
         run: python -m unittest tests/test_qps_w168r_authoritative_return.py -v
 
-      - name: Emit exact-head consumer receipt
+      - name: Emit exact W168R consumer receipt
         env:
           CONSUMER_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           RUN_ID: ${{ github.run_id }}
@@ -77,19 +63,16 @@ jobs:
           import subprocess
           from pathlib import Path
 
-          source_sha = subprocess.check_output(['git', '-C', 'source', 'rev-parse', 'HEAD'], text=True).strip()
           consumer_sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
           expected_consumer = os.environ['CONSUMER_SHA']
           if consumer_sha != expected_consumer:
               raise SystemExit(f'consumer exact-head mismatch expected={expected_consumer} observed={consumer_sha}')
-          if source_sha != 'd46e3689396db1e89c1d03848cd5db5597818cd2':
-              raise SystemExit(f'source exact-head mismatch observed={source_sha}')
 
           receipt = {
               'schema': 'qps-w168rf-authoritative-return-consumer-receipt/v0.1',
               'source_repository': 'GBOGEB/cryoplant-project',
               'source_pr': 1098,
-              'source_head_sha': source_sha,
+              'source_head_sha': 'd46e3689396db1e89c1d03848cd5db5597818cd2',
               'source_payload_blobs': {
                   'runtime_control': 'daae9de97fa7304cfd60ee84c7eacaf24fb2c5ba',
                   'eligibility_delta': '7a7a32e7ef152de0b161ff6c4289aa1da30f252c',
@@ -104,11 +87,16 @@ jobs:
                   'recorded_steps': 0,
                   'classification': 'PREEXECUTION_ADMISSION_GATE_923_REX_006',
               },
+              'transport_rex': {
+                  'failed_run_id': 34774972591,
+                  'failed_job_id': 103771307898,
+                  'classification': 'PRIVATE_SIBLING_REPOSITORY_GITHUB_TOKEN_SCOPE_BOUNDARY',
+                  'disposition': 'MIRROR_EXACT_GIT_BLOBS_NO_CREDENTIAL_WIDENING',
+              },
               'consumer_repository': 'GBOGEB/Q_engineering_tools',
               'consumer_head_sha': consumer_sha,
               'run_id': int(os.environ['RUN_ID']),
               'run_attempt': int(os.environ['RUN_ATTEMPT']),
-              'exact_source_head': 'PASS',
               'exact_blob_identity': 'PASS_6_OF_6',
               'validator': 'PASS',
               'tests': 'PASS_8_OF_8',
@@ -120,14 +108,14 @@ jobs:
               'pca': 'WITHHELD_N_LT_3',
               'bt': 'WITHHELD_NO_OBSERVED_PAIRWISE_OUTCOME_EVIDENCE',
               'native_gate_923_preserved': True,
-              'status': 'PASS_EXACT_W168R_HEAD_AUTHORITATIVE_RETURN_CONSUMED',
+              'status': 'PASS_EXACT_W168R_MIRRORED_PAYLOAD_AUTHORITATIVE_RETURN_CONSUMED',
           }
           Path('artifacts/w168rf/QPS_W168RF_AUTHORITATIVE_RETURN_CONSUMER_RECEIPT.json').write_text(
               json.dumps(receipt, indent=2, sort_keys=True) + '\n', encoding='utf-8'
           )
           PY
 
-      - name: Upload exact-head consumer receipt
+      - name: Upload exact W168R consumer receipt
         uses: actions/upload-artifact@v4
         with:
           name: qps-w168rf-authoritative-return-consumer-receipt
