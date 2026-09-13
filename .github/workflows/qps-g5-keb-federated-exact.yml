@@ -14,9 +14,10 @@ permissions:
   contents: read
 
 env:
-  CODEX_HEAD: 18598958a38c801e63c18d14490c27df426f7e1c
-  CONTRACT_BLOB: e695a3d2bc406f0e9d687626655a145d8a07f09e
-  SCRIPT_BLOB: 91be2fd3e66a60f0b83c6683152d62fbeb963abd
+  CODEX_REVIEWED_HEAD: bf51c621bd838d42829a723f31a273a98c7a4423
+  CODEX_MERGE: f79e228bc5f522b7268988763d75ce917fde0e1c
+  CONTRACT_BLOB: 32475cef10b344422b073f122136b2752153f8c4
+  SCRIPT_BLOB: b65676a65d4a612823e0665970327579c85bb55b
 
 jobs:
   h2-keb-exact:
@@ -25,29 +26,29 @@ jobs:
       - name: Checkout executor exact head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Fetch exact CODEX H2 payload
+      - name: Fetch exact accepted CODEX H2 v0.2 payload
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p docs/qps_m05 artifacts/m05
-          base="https://raw.githubusercontent.com/GBOGEB/CODEX/${CODEX_HEAD}"
+          base="https://raw.githubusercontent.com/GBOGEB/CODEX/${CODEX_MERGE}"
           curl -fsSL \
-            "${base}/docs/qps_m05/QPS_G5_KEB_CHALLENGE_v0.1.json" \
-            -o docs/qps_m05/QPS_G5_KEB_CHALLENGE_v0.1.json
+            "${base}/docs/qps_m05/QPS_G5_KEB_CHALLENGE_v0.2.json" \
+            -o docs/qps_m05/QPS_G5_KEB_CHALLENGE_v0.2.json
           curl -fsSL \
             "${base}/docs/qps_m05/qps_g5_keb_challenge.py" \
             -o docs/qps_m05/qps_g5_keb_challenge.py
           test "$(git hash-object \
-            docs/qps_m05/QPS_G5_KEB_CHALLENGE_v0.1.json)" \
+            docs/qps_m05/QPS_G5_KEB_CHALLENGE_v0.2.json)" \
             = "$CONTRACT_BLOB"
           test "$(git hash-object \
             docs/qps_m05/qps_g5_keb_challenge.py)" \
             = "$SCRIPT_BLOB"
 
-      - name: Execute exact KEB semantic challenge
+      - name: Execute exact repaired KEB semantic challenge
         run: python docs/qps_m05/qps_g5_keb_challenge.py
 
-      - name: Bind federated H2 execution receipt
+      - name: Bind federated H2 v0.2 execution receipt
         shell: bash
         run: |
           set -euo pipefail
@@ -59,8 +60,22 @@ jobs:
 
           source = Path("artifacts/m05/g5_keb_challenge_receipt.json")
           receipt = json.loads(source.read_text(encoding="utf-8"))
+          if receipt.get("schema") != "qps.g5.keb_challenge_receipt.v2":
+              raise SystemExit("unexpected repaired KEB receipt schema")
           if receipt.get("status") != "PASS":
-              raise SystemExit("KEB semantic challenge did not PASS")
+              raise SystemExit("repaired KEB semantic challenge did not PASS")
+          if receipt.get("semantic_lineage") != (
+              "PASS_EXACT_EXPECTED_IDENTITIES"
+          ):
+              raise SystemExit("exact semantic lineage did not PASS")
+          if receipt.get("artifact_identity") != (
+              "PASS_EXACT_ID_NAME_SIZE_DIGEST"
+          ):
+              raise SystemExit("exact artifact identity did not PASS")
+          if receipt.get("observed_completed_step_count", 0) <= 0:
+              raise SystemExit("H1 observed completed step count missing")
+          if receipt.get("required_payload_steps_completed") != 3:
+              raise SystemExit("required H1 payload steps incomplete")
           if receipt.get("promotion_authority") is not False:
               raise SystemExit("KEB promotion authority must remain false")
           if receipt.get("next_required_hop") != (
@@ -68,9 +83,10 @@ jobs:
           ):
               raise SystemExit("unexpected next hop")
           out = {
-              "schema": "qps.g5.keb_federated_execution.v1",
+              "schema": "qps.g5.keb_federated_execution.v2",
               "source_repo": "GBOGEB/CODEX",
-              "source_head_sha": os.environ["CODEX_HEAD"],
+              "source_reviewed_head_sha": os.environ["CODEX_REVIEWED_HEAD"],
+              "source_merge_sha": os.environ["CODEX_MERGE"],
               "contract_blob": os.environ["CONTRACT_BLOB"],
               "script_blob": os.environ["SCRIPT_BLOB"],
               "executor_repo": os.environ["GITHUB_REPOSITORY"],
@@ -80,15 +96,15 @@ jobs:
               "keb_receipt_sha256": hashlib.sha256(
                   source.read_bytes()
               ).hexdigest(),
-              "keb_disposition": (
-                  "ACCEPT_SEMANTIC_PROVENANCE_ONLY"
-              ),
+              "keb_disposition": "ACCEPT_SEMANTIC_PROVENANCE_ONLY",
               "promotion_authority": False,
               "numeric_cost_release": "WITHHELD_SOURCE_VALUES",
+              "supersedes_h2f_run": 34760090016,
+              "superseded_reason": "EXECUTED_V0_1_PREDICATE_REJECTED_BY_REVIEW",
               "next_required_hop": (
                   "MISSION_H3_DOW_INDEPENDENT_CONSUMPTION"
               ),
-              "status": "PASS_EXECUTED_EXACT_PAYLOAD",
+              "status": "PASS_EXECUTED_EXACT_REPAIRED_PAYLOAD",
           }
           path = Path("artifacts/m05/g5_keb_federated_execution.json")
           path.write_text(
@@ -98,9 +114,9 @@ jobs:
           print(json.dumps(out, sort_keys=True))
           PY
 
-      - name: Upload exact H2 evidence
+      - name: Upload exact repaired H2 evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: qps-g5-keb-federated-${{ github.sha }}
+          name: qps-g5-keb-federated-v02-${{ github.sha }}
           path: artifacts/m05/
           if-no-files-found: error
