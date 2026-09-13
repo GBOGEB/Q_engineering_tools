@@ -1,0 +1,101 @@
+name: QPS G5 DOW Federated Exact
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/qps-g5-dow-federated-exact.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/qps-g5-dow-federated-exact.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ABACUS_HEAD: 6a7b678a52cf12bc685b5d9715fb48d7e99587b5
+  CONSUMER_BLOB: 45b63f7acaa16da8847d35aa2074093cf88b63e3
+
+jobs:
+  h3-dow-exact:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout executor exact head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Fetch exact ABACUS H3 consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p scripts artifacts/m05
+          base="https://raw.githubusercontent.com/GBOGEB/ABACUS/${ABACUS_HEAD}"
+          curl -fsSL \
+            "${base}/scripts/qps_m05_g5_dow_readiness.py" \
+            -o scripts/qps_m05_g5_dow_readiness.py
+          test "$(git hash-object scripts/qps_m05_g5_dow_readiness.py)" \
+            = "$CONSUMER_BLOB"
+
+      - name: Execute exact DOW independent consumer
+        run: python scripts/qps_m05_g5_dow_readiness.py
+
+      - name: Bind federated H3 execution receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          source = Path("artifacts/m05/g5_dow_independent_consumer_receipt.json")
+          receipt = json.loads(source.read_text(encoding="utf-8"))
+          if receipt.get("status") != "PASS":
+              raise SystemExit("DOW consumer did not PASS")
+          if receipt.get("dow_disposition") != "ACCEPT_SEMANTIC_PROVENANCE_ONLY":
+              raise SystemExit("unexpected DOW disposition")
+          if receipt.get("emit_for_child_disposition") is not True:
+              raise SystemExit("H3 is not eligible to emit for child disposition")
+          if receipt.get("promotion_authority") is not False:
+              raise SystemExit("DOW promotion authority must remain false")
+          if receipt.get("numeric_cost_release") != "WITHHELD_SOURCE_VALUES":
+              raise SystemExit("numeric-cost release boundary drift")
+          if receipt.get("source_value_gates") != [974, 981]:
+              raise SystemExit("source-value gate drift")
+          if receipt.get("next_required_hop") != "MISSION_H1_QPS_CHILD_DISPOSITION":
+              raise SystemExit("unexpected next hop")
+
+          out = {
+              "schema": "qps.g5.dow_federated_execution.v1",
+              "source_repo": "GBOGEB/ABACUS",
+              "source_pr": 1166,
+              "source_head_sha": os.environ["ABACUS_HEAD"],
+              "consumer_blob": os.environ["CONSUMER_BLOB"],
+              "executor_repo": os.environ["GITHUB_REPOSITORY"],
+              "executor_head_sha": os.environ["GITHUB_SHA"],
+              "run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "dow_receipt_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+              "dow_disposition": "ACCEPT_SEMANTIC_PROVENANCE_ONLY",
+              "emit_for_child_disposition": True,
+              "promotion_authority": False,
+              "numeric_cost_release": "WITHHELD_SOURCE_VALUES",
+              "source_value_gates": [974, 981],
+              "next_required_hop": "MISSION_H1_QPS_CHILD_DISPOSITION",
+              "status": "PASS_EXECUTED_EXACT_PAYLOAD",
+          }
+          path = Path("artifacts/m05/g5_dow_federated_execution.json")
+          path.write_text(
+              json.dumps(out, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(out, sort_keys=True))
+          PY
+
+      - name: Upload exact H3 evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: qps-g5-dow-federated-${{ github.sha }}
+          path: artifacts/m05/
+          if-no-files-found: error
