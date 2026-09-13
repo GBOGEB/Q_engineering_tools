@@ -1,0 +1,167 @@
+name: QPS G6 Release Receipt Adapter Exact
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/qps-g6-release-adapter-exact.yml"
+      - "payload/g6/qps_g6_adapt_release_receipt.ps1"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/qps-g6-release-adapter-exact.yml"
+      - "payload/g6/qps_g6_adapt_release_receipt.ps1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CRYOPLANT_W161_HEAD: 9b127910052f461d3d3a29d344cd735ff5a2275d
+  ADAPTER_BLOB: 9a642c6af099c44d3d6b8a5cf2a2cd54dd4e2b4f
+
+jobs:
+  g6-release-adapter:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout executor exact head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Verify exact tracked W161 adapter carrier
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/g6
+          adapter="payload/g6/qps_g6_adapt_release_receipt.ps1"
+          test -f "$adapter"
+          test "$(git hash-object "$adapter")" = "$ADAPTER_BLOB"
+
+      - name: Create non-engineering verified-release fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          receipt = {
+              "schema_version": 1,
+              "control_id": "GOV-001",
+              "generated_utc": "2026-09-13T00:00:00Z",
+              "release_id": "TEST-G6-v4.2",
+              "source_commit": "1" * 40,
+              "release_directory": "/non-engineering-test",
+              "manifest_sha256": "2" * 64,
+              "build_meta_qa_status": "PASS",
+              "verified_file_count": 3,
+              "file_count": 3,
+              "all_manifest_entries_verified": True,
+              "files": [
+                  {"path": "dist/QPS_COST_Master.xlsx", "expected_sha256": "3" * 64, "actual_sha256": "3" * 64, "status": "VERIFIED"},
+                  {"path": "web/QPS_COST_Master_HTML_CURRENT.html", "expected_sha256": "4" * 64, "actual_sha256": "4" * 64, "status": "VERIFIED"},
+                  {"path": "docs/QPS_Cost_Engineering_Handover.pdf", "expected_sha256": "5" * 64, "actual_sha256": "5" * 64, "status": "VERIFIED"},
+              ],
+              "result": "PASS",
+          }
+          path = Path("artifacts/g6/RELEASE_RECEIPT_TEST.json")
+          path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          bad = json.loads(json.dumps(receipt))
+          bad["files"][0]["actual_sha256"] = "6" * 64
+          Path("artifacts/g6/RELEASE_RECEIPT_BAD.json").write_text(
+              json.dumps(bad, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Execute positive adapter test vector
+        shell: pwsh
+        run: |
+          ./payload/g6/qps_g6_adapt_release_receipt.ps1 `
+            -ReceiptPath artifacts/g6/RELEASE_RECEIPT_TEST.json `
+            -ReleaseConfigVersion v4.2 `
+            -ExcelRelativePath dist/QPS_COST_Master.xlsx `
+            -HtmlRelativePath web/QPS_COST_Master_HTML_CURRENT.html `
+            -PdfRelativePath docs/QPS_Cost_Engineering_Handover.pdf `
+            -OutputPath artifacts/g6/QPS_G6_RELEASE_IDENTITY_RETURN_TEST.json `
+            -TestVector
+
+      - name: Validate positive zero-credit output
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("artifacts/g6/QPS_G6_RELEASE_IDENTITY_RETURN_TEST.json").read_text(encoding="utf-8-sig"))
+          assert data["schema"] == "qps.g6.release_identity_return.v1"
+          assert data["authority"] == "NON_ENGINEERING_TEST_VECTOR"
+          assert data["test_vector"] is True
+          assert data["status"] == "PASS_TEST_VECTOR_ZERO_CREDIT"
+          assert data["engineering_credit"] == 0
+          assert data["release_credit"] == 0
+          assert data["artifacts"]["Excel"]["sha256"] == "3" * 64
+          assert data["artifacts"]["HTML"]["sha256"] == "4" * 64
+          assert data["artifacts"]["PDF"]["sha256"] == "5" * 64
+          assert data["authority_guards"]["actual_numeric_cost_release"] == "WITHHELD_SOURCE_VALUES"
+          assert data["authority_guards"]["source_gates_for_actual_spares_values"] == [974, 981]
+          assert data["selection_attestation"]["selected_entries_present_in_verified_manifest"] is True
+          print("G6_ADAPTER_POSITIVE_ZERO_CREDIT=PASS")
+          PY
+
+      - name: Prove hash mismatch fails closed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if pwsh -File payload/g6/qps_g6_adapt_release_receipt.ps1 \
+            -ReceiptPath artifacts/g6/RELEASE_RECEIPT_BAD.json \
+            -ReleaseConfigVersion v4.2 \
+            -ExcelRelativePath dist/QPS_COST_Master.xlsx \
+            -HtmlRelativePath web/QPS_COST_Master_HTML_CURRENT.html \
+            -PdfRelativePath docs/QPS_Cost_Engineering_Handover.pdf \
+            -OutputPath artifacts/g6/SHOULD_NOT_EXIST.json \
+            -TestVector; then
+            echo "negative mismatch fixture unexpectedly passed"
+            exit 1
+          fi
+          test ! -e artifacts/g6/SHOULD_NOT_EXIST.json
+          echo "G6_ADAPTER_HASH_MISMATCH_REJECTION=PASS"
+
+      - name: Bind adapter readiness receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          identity = Path("artifacts/g6/QPS_G6_RELEASE_IDENTITY_RETURN_TEST.json")
+          out = {
+              "schema": "qps.g6.release_receipt_adapter_readiness.v1",
+              "source_repo": "GBOGEB/cryoplant-project",
+              "source_wave": "W161",
+              "source_head_sha": os.environ["CRYOPLANT_W161_HEAD"],
+              "adapter_blob": os.environ["ADAPTER_BLOB"],
+              "executor_repo": os.environ["GITHUB_REPOSITORY"],
+              "executor_head_sha": os.environ["GITHUB_SHA"],
+              "run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "identity_test_sha256": hashlib.sha256(identity.read_bytes()).hexdigest(),
+              "positive_test_vector": "PASS_ZERO_CREDIT",
+              "hash_mismatch_rejection": "PASS_FAIL_CLOSED",
+              "actual_current_release_identity": "NOT_PROVIDED",
+              "G6_identity_credit": 0,
+              "G6_parity_credit": 0,
+              "status": "PASS_ADAPTER_READINESS_ONLY",
+          }
+          Path("artifacts/g6/g6_release_adapter_readiness.json").write_text(
+              json.dumps(out, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(out, sort_keys=True))
+          PY
+
+      - name: Upload G6 adapter readiness evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: qps-g6-release-adapter-${{ github.sha }}
+          path: artifacts/g6/
+          if-no-files-found: error
