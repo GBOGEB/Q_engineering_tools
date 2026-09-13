@@ -1,0 +1,139 @@
+schema: qps-mission-control-namespace-taxonomy/1.0
+status: CANDIDATE_CANONICAL_W163
+authority: MISSION_CONTROL_DEVOPS_GOVERNANCE_ONLY
+repo: GBOGEB/cryoplant-project
+wave: W163
+purpose: >-
+  Give operational MissionControl identifiers one typed namespace so mission, gate,
+  wave, navigation, statistical and REX labels cannot silently collide.
+
+engineering_authority_guard: >-
+  This taxonomy controls operational identifiers only. It creates no engineering,
+  compliance, negotiation, release or SCK-acceptance authority.
+
+global_rules:
+  - a bare prefix has exactly one canonical meaning
+  - historical collisions are preserved through explicit legacy aliases and are never rewritten
+  - new identifiers shall use canonical machine syntax even when a human display alias is retained
+  - cross-repository aggregation shall use a qualified identity when a local identifier is not globally unique
+  - UI or navigation structure shall never use bare G<n>
+  - a new bare W<n> shall not be allocated twice inside the same declared authority scope
+  - REX identifiers are learning records and shall not be reused as mission, gate or wave identifiers
+
+namespaces:
+  GM:
+    canonical_name: GRAND_MISSION
+    syntax: '^GM-[IVXLCDM]+$'
+    example: GM-I
+    meaning: fleet expansion mission identity
+    machine_id_required: true
+    display_aliases_allowed: ['Mission I', 'Grand Mission I']
+    guards:
+      - never abbreviate Grand Mission as bare G
+      - Mission I style is display-only and must resolve to a GM-* machine identity
+
+  M:
+    canonical_name: LOCAL_MISSION
+    syntax: '^M[0-9]{2,}$'
+    example: M05
+    meaning: bounded local or expedition mission identity
+    guards:
+      - reuse of an existing M identifier means reuse of that mission, not creation of a second mission
+      - workflow or consumer reuse does not transfer mission authority
+
+  H:
+    canonical_name: HORIZONTAL_MISSION
+    syntax: '^H[0-9]+(?:_[A-Z0-9_]+)?$'
+    example: H2_KEB
+    meaning: federated cross-node mission lane
+    current_instances:
+      H1_QPS: CHILD_ENGINEERING_RUNTIME_AND_FINAL_DISPOSITION
+      H2_KEB: SEMANTIC_PROVENANCE_EXACT_SOURCE_CHALLENGE
+      H3_DOW: INDEPENDENT_CONSUMER_AND_DELIVERY_CLOSURE
+      H4_QPS_TRIAGE: VETO_BT_SCHEDULING_AND_FALSE_PROMOTION_PREVENTION
+
+  G:
+    canonical_name: GOVERNED_GATE
+    syntax: '^G[0-9]+$'
+    example: G6
+    meaning: ordered governed gate in an execution or acceptance chain
+    reserved_exclusively_for: GOVERNED_GATES
+    current_instances:
+      G5: HORIZONTAL_RUNTIME_AND_SEMANTIC_ACCEPTANCE
+      G6: CURRENT_RELEASE_IDENTITY_AND_EXCEL_HTML_PDF_PARITY
+    guards:
+      - G is not Grand Mission
+      - G is not dashboard group or chapter
+      - topology PASS and governed promotion shall remain separately typed when applicable
+
+  W:
+    canonical_name: EXECUTION_WAVE
+    syntax: '^W[0-9]+$'
+    example: W163
+    meaning: append-only execution or control wave identity
+    uniqueness_scope: DECLARED_AUTHORITY_SCOPE
+    qualified_form: '<authority_scope>:W<n>'
+    guards:
+      - historical receipts are immutable
+      - duplicate historical wave numbers require registered aliases
+      - future fan-out must either share one declared wave family or use qualified lane suffixes
+
+  CH:
+    canonical_name: NAVIGATION_CHAPTER
+    syntax: '^CH[0-9]+$'
+    example: CH3
+    meaning: dashboard, navigation or publication chapter identity
+    replaces_legacy_navigation_prefix: G
+    guards:
+      - do not create new G0..Gn navigation IDs
+
+  N:
+    canonical_name: STATISTICAL_SAMPLE_SIZE
+    human_syntax: 'N=<integer>'
+    compact_syntax: '^N[0-9]+$'
+    examples: ['N=100', N100]
+    meaning: sample or governed population size only
+    guards:
+      - MIP maturity tranches shall use MIP-N<n>, not bare N<n>, when confusion is possible
+
+  REX:
+    canonical_name: REX_LEARNING_RECORD
+    syntax: '^REX-[0-9]{3}$'
+    example: REX-001
+    expansion: WITHHELD_NO_CANONICAL_EXPANSION_FOUND
+    meaning: governed lessons-learned and recurrence-control record
+    upstream_registry: GBOGEB/pipeline-automation-hub:mission-control/qps-triage-ultra/crew/REX_LEARNING_LEDGER_v1.json
+    observed_instances: [REX-001, REX-002, REX-003, REX-004, REX-005, REX-006]
+    guards:
+      - preserve the upstream learning-ledger semantics
+      - do not invent an expansion for REX until a canonical source defines one
+
+qualified_identity_examples:
+  - cryoplant:W153-COST
+  - cryoplant:W153-G5
+  - ABACUS:W70
+  - MIP:W70
+  - GM-I/CoolProp:W4
+
+state_typing:
+  rule: bare CONTROL shall not be relied upon as a complete machine state
+  preferred_fields:
+    lifecycle_state: CONTROL
+    runtime_state: CONTROL
+    control_eligibility: true
+    authority_class: EXPLICIT_ENUM
+
+bridges:
+  engineering_glossary:
+    path: controls/QPS_GLOBAL_GLOSSARY_v1.yaml
+    mode: REFERENCE_ONLY_NOT_ENGINEERING_TERM_PROMOTION
+  legacy_alias_registry:
+    path: controls/QPS_MISSION_CONTROL_LEGACY_ALIAS_REGISTRY_v1.yaml
+  validator:
+    path: scripts/qps_w163_validate_namespace_collisions.py
+
+formal_credit_delta:
+  engineering: 0
+  compliance: 0
+  negotiation: 0
+  release: 0
