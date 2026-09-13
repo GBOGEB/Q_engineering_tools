@@ -1,0 +1,187 @@
+schema: qps-mission-control-legacy-alias-registry/1.1
+status: CANDIDATE_CANONICAL_W163
+authority: MISSION_CONTROL_DEVOPS_GOVERNANCE_ONLY
+repo: GBOGEB/cryoplant-project
+wave: W163
+rule: HISTORICAL_IDENTIFIERS_ARE_PRESERVED_NOT_REWRITTEN
+
+collision_classes:
+  - DUPLICATE_WAVE_ID_SAME_REPO_DIFFERENT_DOMAIN
+  - DUPLICATE_WAVE_ID_CROSS_REPO_DIFFERENT_DOMAIN
+  - DECLARED_MULTI_PR_WAVE_FAMILY
+  - GOVERNED_GATE_PREFIX_USED_FOR_NAVIGATION
+  - GRAND_MISSION_DISPLAY_ALIAS_WITHOUT_GM_PREFIX
+  - UNTYPED_CONTROL_STATE
+  - STATISTICAL_N_VS_MATURITY_N
+
+legacy_aliases:
+  - alias_id: LEGACY-W153-COST
+    collision_class: DUPLICATE_WAVE_ID_SAME_REPO_DIFFERENT_DOMAIN
+    historical_token: W153
+    canonical_qualified_identity: cryoplant:W153-COST
+    repo: GBOGEB/cryoplant-project
+    prs: [1050]
+    paths:
+      - triage/w153/QPS_W153_COST_MODEL_RATIONALE_AND_FLOW_v0.1.md
+      - triage/w153/QPS_W153_COST_MODEL_RATIONALE_AND_FLOW_RENDER_RECEIPT_v0.1.json
+    meaning: PARENT_CONSTRAINED_COST_DECOMPOSITION_AND_RATIONALE
+    status: HISTORICAL_VALID_DEPRECATED_BARE_IDENTITY
+
+  - alias_id: LEGACY-W153-G5
+    collision_class: DUPLICATE_WAVE_ID_SAME_REPO_DIFFERENT_DOMAIN
+    historical_token: W153
+    canonical_qualified_identity: cryoplant:W153-G5
+    repo: GBOGEB/cryoplant-project
+    prs: [1061]
+    paths:
+      - triage/w153/QPS_W153_G5_FEDERATED_EXECUTION_RECEIPT_v0.1.yaml
+    meaning: G5_FEDERATED_EXECUTION_RECEIPT_BIND
+    status: HISTORICAL_VALID_DEPRECATED_BARE_IDENTITY
+
+  - alias_id: LEGACY-W152-REL
+    collision_class: DUPLICATE_WAVE_ID_SAME_REPO_DIFFERENT_DOMAIN
+    historical_token: W152
+    canonical_qualified_identity: cryoplant:W152-REL
+    repo: GBOGEB/cryoplant-project
+    prs: [1043]
+    meaning: COST_RCM_SPARES_HOOK_EXECUTION
+    status: HISTORICAL_VALID_DEPRECATED_BARE_IDENTITY
+
+  - alias_id: LEGACY-W152-RTM
+    collision_class: DUPLICATE_WAVE_ID_SAME_REPO_DIFFERENT_DOMAIN
+    historical_token: W152
+    canonical_qualified_identity: cryoplant:W152-RTM
+    repo: GBOGEB/cryoplant-project
+    prs: [1044, 1046, 1048, 1052]
+    meaning: RTM_EVIDENCE_VV_AND_NAVIGATION
+    status: HISTORICAL_VALID_DEPRECATED_BARE_IDENTITY
+
+  - alias_id: LEGACY-W147-QPS-CONTROL
+    collision_class: DECLARED_MULTI_PR_WAVE_FAMILY
+    historical_token: W147
+    canonical_qualified_identity: QPS:W147
+    repo: GBOGEB/cryoplant-project
+    prs: [1029, 1030]
+    meaning: NUMERICAL_SOURCE_CLOSURE_AND_CONTROL
+    status: HISTORICAL_VALID_DECLARED_WAVE_FAMILY
+
+  - alias_id: LEGACY-W147-KEB
+    collision_class: DECLARED_MULTI_PR_WAVE_FAMILY
+    historical_token: W147
+    canonical_qualified_identity: QPS:W147
+    repo: GBOGEB/CODEX
+    prs: [661]
+    meaning: KEB_NUMERICAL_SOURCE_TYPING
+    status: HISTORICAL_VALID_DECLARED_WAVE_FAMILY
+
+  - alias_id: LEGACY-W147-DOW
+    collision_class: DECLARED_MULTI_PR_WAVE_FAMILY
+    historical_token: W147
+    canonical_qualified_identity: QPS:W147
+    repo: GBOGEB/ABACUS
+    prs: [1155]
+    meaning: DOW_NUMERICAL_SOURCE_PROJECTION
+    status: HISTORICAL_VALID_DECLARED_WAVE_FAMILY
+
+  - alias_id: LEGACY-W70-ABACUS-MC2
+    collision_class: DUPLICATE_WAVE_ID_CROSS_REPO_DIFFERENT_DOMAIN
+    historical_token: W70
+    canonical_qualified_identity: ABACUS:W70
+    repo: GBOGEB/ABACUS
+    prs: [1171]
+    meaning: MC2_SEMANTIC_MEASUREMENT_RETENTION
+    status: HISTORICAL_VALID_QUALIFIED_ON_AGGREGATION
+
+  - alias_id: LEGACY-W70-MIP-PIPELINE
+    collision_class: DUPLICATE_WAVE_ID_CROSS_REPO_DIFFERENT_DOMAIN
+    historical_token: W70
+    canonical_qualified_identity: MIP:W70
+    repo: GBOGEB/pipeline-automation-hub
+    prs: [40]
+    meaning: MIP_FEDERATED_DOCUMENT_INGESTION
+    status: HISTORICAL_VALID_QUALIFIED_ON_AGGREGATION
+
+  - alias_id: LEGACY-W70-MIP-QTOOLS
+    collision_class: DUPLICATE_WAVE_ID_CROSS_REPO_DIFFERENT_DOMAIN
+    historical_token: W70
+    canonical_qualified_identity: MIP:W70
+    repo: GBOGEB/Q_engineering_tools
+    prs: [14]
+    meaning: MIP_TRIAGE_PUBLICATION_PORTAL
+    status: HISTORICAL_VALID_QUALIFIED_ON_AGGREGATION
+
+  - alias_id: LEGACY-W70-MIP-WORKSPACE
+    collision_class: DUPLICATE_WAVE_ID_CROSS_REPO_DIFFERENT_DOMAIN
+    historical_token: W70
+    canonical_qualified_identity: MIP:W70
+    repo: GBOGEB/cryogenic-accelerator-workspace
+    prs: [18]
+    meaning: MIP_WORKSPACE_AUTHORITY_RECONCILIATION
+    status: HISTORICAL_VALID_QUALIFIED_ON_AGGREGATION
+
+  - alias_id: LEGACY-GMI-W4-COOLPROP
+    collision_class: DECLARED_MULTI_PR_WAVE_FAMILY
+    historical_token: W4
+    canonical_qualified_identity: GM-I/CoolProp:W4
+    repo: GBOGEB/CoolProp
+    prs: [8, 9, 10, 11]
+    meaning: GRAND_MISSION_I_COOLPROP_WAVE_4
+    status: HISTORICAL_VALID_DECLARED_WAVE_FAMILY
+
+  - alias_id: LEGACY-NAV-G0-G5
+    collision_class: GOVERNED_GATE_PREFIX_USED_FOR_NAVIGATION
+    historical_token: G0_G1_G2_G3_G4_G5
+    canonical_qualified_identity: CH0_CH1_CH2_CH3_CH4_CH5
+    repo: GBOGEB/cryoplant-project
+    prs: [1052]
+    paths:
+      - docs/QPS_DASHBOARD_LAUNCHER_CURRENT.html
+      - ocd-adr/40_implementation/QPS_DASHBOARD_LAUNCHER_REGISTRY_v0.1.yaml
+      - handover/qps_recursive/bidder_transfer/QPS_BIDDER_VIEW_TAXONOMY_v1.1.yaml
+      - handover/qps_recursive/bidder_transfer/lkt/QPS_LKT_KNOWLEDGE_TRANSFER_REPO_INDEX_v1.0.yaml
+      - handover/qps_recursive/bidder_transfer/lkt/QPS_LKT_KNOWLEDGE_TRANSFER_REPO_INDEX_v1.0.json
+      - handover/qps_recursive/bidder_transfer/alat/QPS_ALAT_KNOWLEDGE_TRANSFER_REPO_INDEX_v1.0.yaml
+      - handover/qps_recursive/bidder_transfer/alat/QPS_ALAT_KNOWLEDGE_TRANSFER_REPO_INDEX_v1.0.json
+      - handover/qps_recursive/bidder_transfer/comparison/QPS_LKT_ALAT_COMPARATIVE_INTERFACE_CORE_v1.0.yaml
+      - handover/qps_recursive/bidder_transfer/comparison/QPS_LKT_ALAT_COMPARATIVE_INTERFACE_CORE_v1.0.json
+    historical_mapping:
+      G0_BOARD: CH0_BOARD
+      G1_CONTRACT_NEGOTIATION: CH1_CONTRACT_NEGOTIATION
+      G2_ENGINEERING_ACCEPTANCE: CH2_ENGINEERING_ACCEPTANCE
+      G3_EVIDENCE_DELIVERY: CH3_EVIDENCE_DELIVERY
+      G4_GOVERNANCE_LINEAGE: CH4_GOVERNANCE_LINEAGE
+      G5_HANDOVER: CH5_HANDOVER
+    aggregation_rule: >-
+      Historical bidder/navigation surfaces retain their stored identifiers. MissionControl aggregation,
+      new dashboards and new machine contracts shall resolve them through this mapping and emit CH<n>.
+    status: DEPRECATED_NAVIGATION_PREFIX_FUTURE_USE_PROHIBITED
+
+  - alias_id: LEGACY-MISSION-I-COOLPROP
+    collision_class: GRAND_MISSION_DISPLAY_ALIAS_WITHOUT_GM_PREFIX
+    historical_token: Mission_I
+    canonical_qualified_identity: GM-I
+    repo: GBOGEB/CoolProp
+    prs: [8, 9, 10, 11]
+    meaning: GRAND_MISSION_I_COOLPROP
+    status: DISPLAY_ALIAS_COMPATIBILITY_ONLY
+
+future_allocation_policy:
+  wave:
+    same_scope_duplicate_bare_W: REJECT
+    cross_repo_aggregation_without_qualification_when_ambiguous: REJECT
+    deliberate_fanout: REQUIRE_DECLARED_WAVE_FAMILY_OR_QUALIFIED_SUFFIX
+  gate:
+    navigation_bare_G: REJECT
+    grand_mission_bare_G: REJECT
+  grand_mission:
+    machine_identity_without_GM_prefix: REJECT
+  control:
+    untyped_machine_CONTROL: WARN_AND_REQUIRE_TYPED_FIELD_ON_NEW_CONTROL_SURFACES
+
+known_gate_tokens_not_aliases: [G2, G3, G4, G5, G6]
+
+formal_credit_delta:
+  engineering: 0
+  compliance: 0
+  negotiation: 0
+  release: 0
