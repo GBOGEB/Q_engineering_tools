@@ -1,0 +1,106 @@
+name: QPS G5 KEB Federated Exact
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/qps-g5-keb-federated-exact.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/qps-g5-keb-federated-exact.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CODEX_HEAD: 18598958a38c801e63c18d14490c27df426f7e1c
+  CONTRACT_BLOB: e695a3d2bc406f0e9d687626655a145d8a07f09e
+  SCRIPT_BLOB: 91be2fd3e66a60f0b83c6683152d62fbeb963abd
+
+jobs:
+  h2-keb-exact:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout executor exact head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Fetch exact CODEX H2 payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/qps_m05 artifacts/m05
+          base="https://raw.githubusercontent.com/GBOGEB/CODEX/${CODEX_HEAD}"
+          curl -fsSL \
+            "${base}/docs/qps_m05/QPS_G5_KEB_CHALLENGE_v0.1.json" \
+            -o docs/qps_m05/QPS_G5_KEB_CHALLENGE_v0.1.json
+          curl -fsSL \
+            "${base}/docs/qps_m05/qps_g5_keb_challenge.py" \
+            -o docs/qps_m05/qps_g5_keb_challenge.py
+          test "$(git hash-object \
+            docs/qps_m05/QPS_G5_KEB_CHALLENGE_v0.1.json)" \
+            = "$CONTRACT_BLOB"
+          test "$(git hash-object \
+            docs/qps_m05/qps_g5_keb_challenge.py)" \
+            = "$SCRIPT_BLOB"
+
+      - name: Execute exact KEB semantic challenge
+        run: python docs/qps_m05/qps_g5_keb_challenge.py
+
+      - name: Bind federated H2 execution receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          source = Path("artifacts/m05/g5_keb_challenge_receipt.json")
+          receipt = json.loads(source.read_text(encoding="utf-8"))
+          if receipt.get("status") != "PASS":
+              raise SystemExit("KEB semantic challenge did not PASS")
+          if receipt.get("promotion_authority") is not False:
+              raise SystemExit("KEB promotion authority must remain false")
+          if receipt.get("next_required_hop") != (
+              "MISSION_H3_DOW_INDEPENDENT_CONSUMPTION"
+          ):
+              raise SystemExit("unexpected next hop")
+          out = {
+              "schema": "qps.g5.keb_federated_execution.v1",
+              "source_repo": "GBOGEB/CODEX",
+              "source_head_sha": os.environ["CODEX_HEAD"],
+              "contract_blob": os.environ["CONTRACT_BLOB"],
+              "script_blob": os.environ["SCRIPT_BLOB"],
+              "executor_repo": os.environ["GITHUB_REPOSITORY"],
+              "executor_head_sha": os.environ["GITHUB_SHA"],
+              "run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "keb_receipt_sha256": hashlib.sha256(
+                  source.read_bytes()
+              ).hexdigest(),
+              "keb_disposition": (
+                  "ACCEPT_SEMANTIC_PROVENANCE_ONLY"
+              ),
+              "promotion_authority": False,
+              "numeric_cost_release": "WITHHELD_SOURCE_VALUES",
+              "next_required_hop": (
+                  "MISSION_H3_DOW_INDEPENDENT_CONSUMPTION"
+              ),
+              "status": "PASS_EXECUTED_EXACT_PAYLOAD",
+          }
+          path = Path("artifacts/m05/g5_keb_federated_execution.json")
+          path.write_text(
+              json.dumps(out, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(out, sort_keys=True))
+          PY
+
+      - name: Upload exact H2 evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: qps-g5-keb-federated-${{ github.sha }}
+          path: artifacts/m05/
+          if-no-files-found: error
