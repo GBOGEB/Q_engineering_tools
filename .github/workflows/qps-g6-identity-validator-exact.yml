@@ -1,0 +1,90 @@
+name: QPS G6 Identity Validator Exact
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/qps-g6-identity-validator-exact.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/qps-g6-identity-validator-exact.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CRYOPLANT_HEAD: fb587366770f8f1111202d527546b78f55536aa9
+  VALIDATOR_BLOB: 6354dfcdc23fa073ccf97d9f9d759f66fe709a08
+
+jobs:
+  g6-identity-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout executor exact head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Fetch exact cryoplant W160 validator
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p payload artifacts/g6
+          url="https://raw.githubusercontent.com/GBOGEB/cryoplant-project/${CRYOPLANT_HEAD}/scripts/qps_g6_validate_release_identity.py"
+          curl -fsSL "$url" -o payload/qps_g6_validate_release_identity.py
+          test "$(git hash-object payload/qps_g6_validate_release_identity.py)" = "$VALIDATOR_BLOB"
+
+      - name: Execute non-engineering contract self-test
+        shell: bash
+        run: |
+          set -euo pipefail
+          python payload/qps_g6_validate_release_identity.py --self-test | tee artifacts/g6/selftest.jsonl
+
+      - name: Bind readiness receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          raw = Path("artifacts/g6/selftest.jsonl").read_text(encoding="utf-8").strip().splitlines()
+          if not raw:
+              raise SystemExit("self-test emitted no result")
+          result = json.loads(raw[-1])
+          if result.get("status") != "PASS_CONTRACT_SELF_TEST_NON_ENGINEERING":
+              raise SystemExit("validator self-test did not pass")
+          if result.get("engineering_credit") != 0 or result.get("release_credit") != 0:
+              raise SystemExit("test vector attempted to create credit")
+          out = {
+              "schema": "qps.g6.identity_validator_federated_readiness.v1",
+              "source_repo": "GBOGEB/cryoplant-project",
+              "source_pr": 1067,
+              "source_head_sha": os.environ["CRYOPLANT_HEAD"],
+              "validator_blob": os.environ["VALIDATOR_BLOB"],
+              "executor_repo": os.environ["GITHUB_REPOSITORY"],
+              "executor_head_sha": os.environ["GITHUB_SHA"],
+              "run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "selftest_sha256": hashlib.sha256(Path("artifacts/g6/selftest.jsonl").read_bytes()).hexdigest(),
+              "validator_readiness": "PASS_EXECUTED_EXACT_PAYLOAD",
+              "current_release_identity": "WITHHELD_GOVERNED_V4_2_RETURN",
+              "parity_execution": "NOT_EARNED",
+              "engineering_credit": 0,
+              "release_credit": 0,
+              "status": "PASS_READINESS_ONLY",
+          }
+          Path("artifacts/g6/g6_identity_validator_readiness.json").write_text(
+              json.dumps(out, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(out, sort_keys=True))
+          PY
+
+      - name: Upload G6-A readiness evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: qps-g6-identity-validator-${{ github.sha }}
+          path: artifacts/g6/
+          if-no-files-found: error
