@@ -21,6 +21,7 @@ env:
   CRYOPLANT_SOURCE_HEAD: ce3e308b34677107c84eb416316c5017e4cd49f0
   DOCTRINE_BLOB: 52592fee795bd19d151f0b7612642d28f5a6a88d
   VALIDATOR_BLOB: 377c1555086cfe9a24fa1036f5e40271c6f9a713
+  EXECUTOR_SOURCE_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
 
 jobs:
   validate-exact-doctrine:
@@ -28,6 +29,8 @@ jobs:
     steps:
       - name: Checkout executor exact head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ env.EXECUTOR_SOURCE_HEAD }}
 
       - name: Verify exact tracked W176 payload carriers
         shell: bash
@@ -38,6 +41,7 @@ jobs:
           validator="payload/w176/qps_w176_validate_offer_eval_doctrine.py"
           test -f "$doctrine"
           test -f "$validator"
+          test "$(git rev-parse HEAD)" = "$EXECUTOR_SOURCE_HEAD"
           test "$(git hash-object "$doctrine")" = "$DOCTRINE_BLOB"
           test "$(git hash-object "$validator")" = "$VALIDATOR_BLOB"
 
@@ -82,7 +86,7 @@ jobs:
                   raise SystemExit(f"unexpected validator result {key}={result.get(key)!r}, expected={expected!r}")
 
           receipt = {
-              "schema": "qps.w176.offer_eval_doctrine_federated_exact.v1",
+              "schema": "qps.w176.offer_eval_doctrine_federated_exact.v1.1",
               "source_repo": "GBOGEB/cryoplant-project",
               "source_pr": 1119,
               "source_merge_sha": os.environ["CRYOPLANT_SOURCE_HEAD"],
@@ -90,7 +94,8 @@ jobs:
               "validator_blob": os.environ["VALIDATOR_BLOB"],
               "transport": "TRACKED_EXACT_BLOB_CARRIER",
               "executor_repo": os.environ["GITHUB_REPOSITORY"],
-              "executor_head_sha": os.environ["GITHUB_SHA"],
+              "executor_head_sha": os.environ["EXECUTOR_SOURCE_HEAD"],
+              "workflow_sha": os.environ["GITHUB_SHA"],
               "run_id": int(os.environ["GITHUB_RUN_ID"]),
               "run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
               "validator_result_sha256": hashlib.sha256(result_path.read_bytes()).hexdigest(),
@@ -113,6 +118,6 @@ jobs:
       - name: Upload W176 exact-payload evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: qps-w176-offer-eval-doctrine-${{ github.sha }}
+          name: qps-w176-offer-eval-doctrine-${{ env.EXECUTOR_SOURCE_HEAD }}
           path: artifacts/w176/
           if-no-files-found: error
