@@ -1,0 +1,65 @@
+schema: qps-w178-federated-w176-proof/1.0
+as_of: '2026-09-14T10:58:00+02:00'
+executor_repo: GBOGEB/Q_engineering_tools
+source_repo: GBOGEB/cryoplant-project
+purpose: >-
+  Execute the exact W176 OFFER-evaluation doctrine validator on an independent federated runner lane.
+  This proves validator behavior only. It does not compensate for cryoplant repo-local runner issue #923,
+  and it creates no engineering, compliance, negotiation, SCK-acceptance, release, or award credit.
+
+source_identity:
+  source_pr: 1119
+  source_head_sha: 7e528a4c77f252f43fc3211fbf98836cc5d9c228
+  source_merge_sha: ce3e308b34677107c84eb416316c5017e4cd49f0
+  doctrine_path: controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml
+  doctrine_blob_sha: 52592fee795bd19d151f0b7612642d28f5a6a88d
+  validator_path: scripts/qps_w176_validate_offer_eval_doctrine.py
+  validator_blob_sha: 377c1555086cfe9a24fa1036f5e40271c6f9a713
+  payload_policy: BYTE_IDENTICAL_SOURCE_CONTENT
+
+method_sequence:
+  local_parent_wave: W176
+  local_sequence: [3PR, MIP, 3PC, 3P3]
+  federated_role: PROVE_ONLY_FOR_3PC_WHILE_LOCAL_ADMISSION_IS_RED
+  current_local_red:
+    class: REX_006_PREEXECUTION_REPO_LOCAL_ADMISSION
+    non_compensating_issue: 923
+    zero_step_rule: ZERO_STEP_NE_VALIDATOR_FAILURE
+
+pass_predicates:
+  - workflow_steps_gt_zero
+  - validator_exit_zero
+  - primary_assignments_eq_50
+  - unique_primary_offers_eq_50
+  - duplicates_eq_0
+  - omissions_eq_0
+  - cluster_weight_sum_eq_1_0
+  - authority_guards_true
+
+expected_validator_receipt:
+  status: PASS
+  primary_assignments: 50
+  unique_primary_offers: 50
+  duplicates: []
+  omissions: []
+  cluster_count: 8
+  cluster_weight_sum: 1.0
+
+non_compensating_guards:
+  - QPS_REPO_LOCAL_RUNNER_923_REMAINS_OPEN_UNTIL_NATIVE_ADMISSION_CHANGES
+  - FEDERATED_EXECUTION_NE_SOURCE_AUTHORITY
+  - FEDERATED_EXECUTION_NE_CHILD_DISPOSITION
+  - REVIEW_SCORE_NE_COMPLIANCE
+  - CONFIDENCE_NE_EVIDENCE_MATURITY
+  - PAIRWISE_NE_AWARD_AUTHORITY
+  - MISSING_OR_UNKNOWN_NE_ZERO
+
+next_on_pass:
+  - return exact workflow run/job/runner/head receipt to GBOGEB/cryoplant-project
+  - update M08 current pointer from 3PC_PROVE_WITHHELD to 3PC_PROVE_PASS_FEDERATED_LOCAL_VETO_OPEN
+  - begin MIP_2 generator integration without closing issue_923
+  - keep 3P3 global propagation gated until generator DoV is green
+
+next_on_fail:
+  - recurse only on the first executed validator red
+  - do not mutate doctrine for infrastructure-only failures

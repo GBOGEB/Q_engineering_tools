@@ -1,0 +1,88 @@
+name: W178F Exact W176 Offer Eval Doctrine Proof
+
+on:
+  pull_request:
+    paths:
+      - 'federation/w178/**'
+      - '.github/workflows/w178f-offer-eval-doctrine-exact.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prove-exact-w176-doctrine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact executor head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install validator dependency
+        run: python -m pip install --disable-pip-version-check pyyaml
+
+      - name: Prove payload byte identity to W176 source blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/w178/payload/controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml)" = "52592fee795bd19d151f0b7612642d28f5a6a88d"
+          test "$(git hash-object federation/w178/payload/scripts/qps_w176_validate_offer_eval_doctrine.py)" = "377c1555086cfe9a24fa1036f5e40271c6f9a713"
+
+      - name: Execute exact W176 validator
+        id: validator
+        shell: bash
+        working-directory: federation/w178/payload
+        run: |
+          set -euo pipefail
+          python scripts/qps_w176_validate_offer_eval_doctrine.py | tee ../validator-output.yaml
+          grep -q '^status: PASS$' ../validator-output.yaml
+          grep -q '^primary_assignments: 50$' ../validator-output.yaml
+          grep -q '^unique_primary_offers: 50$' ../validator-output.yaml
+          grep -q '^duplicates: \[\]$' ../validator-output.yaml
+          grep -q '^omissions: \[\]$' ../validator-output.yaml
+          grep -q '^cluster_count: 8$' ../validator-output.yaml
+          grep -q '^cluster_weight_sum: 1.0$' ../validator-output.yaml
+
+      - name: Emit federated proof receipt
+        shell: bash
+        env:
+          OBSERVED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          python - <<'PY'
+          import json, os, pathlib
+          out = {
+            "schema": "qps-w178f-federated-w176-proof-receipt/1.0",
+            "status": "PASS_FEDERATED_EXACT_PAYLOAD",
+            "executor_repo": "GBOGEB/Q_engineering_tools",
+            "executor_head_sha": os.environ["OBSERVED_SHA"],
+            "workflow_run_id": int(os.environ["RUN_ID"]),
+            "workflow_run_attempt": int(os.environ["RUN_ATTEMPT"]),
+            "source_repo": "GBOGEB/cryoplant-project",
+            "source_pr": 1119,
+            "source_head_sha": "7e528a4c77f252f43fc3211fbf98836cc5d9c228",
+            "doctrine_blob_sha": "52592fee795bd19d151f0b7612642d28f5a6a88d",
+            "validator_blob_sha": "377c1555086cfe9a24fa1036f5e40271c6f9a713",
+            "local_runner_issue_923_compensated": False,
+            "formal_credit_delta": 0,
+          }
+          p = pathlib.Path("federation/w178/W178F_RECEIPT.json")
+          p.write_text(json.dumps(out, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          print(p.read_text())
+          PY
+
+      - name: Upload federated receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: qps-w178f-w176-doctrine-proof
+          path: |
+            federation/w178/W178F_RECEIPT.json
+            federation/w178/validator-output.yaml
+          if-no-files-found: error
