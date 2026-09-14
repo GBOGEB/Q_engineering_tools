@@ -1,0 +1,91 @@
+name: QRT-D MIP-I/P Exact Runtime
+
+on:
+  pull_request:
+    paths:
+      - "federation/qrt_d/payload/**"
+      - ".github/workflows/qps-qrt-d-mip-ip-exact.yml"
+  push:
+    branches: [main]
+    paths:
+      - "federation/qrt_d/payload/**"
+      - ".github/workflows/qps-qrt-d-mip-ip-exact.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-qrt-d-mip-ip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact consumer head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Verify exact cryoplant QRT-D source blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          check_blob() {
+            path="$1"
+            expected="$2"
+            actual="$(git hash-object "$path")"
+            echo "$path $actual"
+            test "$actual" = "$expected"
+          }
+          check_blob federation/qrt_d/payload/controls/QPS_QRT_D_CANONICAL_PACK_PROFILE_v1.yaml 8401f112d0eb6135e6dec2aa4e1a6d69ae9cc097
+          check_blob federation/qrt_d/payload/controls/QPS_QRT_D_READINESS_VECTOR_v1.yaml 0d055f68f2179130f16ff0833e7e8b0966b55d75
+          check_blob federation/qrt_d/payload/scripts/qps_validate_qrt_d_readiness.py eb9e6cf514b0ab5418b02523fa36d4d0d94a0739
+          check_blob federation/qrt_d/payload/tests/test_qps_qrt_d_readiness.py a1829a1ff2a8ab6eb4c08671e3c342c3f783c0a6
+          check_blob federation/qrt_d/payload/triage/qrt_d/QPS_QRT_D_3PR_MIP_I_P_v1.yaml 316c983d071963589c331e85553603bb0b80aed8
+
+      - name: Install validation dependency
+        run: python -m pip install --disable-pip-version-check pyyaml
+
+      - name: Execute QRT-D fail-closed validator
+        working-directory: federation/qrt_d/payload
+        run: python scripts/qps_validate_qrt_d_readiness.py | tee qrt_d_validation.json
+
+      - name: Execute QRT-D regression mutations
+        working-directory: federation/qrt_d/payload
+        run: python -m unittest tests.test_qps_qrt_d_readiness -v
+
+      - name: Emit exact runtime receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p federation/qrt_d/runtime
+          python - <<'PY'
+          import json, os, pathlib
+          receipt = {
+            "schema": "qps-qrt-d-mip-ip-exact-runtime/v1",
+            "consumer_repo": os.environ["GITHUB_REPOSITORY"],
+            "consumer_sha": os.environ["GITHUB_SHA"],
+            "run_id": int(os.environ["GITHUB_RUN_ID"]),
+            "source_repo": "GBOGEB/cryoplant-project",
+            "source_pr": 1128,
+            "source_head": "5419dde4153c66229010717160a0950847d05b25",
+            "exact_blob_count": 5,
+            "method": "3PR_QRT_D_02_PLUS_MIP_INNOVATE_PERPETUATE",
+            "three_pc": "PREPARE_PASS_PROVE_PASS_COMMIT_NOT_IN_THIS_EXECUTOR",
+            "current_first_red": "G6_ARTIFACT_IDENTITY_01",
+            "g6_current_release_identity": "WITHHELD",
+            "g6_parity": "WITHHELD",
+            "native_923_compensated": False,
+            "formal_credit_delta": 0,
+            "status": "PASS_EXACT_DIAGNOSTIC_CONTROL_RUNTIME"
+          }
+          pathlib.Path("federation/qrt_d/runtime/QRT_D_MIP_IP_RUNTIME_RECEIPT.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8"
+          )
+          PY
+
+      - name: Upload QRT-D runtime receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: qps-qrt-d-mip-ip-${{ github.sha }}
+          path: |
+            federation/qrt_d/runtime/QRT_D_MIP_IP_RUNTIME_RECEIPT.json
+            federation/qrt_d/payload/qrt_d_validation.json
+          if-no-files-found: error

@@ -1,0 +1,170 @@
+schema: qps-qrt-d-canonical-pack-profile/v1
+id: QRT-D
+as_of: '2026-09-14T10:45:00+02:00'
+repo: GBOGEB/cryoplant-project
+status: HOLD_G6_ARTIFACT_IDENTITY
+purpose: >-
+  Bind the user-facing canonical-pack lane to existing governed QPS COST and OCD/ADR
+  release controls without creating a second numerical master, a second release collector,
+  or a fifth reliability-triage lane. QRT-D controls re-entry of already-governed content
+  into reviewable XLSX/HTML/PDF/DOCX/PPTX surfaces; it does not create engineering truth.
+
+control_basis:
+  qps_cost_issue: 996
+  mission_control: controls/QPS_MISSION_CONTROL_CURRENT_v1.yaml
+  g6_identity_contract: triage/w160/QPS_W160_G6_RELEASE_IDENTITY_RETURN_CONTRACT_v0.1.yaml
+  g6_local_return_contract: triage/w161/QPS_W161_G6_LOCAL_RELEASE_RETURN_RFI_v0.1.yaml
+  g6_connected_surface_census: triage/w162/QPS_W162_G6_CONNECTED_SURFACE_RELEASE_CENSUS_v0.1.yaml
+  outward_release_contract: ocd-adr/40_implementation/QPS_OUTWARD_RELEASE_EXECUTION_WAVE_P_v0.1.yaml
+  outward_release_todo: ocd-adr/metrics/todo/TODO-011.md
+  outward_release_builder: scripts/build_todo011_release_pack.ps1
+  cost_release_profile: docs/QPS_COST_RELEASE_PROFILE.md
+
+canonical_authority:
+  numerical_ssot:
+    family: QPS_COST
+    artifact: QPS_COST_Master.xlsx
+    minimum_release_config: v4.2
+    authority: NUMERICAL_SSOT
+    current_identity: WITHHELD_GOVERNED_V4_2_RETURN
+  evidence_and_release_identity:
+    authority: SOURCE_RECEIPTS_MANIFESTS_HASHES_AND_CONTROLLED_GIT_SOURCES
+  reliability_triage:
+    primary_horizontal: H4_QPS_TRIAGE
+    model: CROSS_CUTTING_PROFILE_OVER_EXISTING_TRIAGE_LANES
+    forbidden_new_lane: TRIAGE-RELIABILITY
+  rendered_outputs:
+    authority: DERIVED_REVIEW_PROJECTIONS
+    may_override_numerical_ssot: false
+    may_close_source_gates: false
+    may_create_engineering_acceptance: false
+
+source_state_preserved:
+  G5_topology_execution: PASS_EXECUTED_EXACT_PAYLOAD
+  G5_horizontal_promotion: PASS_GOVERNED
+  actual_numeric_cost_rows_ready: 0_of_3
+  actual_numeric_cost_release: WITHHELD_SOURCE_VALUES
+  source_value_gates: [974, 981]
+  unknown_numeric_semantics: NULL_NOT_ZERO
+  forbidden_inferences:
+    - ENERGY_TO_SPARES
+    - RELIABILITY_TO_SPARE_PRICE
+    - MISSING_COST_MDT_LEADTIME_IMPUTATION
+
+product_families:
+  QPS_COST:
+    identity_rule: EXACT_SAME_RELEASE_FAMILY_ONLY
+    products:
+      Excel:
+        basename: QPS_COST_Master.xlsx
+        role: NUMERICAL_SSOT
+      HTML:
+        basename: QPS_COST_Master_HTML_CURRENT.html
+        role: READ_ONLY_REVIEW_PROJECTION
+      PDF:
+        basename: MANIFEST_SELECTED_NO_FILENAME_GUESSING
+        role: CONTROLLED_FIXED_REVIEW_PROJECTION
+    current_gate: G6_ARTIFACT_IDENTITY_01
+  OCD_ADR_OUTWARD:
+    identity_rule: TODO_011_SOURCE_MANIFEST_AND_RELEASE_RECEIPT
+    products:
+      DOCX:
+        basename: QPS_OCD_ADR_review_pack.docx
+        role: REVIEW_PROJECTION
+      PDF:
+        basename: QPS_OCD_ADR_review_pack.pdf
+        role: FIXED_REVIEW_PROJECTION
+      XLSX:
+        basename: QPS_OCD_ADR_trace_evidence_review.xlsx
+        role: TRACE_EVIDENCE_NAVIGATION_PROJECTION_NOT_COST_SSOT
+      PPTX:
+        basename: QPS_OCD_ADR_review_brief.pptx
+        role: DECISION_BRIEF_PROJECTION
+      HTML:
+        basename: index.html
+        role: STATIC_NAVIGATOR_PROJECTION
+    existing_repo_side_smoke: PASS
+    local_acceptance_remaining: true
+
+cross_family_reentry_rules:
+  - QPS_COST_numerical_values_may_enter_DOCX_PPTX_or_other_review_views_only_after_G6_identity_and_parity_PASS
+  - every_reentered_COST_value_must_retain_release_id_source_manifest_hash_and_source_artifact_hash
+  - trace_XLSX_must_never_be_labeled_as_the_COST_numerical_SSOT
+  - HTML_PDF_DOCX_PPTX_are_never_a_second_authoritative_data_store
+  - unresolved_source_values_remain_null_and_visible_as_withheld
+  - a_rendered_pack_must_show_release_version_and_SSOT_hash_prefix_or_explicit_TBD_if_not_yet_bound
+  - stale_or_mixed_release_artifacts_must_fail_closed
+
+execution_gates:
+  - id: QRT-D01
+    name: current_cost_release_identity
+    state: HOLD
+    requires:
+      - RELEASE_RECEIPT.json
+      - QPS_G6_RELEASE_IDENTITY_RETURN.json
+      - release_config_version_v4.2_or_later
+      - exact_source_commit_sha
+      - exact_source_manifest_sha256
+      - manifest_bound_Excel_HTML_and_one_PDF_hashes
+    executor: scripts/qps_g6_validate_release_identity.py
+  - id: QRT-D02
+    name: cost_semantic_parity
+    state: BLOCKED_BY_QRT-D01
+    dimensions: [values, labels, nulls, units, source_gates, authority_classes]
+    repeat_rule: DISTINCT_GOVERNED_EXECUTION_REQUIRED_BEFORE_G6_CLOSURE
+  - id: QRT-D03
+    name: five_format_outward_build
+    state: REUSE_EXISTING_CONTROL_NO_CEREMONIAL_REPEAT
+    builder: scripts/build_todo011_release_pack.ps1
+    products: [DOCX, PDF, XLSX, PPTX, HTML]
+    repo_side_smoke: PASS
+    accepted_binary_release: false
+  - id: QRT-D04
+    name: local_visual_and_release_acceptance
+    state: HOLD
+    requires:
+      - pixel_level_Windows_Office_visual_acceptance
+      - semantic_manifest_accepted
+      - clean_main_release_receipt_bound
+      - OneDrive_raw_SHA_parity_when_published
+  - id: QRT-D05
+    name: user_facing_reentry
+    state: HOLD
+    requires: [QRT-D01_PASS, QRT-D02_PASS, QRT-D04_PASS]
+    allowed_surfaces: [XLSX, HTML, PDF, DOCX, PPTX]
+    rule: PROJECTION_ONLY_EXCEPT_QPS_COST_Master.xlsx_NUMERICAL_SSOT
+
+non_compensating_parallel_fronts:
+  QRT_A_child_applicability: PR_1120_INDEPENDENT
+  QPS_repo_local_runner: ISSUE_923_RED_OWNER_ACTION
+  spares_source_returns: [974, 981]
+  visual_N200: INDEPENDENT
+  rule: NO_CREDIT_BORROWING_ACROSS_FRONTS
+
+formal_credit_delta:
+  engineering: 0
+  compliance: 0
+  negotiation: 0
+  acceptance: 0
+  release: 0
+  grand_mission: 0
+
+first_red:
+  id: G6_ARTIFACT_IDENTITY_01
+  state: WAIT_GOVERNED_LOCAL_RELEASE_RETURN
+  bounded_next_action: >-
+    In the actual governed v4.2-or-later local release workspace, run CODEX GOV-001
+    New-QpsReleaseReceipt.ps1 and then scripts/qps_g6_adapt_release_receipt.ps1 with explicit
+    manifest-relative paths to QPS_COST_Master.xlsx, QPS_COST_Master_HTML_CURRENT.html and the
+    single manifest-selected controlled PDF. Return RELEASE_RECEIPT.json and
+    QPS_G6_RELEASE_IDENTITY_RETURN.json. Do not generate a substitute canonical COST pack.
+
+DoD:
+  QRT_D_control_profile_bound: PASS
+  duplicate_release_framework_created: false
+  generated_current_COST_binary_claimed: false
+  G6_current_release_identity: WITHHELD
+  G6_parity: WITHHELD
+  TODO_011_repo_side_generation: PASS_EXISTING_EVIDENCE
+  TODO_011_local_acceptance: WITHHELD
+  user_facing_canonical_pack: WITHHELD_UNTIL_GATES_PASS
