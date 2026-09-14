@@ -1,0 +1,131 @@
+name: W180F M08 Generation Seed Proof
+
+on:
+  pull_request:
+    paths:
+      - 'federation/w180/**'
+      - '.github/workflows/w180f-m08-generation-seed-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prove-mip2-seed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact executor head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install proof dependencies
+        run: python -m pip install --disable-pip-version-check pyyaml pytest
+
+      - name: Prove payload byte identity to QPS W180 source blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/w180/payload/controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml)" = "52592fee795bd19d151f0b7612642d28f5a6a88d"
+          test "$(git hash-object federation/w180/payload/scripts/qps_w180_build_offer_eval_generation_manifest.py)" = "c36f49a5cb72bec6e2e70d41ccc959b7c08974f9"
+          test "$(git hash-object federation/w180/payload/tests/test_w180_offer_eval_generation_manifest.py)" = "f86dcc09c37ade3b3f105b5c60391038ffa432ac"
+
+      - name: Execute five MIP2 seed guards
+        shell: bash
+        working-directory: federation/w180/payload
+        run: |
+          set -euo pipefail
+          pytest -q tests/test_w180_offer_eval_generation_manifest.py | tee ../pytest-output.txt
+          grep -Eq '5 passed' ../pytest-output.txt
+
+      - name: Build governed generation manifest
+        shell: bash
+        working-directory: federation/w180/payload
+        run: |
+          set -euo pipefail
+          python scripts/qps_w180_build_offer_eval_generation_manifest.py \
+            --doctrine controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml \
+            --out ../generated_review_manifest.json
+
+      - name: Validate generated manifest contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('federation/w180/generated_review_manifest.json')
+          m = json.loads(p.read_text())
+          assert m['output_count'] == 10
+          assert m['doctrine']['offer_count'] == 50
+          assert m['doctrine']['cluster_count'] == 8
+          assert m['doctrine']['cluster_weight_sum'] == 1.0
+          flat = [o for c in sorted(m['primary_cluster_map']) for o in m['primary_cluster_map'][c]]
+          assert len(flat) == 50 and len(set(flat)) == 50
+          hashes = {x['doctrine_sha256'] for x in m['outputs']}
+          assert hashes == {m['doctrine']['sha256']}
+          assert len([x for x in m['outputs'] if x['family'] == 'reviewer_onepager']) == 8
+          assert all(v is False for v in m['authority_guards'].values())
+          print(json.dumps({
+              'status': 'PASS',
+              'output_count': m['output_count'],
+              'offer_count': len(set(flat)),
+              'cluster_count': m['doctrine']['cluster_count'],
+              'cluster_weight_sum': m['doctrine']['cluster_weight_sum'],
+              'doctrine_sha256': m['doctrine']['sha256'],
+          }, sort_keys=True))
+          PY
+
+      - name: Emit exact execution receipt
+        shell: bash
+        env:
+          EXECUTOR_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          manifest = Path('federation/w180/generated_review_manifest.json')
+          data = json.loads(manifest.read_text())
+          receipt = {
+            'schema': 'qps-w180f-mip2-seed-receipt/1.0',
+            'status': 'PASS_FEDERATED_EXACT_PAYLOAD',
+            'executor_repo': 'GBOGEB/Q_engineering_tools',
+            'executor_head_sha': os.environ['EXECUTOR_SHA'],
+            'workflow_run_id': int(os.environ['RUN_ID']),
+            'workflow_run_attempt': int(os.environ['RUN_ATTEMPT']),
+            'source_repo': 'GBOGEB/cryoplant-project',
+            'source_pr': 1146,
+            'source_head_sha': '974780a37d4beeb7cdc492d0b3f3a3d1c724d778',
+            'source_blobs': {
+              'doctrine': '52592fee795bd19d151f0b7612642d28f5a6a88d',
+              'builder': 'c36f49a5cb72bec6e2e70d41ccc959b7c08974f9',
+              'tests': 'f86dcc09c37ade3b3f105b5c60391038ffa432ac',
+            },
+            'manifest_sha256': hashlib.sha256(manifest.read_bytes()).hexdigest(),
+            'doctrine_sha256': data['doctrine']['sha256'],
+            'output_contract_count': data['output_count'],
+            'formal_credit_delta': 0,
+            'repo_local_issue_923_compensated': False,
+          }
+          out = Path('federation/w180/W180F_RECEIPT.json')
+          out.write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
+          print(out.read_text())
+          PY
+
+      - name: Upload MIP2 seed proof artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: qps-w180f-mip2-generation-seed-proof
+          path: |
+            federation/w180/W180F_RECEIPT.json
+            federation/w180/generated_review_manifest.json
+            federation/w180/pytest-output.txt
+          if-no-files-found: error
