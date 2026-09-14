@@ -1,7 +1,8 @@
-schema: q-engineering-tools-w184f-visual-n200-checkpoint/0.2
-as_of: '2026-09-14T18:18:00+02:00'
+schema: q-engineering-tools-w184f-visual-n200-checkpoint/0.3
+as_of: '2026-09-14T18:48:00+02:00'
 repo: GBOGEB/Q_engineering_tools
-state: SELF_CONTAINED_EXACT_HASH_MIRROR_ARMED_WAIT_RUNTIME
+state: PASS_SELF_CONTAINED_EXACT_HASH_MIRROR_RUNTIME
+status: PASS_EXACT_SHA_REAL_RUNNER_SELF_CONTAINED_N200_CHECKPOINT
 authority: FEDERATED_REPRODUCIBILITY_EXECUTION_CARRIER_ONLY
 
 source:
@@ -11,29 +12,62 @@ source:
   mirror_root: federation/w184/payload/8fe56e088514660babdd0002055ef99dec939eb6
   manifest: federation/w184/payload/8fe56e088514660babdd0002055ef99dec939eb6/MANIFEST.json
   manifest_git_blob_sha1: 45c001cee27d8d0c86307a0db693ae5f51b00eac
+  manifest_sha256: d2577ec5dd7db522d9ec4c43c50422f3508c0d6ef8097030e3bd52bd6be14123
+  aggregate_payload_sha256: f5ff5a80dc70aef72b8f827f6bb3d4403b395b5810a2021279d5d2dd163a5a0f
   mirrored_source_file_count: 18
   private_runtime_credential_required: false
 
 workflow:
   path: .github/workflows/w184f-visual-n200-checkpoint.yml
   required:
-    - carrier_exact_head
-    - mirror_manifest_blob_exact
-    - all_18_source_git_blobs_exact
-    - mirror_payload_closure_no_missing_or_extra_files
-    - post_N100_accepted_rows_exactly_100
-    - runner_id_nonzero
-    - executed_steps_gt_zero
-    - pinned_statistical_runtime
-    - frozen_N100_replay_semantic_pass
-    - exact_balance_50_per_format
-    - cross_selected_N100_family_dedupe_pass
-    - global_source_render_artifact_exact_family_dedupe_pass
-    - N200_KMO_MSA_Bartlett_PCA_PA95_pass
-    - PC3_recursive_guard_pass
-    - output_artifact_uploaded
+    carrier_exact_head: PASS
+    mirror_manifest_blob_exact: PASS
+    all_18_source_git_blobs_exact: PASS
+    mirror_payload_closure_no_missing_or_extra_files: PASS
+    post_N100_accepted_rows_exactly_100: PASS
+    runner_id_nonzero: PASS
+    executed_steps_gt_zero: PASS
+    pinned_statistical_runtime: PASS
+    frozen_N100_replay_semantic_pass: PASS
+    exact_balance_50_per_format: PASS
+    cross_selected_N100_family_dedupe_pass: PASS
+    global_source_render_artifact_exact_family_dedupe_pass: PASS
+    N200_KMO_MSA_Bartlett_PCA_PA95_pass: PASS
+    PC3_recursive_guard_pass: PASS
+    output_artifact_uploaded: PASS
+
+runtime_receipts:
+  evaluated_carrier_sha: 766f064e561c28e41cc70dd1a17a29cd71343da5
+  workflow_run_id: 34868622367
+  workflow_job_id: 104058671463
+  runner_id: 1000278450
+  runner_name: GitHub Actions 1000278450
+  completed_steps_before_receipt: 13
+  mirror_verification_receipt_sha256: b272306a1fe4bc761471bcd4c6ba60f6f2ea2e8f63844cf1f3702e2e7a83c77e
+  n200_generation_receipt_sha256: 0278371ccdd28308d8417d4677ac064b3459f0198a9bf78e76c96fb7aeabe323
+  carrier_receipt_sha256: 2e292c13a712c99e9500b92cfec8a6dc4254fb58fb4acdc7700faf0b3c067220
+
+N200_result:
+  artifact_N: 200
+  format_counts: {HTML: 50, PDF: 50, PPTX: 50, XLSX: 50}
+  KMO: 0.9209340510417111
+  minimum_MSA: 0.8177793936550152
+  minimum_MSA_dimension: figure_quality
+  PC1_explained_pct: 52.87584477717477
+  PC2_explained_pct: 17.463046677162797
+  PC3_explained_pct: 9.99020392746102
+  PC3_eigenvalue: 1.1988244712953224
+  PC3_PA95: 1.5323037567238849
+  PC3_state: MONITOR_NOT_RETAINED
+  PC1_loading_congruence_to_N100: 0.9998830068310014
+  visual_reverse_pressure_rank_spearman_to_N100: 0.9930069930069931
+  selected_n100_family_collision_count: 0
 
 expected_output_artifact: w184f-visual-n200-checkpoint
+retained_output_artifact:
+  name: w184f-visual-n200-checkpoint
+  artifact_id: 10358281452
+  digest: sha256:4861d40a2fe9d6dc837f4b85beddf7ef41021f22452fc64ca9197f37f6508639
 expected_files:
   - QPS_VISUAL_CENSUS_DERIVED_ARTIFACT_N200.generated.csv
   - QPS_VISUAL_PCA_PROVENANCE_N200_EIGEN.csv
@@ -59,4 +93,9 @@ boundary:
 PC3:
   if_N200_eigen_le_PA95: MONITOR_NOT_RETAINED
   if_N200_eigen_gt_PA95: CANDIDATE_EVIDENCE_ONLY_NOT_CONTROL_OR_RETAINED
+  current_state: MONITOR_NOT_RETAINED
   no_single_checkpoint_retention: true
+
+remaining_before_merge:
+  - fresh_exact_head_repeat_after_control_record_retention
+  - current_head_code_review_clean
