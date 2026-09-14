@@ -36,7 +36,7 @@ jobs:
           python-version: '3.12'
       - name: Install generator and render runtime
         run: |
-          python -m pip install --upgrade pip pyyaml python-docx
+          python -m pip install --upgrade pip pyyaml python-docx openpyxl
           sudo apt-get update -qq
           sudo apt-get install -y -qq libreoffice-writer poppler-utils
       - name: Generate two independent reviewer contexts
@@ -70,7 +70,7 @@ jobs:
           Path('out/page_count_receipt.json').write_text(json.dumps({'status':'PASS_8_OF_8_ONE_PHYSICAL_PAGE_IN_TWO_CONTEXTS','counts':counts,'authority_transfer':False,'formal_credit_delta':0},indent=2,sort_keys=True)+'\n')
           print(counts)
           PY
-      - name: Prove normalized OOXML identity across repeat generation
+      - name: Prove reviewer normalized identity across repeat generation
         shell: bash
         run: |
           set -euo pipefail
@@ -87,7 +87,40 @@ jobs:
               rows.append({'file':a.name,'raw_equal':ma['raw_sha256']==mb['raw_sha256'],'normalized_equal':True,'normalized_release_sha256':ma['normalized_release_sha256']})
           assert len(rows)==8
           Path('out/normalized_identity_receipt.json').write_text(json.dumps({'status':'PASS_NORMALIZED_RELEASE_EQUIVALENCE_8_OF_8','rows':rows,'identity_semantics':'NORMALIZED_RELEASE_EQUIVALENCE_NOT_RAW_BYTE_IDENTITY','authority_transfer':False,'formal_credit_delta':0},indent=2,sort_keys=True)+'\n')
-          print(rows)
+          PY
+      - name: Generate complete MIP2 family twice with compact MIP2C
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf runtime
+          mkdir -p runtime/{scripts,controls} out/family_a out/family_b
+          cp payload/w183/common/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml runtime/controls/
+          cp payload/w183/common/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml runtime/controls/
+          cp payload/w183/mip2a/qps_w183_generate_offer_eval_workbook.py runtime/scripts/
+          cp payload/w183/mip2b/qps_w183_generate_offer_eval_narrative.py runtime/scripts/
+          cp payload/w188/qps_w188_generate_offer_eval_onepagers.py runtime/scripts/qps_w183_generate_offer_eval_onepagers.py
+          cp payload/w184/qps_w184_validate_offer_eval_mip2_parity.py runtime/scripts/
+          python runtime/scripts/qps_w184_validate_offer_eval_mip2_parity.py --repo-root runtime --workdir out/family_a --receipt out/family_a_receipt.json
+          sleep 2
+          python runtime/scripts/qps_w184_validate_offer_eval_mip2_parity.py --repo-root runtime --workdir out/family_b --receipt out/family_b_receipt.json
+      - name: Prove normalized identity for workbook narrative and all reviewers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import importlib.util,json
+          from pathlib import Path
+          p=Path('payload/w188/qps_ooxml_normalized_release_identity.py')
+          s=importlib.util.spec_from_file_location('norm',p); m=importlib.util.module_from_spec(s); s.loader.exec_module(m)
+          pairs=[]
+          for rel in ['OFFER_EVAL_MIP2A.xlsx','FULL_RECURSIVE_V6_NARRATIVE_MIP2B.docx'] + [f'onepagers/OFFER_EVAL_REVIEWER_ONEPAGER_C{i}.docx' for i in range(1,9)]:
+              a=Path('out/family_a')/rel; b=Path('out/family_b')/rel
+              ma=m.manifest(a); mb=m.manifest(b)
+              assert ma['normalized_release_sha256']==mb['normalized_release_sha256'], rel
+              pairs.append({'artifact':rel,'raw_equal':ma['raw_sha256']==mb['raw_sha256'],'normalized_equal':True,'normalized_release_sha256':ma['normalized_release_sha256']})
+          assert len(pairs)==10
+          Path('out/family_normalized_identity_receipt.json').write_text(json.dumps({'status':'PASS_NORMALIZED_RELEASE_EQUIVALENCE_10_OF_10_MIP2_OUTPUTS','pairs':pairs,'identity_semantics':'NORMALIZED_RELEASE_EQUIVALENCE_NOT_RAW_BYTE_IDENTITY','authority_transfer':False,'formal_credit_delta':0},indent=2,sort_keys=True)+'\n')
+          print(pairs)
           PY
       - name: Prove controlled content change changes normalized identity
         shell: bash
