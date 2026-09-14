@@ -1,0 +1,69 @@
+schema: qps-visual-replacement-asset-registry/0.2
+status: BOUND_EXACT_ROW_LOCATORS_AND_HASHES
+as_of: '2026-09-13'
+purpose: >-
+  Bind the exact nine replacement census rows to immutable source and reviewed-render assets,
+  including the complete row locator fragment used for statistical evidence.
+expected_observation_ids:
+  - PDF-REP-01
+  - PDF-REP-02
+  - PDF-REP-03
+  - PDF-REP-04
+  - PDF-REP-05
+  - PDF-REP-06
+  - PDF-REP-07
+  - PDF-REP-08
+  - PPT-REP-01
+locator_policy:
+  exact_observation_set_required: true
+  source_row_locator_exact_equality_required: true
+  render_row_locator_exact_equality_required: true
+  source_hash_exact_equality_required: true
+  render_hash_exact_equality_required: true
+  authority: VISUAL_EVIDENCE_ONLY_NO_ENGINEERING_COMPLIANCE_NEGOTIATION_CREDIT
+assets:
+  - observation_id: PDF-REP-01
+    artifact_id: QPS_AGENDA_NEXT_WAVE_CONTINUE_PAUSE_GATE_v8
+    artifact_format: PDF
+    source: {file_name: QPS_AGENDA_NEXT_WAVE_CONTINUE_PAUSE_GATE_v8.pdf, external_locator: 'chatgpt-library://file_000000003d6c81f4b3d1b244db5176fc', row_locator: 'chatgpt-library://file_000000003d6c81f4b3d1b244db5176fc#page=1', sha256: 7a214e72e8d332734f98b137e80069e66c047863de60fd21c26b8fbaa88d6fc7, size_bytes: 144023}
+    review_render: {external_locator: 'chatgpt-library://file_0000000028b0821097db7413ea324e82', row_locator: 'chatgpt-library://file_0000000028b0821097db7413ea324e82#page=1', sha256: 7e8ddd9de00ca6a7882d043f6af33c0ed20e96bd5a0a472f8e5b525805654a3f, size_bytes: 16550}
+  - observation_id: PDF-REP-02
+    artifact_id: QPS_LKT_Negotiation_Communication
+    artifact_format: PDF
+    source: {file_name: QPS_LKT_Negotiation_Communication.pdf, external_locator: 'chatgpt-library://file_000000006e9081f49eccfd0afd53ab85', row_locator: 'chatgpt-library://file_000000006e9081f49eccfd0afd53ab85#page=1', sha256: 58f8bd36024308af556a90c8b1bcc9dcb415eff0c395018fc1c200fc2497b6c3, size_bytes: 68534}
+    review_render: {external_locator: 'chatgpt-library://file_0000000089408246ab0968cc7ac2467a', row_locator: 'chatgpt-library://file_0000000089408246ab0968cc7ac2467a#page=1', sha256: 3edb79eeb879924d260af7ce2a9b493b04dfcd57ba0cbd9d6068af153476da27, size_bytes: 26686}
+  - observation_id: PDF-REP-03
+    artifact_id: QPS_LKT_Review_Executive_Communication
+    artifact_format: PDF
+    source: {file_name: QPS_LKT_Review_Executive_Communication.pdf, external_locator: 'chatgpt-library://file_00000000e1f8820a826e3002fa7a5bc1', row_locator: 'chatgpt-library://file_00000000e1f8820a826e3002fa7a5bc1#page=1', sha256: f72f382c1704e614ffed3dedeb4870e24ff487c15c8d34c429328bc58f7d44fc, size_bytes: 67263}
+    review_render: {external_locator: 'chatgpt-library://file_0000000055288210b69efe872f91e693', row_locator: 'chatgpt-library://file_0000000055288210b69efe872f91e693#page=1', sha256: ea23561d4e16f1d957ff9fcd03f43778cbf33e2cbf97e06fefcce407a4c3b688, size_bytes: 26974}
+  - observation_id: PDF-REP-04
+    artifact_id: QPS_Recursive_Compliance_Review_Rule
+    artifact_format: PDF
+    source: {file_name: QPS_Recursive_Compliance_Review_Rule.pdf, external_locator: 'chatgpt-library://file_00000000d70482468e0206dd261d728f', row_locator: 'chatgpt-library://file_00000000d70482468e0206dd261d728f#page=1', sha256: 6e1f893e83b79acd34c06fe910be03e78f3fe325e7bf47e818f27ba14237e80d, size_bytes: 62597}
+    review_render: {external_locator: 'chatgpt-library://file_00000000d1ac81f4a4bd397f473e819e', row_locator: 'chatgpt-library://file_00000000d1ac81f4a4bd397f473e819e#page=1', sha256: 058e499cab5736ac49ddfb6da29f7fc0ff38b3c1cf8a677f9268386d90f3517e, size_bytes: 19194}
+  - observation_id: PDF-REP-05
+    artifact_id: QPS_W153_COST_MODEL_RATIONALE_AND_FLOW_v0.1
+    artifact_format: PDF
+    source: {file_name: QPS_W153_COST_MODEL_RATIONALE_AND_FLOW_v0.1.pdf, external_locator: 'chatgpt-library://file_00000000c1d8820abf084a190b749762', row_locator: 'chatgpt-library://file_00000000c1d8820abf084a190b749762#page=1', sha256: 0f1b0286aca56b22bd962cd568c13d9676707716007c317b1ed96bf00f72e899, size_bytes: 99155}
+    review_render: {external_locator: 'chatgpt-library://file_0000000088e4820aa4b9f1dac501b49f', row_locator: 'chatgpt-library://file_0000000088e4820aa4b9f1dac501b49f#page=1', sha256: a8825ab65161ae6ebf9203e56593b4604013b4035015e78993f3d7b95ab8ce07, size_bytes: 17818}
+  - observation_id: PDF-REP-06
+    artifact_id: QPS_LKT_CANONICAL_REVIEW_PACK_W19
+    artifact_format: PDF
+    source: {file_name: QPS_LKT_CANONICAL_REVIEW_PACK_W19.pdf, external_locator: 'chatgpt-library://file_0000000075f88246b9247c304d21a9c7', row_locator: 'chatgpt-library://file_0000000075f88246b9247c304d21a9c7#page=1', sha256: 46b12165255b81ae03774c1e00db566b92cd09f4467a40fa3f6b7595b728ba58, size_bytes: 263736}
+    review_render: {external_locator: 'chatgpt-library://file_000000005d7482108bc98894cd5adf66', row_locator: 'chatgpt-library://file_000000005d7482108bc98894cd5adf66#page=1', sha256: 2077385f9fc05fb62fee3924cbd5ba16d31819c1bc8d244035dfb3d6f31897e1, size_bytes: 3546}
+  - observation_id: PDF-REP-07
+    artifact_id: QPS_DOV_ARTIFACT_QA_RENDER_GALLERY_v9_contact_sheet
+    artifact_format: PDF
+    source: {file_name: QPS_DOV_ARTIFACT_QA_RENDER_GALLERY_v9_contact_sheet.pdf, external_locator: 'chatgpt-library://file_00000000d25481f982bfe91969a7be35', row_locator: 'chatgpt-library://file_00000000d25481f982bfe91969a7be35#page=1', sha256: bccd1e083edd2ef3544e8e1925e67d2affcf2e04e5c020bd8792df9278762c22, size_bytes: 3585065}
+    review_render: {external_locator: 'chatgpt-library://file_0000000082008210aa7b61596ee013e9', row_locator: 'chatgpt-library://file_0000000082008210aa7b61596ee013e9#page=1', sha256: aab86c5f360c7e6652f1562752cc72c322a1b1fbdc490043c27ab0ef0f5eaca7, size_bytes: 7800}
+  - observation_id: PDF-REP-08
+    artifact_id: QPS_W25_PROGRESS_DOV_REVIEW_v0.1
+    artifact_format: PDF
+    source: {file_name: QPS_W25_PROGRESS_DOV_REVIEW_v0.1.pdf, external_locator: 'chatgpt-library://file_00000000b11081f4b9e5752307b7c361', row_locator: 'chatgpt-library://file_00000000b11081f4b9e5752307b7c361#page=1', sha256: c456ceaa986ef715f2b2bef82fb9ef6ecdf9bfa7dd61b91eddf8c0f38368caa5, size_bytes: 92193}
+    review_render: {external_locator: 'chatgpt-library://file_00000000b6748243950542496f14e0a1', row_locator: 'chatgpt-library://file_00000000b6748243950542496f14e0a1#page=1', sha256: 633aafba2d88153c6bbf0cd5b085e76854d27a42c8dcf0511f801dac3f66077a, size_bytes: 7124}
+  - observation_id: PPT-REP-01
+    artifact_id: QPS_COST_Master_Demo_v2_3
+    artifact_format: PPTX
+    source: {file_name: QPS_COST_Master_Demo_v2_3.pptx, external_locator: 'chatgpt-library://file_0000000043848211a93a08e30e2c27d9', row_locator: 'chatgpt-library://file_0000000043848211a93a08e30e2c27d9#slide=1', sha256: 013c313d43dc9180a04667259fb7916288928d49fb311ad83376d76ea53678f0, size_bytes: 1464420}
+    review_render: {external_locator: 'chatgpt-library://file_00000000fd6481f49d1cfc49a3edf9a1', row_locator: 'chatgpt-library://file_00000000fd6481f49d1cfc49a3edf9a1#slide=1', sha256: 6731a2c02279e2d15a43ea243e68691dc3c7281eec4a7bf8dff07c27f43ebae0, size_bytes: 2812}
