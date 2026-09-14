@@ -1,5 +1,5 @@
-schema: q-engineering-tools-w184f-carrier-hardening/0.3
-state: SELF_CONTAINED_EXACT_HASH_MIRROR_ARMED_WAIT_RUNTIME
+schema: q-engineering-tools-w184f-carrier-hardening/0.4
+state: PASS_SELF_CONTAINED_EXACT_HASH_MIRROR_RUNTIME
 carrier_repo: GBOGEB/Q_engineering_tools
 child_repo: GBOGEB/cryoplant-project
 child_exact_sha: 8fe56e088514660babdd0002055ef99dec939eb6
@@ -9,7 +9,7 @@ prior_runtime:
   job_id: 104034424600
   result: PRIVATE_CHILD_CHECKOUT_FAILED_AFTER_REAL_CARRIER_RUNNER_ALLOCATION
   classification: FEDERATION_AUTH_NOT_923
-  disposition: CLOSED_BY_SELF_CONTAINED_MIRROR_DESIGN_PENDING_RUNTIME_PROOF
+  disposition: CLOSED_BY_SELF_CONTAINED_EXACT_HASH_MIRROR_RUNTIME_PASS
 hardening:
   immutable_action_pins: true
   pinned_python: '3.12'
@@ -19,6 +19,7 @@ hardening:
     scipy: 1.16.2
     PyYAML: 6.0.2
   frozen_n100_family_collision_guard: true
+  family_guard_basis: GENERATED_BALANCED_N100_SELECTED_ARTIFACT_POPULATION
   runtime_receipt_binds:
     - carrier_evaluated_source_sha
     - workflow_run_id
@@ -40,6 +41,8 @@ self_contained_payload_mirror:
   root: federation/w184/payload/8fe56e088514660babdd0002055ef99dec939eb6
   manifest: federation/w184/payload/8fe56e088514660babdd0002055ef99dec939eb6/MANIFEST.json
   manifest_git_blob_sha1: 45c001cee27d8d0c86307a0db693ae5f51b00eac
+  manifest_sha256: d2577ec5dd7db522d9ec4c43c50422f3508c0d6ef8097030e3bd52bd6be14123
+  aggregate_payload_sha256: f5ff5a80dc70aef72b8f827f6bb3d4403b395b5810a2021279d5d2dd163a5a0f
   verifier: federation/w184/verify_w184_payload_mirror.py
   source_file_count: 18
   post_n100_expected_rows: 100
@@ -52,6 +55,24 @@ private_payload_read_gate:
   required_secret: NONE
   prior_secret_name: CRYOPLANT_READ_TOKEN
   persistent_private_token_coupling: false
+runtime_proof:
+  evaluated_carrier_sha: 766f064e561c28e41cc70dd1a17a29cd71343da5
+  workflow_run_id: 34868622367
+  workflow_job_id: 104058671463
+  runner_id: 1000278450
+  runner_name: GitHub Actions 1000278450
+  completed_steps_before_receipt: 13
+  mirror_verified_files: 18
+  mirror_verified_post_n100_rows: 100
+  mirror_verification_receipt_sha256: b272306a1fe4bc761471bcd4c6ba60f6f2ea2e8f63844cf1f3702e2e7a83c77e
+  selected_n100_family_collision_count: 0
+  n200_generation_receipt_sha256: 0278371ccdd28308d8417d4677ac064b3459f0198a9bf78e76c96fb7aeabe323
+  carrier_receipt_sha256: 2e292c13a712c99e9500b92cfec8a6dc4254fb58fb4acdc7700faf0b3c067220
+  retained_artifact:
+    name: w184f-visual-n200-checkpoint
+    artifact_id: 10358281452
+    digest: sha256:4861d40a2fe9d6dc837f4b85beddf7ef41021f22452fc64ca9197f37f6508639
+  status: PASS_EXACT_SHA_REAL_RUNNER_SELF_CONTAINED_N200_CHECKPOINT
 authority:
   compensates_cryoplant_923: false
   transfers_child_authority: false
@@ -59,13 +80,16 @@ authority:
   true_bradley_terry: NOT_PERFORMED
   formal_credit_delta: 0
 exit:
-  - mirror_manifest_blob_pin_passes
-  - all_18_source_git_blob_bindings_pass
-  - post_n100_row_contract_100_passes
-  - pinned_runtime_passes
-  - frozen_n100_replay_matches
-  - cross_n100_family_collision_count_zero
-  - exact_n200_checkpoint_passes
-  - carrier_runner_id_nonzero
-  - carrier_completed_steps_gt_zero
-  - carrier_runtime_receipt_retained
+  mirror_manifest_blob_pin_passes: true
+  all_18_source_git_blob_bindings_pass: true
+  post_n100_row_contract_100_passes: true
+  pinned_runtime_passes: true
+  frozen_n100_replay_matches: true
+  cross_n100_family_collision_count_zero: true
+  exact_n200_checkpoint_passes: true
+  carrier_runner_id_nonzero: true
+  carrier_completed_steps_gt_zero: true
+  carrier_runtime_receipt_retained: true
+remaining_before_merge:
+  - fresh_exact_head_repeat_after_control_record_retention
+  - current_head_code_review_clean
