@@ -1,0 +1,221 @@
+name: W183 MIP2ABC Parallel Proof
+
+on:
+  pull_request:
+    paths:
+      - 'payload/w183/**'
+      - '.github/workflows/w183-mip2abc-parallel-proof.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'payload/w183/**'
+      - '.github/workflows/w183-mip2abc-parallel-proof.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  identity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Assert exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected='${{ github.event.pull_request.head.sha || github.sha }}'
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$expected"
+          echo "exact_head=$actual"
+      - name: Verify byte-identical source payloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          check_blob() { actual="$(git hash-object "$1")"; test "$actual" = "$2" || { echo "$1 blob $actual != $2"; exit 1; }; }
+          check_blob payload/w183/common/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml 52592fee795bd19d151f0b7612642d28f5a6a88d
+          check_blob payload/w183/common/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml 74387b2e09f9a0ef0f6c440a5362e1d51a7f6a55
+          check_blob payload/w183/mip2a/qps_w183_generate_offer_eval_workbook.py 34d3f66ed97c1ef90fb0448b38d2590eec04cd6d
+          check_blob payload/w183/mip2a/test_w183_offer_eval_workbook_adapter.py df8f243bb71c219a75a67964e9a0ce80b1fbab08
+          check_blob payload/w183/mip2b/qps_w183_generate_offer_eval_narrative.py 09fccff8480912df53cdab335d9cdee3c62600b2
+          check_blob payload/w183/mip2b/test_w183_offer_eval_narrative_adapter.py a403ed107690429eaeb3893db5f8bf066125236f
+          check_blob payload/w183/mip2c/qps_w183_generate_offer_eval_onepagers.py f7ad6dd3439e713672c81d4d7f36f175e857b39c
+          check_blob payload/w183/mip2c/test_w183_offer_eval_onepagers_adapter.py 7a84461e3bd6557365fa233e828212cb6cfee133
+          echo '8/8 exact Git blobs PASS'
+
+  mip2a:
+    needs: identity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade pip pytest pyyaml openpyxl
+      - name: Stage exact MIP2A source layout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p runtime/a/{scripts,tests,controls} out/a
+          cp payload/w183/mip2a/qps_w183_generate_offer_eval_workbook.py runtime/a/scripts/
+          cp payload/w183/mip2a/test_w183_offer_eval_workbook_adapter.py runtime/a/tests/
+          cp payload/w183/common/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml runtime/a/controls/
+          cp payload/w183/common/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml runtime/a/controls/
+      - name: MIP2A tests
+        run: python -m pytest -q runtime/a/tests/test_w183_offer_eval_workbook_adapter.py
+      - name: Generate real XLSX + receipt
+        run: |
+          cd runtime/a
+          python scripts/qps_w183_generate_offer_eval_workbook.py --out ../../out/a/OFFER_EVAL_MIP2A.xlsx --receipt ../../out/a/MIP2A_RECEIPT.json
+      - name: Verify XLSX artifact opens
+        run: |
+          python - <<'PY'
+          from openpyxl import load_workbook
+          from pathlib import Path
+          import json
+          p=Path('out/a/OFFER_EVAL_MIP2A.xlsx')
+          wb=load_workbook(p, data_only=False)
+          assert wb.sheetnames == ['CONFIG','STATIC_BT','INPUT_AB','CALC_AB','CATEGORY_COMPARE','DASHBOARD']
+          r=json.loads(Path('out/a/MIP2A_RECEIPT.json').read_text())
+          assert r['status']=='PASS_OPENPYXL_ROUNDTRIP_NO_TABLE_PART'
+          assert r['excel_native_clean_roundtrip']=='WITHHELD_REQUIRES_EXCEL_RUNTIME'
+          print(r)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w183-mip2a
+          path: out/a/
+
+  mip2b:
+    needs: identity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade pip pytest pyyaml python-docx
+      - name: Stage exact MIP2B source layout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p runtime/b/{scripts,tests,controls} out/b
+          cp payload/w183/mip2b/qps_w183_generate_offer_eval_narrative.py runtime/b/scripts/
+          cp payload/w183/mip2b/test_w183_offer_eval_narrative_adapter.py runtime/b/tests/
+          cp payload/w183/common/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml runtime/b/controls/
+      - name: MIP2B tests
+        run: python -m pytest -q runtime/b/tests/test_w183_offer_eval_narrative_adapter.py
+      - name: Generate real DOCX + receipt
+        run: |
+          cd runtime/b
+          python scripts/qps_w183_generate_offer_eval_narrative.py --out ../../out/b/FULL_RECURSIVE_V6_NARRATIVE_MIP2B.docx --receipt ../../out/b/MIP2B_RECEIPT.json
+      - name: Verify DOCX artifact reopens
+        run: |
+          python - <<'PY'
+          from docx import Document
+          from pathlib import Path
+          import json
+          p=Path('out/b/FULL_RECURSIVE_V6_NARRATIVE_MIP2B.docx')
+          d=Document(p)
+          assert len(d.paragraphs)>20
+          r=json.loads(Path('out/b/MIP2B_RECEIPT.json').read_text())
+          assert r['status']=='PASS_SOURCE_DRIVEN_NARRATIVE'
+          assert r['required_section_count']==11
+          print(r)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w183-mip2b
+          path: out/b/
+
+  mip2c:
+    needs: identity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade pip pytest pyyaml python-docx
+      - name: Stage exact MIP2C source layout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p runtime/c/{scripts,tests,controls} out/c
+          cp payload/w183/mip2c/qps_w183_generate_offer_eval_onepagers.py runtime/c/scripts/
+          cp payload/w183/mip2c/test_w183_offer_eval_onepagers_adapter.py runtime/c/tests/
+          cp payload/w183/common/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml runtime/c/controls/
+      - name: MIP2C tests
+        run: python -m pytest -q runtime/c/tests/test_w183_offer_eval_onepagers_adapter.py
+      - name: Generate eight real DOCX + receipt
+        run: |
+          cd runtime/c
+          python scripts/qps_w183_generate_offer_eval_onepagers.py --out-dir ../../out/c/pages --receipt ../../out/c/MIP2C_RECEIPT.json
+      - name: Verify exactly eight DOCX reopen
+        run: |
+          python - <<'PY'
+          from docx import Document
+          from pathlib import Path
+          import json
+          files=sorted(Path('out/c/pages').glob('*.docx'))
+          assert len(files)==8
+          for p in files: Document(p)
+          r=json.loads(Path('out/c/MIP2C_RECEIPT.json').read_text())
+          assert r['status']=='PASS_EIGHT_SOURCE_DRIVEN_ONEPAGERS'
+          assert r['output_count']==8
+          print(r)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w183-mip2c
+          path: out/c/
+
+  fan_in:
+    needs: [mip2a, mip2b, mip2c]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: w183-mip2*
+          path: fanin
+      - name: Cross-lane doctrine/parity precheck
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          rs={}
+          for lane in ['a','b','c']:
+              p=next(Path('fanin').glob(f'w183-mip2{lane}/MIP2{lane.upper()}_RECEIPT.json'))
+              rs[lane]=json.loads(p.read_text())
+          shas={r['doctrine_sha256'] for r in rs.values()}
+          assert len(shas)==1, shas
+          assert rs['a']['formal_credit_delta']==0
+          assert rs['b']['formal_credit_delta']==0
+          assert rs['c']['formal_credit_delta']==0
+          assert rs['a']['authority_transfer'] is False
+          assert rs['b']['authority_transfer'] is False
+          assert rs['c']['authority_transfer'] is False
+          summary={
+              'status':'PASS_MIP2ABC_FANIN_PRECHECK',
+              'doctrine_sha256':next(iter(shas)),
+              'mip2a':rs['a']['status'],
+              'mip2b':rs['b']['status'],
+              'mip2c':rs['c']['status'],
+              'mip2d_admission':'CANDIDATE_AFTER_CHILD_REENTRY',
+              'authority_transfer':False,
+              'formal_credit_delta':0,
+          }
+          Path('W183_MIP2ABC_FANIN_RECEIPT.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(summary,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w183-mip2abc-fanin
+          path: W183_MIP2ABC_FANIN_RECEIPT.json

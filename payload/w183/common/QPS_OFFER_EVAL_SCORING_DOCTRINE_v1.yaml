@@ -1,0 +1,241 @@
+schema: qps-offer-eval-scoring-doctrine/1.0.0
+as_of: '2026-09-14T09:28:00+02:00'
+wave: QTG_W176_OFFER_EVAL_SCORING_DOCTRINE
+repo: GBOGEB/cryoplant-project
+state: CONTROLLED_SUPPLEMENTARY_INPUT_CONDITIONING
+integration: SUPPLEMENTARY_NOT_COMPETING
+purpose: >-
+  Bind the full V6 scoring-conditioning narrative into QPS TRIAGE as a repo-native,
+  reconstructable reviewer doctrine. Reuse W80 OFFER/RTM/EVAL as the canonical review runtime
+  and W152 as the evidence/V&V ontology. This control adds reviewer-input conditioning,
+  cluster interpretation, confidence semantics, pairwise-preparation semantics and generated
+  narrative/one-pager contracts without creating compliance, negotiation, acceptance or award authority.
+
+source_lineage:
+  chat_artifact:
+    filename: FULL_recursive_V6_narrative_execution_idempotent.docx
+    sha256: bf7d221a72804b058b8620d1456c4d93a92b1ec78c02540cd1816232e4fc05e4
+    role: DOWNSTREAM_RENDERED_NARRATIVE_REFERENCE_ONLY
+    repo_authority_by_presence: false
+  governing_repo_surfaces:
+    offer_rtm_runtime: scripts/qps_w80_build_offer_rtm_eval_triage.py
+    rtm_evidence_ontology: controls/QPS_RTM_EVIDENCE_VV_ONTOLOGY_v1.yaml
+    rtm_evidence_current: controls/QPS_W152_P1_CURRENT_v1.yaml
+    current_pointer: handover/qps_recursive/QTG_CURRENT.yaml
+    deep_map: controls/QPS_TRIAGE_REPO_DEEP_MAP.yaml
+
+model_boundary:
+  bidders: [A, B]
+  offer_denominator: 50
+  raw_score_scale:
+    1: BELOW_EXPECTATION
+    2: MEETS_EXPECTATION
+    3: EXCEEDS_EXPECTATION
+  confidence_scale:
+    '0.4': DECLARATIVE
+    '0.7': PARTIALLY_SUBSTANTIATED
+    '1.0': FULLY_SUBSTANTIATED
+  confidence_is_not_evidence_maturity: true
+  reviewer_score_is_not_compliance_status: true
+  pairwise_preference_is_not_award_authority: true
+  cluster_dominance_is_not_SCK_acceptance: true
+  generated_narrative_is_not_source_authority: true
+
+cluster_weights:
+  status: PROVISIONAL_REVIEW_CONFIGURATION_NOT_CONTRACT_AUTHORITY
+  C1: 0.20
+  C2: 0.15
+  C3: 0.10
+  C4: 0.15
+  C5: 0.10
+  C6: 0.15
+  C7: 0.10
+  C8: 0.05
+  sum: 1.00
+
+cluster_model:
+  rule: EACH_OFFER_HAS_EXACTLY_ONE_PRIMARY_CLUSTER
+  secondary_links_allowed_for_interpretation: true
+  no_secondary_link_weight_credit: true
+  clusters:
+    C1:
+      name: Performance
+      primary_offers: [OFFER-04, OFFER-06, OFFER-12, OFFER-23]
+      intent: performance_and_user_facing_thermodynamic_results
+    C2:
+      name: Process Design
+      primary_offers: [OFFER-07, OFFER-08, OFFER-09, OFFER-10, OFFER-18, OFFER-19, OFFER-21, OFFER-22, OFFER-24]
+      intent: process_architecture_ln2_recovery_interfaces_and_purity
+    C3:
+      name: Mechanical and Equipment
+      primary_offers: [OFFER-13, OFFER-14, OFFER-15, OFFER-16]
+      intent: buildable_serviceable_physical_equipment
+    C4:
+      name: Software and Control
+      primary_offers: [OFFER-26, OFFER-27, OFFER-28, OFFER-29, OFFER-30, OFFER-37, OFFER-40]
+      intent: software_control_instrumentation_and_digital_lifecycle
+    C5:
+      name: Infrastructure and Integration
+      primary_offers: [OFFER-17, OFFER-31, OFFER-32, OFFER-33, OFFER-34, OFFER-35, OFFER-36]
+      intent: layout_site_utilities_installation_and_integration
+    C6:
+      name: Reliability and Maintenance
+      primary_offers: [OFFER-05, OFFER-11, OFFER-38, OFFER-41, OFFER-42, OFFER-43, OFFER-50]
+      intent: operations_reliability_spares_training_service_and_warranty_lifecycle
+    C7:
+      name: Quality Testing and Risk
+      primary_offers: [OFFER-20, OFFER-39, OFFER-46, OFFER-47, OFFER-48, OFFER-49]
+      intent: leak_loss_validation_quality_risk_and_compliance_framework
+    C8:
+      name: Commercial and Execution
+      primary_offers: [OFFER-01, OFFER-02, OFFER-03, OFFER-25, OFFER-44, OFFER-45]
+      intent: qualification_execution_schedule_governance_and_management
+  expected_unique_primary_offers: 50
+  expected_duplicates: 0
+  expected_omissions: 0
+
+repair_against_prior_8_cluster_sketch:
+  prior_unique_coverage: 43
+  prior_duplicate_primary_offer: OFFER-17
+  prior_omitted_offers: [OFFER-05, OFFER-07, OFFER-24, OFFER-25, OFFER-37, OFFER-38, OFFER-40]
+  disposition: REPAIRED_TO_EXACT_50_OF_50_PRIMARY_COVERAGE
+  reason: >-
+    The earlier sketch was useful as a conceptual grouping but was not a valid full-denominator
+    execution model because it duplicated OFFER-17 and omitted seven OFFER items. W176 makes the
+    primary cluster map total, unique and executable while preserving cross-cluster interpretive links.
+
+v6_doctrine:
+  - id: V6-01
+    principle: INTEGRATED_SCORING_FRAMEWORK
+    interpretation: consistency_substantiation_and_lifecycle_alignment_over_isolated_values
+  - id: V6-02
+    principle: AVOID_IMPLICIT_DOUBLE_COUNTING
+    interpretation: linked_items_are_one_design_dimension_for_weight_credit
+  - id: V6-03
+    principle: RELATIVE_VS_ABSOLUTE_PERFORMANCE
+    interpretation: numerical_difference_requires_comparable_assumptions_and_materiality
+  - id: V6-04
+    principle: SUBSTANTIATION_WEIGHTING
+    interpretation: declared_capability_ne_substantiated_deliverability
+  - id: V6-05
+    principle: COMPLEXITY_MODERATION
+    interpretation: performance_gain_is_read_with_integration_and_operational_burden
+  - id: V6-06
+    principle: CONSISTENCY_AS_MATURITY
+    interpretation: cross_domain_coherence_supports_design_maturity_and_readiness
+  - id: V6-07
+    principle: LIFECYCLE_CONSIDERATION
+    interpretation: maintenance_spares_service_warranty_and_risk_are_decision_variables
+  - id: V6-08
+    principle: ASSUMPTION_SENSITIVITY
+    interpretation: conservative_vs_optimistic_basis_is_explicitly_reviewed
+  - id: V6-09
+    principle: CLUSTER_INTERPRETATION
+    interpretation: cluster_view_supplements_item_view_without_erasing_item_traceability
+  - id: V6-10
+    principle: COMPARATIVE_CONFIDENCE
+    interpretation: confidence_in_deliverability_is_separate_from_raw_score
+  - id: V6-11
+    principle: PAIRWISE_ALIGNMENT
+    interpretation: balanced_coherent_systems_should_win_consistently_without_local_spike_bias
+  - id: V6-12
+    principle: FINAL_SYSTEM_PERSPECTIVE
+    interpretation: integrated_behaviour_over_isolated_attribute_maxima
+
+scoring_execution_contract:
+  local_item_weighting:
+    rule: NORMALIZE_WITHIN_CLUSTER
+    sum_per_cluster: 1.0
+    no_global_item_weight_reuse: true
+  adjusted_item_input:
+    conceptual_form: raw_score_x_local_weight_x_confidence
+    note: confidence_is_input_conditioning_not_formal_evidence_acceptance
+  cluster_score:
+    conceptual_form: SUM_adjusted_item_inputs
+  global_comparison:
+    conceptual_form: SUM_cluster_weight_x_cluster_delta
+  pairwise_transform:
+    status: REVIEW_MODEL_LAYER
+    no_formal_award_credit: true
+    no_auto_acceptance: true
+
+one_pager_generation_contract:
+  one_page_per_cluster: true
+  fixed_blocks:
+    - score_scale
+    - confidence_scale
+    - scoring_interpretation_note
+    - bidder_A_score_confidence_notes
+    - bidder_B_score_confidence_notes
+  cluster_variable_blocks:
+    - cluster_scope
+    - primary_offer_list
+    - reviewer_focus
+    - what_good_looks_like
+    - primary_scoring_trap
+    - cross_cluster_dependency_cues
+  rule: >-
+    Fixed execution blocks SHALL be reused identically unless the scoring protocol itself is
+    versioned. Cluster-specific language SHALL be injected from this control surface rather than
+    hand-diverged across separate reviewer pages.
+
+narrative_generation_contract:
+  source_driven: true
+  no_markdown_dump: true
+  no_manual_parallel_truth: true
+  required_sections:
+    - governing_purpose
+    - recursion_and_idempotence
+    - workbook_execution_stack
+    - execution_sequence
+    - v6_twelve_principles
+    - bt_input_conditioning
+    - cluster_deep_dives
+    - one_pager_generation
+    - decision_synthesis
+    - audit_traceability
+    - engineering_handover
+  generated_binary_role: DOWNSTREAM_VIEW
+  binary_hash_may_bind_release_identity: true
+  binary_hash_does_not_create_semantic_authority: true
+
+cross_cluster_links_no_weight_credit:
+  - [OFFER-04, OFFER-12, OFFER-11]
+  - [OFFER-08, OFFER-09, OFFER-10]
+  - [OFFER-11, OFFER-41, OFFER-43]
+  - [OFFER-21, OFFER-22, OFFER-46]
+  - [OFFER-26, OFFER-27, OFFER-28, OFFER-29, OFFER-30]
+  - [OFFER-17, OFFER-32, OFFER-33, OFFER-34, OFFER-35, OFFER-36]
+  - [OFFER-39, OFFER-46, OFFER-47, OFFER-48, OFFER-49]
+
+qps_triage_alignment:
+  reuse_before_duplicate:
+    - W80_OFFER_RTM_EVAL_runtime
+    - W152_RTM_EVIDENCE_VV_ontology
+  formal_credit_delta: 0
+  negotiation_credit_delta: 0
+  compliance_credit_delta: 0
+  SCK_acceptance_delta: 0
+  award_authority_delta: 0
+  allowed_effect:
+    - reviewer_input_conditioning
+    - traceable_cluster_interpretation
+    - confidence_visible_comparison
+    - generated_narrative_and_one_pager_consistency
+  first_red: IMPLEMENT_REPO_NATIVE_VALIDATOR_AND_PROVE_50_OF_50_CLUSTER_COVERAGE
+  victory: >-
+    Repo-native validator proves exact 50/50 primary OFFER coverage, zero duplicates and zero
+    omissions; W80/W152 authority boundaries remain intact; narrative and one-pager generators can
+    consume the same doctrine surface without creating a parallel compliance or award truth.
+
+stop_rules:
+  - no_review_score_as_compliance_status
+  - no_confidence_factor_as_evidence_maturity_or_SCK_acceptance
+  - no_pairwise_probability_as_award_authority
+  - no_cluster_dominance_as_formal_acceptance
+  - no_secondary_cross_cluster_link_as_duplicate_weight_credit
+  - no_generated_DOCX_or_dashboard_as_source_authority
+  - no_replacement_of_W80_offer_rtm_eval_runtime
+  - no_replacement_of_W152_evidence_semantics
+  - no_cross_bidder_evidence_substitution
+  - no_missing_or_unknown_to_zero
