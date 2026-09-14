@@ -1,0 +1,118 @@
+name: QPS W176 Offer Eval Doctrine Exact
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/qps-w176-offer-eval-doctrine-exact.yml"
+      - "payload/w176/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml"
+      - "payload/w176/qps_w176_validate_offer_eval_doctrine.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/qps-w176-offer-eval-doctrine-exact.yml"
+      - "payload/w176/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml"
+      - "payload/w176/qps_w176_validate_offer_eval_doctrine.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CRYOPLANT_SOURCE_HEAD: ce3e308b34677107c84eb416316c5017e4cd49f0
+  DOCTRINE_BLOB: 52592fee795bd19d151f0b7612642d28f5a6a88d
+  VALIDATOR_BLOB: 377c1555086cfe9a24fa1036f5e40271c6f9a713
+
+jobs:
+  validate-exact-doctrine:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout executor exact head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Verify exact tracked W176 payload carriers
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/w176
+          doctrine="payload/w176/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml"
+          validator="payload/w176/qps_w176_validate_offer_eval_doctrine.py"
+          test -f "$doctrine"
+          test -f "$validator"
+          test "$(git hash-object "$doctrine")" = "$DOCTRINE_BLOB"
+          test "$(git hash-object "$validator")" = "$VALIDATOR_BLOB"
+
+      - name: Install validator dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check pyyaml
+
+      - name: Execute W176 doctrine validator
+        shell: bash
+        run: |
+          set -euo pipefail
+          python payload/w176/qps_w176_validate_offer_eval_doctrine.py \
+            payload/w176/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml \
+            | tee artifacts/w176/validator_result.yaml
+
+      - name: Bind federated exact-payload receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import yaml
+
+          result_path = Path("artifacts/w176/validator_result.yaml")
+          result = yaml.safe_load(result_path.read_text(encoding="utf-8"))
+          required = {
+              "status": "PASS",
+              "primary_assignments": 50,
+              "unique_primary_offers": 50,
+              "duplicates": [],
+              "omissions": [],
+              "cluster_count": 8,
+              "cluster_weight_sum": 1.0,
+          }
+          for key, expected in required.items():
+              if result.get(key) != expected:
+                  raise SystemExit(f"unexpected validator result {key}={result.get(key)!r}, expected={expected!r}")
+
+          receipt = {
+              "schema": "qps.w176.offer_eval_doctrine_federated_exact.v1",
+              "source_repo": "GBOGEB/cryoplant-project",
+              "source_pr": 1119,
+              "source_merge_sha": os.environ["CRYOPLANT_SOURCE_HEAD"],
+              "doctrine_blob": os.environ["DOCTRINE_BLOB"],
+              "validator_blob": os.environ["VALIDATOR_BLOB"],
+              "transport": "TRACKED_EXACT_BLOB_CARRIER",
+              "executor_repo": os.environ["GITHUB_REPOSITORY"],
+              "executor_head_sha": os.environ["GITHUB_SHA"],
+              "run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "validator_result_sha256": hashlib.sha256(result_path.read_bytes()).hexdigest(),
+              "result": result,
+              "local_repo_runtime_control": "WITHHELD_ISSUE_923",
+              "engineering_credit": 0,
+              "compliance_credit": 0,
+              "negotiation_credit": 0,
+              "sck_acceptance_credit": 0,
+              "award_authority_credit": 0,
+              "status": "PASS_EXECUTED_EXACT_PAYLOAD_SEMANTIC_VALIDATION_ONLY",
+          }
+          Path("artifacts/w176/w176_doctrine_exact_receipt.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(receipt, sort_keys=True))
+          PY
+
+      - name: Upload W176 exact-payload evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: qps-w176-offer-eval-doctrine-${{ github.sha }}
+          path: artifacts/w176/
+          if-no-files-found: error
