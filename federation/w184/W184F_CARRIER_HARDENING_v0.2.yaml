@@ -1,5 +1,5 @@
-schema: q-engineering-tools-w184f-carrier-hardening/0.2
-state: HARDENED_WAIT_PRIVATE_PAYLOAD_READ_CREDENTIAL
+schema: q-engineering-tools-w184f-carrier-hardening/0.3
+state: SELF_CONTAINED_EXACT_HASH_MIRROR_ARMED_WAIT_RUNTIME
 carrier_repo: GBOGEB/Q_engineering_tools
 child_repo: GBOGEB/cryoplant-project
 child_exact_sha: 8fe56e088514660babdd0002055ef99dec939eb6
@@ -9,6 +9,7 @@ prior_runtime:
   job_id: 104034424600
   result: PRIVATE_CHILD_CHECKOUT_FAILED_AFTER_REAL_CARRIER_RUNNER_ALLOCATION
   classification: FEDERATION_AUTH_NOT_923
+  disposition: CLOSED_BY_SELF_CONTAINED_MIRROR_DESIGN_PENDING_RUNTIME_PROOF
 hardening:
   immutable_action_pins: true
   pinned_python: '3.12'
@@ -28,13 +29,29 @@ hardening:
     - runner_labels
     - completed_step_count
     - child_exact_sha
+    - mirror_manifest_git_blob_sha1
+    - mirror_manifest_sha256
+    - mirror_aggregate_payload_sha256
+    - mirror_verification_receipt_sha256
     - output_hashes
     - receipt_sha256
+self_contained_payload_mirror:
+  mode: GOVERNED_SELF_CONTAINED_EXACT_HASH_MIRROR
+  root: federation/w184/payload/8fe56e088514660babdd0002055ef99dec939eb6
+  manifest: federation/w184/payload/8fe56e088514660babdd0002055ef99dec939eb6/MANIFEST.json
+  manifest_git_blob_sha1: 45c001cee27d8d0c86307a0db693ae5f51b00eac
+  verifier: federation/w184/verify_w184_payload_mirror.py
+  source_file_count: 18
+  post_n100_expected_rows: 100
+  private_runtime_credential_required: false
+  execution_mutates_governed_mirror: false
+  execution_workspace: RUNNER_TEMP_COPY
+  immutability_rule: NEW_SOURCE_SHA_NAMESPACE_AND_NEW_MANIFEST_REQUIRED_FOR_ANY_PAYLOAD_CHANGE
 private_payload_read_gate:
-  required_secret: CRYOPLANT_READ_TOKEN
-  required_scope: READ_ONLY_GBOGEB_CRYOPLANT_PROJECT_CONTENTS
-  alternative: GOVERNED_SELF_CONTAINED_EXACT_PAYLOAD_MIRROR
-  no_credential_in_git: true
+  state: RETIRED_BY_GOVERNED_SELF_CONTAINED_MIRROR
+  required_secret: NONE
+  prior_secret_name: CRYOPLANT_READ_TOKEN
+  persistent_private_token_coupling: false
 authority:
   compensates_cryoplant_923: false
   transfers_child_authority: false
@@ -42,8 +59,9 @@ authority:
   true_bradley_terry: NOT_PERFORMED
   formal_credit_delta: 0
 exit:
-  - private_child_exact_sha_checkout_succeeds
-  - child_git_blob_bindings_pass
+  - mirror_manifest_blob_pin_passes
+  - all_18_source_git_blob_bindings_pass
+  - post_n100_row_contract_100_passes
   - pinned_runtime_passes
   - frozen_n100_replay_matches
   - cross_n100_family_collision_count_zero
