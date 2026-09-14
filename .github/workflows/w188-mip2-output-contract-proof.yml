@@ -1,0 +1,145 @@
+name: W188 MIP2 Output Contract Proof
+
+on:
+  pull_request:
+    paths:
+      - 'payload/w188/**'
+      - '.github/workflows/w188-mip2-output-contract-proof.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'payload/w188/**'
+      - '.github/workflows/w188-mip2-output-contract-proof.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Assert exact carrier checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha || github.sha }}'
+      - name: Verify exact doctrine identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object payload/w183/common/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml)" = '52592fee795bd19d151f0b7612642d28f5a6a88d'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install generator and render runtime
+        run: |
+          python -m pip install --upgrade pip pyyaml python-docx openpyxl
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libreoffice-writer poppler-utils
+      - name: Generate two independent reviewer contexts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/a out/b out/pdf_a out/pdf_b
+          python payload/w188/qps_w188_generate_offer_eval_onepagers.py --doctrine payload/w183/common/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml --out-dir out/a --receipt out/a_receipt.json
+          sleep 2
+          python payload/w188/qps_w188_generate_offer_eval_onepagers.py --doctrine payload/w183/common/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml --out-dir out/b --receipt out/b_receipt.json
+      - name: Render all reviewer DOCX and prove exact one-page count
+        shell: bash
+        run: |
+          set -euo pipefail
+          libreoffice --headless --convert-to pdf --outdir out/pdf_a out/a/*.docx >/tmp/lo_a.txt 2>&1
+          libreoffice --headless --convert-to pdf --outdir out/pdf_b out/b/*.docx >/tmp/lo_b.txt 2>&1
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          counts={}
+          for ctx in ['a','b']:
+              pdfdir=Path('out')/f'pdf_{ctx}'
+              files=sorted(pdfdir.glob('*.pdf'))
+              assert len(files)==8, (ctx,len(files))
+              counts[ctx]={}
+              for p in files:
+                  text=subprocess.check_output(['pdfinfo',str(p)],text=True)
+                  pages=int(next(line.split(':',1)[1] for line in text.splitlines() if line.startswith('Pages:')).strip())
+                  counts[ctx][p.stem]=pages
+                  assert pages==1,(ctx,p.name,pages)
+          Path('out/page_count_receipt.json').write_text(json.dumps({'status':'PASS_8_OF_8_ONE_PHYSICAL_PAGE_IN_TWO_CONTEXTS','counts':counts,'authority_transfer':False,'formal_credit_delta':0},indent=2,sort_keys=True)+'\n')
+          print(counts)
+          PY
+      - name: Prove reviewer normalized identity across repeat generation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import importlib.util,json
+          from pathlib import Path
+          p=Path('payload/w188/qps_ooxml_normalized_release_identity.py')
+          s=importlib.util.spec_from_file_location('norm',p); m=importlib.util.module_from_spec(s); s.loader.exec_module(m)
+          rows=[]
+          for a in sorted(Path('out/a').glob('*.docx')):
+              b=Path('out/b')/a.name
+              ma=m.manifest(a); mb=m.manifest(b)
+              assert ma['normalized_release_sha256']==mb['normalized_release_sha256'], a.name
+              rows.append({'file':a.name,'raw_equal':ma['raw_sha256']==mb['raw_sha256'],'normalized_equal':True,'normalized_release_sha256':ma['normalized_release_sha256']})
+          assert len(rows)==8
+          Path('out/normalized_identity_receipt.json').write_text(json.dumps({'status':'PASS_NORMALIZED_RELEASE_EQUIVALENCE_8_OF_8','rows':rows,'identity_semantics':'NORMALIZED_RELEASE_EQUIVALENCE_NOT_RAW_BYTE_IDENTITY','authority_transfer':False,'formal_credit_delta':0},indent=2,sort_keys=True)+'\n')
+          PY
+      - name: Generate complete MIP2 family twice with compact MIP2C
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf runtime
+          mkdir -p runtime/{scripts,controls} out/family_a out/family_b
+          cp payload/w183/common/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml runtime/controls/
+          cp payload/w183/common/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml runtime/controls/
+          cp payload/w183/mip2a/qps_w183_generate_offer_eval_workbook.py runtime/scripts/
+          cp payload/w183/mip2b/qps_w183_generate_offer_eval_narrative.py runtime/scripts/
+          cp payload/w188/qps_w188_generate_offer_eval_onepagers.py runtime/scripts/qps_w183_generate_offer_eval_onepagers.py
+          cp payload/w184/qps_w184_validate_offer_eval_mip2_parity.py runtime/scripts/
+          python runtime/scripts/qps_w184_validate_offer_eval_mip2_parity.py --repo-root runtime --workdir out/family_a --receipt out/family_a_receipt.json
+          sleep 2
+          python runtime/scripts/qps_w184_validate_offer_eval_mip2_parity.py --repo-root runtime --workdir out/family_b --receipt out/family_b_receipt.json
+      - name: Prove normalized identity for workbook narrative and all reviewers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import importlib.util,json
+          from pathlib import Path
+          p=Path('payload/w188/qps_ooxml_normalized_release_identity.py')
+          s=importlib.util.spec_from_file_location('norm',p); m=importlib.util.module_from_spec(s); s.loader.exec_module(m)
+          pairs=[]
+          for rel in ['OFFER_EVAL_MIP2A.xlsx','FULL_RECURSIVE_V6_NARRATIVE_MIP2B.docx'] + [f'onepagers/OFFER_EVAL_REVIEWER_ONEPAGER_C{i}.docx' for i in range(1,9)]:
+              a=Path('out/family_a')/rel; b=Path('out/family_b')/rel
+              ma=m.manifest(a); mb=m.manifest(b)
+              assert ma['normalized_release_sha256']==mb['normalized_release_sha256'], rel
+              pairs.append({'artifact':rel,'raw_equal':ma['raw_sha256']==mb['raw_sha256'],'normalized_equal':True,'normalized_release_sha256':ma['normalized_release_sha256']})
+          assert len(pairs)==10
+          Path('out/family_normalized_identity_receipt.json').write_text(json.dumps({'status':'PASS_NORMALIZED_RELEASE_EQUIVALENCE_10_OF_10_MIP2_OUTPUTS','pairs':pairs,'identity_semantics':'NORMALIZED_RELEASE_EQUIVALENCE_NOT_RAW_BYTE_IDENTITY','authority_transfer':False,'formal_credit_delta':0},indent=2,sort_keys=True)+'\n')
+          print(pairs)
+          PY
+      - name: Prove controlled content change changes normalized identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import importlib.util,zipfile
+          from pathlib import Path
+          p=Path('payload/w188/qps_ooxml_normalized_release_identity.py')
+          s=importlib.util.spec_from_file_location('norm',p); m=importlib.util.module_from_spec(s); s.loader.exec_module(m)
+          for name,text in [('x','A'),('y','B')]:
+              q=Path('out')/f'{name}.docx'
+              with zipfile.ZipFile(q,'w') as z:
+                  z.writestr('docProps/core.xml','<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"/>')
+                  z.writestr('word/document.xml',f'<w:document xmlns:w="urn:test"><w:body><w:p>{text}</w:p></w:body></w:document>')
+          assert m.manifest(Path('out/x.docx'))['normalized_release_sha256'] != m.manifest(Path('out/y.docx'))['normalized_release_sha256']
+          print('controlled content delta changes normalized identity: PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w188-mip2-output-contract-proof
+          path: out/
