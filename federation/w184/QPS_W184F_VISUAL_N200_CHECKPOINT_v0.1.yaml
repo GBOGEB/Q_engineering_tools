@@ -1,0 +1,56 @@
+schema: q-engineering-tools-w184f-visual-n200-checkpoint/0.1
+as_of: '2026-09-14T17:03:00+02:00'
+repo: GBOGEB/Q_engineering_tools
+state: ARMED_WAIT_PR_RUNTIME
+authority: FEDERATED_EXECUTION_CARRIER_ONLY
+
+source:
+  repo: GBOGEB/cryoplant-project
+  branch: w184/visual-n200-checkpoint-20260914
+  exact_sha: 8fe56e088514660babdd0002055ef99dec939eb6
+  exact_blobs:
+    scripts/qps_visual_n200_checkpoint.py: 82981222ee4441537f96f9471f16b913cf545c2b
+    ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W173_AUTH_RECONCILED.csv: 783bf2db2c7fa49264493e45ceecc2762dcc0030
+    triage/w184/QPS_W184_VISUAL_N200_W173_ADMISSION_MIRROR_v0.1.yaml: 9a0d91e281700b124e98db1623419111edbb05f2
+    triage/w184/QPS_W184_VISUAL_N200_CHECKPOINT_v0.1.yaml: 269de410e7755a4adbc94dee61bbb22deca18a21
+
+workflow:
+  path: .github/workflows/w184f-visual-n200-checkpoint.yml
+  required:
+    - carrier_exact_head
+    - cryoplant_exact_sha
+    - four_W184_git_blobs_exact
+    - runner_id_nonzero
+    - executed_steps_gt_zero
+    - frozen_N100_replay_semantic_pass
+    - exact_balance_50_per_format
+    - global_source_render_artifact_exact_family_dedupe_pass
+    - N200_KMO_MSA_Bartlett_PCA_PA95_pass
+    - PC3_recursive_guard_pass
+    - output_artifact_uploaded
+
+expected_output_artifact: w184f-visual-n200-checkpoint
+expected_files:
+  - QPS_VISUAL_CENSUS_DERIVED_ARTIFACT_N200.generated.csv
+  - QPS_VISUAL_PCA_PROVENANCE_N200_EIGEN.csv
+  - QPS_VISUAL_PCA_PROVENANCE_N200_LOADINGS_PRESSURE.csv
+  - QPS_VISUAL_PCA_N100_N200_CONVERGENCE.csv
+  - QPS_VISUAL_PCA_N200_GENERATION_RECEIPT.json
+  - Q_ENGINEERING_TOOLS_W184F_CARRIER_RECEIPT.json
+
+boundary:
+  repo_local_runner_923_compensated: false
+  project_global_PCA: WITHHELD
+  true_Bradley_Terry_fit: NOT_PERFORMED
+  visual_reverse_pressure_method: NON_BT_WEIGHTED_SCALAR_PRIORITY
+  engineering_credit_delta: 0
+  compliance_credit_delta: 0
+  negotiation_credit_delta: 0
+  acceptance_credit_delta: 0
+  release_credit_delta: 0
+  authority_transfer: false
+
+PC3:
+  if_N200_eigen_le_PA95: MONITOR_NOT_RETAINED
+  if_N200_eigen_gt_PA95: CANDIDATE_EVIDENCE_ONLY_NOT_CONTROL_OR_RETAINED
+  no_single_checkpoint_retention: true
