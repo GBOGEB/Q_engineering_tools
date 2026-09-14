@@ -1,0 +1,181 @@
+schema: qps-qrt-d-readiness-vector/v1
+id: QRT-D-MIP-I
+as_of: '2026-09-14T11:05:00+02:00'
+repo: GBOGEB/cryoplant-project
+authority: CONTROL_DIAGNOSTIC_ONLY
+source_profile:
+  path: controls/QPS_QRT_D_CANONICAL_PACK_PROFILE_v1.yaml
+  git_blob: 8401f112d0eb6135e6dec2aa4e1a6d69ae9cc097
+  merged_pr: 1125
+  merge_commit: 7a5bffb9ec753f2241d48f2fa8dc26517d72033c
+method:
+  pulse: 3PR-QRT-D-02
+  mip_stage: INNOVATE
+  purpose: >-
+    Convert the merged QRT-D control profile into an explicit per-product readiness vector so
+    blockers are machine-checkable and re-entry cannot be promoted from narrative or render
+    completeness alone.
+  scoring_role: DIAGNOSTIC_ONLY
+  acceptance_authority: false
+  pca_eligible: false
+  pca_reason: TOO_FEW_HETEROGENEOUS_PRODUCT_ROWS_AND_NO_CURRENT_G6_IDENTITY
+  bt_eligible: false
+  bt_reason: NO_OBSERVED_PAIRWISE_OUTCOME_GRAPH_FOR_QRT_D_PRODUCTS
+
+state_vocabulary:
+  - PASS_CONTROLLED
+  - PASS_READINESS_ONLY
+  - HOLD_EXTERNAL_RETURN
+  - HOLD_LOCAL_ACCEPTANCE
+  - BLOCKED_UPSTREAM
+  - NOT_APPLICABLE
+
+axes:
+  - id: A1_SOURCE_IDENTITY
+    meaning: exact current release/source identity is bound
+  - id: A2_AUTHORITY_BOUNDARY
+    meaning: SSOT versus projection role is explicit and non-conflicting
+  - id: A3_LINEAGE_HASH
+    meaning: source manifest and product SHA256 lineage is bound
+  - id: A4_SEMANTIC_PARITY
+    meaning: values labels nulls units source gates and authority classes agree across required views
+  - id: A5_RENDER_ACCEPTANCE
+    meaning: required Office/browser/PDF visual QA is accepted for the governed release
+  - id: A6_PUBLICATION_RECEIPT
+    meaning: clean-main release receipt and publication hash parity are bound where required
+
+shared_guards:
+  current_first_red: G6_ARTIFACT_IDENTITY_01
+  G5_topology_execution: PASS_EXECUTED_EXACT_PAYLOAD
+  G5_horizontal_promotion: PASS_GOVERNED
+  actual_numeric_cost_rows_ready: 0_of_3
+  actual_numeric_cost_release: WITHHELD_SOURCE_VALUES
+  source_value_gates: [974, 981]
+  unknown_numeric_semantics: NULL_NOT_ZERO
+  formal_credit_delta:
+    engineering: 0
+    compliance: 0
+    negotiation: 0
+    acceptance: 0
+    release: 0
+    grand_mission: 0
+
+product_rows:
+  - product_id: COST_XLSX
+    family: QPS_COST
+    basename: QPS_COST_Master.xlsx
+    role: NUMERICAL_SSOT
+    A1_SOURCE_IDENTITY: HOLD_EXTERNAL_RETURN
+    A2_AUTHORITY_BOUNDARY: PASS_CONTROLLED
+    A3_LINEAGE_HASH: HOLD_EXTERNAL_RETURN
+    A4_SEMANTIC_PARITY: BLOCKED_UPSTREAM
+    A5_RENDER_ACCEPTANCE: BLOCKED_UPSTREAM
+    A6_PUBLICATION_RECEIPT: BLOCKED_UPSTREAM
+    first_red: G6_ARTIFACT_IDENTITY_01
+  - product_id: COST_HTML
+    family: QPS_COST
+    basename: QPS_COST_Master_HTML_CURRENT.html
+    role: READ_ONLY_REVIEW_PROJECTION
+    A1_SOURCE_IDENTITY: HOLD_EXTERNAL_RETURN
+    A2_AUTHORITY_BOUNDARY: PASS_CONTROLLED
+    A3_LINEAGE_HASH: HOLD_EXTERNAL_RETURN
+    A4_SEMANTIC_PARITY: BLOCKED_UPSTREAM
+    A5_RENDER_ACCEPTANCE: BLOCKED_UPSTREAM
+    A6_PUBLICATION_RECEIPT: BLOCKED_UPSTREAM
+    first_red: G6_ARTIFACT_IDENTITY_01
+  - product_id: COST_PDF
+    family: QPS_COST
+    basename: MANIFEST_SELECTED_NO_FILENAME_GUESSING
+    role: CONTROLLED_FIXED_REVIEW_PROJECTION
+    A1_SOURCE_IDENTITY: HOLD_EXTERNAL_RETURN
+    A2_AUTHORITY_BOUNDARY: PASS_CONTROLLED
+    A3_LINEAGE_HASH: HOLD_EXTERNAL_RETURN
+    A4_SEMANTIC_PARITY: BLOCKED_UPSTREAM
+    A5_RENDER_ACCEPTANCE: BLOCKED_UPSTREAM
+    A6_PUBLICATION_RECEIPT: BLOCKED_UPSTREAM
+    first_red: G6_ARTIFACT_IDENTITY_01
+  - product_id: OCD_ADR_DOCX
+    family: OCD_ADR_OUTWARD
+    basename: QPS_OCD_ADR_review_pack.docx
+    role: REVIEW_PROJECTION
+    A1_SOURCE_IDENTITY: PASS_CONTROLLED
+    A2_AUTHORITY_BOUNDARY: PASS_CONTROLLED
+    A3_LINEAGE_HASH: PASS_READINESS_ONLY
+    A4_SEMANTIC_PARITY: PASS_READINESS_ONLY
+    A5_RENDER_ACCEPTANCE: HOLD_LOCAL_ACCEPTANCE
+    A6_PUBLICATION_RECEIPT: HOLD_LOCAL_ACCEPTANCE
+    first_red: TODO_011_WINDOWS_OFFICE_ACCEPTANCE
+  - product_id: OCD_ADR_PDF
+    family: OCD_ADR_OUTWARD
+    basename: QPS_OCD_ADR_review_pack.pdf
+    role: FIXED_REVIEW_PROJECTION
+    A1_SOURCE_IDENTITY: PASS_CONTROLLED
+    A2_AUTHORITY_BOUNDARY: PASS_CONTROLLED
+    A3_LINEAGE_HASH: PASS_READINESS_ONLY
+    A4_SEMANTIC_PARITY: PASS_READINESS_ONLY
+    A5_RENDER_ACCEPTANCE: HOLD_LOCAL_ACCEPTANCE
+    A6_PUBLICATION_RECEIPT: HOLD_LOCAL_ACCEPTANCE
+    first_red: TODO_011_WINDOWS_OFFICE_ACCEPTANCE
+  - product_id: OCD_ADR_XLSX
+    family: OCD_ADR_OUTWARD
+    basename: QPS_OCD_ADR_trace_evidence_review.xlsx
+    role: TRACE_EVIDENCE_NAVIGATION_PROJECTION_NOT_COST_SSOT
+    A1_SOURCE_IDENTITY: PASS_CONTROLLED
+    A2_AUTHORITY_BOUNDARY: PASS_CONTROLLED
+    A3_LINEAGE_HASH: PASS_READINESS_ONLY
+    A4_SEMANTIC_PARITY: PASS_READINESS_ONLY
+    A5_RENDER_ACCEPTANCE: HOLD_LOCAL_ACCEPTANCE
+    A6_PUBLICATION_RECEIPT: HOLD_LOCAL_ACCEPTANCE
+    first_red: TODO_011_WINDOWS_OFFICE_ACCEPTANCE
+  - product_id: OCD_ADR_PPTX
+    family: OCD_ADR_OUTWARD
+    basename: QPS_OCD_ADR_review_brief.pptx
+    role: DECISION_BRIEF_PROJECTION
+    A1_SOURCE_IDENTITY: PASS_CONTROLLED
+    A2_AUTHORITY_BOUNDARY: PASS_CONTROLLED
+    A3_LINEAGE_HASH: PASS_READINESS_ONLY
+    A4_SEMANTIC_PARITY: PASS_READINESS_ONLY
+    A5_RENDER_ACCEPTANCE: HOLD_LOCAL_ACCEPTANCE
+    A6_PUBLICATION_RECEIPT: HOLD_LOCAL_ACCEPTANCE
+    first_red: TODO_011_WINDOWS_OFFICE_ACCEPTANCE
+  - product_id: OCD_ADR_HTML
+    family: OCD_ADR_OUTWARD
+    basename: index.html
+    role: STATIC_NAVIGATOR_PROJECTION
+    A1_SOURCE_IDENTITY: PASS_CONTROLLED
+    A2_AUTHORITY_BOUNDARY: PASS_CONTROLLED
+    A3_LINEAGE_HASH: PASS_READINESS_ONLY
+    A4_SEMANTIC_PARITY: PASS_READINESS_ONLY
+    A5_RENDER_ACCEPTANCE: HOLD_LOCAL_ACCEPTANCE
+    A6_PUBLICATION_RECEIPT: HOLD_LOCAL_ACCEPTANCE
+    first_red: TODO_011_WINDOWS_OFFICE_ACCEPTANCE
+
+promotion_rules:
+  - QPS_COST_A4_A5_A6_cannot_PASS_until_all_three_COST_rows_have_A1_and_A3_PASS_CONTROLLED
+  - QPS_COST_reentry_cannot_promote_until_G6_semantic_parity_passes_on_two_distinct_governed_executions
+  - OCD_ADR_local_acceptance_cannot_PASS_from_repo_side_smoke_only
+  - rendered_projection_cannot_become_numerical_SSOT
+  - any_source_withheld_numeric_value_remains_null_not_zero
+  - source_gates_974_981_remain_open_until_authoritative_values_arrive
+
+measured_summary:
+  total_product_rows: 8
+  qps_cost_rows: 3
+  ocd_adr_outward_rows: 5
+  qps_cost_rows_with_current_identity: 0
+  qps_cost_rows_with_semantic_parity_pass: 0
+  ocd_adr_rows_with_repo_side_readiness: 5
+  ocd_adr_rows_with_local_visual_acceptance: 0
+  current_blocker_classes:
+    - G6_ARTIFACT_IDENTITY_01
+    - TODO_011_WINDOWS_OFFICE_ACCEPTANCE
+  dominant_blocker: G6_ARTIFACT_IDENTITY_01
+  formal_credit_delta: 0
+
+next_transition:
+  method: 3PC-QRT-D-02
+  state: PREPARED_NOT_ADMITTED
+  admission_predicate: >-
+    Exact runtime validation of this readiness vector may commit the diagnostic control and re-entry
+    predicates, but no artifact-identity or release promotion is permitted until the governed v4.2+
+    release return exists. The subsequent artifact transaction is triggered only by D01 PASS.
