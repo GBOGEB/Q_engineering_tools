@@ -13,55 +13,96 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   n200_checkpoint:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      EVALUATED_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      CRYOPLANT_W184_SHA: 8fe56e088514660babdd0002055ef99dec939eb6
     steps:
       - name: Checkout carrier exact head
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
       - name: Assert carrier exact checkout
         shell: bash
         run: |
           set -euo pipefail
-          expected='${{ github.event.pull_request.head.sha || github.sha }}'
           actual="$(git rev-parse HEAD)"
-          test "$actual" = "$expected"
+          test "$actual" = "$EVALUATED_SOURCE_SHA"
           echo "carrier_exact_head=$actual"
+
+      - name: Require private cryoplant read credential
+        shell: bash
+        env:
+          CRYOPLANT_READ_TOKEN: ${{ secrets.CRYOPLANT_READ_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CRYOPLANT_READ_TOKEN}" ]; then
+            echo 'W184F_GATE=PRIVATE_CRYOPLANT_PAYLOAD_READ_CREDENTIAL_MISSING'
+            echo 'Configure repository secret CRYOPLANT_READ_TOKEN with read-only access to GBOGEB/cryoplant-project, or replace this carrier with a governed mirrored exact-payload bundle.'
+            exit 1
+          fi
+
       - name: Checkout exact cryoplant W184 payload
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: GBOGEB/cryoplant-project
-          ref: 8fe56e088514660babdd0002055ef99dec939eb6
+          ref: ${{ env.CRYOPLANT_W184_SHA }}
           path: cryoplant
+          token: ${{ secrets.CRYOPLANT_READ_TOKEN }}
+          persist-credentials: false
+
       - name: Verify exact cryoplant identity and W184 Git blobs
         shell: bash
         run: |
           set -euo pipefail
           cd cryoplant
-          test "$(git rev-parse HEAD)" = '8fe56e088514660babdd0002055ef99dec939eb6'
+          test "$(git rev-parse HEAD)" = "$CRYOPLANT_W184_SHA"
           check_blob() { actual="$(git hash-object "$1")"; test "$actual" = "$2" || { echo "$1 blob $actual != $2"; exit 1; }; }
           check_blob scripts/qps_visual_n200_checkpoint.py 82981222ee4441537f96f9471f16b913cf545c2b
           check_blob ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W173_AUTH_RECONCILED.csv 783bf2db2c7fa49264493e45ceecc2762dcc0030
           check_blob triage/w184/QPS_W184_VISUAL_N200_W173_ADMISSION_MIRROR_v0.1.yaml 9a0d91e281700b124e98db1623419111edbb05f2
           check_blob triage/w184/QPS_W184_VISUAL_N200_CHECKPOINT_v0.1.yaml 269de410e7755a4adbc94dee61bbb22deca18a21
           echo 'cryoplant_head_and_4_W184_blobs=PASS'
-      - uses: actions/setup-python@v5
+
+      - name: Set up pinned Python runtime
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
-      - name: Install statistical runtime
-        run: python -m pip install --upgrade pip numpy pandas scipy pyyaml
+
+      - name: Install pinned statistical runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet \
+            'numpy==2.3.3' \
+            'pandas==2.3.2' \
+            'scipy==1.16.2' \
+            'PyYAML==6.0.2'
+          python - <<'PY'
+          import numpy, pandas, scipy, yaml
+          assert numpy.__version__ == '2.3.3'
+          assert pandas.__version__ == '2.3.2'
+          assert scipy.__version__ == '1.16.2'
+          assert yaml.__version__ == '6.0.2'
+          print('PINNED_STATISTICAL_RUNTIME=PASS')
+          PY
+
       - name: Snapshot frozen N100 receipt before replay
         shell: bash
         run: |
           set -euo pipefail
           cp cryoplant/ocd-adr/40_implementation/QPS_VISUAL_PCA_N100_GENERATION_RECEIPT.json /tmp/N100_before.json
+
       - name: Replay frozen N100 generation
         working-directory: cryoplant
         run: python ocd-adr/40_implementation/qps_visual_pca_generate_all.py > /tmp/n100_replay_stdout.json
+
       - name: Verify N100 replay semantics against frozen receipt
         shell: bash
         run: |
@@ -81,9 +122,70 @@ jobs:
               assert math.isclose(after['PCA']['eigenvalues'][i],before['PCA']['eigenvalues'][i],rel_tol=0,abs_tol=1e-10),(i,after['PCA']['eigenvalues'][i],before['PCA']['eigenvalues'][i])
           print('N100_REPLAY_SEMANTIC_PASS')
           PY
+
+      - name: Validate exact family separation from frozen N100
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('cryoplant')
+          formats = ['HTML', 'PDF', 'PPTX', 'XLSX']
+          n100_paths = [root / f'ocd-adr/40_implementation/QPS_VISUAL_CENSUS_RAW_PROVENANCE_N112_{fmt}.csv' for fmt in formats]
+          post_paths = [
+              root / 'ocd-adr/40_implementation/QPS_VISUAL_N104_PILOT_PROVENANCE.csv',
+              root / 'ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W169_PROVENANCE.csv',
+              root / 'ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W170_PROVENANCE.csv',
+              root / 'ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W173_AUTH_RECONCILED.csv',
+              root / 'ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W174_PROVENANCE.csv',
+              root / 'ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W176_PPTX_AUTH_RECONCILED.csv',
+              root / 'ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W176_XLSX_AUTH_RECONCILED.csv',
+              root / 'ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W176_HTML_AUTH_RECONCILED.csv',
+          ]
+
+          def norm(value):
+              return re.sub(r'\s+', '_', str(value).strip().lower())
+
+          def family_keys(frame):
+              keys = set()
+              for _, row in frame.iterrows():
+                  fmt = str(row['artifact_format']).strip().upper()
+                  explicit = str(row.get('family_key', '')).strip()
+                  artifact = str(row['artifact_id']).strip()
+                  family = explicit if explicit and explicit.lower() != 'nan' else artifact
+                  keys.add(f'{fmt}::{norm(family)}')
+                  # Keep the exact normalized artifact-id alias as a conservative
+                  # cross-version collision guard when a later cohort has an
+                  # explicit family label but frozen N100 does not.
+                  keys.add(f'{fmt}::{norm(artifact)}')
+              return keys
+
+          n100 = pd.concat([pd.read_csv(path) for path in n100_paths], ignore_index=True)
+          post = pd.concat([pd.read_csv(path) for path in post_paths], ignore_index=True)
+          n100_keys = family_keys(n100)
+          post_keys = family_keys(post)
+          collisions = sorted(n100_keys & post_keys)
+          result = {
+              'schema': 'qtools-w184f-frozen-n100-family-guard/0.1',
+              'n100_family_key_count': len(n100_keys),
+              'post_family_key_count': len(post_keys),
+              'cross_n100_family_collisions': collisions,
+              'cross_n100_family_collision_count': len(collisions),
+              'status': 'PASS' if not collisions else 'FAIL',
+          }
+          Path('/tmp/w184f_family_guard.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(result, sort_keys=True))
+          assert not collisions, collisions
+          PY
+
       - name: Execute exact N200 balance dedupe PCA PA95 checkpoint
         working-directory: cryoplant
         run: python scripts/qps_visual_n200_checkpoint.py --repo-root . --output-dir w184_out | tee /tmp/w184_n200_stdout.json
+
       - name: Verify N200 receipt and recursive PC3 guard
         shell: bash
         run: |
@@ -99,41 +201,91 @@ jobs:
           d=r['dedupe']
           for k in ['post_source_hash_duplicates','post_render_hash_duplicates','post_artifact_key_duplicates','post_exact_family_key_duplicates','post_source_collision_with_frozen_N100','post_render_collision_with_frozen_N100','post_artifact_key_collision_with_frozen_N100']:
               assert d[k]==0,(k,d[k])
+          family_guard=json.loads(Path('/tmp/w184f_family_guard.json').read_text())
+          assert family_guard['cross_n100_family_collision_count']==0
           assert r['PC3']['state'] in {'MONITOR_NOT_RETAINED','CANDIDATE_EVIDENCE_ONLY_NOT_CONTROL_OR_RETAINED_UNDER_RECURSIVE_POLICY'}
           assert r['authority']['project_global_PCA']=='WITHHELD'
           assert r['authority']['true_Bradley_Terry_fit']=='NOT_PERFORMED'
           assert all(v==0 for v in r['formal_credit_delta'].values())
-          print(json.dumps({'status':r['status'],'KMO':r['adequacy']['KMO'],'PC3':r['PC3'],'convergence':r['convergence_to_N100']},sort_keys=True))
+          print(json.dumps({'status':r['status'],'KMO':r['adequacy']['KMO'],'PC3':r['PC3'],'convergence':r['convergence_to_N100'],'family_guard':family_guard},sort_keys=True))
           PY
-      - name: Bind carrier runtime receipt
+
+      - name: Bind carrier runtime receipt to run job runner and outputs
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           python - <<'PY'
-          import hashlib,json
+          import hashlib
+          import json
+          import os
+          import subprocess
+          import urllib.request
           from pathlib import Path
+
           root=Path('cryoplant/w184_out')
           n200=json.loads((root/'QPS_VISUAL_PCA_N200_GENERATION_RECEIPT.json').read_text())
+          family=json.loads(Path('/tmp/w184f_family_guard.json').read_text())
           files={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.iterdir()) if p.is_file()}
+
+          repo=os.environ['GITHUB_REPOSITORY']
+          run_id=int(os.environ['GITHUB_RUN_ID'])
+          url=f'https://api.github.com/repos/{repo}/actions/runs/{run_id}/jobs?per_page=100'
+          req=urllib.request.Request(url, headers={
+              'Authorization': f"Bearer {os.environ['GITHUB_TOKEN']}",
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+          })
+          with urllib.request.urlopen(req, timeout=30) as response:
+              jobs=json.load(response).get('jobs', [])
+          matches=[job for job in jobs if job.get('name')=='n200_checkpoint']
+          if len(matches)!=1:
+              raise RuntimeError(f'expected exactly one n200_checkpoint job, found {len(matches)}')
+          job=matches[0]
+          runner_id=int(job.get('runner_id') or 0)
+          completed=[step for step in job.get('steps', []) if step.get('status')=='completed']
+          if runner_id==0 or not completed:
+              raise RuntimeError('carrier receipt requires allocated runner and completed steps')
+          actual=subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip()
+          expected=os.environ['EVALUATED_SOURCE_SHA']
+          if actual!=expected:
+              raise RuntimeError(f'carrier exact-head mismatch {actual} != {expected}')
+
           receipt={
-            'schema':'q-engineering-tools-w184f-visual-n200-checkpoint/0.1',
+            'schema':'q-engineering-tools-w184f-visual-n200-checkpoint/0.2',
             'status':'PASS_EXACT_SHA_REAL_RUNNER_N200_CHECKPOINT',
-            'cryoplant_exact_sha':'8fe56e088514660babdd0002055ef99dec939eb6',
+            'carrier_evaluated_source_sha':expected,
+            'workflow_run_id':run_id,
+            'workflow_run_attempt':int(os.environ.get('GITHUB_RUN_ATTEMPT','1')),
+            'job_id':int(job['id']),
+            'runner_id':runner_id,
+            'runner_name':job.get('runner_name'),
+            'runner_group_name':job.get('runner_group_name'),
+            'runner_labels':job.get('labels',[]),
+            'completed_step_count_before_receipt':len(completed),
+            'cryoplant_exact_sha':os.environ['CRYOPLANT_W184_SHA'],
             'n200_status':n200['status'],
             'artifact_N':n200['artifact_N'],
             'format_counts':n200['format_counts'],
+            'cross_n100_family_collision_count':family['cross_n100_family_collision_count'],
             'PC3':n200['PC3'],
             'outputs_sha256':files,
             'repo_local_runner_923_compensated':False,
             'authority_transfer':False,
             'formal_credit_delta':0,
           }
+          canonical=json.dumps(receipt,sort_keys=True,separators=(',',':')).encode()
+          receipt['receipt_sha256']=hashlib.sha256(canonical).hexdigest()
           (root/'Q_ENGINEERING_TOOLS_W184F_CARRIER_RECEIPT.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
           print(json.dumps(receipt,sort_keys=True))
           PY
+
       - name: Upload exact N200 checkpoint outputs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: w184f-visual-n200-checkpoint
-          path: cryoplant/w184_out/
+          name: w184f-visual-n200-checkpoint-${{ env.EVALUATED_SOURCE_SHA }}
+          path: |
+            cryoplant/w184_out/
+            /tmp/w184f_family_guard.json
           if-no-files-found: error
