@@ -133,62 +133,13 @@ jobs:
           print('N100_REPLAY_SEMANTIC_PASS')
           PY
 
-      - name: Validate exact family separation from frozen N100
+      - name: Validate exact family separation from selected frozen N100
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import json
-          import os
-          import re
-          from pathlib import Path
-          import pandas as pd
-
-          root = Path(os.environ['W184_EXEC_ROOT'])
-          formats = ['HTML', 'PDF', 'PPTX', 'XLSX']
-          n100_paths = [root / f'ocd-adr/40_implementation/QPS_VISUAL_CENSUS_RAW_PROVENANCE_N112_{fmt}.csv' for fmt in formats]
-          post_paths = [
-              root / 'ocd-adr/40_implementation/QPS_VISUAL_N104_PILOT_PROVENANCE.csv',
-              root / 'ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W169_PROVENANCE.csv',
-              root / 'ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W170_PROVENANCE.csv',
-              root / 'ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W173_AUTH_RECONCILED.csv',
-              root / 'ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W174_PROVENANCE.csv',
-              root / 'ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W176_PPTX_AUTH_RECONCILED.csv',
-              root / 'ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W176_XLSX_AUTH_RECONCILED.csv',
-              root / 'ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W176_HTML_AUTH_RECONCILED.csv',
-          ]
-
-          def norm(value):
-              return re.sub(r'\s+', '_', str(value).strip().lower())
-
-          def family_keys(frame):
-              keys = set()
-              for _, row in frame.iterrows():
-                  fmt = str(row['artifact_format']).strip().upper()
-                  explicit = str(row.get('family_key', '')).strip()
-                  artifact = str(row['artifact_id']).strip()
-                  family = explicit if explicit and explicit.lower() != 'nan' else artifact
-                  keys.add(f'{fmt}::{norm(family)}')
-                  keys.add(f'{fmt}::{norm(artifact)}')
-              return keys
-
-          n100 = pd.concat([pd.read_csv(path) for path in n100_paths], ignore_index=True)
-          post = pd.concat([pd.read_csv(path) for path in post_paths], ignore_index=True)
-          n100_keys = family_keys(n100)
-          post_keys = family_keys(post)
-          collisions = sorted(n100_keys & post_keys)
-          result = {
-              'schema': 'qtools-w184f-frozen-n100-family-guard/0.1',
-              'n100_family_key_count': len(n100_keys),
-              'post_family_key_count': len(post_keys),
-              'cross_n100_family_collisions': collisions,
-              'cross_n100_family_collision_count': len(collisions),
-              'status': 'PASS' if not collisions else 'FAIL',
-          }
-          Path('/tmp/w184f_family_guard.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
-          print(json.dumps(result, sort_keys=True))
-          assert not collisions, collisions
-          PY
+          python federation/w184/check_selected_n100_family_guard.py \
+            --execution-root "$W184_EXEC_ROOT" \
+            --out /tmp/w184f_family_guard.json
 
       - name: Execute exact N200 balance dedupe PCA PA95 checkpoint
         shell: bash
@@ -215,7 +166,7 @@ jobs:
           for k in ['post_source_hash_duplicates','post_render_hash_duplicates','post_artifact_key_duplicates','post_exact_family_key_duplicates','post_source_collision_with_frozen_N100','post_render_collision_with_frozen_N100','post_artifact_key_collision_with_frozen_N100']:
               assert d[k]==0,(k,d[k])
           family_guard=json.loads(Path('/tmp/w184f_family_guard.json').read_text())
-          assert family_guard['cross_n100_family_collision_count']==0
+          assert family_guard['cross_selected_n100_family_collision_count']==0
           assert r['PC3']['state'] in {'MONITOR_NOT_RETAINED','CANDIDATE_EVIDENCE_ONLY_NOT_CONTROL_OR_RETAINED_UNDER_RECURSIVE_POLICY'}
           assert r['authority']['project_global_PCA']=='WITHHELD'
           assert r['authority']['true_Bradley_Terry_fit']=='NOT_PERFORMED'
@@ -291,7 +242,7 @@ jobs:
             'n200_status':n200['status'],
             'artifact_N':n200['artifact_N'],
             'format_counts':n200['format_counts'],
-            'cross_n100_family_collision_count':family['cross_n100_family_collision_count'],
+            'cross_selected_n100_family_collision_count':family['cross_selected_n100_family_collision_count'],
             'PC3':n200['PC3'],
             'outputs_sha256':files,
             'repo_local_runner_923_compensated':False,
@@ -307,7 +258,7 @@ jobs:
       - name: Upload exact mirrored N200 checkpoint outputs
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: w184f-visual-n200-checkpoint-${{ env.EVALUATED_SOURCE_SHA }}
+          name: w184f-visual-n200-checkpoint
           path: |
             ${{ runner.temp }}/w184_out/
             /tmp/w184f_payload_mirror_receipt.json
