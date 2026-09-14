@@ -1,0 +1,41 @@
+schema: qps-w180f-mip2-seed-proof/1.0
+as_of: '2026-09-14T11:12:00+02:00'
+executor_repo: GBOGEB/Q_engineering_tools
+source_repo: GBOGEB/cryoplant-project
+source_pr: 1146
+source_head_sha: 974780a37d4beeb7cdc492d0b3f3a3d1c724d778
+classification: EXECUTION_PROOF_ONLY_NO_QPS_AUTHORITY
+
+exact_payload:
+  doctrine:
+    source_path: controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml
+    git_blob_sha: 52592fee795bd19d151f0b7612642d28f5a6a88d
+  builder:
+    source_path: scripts/qps_w180_build_offer_eval_generation_manifest.py
+    git_blob_sha: c36f49a5cb72bec6e2e70d41ccc959b7c08974f9
+  tests:
+    source_path: tests/test_w180_offer_eval_generation_manifest.py
+    git_blob_sha: f86dcc09c37ade3b3f105b5c60391038ffa432ac
+
+pass_predicates:
+  - intended_steps_gt_zero
+  - payload_git_blob_identity_3_of_3
+  - pytest_5_of_5_pass
+  - manifest_output_count_10
+  - offer_count_50
+  - unique_primary_offers_50
+  - cluster_count_8
+  - cluster_weight_sum_1_0
+  - same_doctrine_sha_across_10_outputs
+  - fail_closed_authority_guards
+
+non_compensating_guards:
+  - FEDERATED_PASS_NE_ISSUE_923_CLOSURE
+  - FEDERATED_PASS_NE_QPS_ENGINEERING_PROMOTION
+  - GENERATED_OUTPUT_NE_SOURCE_AUTHORITY
+  - GENERATED_OUTPUT_NE_COMPLIANCE_OR_SCK_ACCEPTANCE_OR_AWARD
+
+on_pass:
+  qps_transition: W180_SEED_PROVE_PASS_FEDERATED
+  next: FAN_OUT_MIP2A_WORKBOOK_MIP2B_NARRATIVE_MIP2C_ONEPAGERS
+  global_3P3: STILL_GATED_UNTIL_A_B_C_AND_PARITY_PASS
