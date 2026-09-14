@@ -13,64 +13,115 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   n200_checkpoint:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      EVALUATED_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      CRYOPLANT_W184_SHA: 8fe56e088514660babdd0002055ef99dec939eb6
+      MIRROR_ROOT: federation/w184/payload/8fe56e088514660babdd0002055ef99dec939eb6
+      MIRROR_MANIFEST_GIT_BLOB: 45c001cee27d8d0c86307a0db693ae5f51b00eac
     steps:
       - name: Checkout carrier exact head
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
       - name: Assert carrier exact checkout
         shell: bash
         run: |
           set -euo pipefail
-          expected='${{ github.event.pull_request.head.sha || github.sha }}'
           actual="$(git rev-parse HEAD)"
-          test "$actual" = "$expected"
+          test "$actual" = "$EVALUATED_SOURCE_SHA"
           echo "carrier_exact_head=$actual"
-      - name: Checkout exact cryoplant W184 payload
-        uses: actions/checkout@v4
-        with:
-          repository: GBOGEB/cryoplant-project
-          ref: 8fe56e088514660babdd0002055ef99dec939eb6
-          path: cryoplant
-      - name: Verify exact cryoplant identity and W184 Git blobs
+
+      - name: Verify governed exact-hash W184 payload mirror
         shell: bash
         run: |
           set -euo pipefail
-          cd cryoplant
-          test "$(git rev-parse HEAD)" = '8fe56e088514660babdd0002055ef99dec939eb6'
-          check_blob() { actual="$(git hash-object "$1")"; test "$actual" = "$2" || { echo "$1 blob $actual != $2"; exit 1; }; }
-          check_blob scripts/qps_visual_n200_checkpoint.py 82981222ee4441537f96f9471f16b913cf545c2b
-          check_blob ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W173_AUTH_RECONCILED.csv 783bf2db2c7fa49264493e45ceecc2762dcc0030
-          check_blob triage/w184/QPS_W184_VISUAL_N200_W173_ADMISSION_MIRROR_v0.1.yaml 9a0d91e281700b124e98db1623419111edbb05f2
-          check_blob triage/w184/QPS_W184_VISUAL_N200_CHECKPOINT_v0.1.yaml 269de410e7755a4adbc94dee61bbb22deca18a21
-          echo 'cryoplant_head_and_4_W184_blobs=PASS'
-      - uses: actions/setup-python@v5
+          actual_manifest_blob="$(git hash-object "$MIRROR_ROOT/MANIFEST.json")"
+          test "$actual_manifest_blob" = "$MIRROR_MANIFEST_GIT_BLOB" || {
+            echo "manifest blob $actual_manifest_blob != $MIRROR_MANIFEST_GIT_BLOB"
+            exit 1
+          }
+          python federation/w184/verify_w184_payload_mirror.py \
+            --mirror-root "$MIRROR_ROOT" \
+            --receipt /tmp/w184f_payload_mirror_receipt.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          receipt=json.loads(Path('/tmp/w184f_payload_mirror_receipt.json').read_text())
+          assert receipt['status']=='PASS_EXACT_HASH_BOUND_SELF_CONTAINED_W184_PAYLOAD'
+          assert receipt['source_commit_sha']=='8fe56e088514660babdd0002055ef99dec939eb6'
+          assert receipt['manifest_git_blob_sha1']=='45c001cee27d8d0c86307a0db693ae5f51b00eac'
+          assert receipt['verified_file_count']==18
+          assert receipt['post_n100_verified_rows']==100
+          assert receipt['private_runtime_credential_required'] is False
+          assert receipt['repo_local_runner_923_compensated'] is False
+          print('W184_GOVERNED_SELF_CONTAINED_MIRROR=PASS')
+          PY
+
+      - name: Materialize immutable mirror into ephemeral execution workspace
+        shell: bash
+        run: |
+          set -euo pipefail
+          exec_root="$RUNNER_TEMP/w184f-exec"
+          rm -rf "$exec_root"
+          mkdir -p "$exec_root"
+          cp -a "$MIRROR_ROOT/." "$exec_root/"
+          echo "W184_EXEC_ROOT=$exec_root" >> "$GITHUB_ENV"
+          echo "w184_exec_root=$exec_root"
+
+      - name: Set up pinned Python runtime
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
-      - name: Install statistical runtime
-        run: python -m pip install --upgrade pip numpy pandas scipy pyyaml
+
+      - name: Install pinned statistical runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet \
+            'numpy==2.3.3' \
+            'pandas==2.3.2' \
+            'scipy==1.16.2' \
+            'PyYAML==6.0.2'
+          python - <<'PY'
+          import numpy, pandas, scipy, yaml
+          assert numpy.__version__ == '2.3.3'
+          assert pandas.__version__ == '2.3.2'
+          assert scipy.__version__ == '1.16.2'
+          assert yaml.__version__ == '6.0.2'
+          print('PINNED_STATISTICAL_RUNTIME=PASS')
+          PY
+
       - name: Snapshot frozen N100 receipt before replay
         shell: bash
         run: |
           set -euo pipefail
-          cp cryoplant/ocd-adr/40_implementation/QPS_VISUAL_PCA_N100_GENERATION_RECEIPT.json /tmp/N100_before.json
-      - name: Replay frozen N100 generation
-        working-directory: cryoplant
-        run: python ocd-adr/40_implementation/qps_visual_pca_generate_all.py > /tmp/n100_replay_stdout.json
+          cp "$W184_EXEC_ROOT/ocd-adr/40_implementation/QPS_VISUAL_PCA_N100_GENERATION_RECEIPT.json" /tmp/N100_before.json
+
+      - name: Replay frozen N100 generation from mirrored source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python "$W184_EXEC_ROOT/ocd-adr/40_implementation/qps_visual_pca_generate_all.py" \
+            --impl-dir "$W184_EXEC_ROOT/ocd-adr/40_implementation" \
+            > /tmp/n100_replay_stdout.json
+
       - name: Verify N100 replay semantics against frozen receipt
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json, math
+          import json, math, os
           from pathlib import Path
           before=json.loads(Path('/tmp/N100_before.json').read_text())
-          after=json.loads(Path('cryoplant/ocd-adr/40_implementation/QPS_VISUAL_PCA_N100_GENERATION_RECEIPT.json').read_text())
+          after=json.loads((Path(os.environ['W184_EXEC_ROOT'])/'ocd-adr/40_implementation/QPS_VISUAL_PCA_N100_GENERATION_RECEIPT.json').read_text())
           assert after['artifact_N']==100
           assert after['format_counts']=={'HTML':25,'PDF':25,'PPTX':25,'XLSX':25}
           assert after['PCA']['retained_PA95'][:3]==[True,True,False]
@@ -81,17 +132,32 @@ jobs:
               assert math.isclose(after['PCA']['eigenvalues'][i],before['PCA']['eigenvalues'][i],rel_tol=0,abs_tol=1e-10),(i,after['PCA']['eigenvalues'][i],before['PCA']['eigenvalues'][i])
           print('N100_REPLAY_SEMANTIC_PASS')
           PY
+
+      - name: Validate exact family separation from selected frozen N100
+        shell: bash
+        run: |
+          set -euo pipefail
+          python federation/w184/check_selected_n100_family_guard.py \
+            --execution-root "$W184_EXEC_ROOT" \
+            --out /tmp/w184f_family_guard.json
+
       - name: Execute exact N200 balance dedupe PCA PA95 checkpoint
-        working-directory: cryoplant
-        run: python scripts/qps_visual_n200_checkpoint.py --repo-root . --output-dir w184_out | tee /tmp/w184_n200_stdout.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          python "$W184_EXEC_ROOT/scripts/qps_visual_n200_checkpoint.py" \
+            --repo-root "$W184_EXEC_ROOT" \
+            --output-dir "$RUNNER_TEMP/w184_out" \
+            | tee /tmp/w184_n200_stdout.json
+
       - name: Verify N200 receipt and recursive PC3 guard
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json
+          import json, os
           from pathlib import Path
-          p=Path('cryoplant/w184_out/QPS_VISUAL_PCA_N200_GENERATION_RECEIPT.json')
+          p=Path(os.environ['RUNNER_TEMP'])/'w184_out/QPS_VISUAL_PCA_N200_GENERATION_RECEIPT.json'
           r=json.loads(p.read_text())
           assert r['status']=='PASS_EXACT_BALANCE_DEDUPE_AND_N200_STATISTICS'
           assert r['artifact_N']==200
@@ -99,41 +165,104 @@ jobs:
           d=r['dedupe']
           for k in ['post_source_hash_duplicates','post_render_hash_duplicates','post_artifact_key_duplicates','post_exact_family_key_duplicates','post_source_collision_with_frozen_N100','post_render_collision_with_frozen_N100','post_artifact_key_collision_with_frozen_N100']:
               assert d[k]==0,(k,d[k])
+          family_guard=json.loads(Path('/tmp/w184f_family_guard.json').read_text())
+          assert family_guard['cross_selected_n100_family_collision_count']==0
           assert r['PC3']['state'] in {'MONITOR_NOT_RETAINED','CANDIDATE_EVIDENCE_ONLY_NOT_CONTROL_OR_RETAINED_UNDER_RECURSIVE_POLICY'}
           assert r['authority']['project_global_PCA']=='WITHHELD'
           assert r['authority']['true_Bradley_Terry_fit']=='NOT_PERFORMED'
           assert all(v==0 for v in r['formal_credit_delta'].values())
-          print(json.dumps({'status':r['status'],'KMO':r['adequacy']['KMO'],'PC3':r['PC3'],'convergence':r['convergence_to_N100']},sort_keys=True))
+          print(json.dumps({'status':r['status'],'KMO':r['adequacy']['KMO'],'PC3':r['PC3'],'convergence':r['convergence_to_N100'],'family_guard':family_guard},sort_keys=True))
           PY
-      - name: Bind carrier runtime receipt
+
+      - name: Bind carrier runtime receipt to mirror run job runner and outputs
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           python - <<'PY'
-          import hashlib,json
+          import hashlib
+          import json
+          import os
+          import subprocess
+          import urllib.request
           from pathlib import Path
-          root=Path('cryoplant/w184_out')
+
+          root=Path(os.environ['RUNNER_TEMP'])/'w184_out'
           n200=json.loads((root/'QPS_VISUAL_PCA_N200_GENERATION_RECEIPT.json').read_text())
+          family=json.loads(Path('/tmp/w184f_family_guard.json').read_text())
+          mirror=json.loads(Path('/tmp/w184f_payload_mirror_receipt.json').read_text())
           files={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.iterdir()) if p.is_file()}
+
+          repo=os.environ['GITHUB_REPOSITORY']
+          run_id=int(os.environ['GITHUB_RUN_ID'])
+          url=f'https://api.github.com/repos/{repo}/actions/runs/{run_id}/jobs?per_page=100'
+          req=urllib.request.Request(url, headers={
+              'Authorization': f"Bearer {os.environ['GITHUB_TOKEN']}",
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+          })
+          with urllib.request.urlopen(req, timeout=30) as response:
+              jobs=json.load(response).get('jobs', [])
+          matches=[job for job in jobs if job.get('name')=='n200_checkpoint']
+          if len(matches)!=1:
+              raise RuntimeError(f'expected exactly one n200_checkpoint job, found {len(matches)}')
+          job=matches[0]
+          runner_id=int(job.get('runner_id') or 0)
+          completed=[step for step in job.get('steps', []) if step.get('status')=='completed']
+          if runner_id==0 or not completed:
+              raise RuntimeError('carrier receipt requires allocated runner and completed steps')
+          actual=subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip()
+          expected=os.environ['EVALUATED_SOURCE_SHA']
+          if actual!=expected:
+              raise RuntimeError(f'carrier exact-head mismatch {actual} != {expected}')
+
           receipt={
-            'schema':'q-engineering-tools-w184f-visual-n200-checkpoint/0.1',
-            'status':'PASS_EXACT_SHA_REAL_RUNNER_N200_CHECKPOINT',
-            'cryoplant_exact_sha':'8fe56e088514660babdd0002055ef99dec939eb6',
+            'schema':'q-engineering-tools-w184f-visual-n200-checkpoint/0.3',
+            'status':'PASS_EXACT_SHA_REAL_RUNNER_SELF_CONTAINED_N200_CHECKPOINT',
+            'payload_mode':'GOVERNED_SELF_CONTAINED_EXACT_HASH_MIRROR',
+            'carrier_evaluated_source_sha':expected,
+            'workflow_run_id':run_id,
+            'workflow_run_attempt':int(os.environ.get('GITHUB_RUN_ATTEMPT','1')),
+            'job_id':int(job['id']),
+            'runner_id':runner_id,
+            'runner_name':job.get('runner_name'),
+            'runner_group_name':job.get('runner_group_name'),
+            'runner_labels':job.get('labels',[]),
+            'completed_step_count_before_receipt':len(completed),
+            'cryoplant_source_repository':'GBOGEB/cryoplant-project',
+            'cryoplant_exact_sha':os.environ['CRYOPLANT_W184_SHA'],
+            'mirror_manifest_git_blob_sha1':mirror['manifest_git_blob_sha1'],
+            'mirror_manifest_sha256':mirror['manifest_sha256'],
+            'mirror_aggregate_payload_sha256':mirror['aggregate_payload_sha256'],
+            'mirror_verification_receipt_sha256':mirror['receipt_sha256'],
+            'mirror_verified_file_count':mirror['verified_file_count'],
+            'mirror_post_n100_verified_rows':mirror['post_n100_verified_rows'],
+            'private_runtime_credential_required':False,
             'n200_status':n200['status'],
             'artifact_N':n200['artifact_N'],
             'format_counts':n200['format_counts'],
+            'cross_selected_n100_family_collision_count':family['cross_selected_n100_family_collision_count'],
             'PC3':n200['PC3'],
             'outputs_sha256':files,
             'repo_local_runner_923_compensated':False,
             'authority_transfer':False,
             'formal_credit_delta':0,
           }
+          canonical=json.dumps(receipt,sort_keys=True,separators=(',',':')).encode()
+          receipt['receipt_sha256']=hashlib.sha256(canonical).hexdigest()
           (root/'Q_ENGINEERING_TOOLS_W184F_CARRIER_RECEIPT.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
           print(json.dumps(receipt,sort_keys=True))
           PY
-      - name: Upload exact N200 checkpoint outputs
-        uses: actions/upload-artifact@v4
+
+      - name: Upload exact mirrored N200 checkpoint outputs
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: w184f-visual-n200-checkpoint
-          path: cryoplant/w184_out/
+          path: |
+            ${{ runner.temp }}/w184_out/
+            /tmp/w184f_payload_mirror_receipt.json
+            /tmp/w184f_family_guard.json
+            /tmp/n100_replay_stdout.json
+            /tmp/w184_n200_stdout.json
           if-no-files-found: error

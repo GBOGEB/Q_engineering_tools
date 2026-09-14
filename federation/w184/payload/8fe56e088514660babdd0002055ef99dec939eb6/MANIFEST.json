@@ -1,0 +1,37 @@
+{
+  "schema_version": "qtools-w184-exact-payload-mirror/0.1.0",
+  "source_repository": "GBOGEB/cryoplant-project",
+  "source_commit_sha": "8fe56e088514660babdd0002055ef99dec939eb6",
+  "authority": "DERIVED_REPRODUCIBILITY_MIRROR_ONLY",
+  "publication_scope": "MINIMAL_W184_EXECUTION_PAYLOAD",
+  "payload_mode": "GOVERNED_SELF_CONTAINED_EXACT_HASH_MIRROR",
+  "repo_local_runner_923_compensated": false,
+  "authority_transfer": false,
+  "formal_credit_delta": 0,
+  "private_runtime_credential_required": false,
+  "immutability_rule": "Any payload content change requires a new source commit SHA namespace and a new manifest; in-place mutation fails verification.",
+  "post_n100_contract": {
+    "expected_total_rows": 100,
+    "expected_per_format": {"HTML": 25, "PDF": 25, "PPTX": 25, "XLSX": 25}
+  },
+  "files": [
+    {"path": "scripts/qps_visual_n200_checkpoint.py", "source_git_blob_sha1": "82981222ee4441537f96f9471f16b913cf545c2b", "role": "N200_PRODUCER"},
+    {"path": "ocd-adr/40_implementation/qps_visual_pca_generate_all.py", "source_git_blob_sha1": "287cc7dd8a73dba10e1dc015fed34dbc72399be2", "role": "N100_REPLAY_PRODUCER"},
+    {"path": "ocd-adr/40_implementation/QPS_VISUAL_REPLACEMENT_ASSET_REGISTRY_v0.2.yaml", "source_git_blob_sha1": "653a013b63512ce449b728dcf964a54adc49f62a", "role": "N100_REPLACEMENT_REGISTRY"},
+    {"path": "ocd-adr/40_implementation/QPS_VISUAL_PCA_N100_GENERATION_RECEIPT.json", "source_git_blob_sha1": "98249f0ae574d2d97292dc415d421bfc7a128202", "role": "FROZEN_N100_RECEIPT"},
+    {"path": "ocd-adr/40_implementation/QPS_VISUAL_CENSUS_RAW_PROVENANCE_N112_HTML.csv", "source_git_blob_sha1": "ce2c8cf40e549bb4ae5b3beadeafd92f8fcef8dd", "role": "FROZEN_N100_RAW_SHARD"},
+    {"path": "ocd-adr/40_implementation/QPS_VISUAL_CENSUS_RAW_PROVENANCE_N112_PDF.csv", "source_git_blob_sha1": "32f064a333d28bdd3e689095c279de3e0d9e3c9d", "role": "FROZEN_N100_RAW_SHARD"},
+    {"path": "ocd-adr/40_implementation/QPS_VISUAL_CENSUS_RAW_PROVENANCE_N112_PPTX.csv", "source_git_blob_sha1": "daaa62043e716c4cecb55eb3043a28baf1e3ab58", "role": "FROZEN_N100_RAW_SHARD"},
+    {"path": "ocd-adr/40_implementation/QPS_VISUAL_CENSUS_RAW_PROVENANCE_N112_XLSX.csv", "source_git_blob_sha1": "114091f75fd711ba79593b4fe887d4fdee277edc", "role": "FROZEN_N100_RAW_SHARD"},
+    {"path": "ocd-adr/40_implementation/QPS_VISUAL_N104_PILOT_PROVENANCE.csv", "source_git_blob_sha1": "92e4b8d04dbf125252fdec26f940170d2a8d1e91", "role": "POST_N100_ACCEPTED_COHORT", "expected_rows": 4},
+    {"path": "ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W169_PROVENANCE.csv", "source_git_blob_sha1": "300853471e813ffd0d0cc31f57cc2532003afb98", "role": "POST_N100_ACCEPTED_COHORT", "expected_rows": 8},
+    {"path": "ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W170_PROVENANCE.csv", "source_git_blob_sha1": "f7c8c63e0362837f18769e1a64e877cb20581332", "role": "POST_N100_ACCEPTED_COHORT", "expected_rows": 8},
+    {"path": "ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W173_AUTH_RECONCILED.csv", "source_git_blob_sha1": "783bf2db2c7fa49264493e45ceecc2762dcc0030", "role": "POST_N100_ACCEPTED_COHORT", "expected_rows": 27},
+    {"path": "ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W174_PROVENANCE.csv", "source_git_blob_sha1": "8aa7f7735b84fef08fab3ef068ace108b02eeedf", "role": "POST_N100_ACCEPTED_COHORT", "expected_rows": 9},
+    {"path": "ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W176_PPTX_AUTH_RECONCILED.csv", "source_git_blob_sha1": "903ad5bc350c04ab85399e9f6886eae4487f2c2a", "role": "POST_N100_ACCEPTED_COHORT", "expected_rows": 16},
+    {"path": "ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W176_XLSX_AUTH_RECONCILED.csv", "source_git_blob_sha1": "b05dcaca70a514d550228e1b7ad16dd54ce7de06", "role": "POST_N100_ACCEPTED_COHORT", "expected_rows": 17},
+    {"path": "ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W176_HTML_AUTH_RECONCILED.csv", "source_git_blob_sha1": "98dc1f68c35c42d49a7a99375495fb13f6fdf774", "role": "POST_N100_ACCEPTED_COHORT", "expected_rows": 11},
+    {"path": "triage/w184/QPS_W184_VISUAL_N200_W173_ADMISSION_MIRROR_v0.1.yaml", "source_git_blob_sha1": "9a0d91e281700b124e98db1623419111edbb05f2", "role": "CONTROL_PROVENANCE"},
+    {"path": "triage/w184/QPS_W184_VISUAL_N200_CHECKPOINT_v0.1.yaml", "source_git_blob_sha1": "269de410e7755a4adbc94dee61bbb22deca18a21", "role": "CONTROL_PROVENANCE"}
+  ]
+}

@@ -1,29 +1,33 @@
-schema: q-engineering-tools-w184f-visual-n200-checkpoint/0.1
-as_of: '2026-09-14T17:03:00+02:00'
+schema: q-engineering-tools-w184f-visual-n200-checkpoint/0.2
+as_of: '2026-09-14T18:18:00+02:00'
 repo: GBOGEB/Q_engineering_tools
-state: ARMED_WAIT_PR_RUNTIME
-authority: FEDERATED_EXECUTION_CARRIER_ONLY
+state: SELF_CONTAINED_EXACT_HASH_MIRROR_ARMED_WAIT_RUNTIME
+authority: FEDERATED_REPRODUCIBILITY_EXECUTION_CARRIER_ONLY
 
 source:
   repo: GBOGEB/cryoplant-project
-  branch: w184/visual-n200-checkpoint-20260914
   exact_sha: 8fe56e088514660babdd0002055ef99dec939eb6
-  exact_blobs:
-    scripts/qps_visual_n200_checkpoint.py: 82981222ee4441537f96f9471f16b913cf545c2b
-    ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W173_AUTH_RECONCILED.csv: 783bf2db2c7fa49264493e45ceecc2762dcc0030
-    triage/w184/QPS_W184_VISUAL_N200_W173_ADMISSION_MIRROR_v0.1.yaml: 9a0d91e281700b124e98db1623419111edbb05f2
-    triage/w184/QPS_W184_VISUAL_N200_CHECKPOINT_v0.1.yaml: 269de410e7755a4adbc94dee61bbb22deca18a21
+  payload_mode: GOVERNED_SELF_CONTAINED_EXACT_HASH_MIRROR
+  mirror_root: federation/w184/payload/8fe56e088514660babdd0002055ef99dec939eb6
+  manifest: federation/w184/payload/8fe56e088514660babdd0002055ef99dec939eb6/MANIFEST.json
+  manifest_git_blob_sha1: 45c001cee27d8d0c86307a0db693ae5f51b00eac
+  mirrored_source_file_count: 18
+  private_runtime_credential_required: false
 
 workflow:
   path: .github/workflows/w184f-visual-n200-checkpoint.yml
   required:
     - carrier_exact_head
-    - cryoplant_exact_sha
-    - four_W184_git_blobs_exact
+    - mirror_manifest_blob_exact
+    - all_18_source_git_blobs_exact
+    - mirror_payload_closure_no_missing_or_extra_files
+    - post_N100_accepted_rows_exactly_100
     - runner_id_nonzero
     - executed_steps_gt_zero
+    - pinned_statistical_runtime
     - frozen_N100_replay_semantic_pass
     - exact_balance_50_per_format
+    - cross_selected_N100_family_dedupe_pass
     - global_source_render_artifact_exact_family_dedupe_pass
     - N200_KMO_MSA_Bartlett_PCA_PA95_pass
     - PC3_recursive_guard_pass
@@ -37,6 +41,8 @@ expected_files:
   - QPS_VISUAL_PCA_N100_N200_CONVERGENCE.csv
   - QPS_VISUAL_PCA_N200_GENERATION_RECEIPT.json
   - Q_ENGINEERING_TOOLS_W184F_CARRIER_RECEIPT.json
+  - w184f_payload_mirror_receipt.json
+  - w184f_family_guard.json
 
 boundary:
   repo_local_runner_923_compensated: false
