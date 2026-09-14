@@ -1,0 +1,67 @@
+schema: qps-w184-visual-n200-w173-admission-mirror/0.1
+as_of: '2026-09-14T17:03:00+02:00'
+repo: GBOGEB/cryoplant-project
+authority: DERIVED_REPRODUCIBILITY_MIRROR_ONLY
+state: PASS_27_ADMITTED_ROWS_MIRRORED_ZERO_NEW_CREDIT
+
+parent:
+  branch_base_main_sha: 24ac12bc812192d6a93f1a56499c68e05022cffe
+  W173_measurement_receipt: triage/w173/QPS_W173_VBD_N200_03_RECEIPT_v0.1.json
+  W175_authority_reconciliation: triage/w175/QPS_W175_VISUAL_AUTHORITY_RECONCILIATION_v0.1.yaml
+
+external_original:
+  library_path: /QPS/W173/QPS_W173_VISUAL_QUALIFIED_TRANCHE_v0.1.csv
+  library_file_id: libfile_f56995b9e8b481918ab13a4da4de3d3c
+  source_locator: chatgpt-library://file_00000000e678821088c23c088dfb054a
+  sha256: 522e20b255f8300df4e3686e4861634c341ebfb5399e5f80fb8dad36ea52eea8
+  measured_rows: 29
+  measured_per_format: {HTML: 7, PDF: 22}
+
+W175_admission:
+  admitted_rows: 27
+  admitted_per_format: {HTML: 7, PDF: 20}
+  excluded_reviewed_reserve_zero_current_N200_credit:
+    - W173-N200-PDF-PEND-22
+    - W173-N200-PDF-PEND-23
+  reason: PDF_STARTS_AT_30_AFTER_W169_RESTORE_AND_MUST_STOP_AT_EXACTLY_50
+  evidence_mutation: NONE
+
+mirror:
+  path: ocd-adr/40_implementation/QPS_VISUAL_N200_COLLECTION_W173_AUTH_RECONCILED.csv
+  rows: 27
+  per_format: {HTML: 7, PDF: 20}
+  columns:
+    - observation_id
+    - artifact_id
+    - artifact_format
+    - source_hash
+    - render_hash
+    - family_key
+    - typographic_hierarchy
+    - whitespace_grid
+    - figure_quality
+    - table_readability
+    - colour_discipline
+    - diagram_consistency
+    - branding_restraint
+    - captions_citations
+    - metadata_versioning
+    - export_print_fidelity
+    - information_density
+    - executive_legibility
+  rule: >-
+    This file is a deterministic admitted-subset mirror used only to make the post-merge N200 statistical checkpoint reproducible from the repository checkout. It does not replace the original W173 measurement evidence or W175 admission authority.
+
+credit:
+  new_visual_observations: 0
+  engineering: 0
+  compliance: 0
+  negotiation: 0
+  acceptance: 0
+  release: 0
+  project_global_PCA: 0
+guards:
+  - original_29_row_W173_measurement_remains_authoritative_evidence
+  - W175_27_row_admission_decision_remains_authoritative
+  - excluded_reserves_must_not_enter_N200_without_new_governed_disposition
+  - mirror_must_not_be_presented_as_new_measurement
