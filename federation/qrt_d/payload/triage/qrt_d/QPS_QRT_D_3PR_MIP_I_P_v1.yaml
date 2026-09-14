@@ -1,0 +1,91 @@
+schema: qps-qrt-d-3pr-mip-ip/v1
+as_of: '2026-09-14T11:10:00+02:00'
+repo: GBOGEB/cryoplant-project
+lane: QRT-D
+status: CANDIDATE_CONTROL_WAIT_EXACT_RUNTIME
+
+three_pulse_refresh:
+  method: 3PR-QRT-D-02
+  refresh:
+    merged_control_pr: 1125
+    merged_control_commit: 7a5bffb9ec753f2241d48f2fa8dc26517d72033c
+    result: CONTROL_PROFILE_BOUND
+  reconcile:
+    numerical_ssot: QPS_COST_Master.xlsx
+    cost_identity_state: WAIT_GOVERNED_LOCAL_RELEASE_RETURN
+    outward_repo_side_generation: PASS_EXISTING_EVIDENCE
+    outward_local_acceptance: WITHHELD
+    qps_repo_local_runner_923: RED_NON_COMPENSATING
+    source_value_gates: [974, 981]
+  reentry:
+    first_red: G6_ARTIFACT_IDENTITY_01
+    required_external_return:
+      - RELEASE_RECEIPT.json
+      - QPS_G6_RELEASE_IDENTITY_RETURN.json
+    after_return: W160_IDENTITY_THEN_G6_PARITY_THEN_DISTINCT_REPEAT
+  disposition: PASS_DIAGNOSTIC_REFRESH_ZERO_CREDIT
+
+mip:
+  modernize:
+    state: PASS_MERGED_PR_1125
+    output: controls/QPS_QRT_D_CANONICAL_PACK_PROFILE_v1.yaml
+    result: >-
+      Canonical output boundaries, source-withheld semantics, product roles and existing release
+      controls are explicit without adding a second SSOT or release collector.
+  innovate:
+    state: CANDIDATE_WAIT_EXACT_RUNTIME
+    output: controls/QPS_QRT_D_READINESS_VECTOR_v1.yaml
+    validator: scripts/qps_validate_qrt_d_readiness.py
+    tests: tests/test_qps_qrt_d_readiness.py
+    innovation: >-
+      Six-axis per-product readiness is now explicit across source identity, authority boundary,
+      lineage hash, semantic parity, render acceptance and publication receipt. The vector remains
+      diagnostic only and explicitly rejects premature PCA/BT use.
+  perpetuate:
+    state: PREPARED
+    reusable_contract:
+      - fail_closed_validator
+      - regression_mutation_tests
+      - exact_source_profile_blob_binding
+      - current_first_red_binding
+      - zero_credit_boundary
+      - reentry_predicate_for_G6_return
+    freeze_condition: >-
+      Exact runtime PASS of the candidate vector and tests on a real runner, followed by a bounded
+      child receipt. Perpetuation freezes the mechanism, not the current artifact identity.
+
+three_pc:
+  method: 3PC-QRT-D-02
+  prepare: PASS
+  prove: WAIT_EXACT_RUNTIME
+  commit: BLOCKED_BY_PROVE
+  transaction_scope: DIAGNOSTIC_CONTROL_AND_REENTRY_PREDICATE_ONLY
+  prohibited_commit:
+    - current_v4_2_release_identity
+    - G6_parity_PASS
+    - numeric_COST_release
+    - engineering_acceptance
+    - release_acceptance
+  artifact_transaction_admission: ONLY_AFTER_G6_ARTIFACT_IDENTITY_01_CLOSES
+
+three_p3:
+  method: 3P3-QRT-D-03
+  state: NOT_REQUIRED_YET
+  reason: >-
+    Reusable CODEX/ABACUS release-manifest semantics already exist. Generalisation is only justified
+    after the child diagnostic control has exact runtime proof or when a new consumer demonstrates a
+    real missing propagation edge.
+
+formal_credit_delta:
+  engineering: 0
+  compliance: 0
+  negotiation: 0
+  acceptance: 0
+  release: 0
+  grand_mission: 0
+
+next_bounded_action: >-
+  Execute the exact readiness-vector/profile/validator/test payload on an independent real runner.
+  If PASS, bind that execution as the 3PC Prove receipt and commit only the QRT-D diagnostic control
+  pointer/re-entry predicate. Keep G6 artifact identity, parity and release acceptance withheld until
+  the actual governed local v4.2+ release return arrives.
