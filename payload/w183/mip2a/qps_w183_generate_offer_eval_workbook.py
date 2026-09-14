@@ -147,6 +147,7 @@ def build(doctrine_path: Path, control_path: Path, out: Path) -> dict[str, Any]:
     out.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out)
 
+    # Deterministic structural roundtrip proxy. This is not a claim of native Excel UI proof.
     reloaded = load_workbook(out, data_only=False)
     if reloaded.sheetnames != SHEETS:
         raise AssertionError(f"sheet drift {reloaded.sheetnames}")
