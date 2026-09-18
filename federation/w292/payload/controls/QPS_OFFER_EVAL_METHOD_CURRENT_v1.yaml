@@ -1,8 +1,8 @@
 schema: qps-offer-eval-method-current/2.2
-as_of: '2026-09-18T17:21:00+02:00'
+as_of: '2026-09-18T17:51:00+02:00'
 repo: GBOGEB/cryoplant-project
 mission: M08_OFFER_EVAL_METHOD
-state: CONTROL_MIP1_MIP2_LOCAL_OUTPUT_CONTRACT_PASS_EQUATION_V1_CONTROL_NATIVE_EXCEL_GATE_OPEN
+state: CONTROL_EQUATION_V1_SOURCE_REPAIRED_W296_EXECUTOR_REPROOF_PENDING_NATIVE_EXCEL_BLOCKED_AFTER_2_ATTEMPTS
 authority: SUPPLEMENTARY_REVIEW_METHOD_ONLY
 
 upstream_authorities:
@@ -14,6 +14,10 @@ governing_surfaces:
   doctrine: controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml
   equation_current: controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml
   w288_3pstar_mip_control: triage/w288/QPS_W288_OFFER_EVAL_3PSTAR_MIP_CONTROL_v0.1.yaml
+  w294_state_preservation_repair: triage/w294/QPS_W294_M08_EQUATION_STATE_PRESERVATION_REPAIR_v0.1.yaml
+  w296_risk_state_precedence_repair: triage/w296/QPS_W296_M08_RISK_STATE_PRECEDENCE_REPAIR_v0.1.yaml
+  w295_pairwise_completion_repair: triage/w295/QPS_W295_M08_PAIRWISE_COMPLETION_3PSTAR_MIP_v0.1.yaml
+  w296_post_w295_proof_reentry: triage/w296/QPS_W296_M08_POST_W295_PROOF_REENTRY_v0.1.yaml
   original_wave_control: triage/w176/QPS_W176_3PR_MIP_3PC_3P3_CONTROL_v0.1.yaml
   mip1_child_reentry_receipt: triage/w179/QPS_W179_M08_MIP1_CHILD_REENTRY_RECEIPT_v0.1.yaml
   mip2_seed_control: triage/w180/QPS_W180_M08_MIP2_GENERATION_SEED_v0.1.yaml
@@ -26,7 +30,7 @@ governing_surfaces:
   native_excel_owner_runner: scripts/qps_m08_native_excel_roundtrip.ps1
   native_excel_receipt_validator: scripts/qps_m08_validate_native_excel_receipt.py
   native_excel_owner_reentry_dropin: handover/qps_recursive/QPS_W291_M08_NATIVE_EXCEL_OWNER_REENTRY_v1.md
-  lossless_handover: handover/session/SC_2026-09-18_W287_M08_NATIVE_EXCEL_BLOCKED_3PSTAR_MIP_v1.md
+  lossless_handover: handover/session/SC_2026-09-18_W292_OFFER_EVAL_EQUATION_3PSTAR_MIP_BLOCKED_v1.md
 
 mission_control_alignment:
   mission_control: controls/QPS_MISSION_CONTROL_CURRENT_v1.yaml
@@ -96,15 +100,23 @@ equation_freeze:
   equation_version: OFFER_EVAL_EQ_v1
   control: controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml
   semantic_state: CONTROLLED_RISK_ONCE_STATIC_PRIOR_SEPARATED
-  production_state: WITHHELD_IMPLEMENTATION_PARITY
+  implementation_state: PASS_EXECUTED_EXACT_POST_W295_PARITY
+  production_state: WITHHELD_NATIVE_EXCEL_AND_OUTWARD_BINARY_PARITY
   risk_policy: OPTION_A_SYSTEM_RISK_APPLIED_ONCE_AT_ITEM_LEVEL
   final_system_risk_subtraction: PROHIBITED
   legacy_70_30_blend: RETIRED_FROM_CANONICAL_PRODUCTION_USE
-  known_implementation_gaps:
-    - W183_workbook_Adjusted_A_B_use_RawScore_without_Confidence
-    - explicit_NA_applicability_and_renormalization_not_yet_in_generated_workbook
-    - W183_narrative_does_not_yet_render_equation_v1
-    - PPT_equation_version_binding_requires_outward_artifact_regeneration
+  implemented_local:
+    - W183_workbook_confidence_conditioning
+    - explicit_NA_applicability_and_local_weight_renormalization
+    - noncompensating_gate_state
+    - W183_narrative_visible_equation_family
+    - workbook_and_PPT_control_equation_version_binding
+    - fail_closed_pairwise_and_weighted_delta_completion_totals_W295
+    - deterministic_FAIL_DEFER_MISSING_risk_state_precedence_W296
+    - risk_state_propagates_before_score_completeness_W296
+  remaining_gates:
+    - PPT_outward_binary_equation_v1_regeneration_and_render
+    - native_Excel_clean_roundtrip_in_materially_different_environment
   authority_delta: 0
 
 repo_local_runtime:
@@ -116,18 +128,29 @@ repo_local_runtime:
 open_gates:
   equation_implementation:
     id: OFFER_EVAL_WORD_001_IMPLEMENTATION_PARITY
-    state: WITHHELD
+    state: LOCAL_SOURCE_REPAIRED_W296_EXECUTOR_PROOF_PENDING
+    superseded_executor_candidate: GBOGEB/Q_engineering_tools#68_PRE_W294_DO_NOT_CONSUME
+    repaired_in_W294:
+      - missing_DEFER_FAIL_risk_state_preservation
+      - all_NA_cluster_UNSCORABLE_guard
+    repaired_in_W295:
+      - incomplete_pairwise_total_withheld_until_50_numeric_contributions
+      - incomplete_weighted_delta_total_withheld_until_50_numeric_contributions
+      - cluster_BT_sum_withheld_until_all_cluster_contributions_numeric
+    repaired_in_W296:
+      - risk_text_state_precedence_FAIL_then_DEFER_then_MISSING
+      - explicit_risk_state_propagates_before_score_completeness
     required:
-      - workbook_confidence_conditioning_matches_equation_v1
-      - explicit_NA_applicability_and_renormalization
-      - narrative_visible_equation_family
-      - PPT_equation_version_binding
-      - cross_artifact_equation_parity
+      - independent_exact_payload_equation_v1_parity_receipt_post_W296
+      - PPT_outward_binary_regeneration_and_render
   native_excel:
     id: MIP2D_NATIVE_EXCEL_CLEAN_ROUNDTRIP
-    state: WITHHELD_REQUIRES_NATIVE_MICROSOFT_EXCEL_RUNTIME
+    state: BLOCKED_EXTERNAL_NATIVE_EXCEL_RUNTIME_AFTER_2_ATTEMPTS
     executor: GBOGEB/Q_engineering_tools#59
-    attempts: [windows-2022, windows-2025]
+    retry_budget_github_hosted_windows: EXHAUSTED_2_OF_2
+    attempt_1: {image: windows-2022, status: BLOCKED_NATIVE_EXCEL_COM_UNAVAILABLE, receipt_sha256: b0ac9eed8629ff6cc2787f4ed97e9874ea584d4712829b8425456e5f079ee21a}
+    attempt_2: {image: windows-2025, status: BLOCKED_NATIVE_EXCEL_COM_UNAVAILABLE, receipt_sha256: 6ceb6b494f52333abb75bfe6da2f91093e7469a304d3c1be9e3baa95b7596195}
+    common_blocker: REGDB_E_CLASSNOTREG_0x80040154
     required:
       - governed_input_xlsx_sha256
       - native_Excel_version_environment
@@ -140,11 +163,10 @@ open_gates:
 
 next:
   immediate_single_action: >-
-    The bounded two-attempt hosted receipt is consumed and blocked externally. On a materially different Windows host
-    with installed Microsoft Excel, generate the governed MIP2A workbook, run scripts/qps_m08_native_excel_roundtrip.ps1
-    visibly with explicit no-repair-dialog operator confirmation, then validate the return with
-    scripts/qps_m08_validate_native_excel_receipt.py. In parallel, repair only the equation-v1 implementation gaps
-    identified by W288. Do not repeat hosted native-Excel attempts or already-green MIP2 proof without new evidence.
+    W295/W296 equation implementation parity is PASS on exact independent execution. Continue only with the remaining
+    non-compensating gates: materialize the exact controlled PPT method/evaluation binaries and execute equation-v1
+    regeneration/render proof; separately consume a W291 native-Excel receipt only from a materially different Windows
+    host with installed, licensed, COM-registered Microsoft Excel. Do not repeat hosted native-Excel attempts.
   after_native_excel_pass: >-
     Only after native Excel PASS AND equation-v1 cross-artifact implementation parity PASS, run exactly one
     MIP3/3P3 propagation: CODEX semantic/controller receiver -> ABACUS independent consumer ->

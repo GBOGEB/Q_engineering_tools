@@ -57,6 +57,13 @@ def validate(root: Path) -> dict[str, Any]:
     require("INPUT_AB!B{r}*INPUT_AB!C{r}" in generator, "confidence conditioning not implemented")
     require("J{r}*N{r}*(1-E{r})" in generator, "risk-adjusted conditioned score not implemented")
     require("SUMIFS" in generator and "LocalWeight_A_Renorm" in generator, "N/A renormalization not implemented")
+    require("COUNT(INPUT_AB!D{r}:F{r})<3" in generator and 'COUNTIF(INPUT_AB!D{r}:F{r},"FAIL")>0' in generator and 'COUNTIF(INPUT_AB!D{r}:F{r},"DEFER")>0' in generator, "deterministic FAIL>DEFER>MISSING risk precedence not implemented")
+    require('IF(NOT(ISNUMBER(E{r})),E{r},IF(N{r}=""' in generator, "adjusted score must propagate risk state before score completeness")
+    require('L{i}=0,"UNSCORABLE"' in generator and 'COUNT({a_terms})<L{i}' in generator, "all-N/A or incomplete cluster guard missing")
+    require('"missing_defer_fail_preserved": True' in generator, "missing/DEFER/FAIL receipt guard missing")
+    require('"all_NA_cluster_unscorable": True' in generator, "all-N/A unscorable receipt guard missing")
+    require('COUNT(CALC_AB!D2:D51)<50' in generator and 'COUNTA(CALC_AB!D2:D51)' not in generator, "pairwise aggregate completion guard missing")
+    require('COUNT(CALC_AB!I2:I51)<50' in generator and 'COUNTA(CALC_AB!I2:I51)' not in generator, "diagnostic aggregate completion guard missing")
     require("OFFER_EVAL_EQ_v1" in narrative, "narrative equation version not visible")
     # The generator emits the visible sentence from adjacent Python string literals, so
     # searching its source for one contiguous rendered sentence is formatting-sensitive.
@@ -79,6 +86,11 @@ def validate(root: Path) -> dict[str, Any]:
         "bt_separate_from_final_review_score": True,
         "confidence_conditioning_implemented": True,
         "NA_applicability_implemented": True,
+        "missing_defer_fail_preserved": True,
+        "all_NA_cluster_unscorable": True,
+        "incomplete_pairwise_totals_withheld": True,
+        "risk_state_precedence_FAIL_DEFER_MISSING": True,
+        "risk_state_precedes_score_completeness": True,
         "narrative_equation_visibility": True,
         "offer_count": 50,
         "cluster_count": 8,

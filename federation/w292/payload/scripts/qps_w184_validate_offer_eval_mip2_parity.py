@@ -114,17 +114,38 @@ def validate(repo_root: Path, workdir: Path) -> dict[str, Any]:
     adjusted_a = wb["CALC_AB"]["F2"].value or ""
     conditioned_a = wb["CALC_AB"]["J2"].value or ""
     renorm_a = wb["CALC_AB"]["R2"].value or ""
+    row_state_a = wb["CALC_AB"]["V2"].value or ""
+    cluster_score_a = wb["CATEGORY_COMPARE"]["E2"].value or ""
+    final_score_a = wb["DASHBOARD"]["B4"].value or ""
+    pairwise_total = wb["DASHBOARD"]["B3"].value or ""
+    diagnostic_total = wb["DASHBOARD"]["B6"].value or ""
     diagnostic = wb["CALC_AB"]["I2"].value or ""
     if "SIGN(INPUT_AB!B2-INPUT_AB!G2)" not in pairwise_formula:
         raise AssertionError("pairwise sign formula drift")
     if "MIN(CONFIG!$B$2" not in risk_formula:
         raise AssertionError("risk cap formula drift")
+    if "COUNT(INPUT_AB!D2:F2)<3" not in risk_formula or 'COUNTIF(INPUT_AB!D2:F2,"FAIL")>0' not in risk_formula or 'COUNTIF(INPUT_AB!D2:F2,"DEFER")>0' not in risk_formula:
+        raise AssertionError("risk state must use deterministic FAIL>DEFER>MISSING precedence")
+    if "COUNTA(INPUT_AB!D2:F2)" in risk_formula:
+        raise AssertionError("COUNTA risk guard can silently coerce DEFER/FAIL to zero")
     if "INPUT_AB!B2*INPUT_AB!C2" not in conditioned_a:
         raise AssertionError("confidence conditioning not implemented")
-    if "J2*N2*(1-E2)" not in adjusted_a:
-        raise AssertionError("equation-v1 adjusted score formula drift")
+    if "J2*N2*(1-E2)" not in adjusted_a or 'IF(NOT(ISNUMBER(E2)),E2,IF(N2=""' not in adjusted_a:
+        raise AssertionError("adjusted score must propagate risk state before score completeness")
+    if "NOT(ISNUMBER(E2))" not in row_state_a:
+        raise AssertionError("row state does not preserve nonnumeric risk state")
+    if 'L2=0,"UNSCORABLE"' not in cluster_score_a or "COUNT(" not in cluster_score_a or "<L2" not in cluster_score_a:
+        raise AssertionError("all-N/A or incomplete applicable cluster is not unscorable")
+    if 'COUNTIF(CATEGORY_COMPARE!L2:L9,0)>0,"UNSCORABLE"' not in final_score_a:
+        raise AssertionError("final review score does not withhold all-N/A cluster")
+    if 'COUNTIF(CALC_AB!V2:V51,"DEFER")>0,"DEFER"' not in final_score_a or 'COUNTIF(CALC_AB!V2:V51,"FAIL")>0,"FAIL"' not in final_score_a:
+        raise AssertionError("final review score does not preserve DEFER/FAIL states")
     if "SUMIFS" not in renorm_a or "P2/" not in renorm_a:
         raise AssertionError("N/A local-weight renormalization missing")
+    if "COUNT(CALC_AB!D2:D51)<50" not in pairwise_total or "COUNTA(CALC_AB!D2:D51)" in pairwise_total:
+        raise AssertionError("pairwise total must remain unset until all 50 contributions are numeric")
+    if "COUNT(CALC_AB!I2:I51)<50" not in diagnostic_total or "COUNTA(CALC_AB!I2:I51)" in diagnostic_total:
+        raise AssertionError("diagnostic total must remain unset until all 50 contributions are numeric")
     if "SUM($B$2:$B$51)" not in diagnostic:
         raise AssertionError("diagnostic must use normalized static weight share")
     if receipt_a["risk_application_count"] != 1 or receipt_a["final_system_risk_subtraction"] is not False:
@@ -187,6 +208,11 @@ def validate(repo_root: Path, workdir: Path) -> dict[str, Any]:
         "pairwise_and_risk_separate": True,
         "confidence_conditioning_parity": True,
         "NA_applicability_parity": True,
+        "missing_defer_fail_preserved": True,
+        "all_NA_cluster_unscorable": True,
+        "incomplete_pairwise_totals_withheld": True,
+        "risk_state_precedence_FAIL_DEFER_MISSING": True,
+        "risk_state_precedes_score_completeness": True,
         "risk_application_count": 1,
         "final_system_risk_subtraction": False,
         "source_gaps_not_invented": True,
