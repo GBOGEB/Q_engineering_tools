@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 env:
-  CRYOPLANT_SOURCE_HEAD: ebe6db02bd195f93af56ef183171cd29d7e86f50
+  CRYOPLANT_SOURCE_HEAD: 0e4a947b453b6f0fcb24024943da5c0fccf4583f
 
 jobs:
   equation_v1_parity:
@@ -41,7 +41,7 @@ jobs:
             ["payload/w292/scripts/qps_w183_generate_offer_eval_narrative.py"]="2d92d5335abe905d7276b3b105496c3d72e3fdc1"
             ["payload/w292/scripts/qps_w183_generate_offer_eval_onepagers.py"]="0872ac02e89d36ca283f38e6e63dbb17469f7441"
             ["payload/w292/scripts/qps_w184_validate_offer_eval_mip2_parity.py"]="dd724b242acd425abdf7999772dc0342161fa2c7"
-            ["payload/w292/scripts/qps_w288_validate_offer_eval_equation_control.py"]="98048962cedc85b938f143b419e8a5440609614d"
+            ["payload/w292/scripts/qps_w288_validate_offer_eval_equation_control.py"]="52c3d4973a726e5efb2c713814305d99f438d000"
           )
           for p in "${!expected[@]}"; do
             test "$(git hash-object "$p")" = "${expected[$p]}"
