@@ -1,0 +1,187 @@
+schema: qps-offer-eval-workbook-delta/1.1.0
+as_of: '2026-09-18T17:20:00+02:00'
+status: SUPPLEMENTARY_FAIL_CLOSED
+repo: GBOGEB/cryoplant-project
+purpose: >-
+  Bind the current user-reviewed OFFER workbook implementation delta into native QPS TRIAGE
+  without changing contractual authority, the frozen OFFER-01..50 population, W80/W152 runtime,
+  bidder disposition, or formal procurement scoring.
+
+authority_boundary:
+  native_qps_authority: GBOGEB/cryoplant-project
+  method_overlay: triage/QPS_OFFER_EVAL_METHOD_ALIGNMENT_2026-09-14_v1.md
+  handover_overlay: handover/qps_recursive/QPS_OFFER_EVAL_METHOD_HANDOVER_2026-09-14_v1.yaml
+  canonical_equation_control: controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml
+  canonical_equation_version: OFFER_EVAL_EQ_v1
+  current_triage_view: docs/offer_eval/QPS_OFFER_EVAL_TRIAGE_CANONICAL_v1_0.html
+  classification: SUPPLEMENTARY_NOT_COMPETING
+  formal_credit_delta: 0
+
+source_context:
+  workbook_name: OFFER_ANALYSIS_v7_FINAL_BOARD_PATCHED_v3_Usser.xlsx
+  review_basis:
+    - user_screenshots
+    - excel_recovery_log_text
+    - canonical_word_method
+    - canonical_method_deck
+  binary_roundtrip_verified_here: false
+  binary_roundtrip_state: PENDING_USER_V4_OR_RUNTIME_MOUNT
+  recovery_log_observed: 'Repaired Records: Table from /xl/tables/table1.xml part (Table)'
+
+workbook_serialization_gate:
+  state: BLOCKED_PENDING_CLEAN_ROUNDTRIP
+  defect_class: EXCEL_TABLE_DEFINITION_RANGE_OR_HEADER_INTEGRITY
+  affected_area: STATIC_BT chart/helper region
+  likely_trigger: >-
+    helper-column split or range mutation occurred while an Excel Table definition still referenced
+    the old range/header structure.
+  required_controls:
+    - keep canonical BT_Weight as one authoritative field
+    - keep chart-only Top3_Value Base_Value and Label outside the scoring authority
+    - prefer plain helper range or a separately reconstructed non-overlapping valid Excel Table
+    - require unique nonblank table headers
+    - require chart series to reference the post-change helper ranges explicitly
+  pass_condition: SAVE_CLOSE_REOPEN_WITHOUT_EXCEL_REPAIR_OR_TABLE1_XML_RECOVERY_LOG
+  compliance_credit_if_red: 0
+
+risk_implementation:
+  observed_config:
+    parameter: Max_risk_factor
+    cell: CONFIG!$B$6
+    value: 0.4
+  bidder_A:
+    RawRisk: BaseRisk + BidderRisk_A + SystemRisk_A
+    TotalRisk: MIN(Max_risk_factor, RawRisk_A)
+  bidder_B:
+    RawRisk: BaseRisk + BidderRisk_B + SystemRisk_B
+    TotalRisk: MIN(Max_risk_factor, RawRisk_B)
+  adjusted_score: BaseScore * (1 - TotalRisk)
+  selected_policy: OPTION_A_SYSTEM_RISK_APPLIED_ONCE_AT_ITEM_LEVEL
+  final_system_risk_subtraction:
+    state: PROHIBITED_CANONICAL_EQUATION_V1
+    reason: >-
+      OFFER_EVAL_EQ_v1 applies BaseRisk + BidderRisk + SystemRisk once through TotalRisk at item level. A later system-risk subtraction would double-count the same allocated system risk.
+  invariant: SYSTEM_RISK_NE_DOUBLE_COUNTED
+
+weighting_alignment:
+  canonical_field: BT_Weight
+  canonical_field_role: STATIC_REQUIREMENT_IMPORTANCE_PRIOR
+  chart_helper_fields:
+    Top3_Value: DISPLAY_ONLY
+    Base_Value: DISPLAY_ONLY
+    Label: DISPLAY_ONLY
+  normalization:
+    additive_share_formula: W_norm_i = W_i / SUM(W_i)
+    purpose: NORMALIZED_WEIGHT_SHARE_OR_DIAGNOSTIC
+    min_max_formula: (W_i - MIN(W)) / (MAX(W) - MIN(W))
+    min_max_role: DISPLAY_SCALING_ONLY_NOT_ADDITIVE_WEIGHT_SHARE
+    production_score_replacement_authorized: false
+    reason: >-
+      The locked method currently uses fixed criterion weights. W_norm may be exposed for audit,
+      comparison, or an explicitly approved normalized implementation, but must not silently replace
+      the governing production score path.
+  invariant: CHART_HELPERS_NE_SCORING_AUTHORITY
+
+pairwise_alignment:
+  governing_locked_expression: 'BT(A,B) = SUM(w_i * S_i(A,B))'
+  governing_S_domain: [-1, 0, 1]
+  interpretation:
+    1: Applicant_A_better
+    0: equivalent
+    -1: Applicant_B_better
+  weighted_adjusted_delta_candidate:
+    expression: W_norm_i * (Adjusted_A - Adjusted_B)
+    status: DIAGNOSTIC_ONLY
+    canonical_name: WeightedDelta_i
+    must_not_be_called: Bradley_Terry_score
+    production_replacement_authorized: false
+  invariant: BT_RANK_NE_WEIGHTED_SCORE_DELTA
+
+chart_alignment:
+  category_axis: OFFER
+  value_authority: BT_Weight
+  recommended_label_formula: 'OFFER & " | " & TEXT(BT_Weight,"0")'
+  top3_series: Top3_Value
+  base_series: Base_Value
+  data_label_rule: VALUE_FROM_CELLS_OR_OFFER_PLUS_BT_WEIGHT
+  helper_semantics: VISUAL_ONLY
+
+equation_v1_binding:
+  state: CONTROL_SEMANTICS_FROZEN_IMPLEMENTATION_PARITY_OPEN
+  conditioned_evaluator: 'E_i_b = q_i_b * C_i_b'
+  adjusted_item: 'X_i_b = E_i_b * G_i_b * (1 - R_i_b)'
+  canonical_final_review: 'FinalReviewScore_b = SUM_c(alpha_c * ClusterScore_c_b)'
+  pairwise_separate: true
+  legacy_70_30_blend_canonical: false
+  current_generator_implementation:
+    confidence_in_adjusted_score: IMPLEMENTED_LOCAL_SOURCE
+    explicit_NA_applicability: IMPLEMENTED_LOCAL_SOURCE
+    local_weight_renormalization: IMPLEMENTED_LOCAL_SOURCE
+    noncompensating_gate_state: IMPLEMENTED_LOCAL_SOURCE
+    executor_parity: PENDING_INDEPENDENT_RECEIPT
+    native_excel: BLOCKED_EXTERNAL_RUNTIME_AFTER_2_ATTEMPTS
+
+cross_artifact_conflicts:
+  - id: XART-01
+    severity: HIGH
+    subject: system_risk_application
+    workbook_candidate: item_level_system_risk_once
+    canonical_word_risk: potential_item_level_plus_final_subtraction
+    resolution: RESOLVED_SEMANTICALLY_BY_OFFER_EVAL_EQ_v1_NO_SECOND_SYSTEM_RISK_SUBTRACTION
+  - id: XART-02
+    severity: MEDIUM
+    subject: normalization_language
+    workbook_candidate: raw_BT_weight_plus_optional_sum_normalized_share
+    canonical_word_language: normalized_weighting_wording
+    resolution: DECLARE_RAW_WEIGHT_AND_NORMALIZED_SHARE_ROLES_EXPLICITLY
+  - id: XART-03
+    severity: HIGH
+    subject: pairwise_semantics
+    locked_method: sign_based_fixed_weight_pairwise
+    prior_chat_suggestion: weighted_adjusted_score_difference
+    resolution: KEEP_LOCKED_BT_AND_RECLASSIFY_WEIGHTED_DELTA_AS_DIAGNOSTIC
+  - id: XART-04
+    severity: HIGH
+    subject: xlsx_roundtrip_integrity
+    state: TABLE1_XML_REPAIR_OBSERVED
+    resolution: CLEAN_ROUNDTRIP_RECEIPT_REQUIRED
+
+qps_triage_mapping:
+  STATIC_IMPORTANCE:
+    use: BT_Weight
+    tier_and_review_pressure_only: true
+  BIDDER_EXTRACTION:
+    keep_source_bound_and_bidder_isolated: true
+  BIDDER_COMPARISON:
+    governing_pairwise: sign_based_fixed_weight
+    optional_diagnostic: WeightedDelta_i
+  EVIDENCE_VV:
+    missing_ne_zero: true
+    defer_ne_zero: true
+    bidder_evidence_presence_ne_acceptance: true
+  REVIEW_SURFACE:
+    expose_workbook_roundtrip_gate: true
+    expose_cross_artifact_conflicts: true
+
+non_compensating_invariants:
+  - GATE_FAIL_NE_COMPENSABLE_BY_HIGH_SCORE
+  - BT_RANK_NE_FORMAL_SCORE
+  - BT_RANK_NE_WEIGHTED_SCORE_DELTA
+  - SYSTEM_RISK_NE_DOUBLE_COUNTED
+  - UNKNOWN_OR_DEFER_NE_ZERO
+  - N_A_NE_ZERO
+  - NO_CROSS_BIDDER_SUBSTITUTION
+  - ANALYTICAL_WEIGHT_NE_CONTRACT_AUTHORITY
+  - WORKBOOK_SERIALIZATION_FAIL_NE_ENGINEERING_CREDIT
+
+DoD:
+  clean_xlsx_roundtrip: REQUIRED
+  table1_xml_repair_absent: REQUIRED
+  canonical_BT_Weight_single_authority: REQUIRED
+  chart_helpers_display_only: REQUIRED
+  risk_cap_config_bound: REQUIRED
+  system_risk_applied_once: REQUIRED
+  canonical_word_risk_reconciled: CONTROL_SEMANTICS_FROZEN_IMPLEMENTATION_PARITY_REQUIRED_BEFORE_PRODUCTION_PROMOTION
+  governing_pairwise_preserved: REQUIRED
+  weighted_delta_reclassified_diagnostic: REQUIRED
+  native_W80_W152_QTG_authority_preserved: REQUIRED
