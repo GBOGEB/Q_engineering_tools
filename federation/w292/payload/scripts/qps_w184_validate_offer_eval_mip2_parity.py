@@ -114,15 +114,30 @@ def validate(repo_root: Path, workdir: Path) -> dict[str, Any]:
     adjusted_a = wb["CALC_AB"]["F2"].value or ""
     conditioned_a = wb["CALC_AB"]["J2"].value or ""
     renorm_a = wb["CALC_AB"]["R2"].value or ""
+    row_state_a = wb["CALC_AB"]["V2"].value or ""
+    cluster_score_a = wb["CATEGORY_COMPARE"]["E2"].value or ""
+    final_score_a = wb["DASHBOARD"]["B4"].value or ""
     diagnostic = wb["CALC_AB"]["I2"].value or ""
     if "SIGN(INPUT_AB!B2-INPUT_AB!G2)" not in pairwise_formula:
         raise AssertionError("pairwise sign formula drift")
     if "MIN(CONFIG!$B$2" not in risk_formula:
         raise AssertionError("risk cap formula drift")
+    if "COUNT(INPUT_AB!D2:F2)<3" not in risk_formula or "ISTEXT(INPUT_AB!D2)" not in risk_formula:
+        raise AssertionError("nonnumeric risk state is not propagated fail-closed")
+    if "COUNTA(INPUT_AB!D2:F2)" in risk_formula:
+        raise AssertionError("COUNTA risk guard can silently coerce DEFER/FAIL to zero")
     if "INPUT_AB!B2*INPUT_AB!C2" not in conditioned_a:
         raise AssertionError("confidence conditioning not implemented")
-    if "J2*N2*(1-E2)" not in adjusted_a:
-        raise AssertionError("equation-v1 adjusted score formula drift")
+    if "J2*N2*(1-E2)" not in adjusted_a or "NOT(ISNUMBER(E2))" not in adjusted_a:
+        raise AssertionError("equation-v1 adjusted score must withhold nonnumeric risk states")
+    if "NOT(ISNUMBER(E2))" not in row_state_a:
+        raise AssertionError("row state does not preserve nonnumeric risk state")
+    if 'L2=0,"UNSCORABLE"' not in cluster_score_a or "COUNT(" not in cluster_score_a or "<L2" not in cluster_score_a:
+        raise AssertionError("all-N/A or incomplete applicable cluster is not unscorable")
+    if 'COUNTIF(CATEGORY_COMPARE!L2:L9,0)>0,"UNSCORABLE"' not in final_score_a:
+        raise AssertionError("final review score does not withhold all-N/A cluster")
+    if 'COUNTIF(CALC_AB!V2:V51,"DEFER")>0,"DEFER"' not in final_score_a or 'COUNTIF(CALC_AB!V2:V51,"FAIL")>0,"FAIL"' not in final_score_a:
+        raise AssertionError("final review score does not preserve DEFER/FAIL states")
     if "SUMIFS" not in renorm_a or "P2/" not in renorm_a:
         raise AssertionError("N/A local-weight renormalization missing")
     if "SUM($B$2:$B$51)" not in diagnostic:
@@ -187,6 +202,8 @@ def validate(repo_root: Path, workdir: Path) -> dict[str, Any]:
         "pairwise_and_risk_separate": True,
         "confidence_conditioning_parity": True,
         "NA_applicability_parity": True,
+        "missing_defer_fail_preserved": True,
+        "all_NA_cluster_unscorable": True,
         "risk_application_count": 1,
         "final_system_risk_subtraction": False,
         "source_gaps_not_invented": True,
