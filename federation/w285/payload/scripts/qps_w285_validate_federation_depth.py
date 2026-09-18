@@ -35,8 +35,9 @@ def topology_current_use(text: str) -> dict[str, dict[str, list[str]]]:
         stripped = raw.strip()
         indent = len(raw) - len(raw.lstrip(" "))
         if stripped.startswith("function:"):
-            current_function = stripped.split(":", 1)[1].strip()
-            if current_function != "NONE":
+            value = stripped.split(":", 1)[1].strip()
+            current_function = None if value == "NONE" else value
+            if current_function:
                 out.setdefault(current_function, {"current_use": []})
             in_current_use = False
             continue
