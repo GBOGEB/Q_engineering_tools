@@ -1,0 +1,60 @@
+name: W285F2 Exact Current Federation Function Depth Proof
+
+on:
+  pull_request:
+    paths:
+      - federation/w285v2/**
+      - .github/workflows/w285f2-current-depth-exact.yml
+  push:
+    branches: [main]
+    paths:
+      - federation/w285v2/**
+      - .github/workflows/w285f2-current-depth-exact.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  exact-current-w285:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: federation/w285v2/payload
+    steps:
+      - name: Checkout exact consumer head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify eleven exact QPS source blobs
+        shell: bash
+        run: |
+          test "$(git hash-object triage/w285/QPS_W285_FEDERATION_FUNCTION_DEPTH_v0.1.json)" = "691680cdf11289142b402a0ae02c95d46a246473"
+          test "$(git hash-object triage/w285/QPS_W285_3PSTAR_MIP_CONTROL_v0.1.json)" = "868861de8da3221a2a9bd934ac960e7798340110"
+          test "$(git hash-object scripts/qps_w285_validate_federation_depth.py)" = "1ae329f7485cd8bc32dd4253dc2c8bc147410d7b"
+          test "$(git hash-object tests/test_qps_w285_federation_depth.py)" = "19ffae87a17198a2a3725be8035db0ccde9e8433"
+          test "$(git hash-object triage/w283/upstream/QPS_REPO_FUNCTION_TOPOLOGY_v1.yaml)" = "df0ee845697578cd644691b81eafb2465249d772"
+          test "$(git hash-object triage/w283/QPS_W283_FEDERATION_SAMPLE_ROUTING_CROSSWALK_v0.1.json)" = "cb3133ec98adb2cdf096376fe5b00ccc606172d1"
+          test "$(git hash-object triage/w164/QPS_W164_MISSION_FEDERATION_RUNTIME_CONTROL_v0.1.yaml)" = "476c7d80f42b2850555477a837cb645f3675800a"
+          test "$(git hash-object triage/w168/QPS_W168_FEDERATION_EXPANSION_RUNTIME_CONTROL_v0.1.json)" = "daae9de97fa7304cfd60ee84c7eacaf24fb2c5ba"
+          test "$(git hash-object controls/QPS_W170_FEDERATION_SAMPLE3_CURRENT_v1.json)" = "786d057831bb58d60009c21c974e35d477b5a8ee"
+          test "$(git hash-object controls/QPS_W189_FEDERATION_SAMPLE4_CURRENT_v1.json)" = "31fbed31140783b91fa29d04d8ab0d04d369a274"
+          test "$(git hash-object controls/QPS_W280_FEDERATION_SAMPLE5_CURRENT_v0.1.json)" = "ac5983580fcdde44e558537383ca1413fcd2d979"
+      - name: Execute current W285 validator
+        run: python scripts/qps_w285_validate_federation_depth.py | tee w285f2-validation-receipt.json
+      - name: Execute current W285 tests
+        run: python -m pytest -q tests/test_qps_w285_federation_depth.py
+      - name: Upload W285F2 receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: w285f2-${{ github.event.pull_request.head.sha || github.sha }}
+          path: federation/w285v2/payload/w285f2-validation-receipt.json
+      - name: Publish observable W285F2 main repeat
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh issue create --repo "${GITHUB_REPOSITORY}" --title "W285F2 MAIN REPEAT PASS ${GITHUB_RUN_ID}" --body "Exact current QPS W285 11/11 blobs, validator, tests and artifact upload passed on main. run_id=${GITHUB_RUN_ID}; sha=${GITHUB_SHA}; source_qps_pr=1490; source_qps_head=f732bac39d9a92ab296982f08ca17185ec51812f; B=4/12; D=0.6; PEN=0.2; authority_transfer=false; formal_credit_delta=0."

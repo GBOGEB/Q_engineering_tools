@@ -1,0 +1,261 @@
+{
+  "schema": "qps-w285-federation-function-depth/v0.1",
+  "wave": "W285",
+  "state": "CANDIDATE_REPAIRED_WAIT_EXTERNAL_PROOF",
+  "purpose": "Resolve W283_DEPTH_01 by deriving function-internal depth only from exact authoritative current_use atoms for the four already-covered routing functions. Uncovered functions remain breadth-only and create no inferred depth.",
+  "authority": "MISSION_CONTROL_FEDERATION_MEASUREMENT_ONLY",
+  "namespace": {
+    "w284_global": "OCCUPIED_BY_GMI_C_HM01_IN_PIPELINE_AUTOMATION_HUB",
+    "w285": "FEDERATION_FUNCTION_DEPTH"
+  },
+  "source_authority": {
+    "topology": {
+      "repo": "GBOGEB/pipeline-automation-hub",
+      "path": "mission-control/qps-triage-ultra/topology/QPS_REPO_FUNCTION_TOPOLOGY_v1.yaml",
+      "blob": "df0ee845697578cd644691b81eafb2465249d772",
+      "qps_snapshot": "triage/w283/upstream/QPS_REPO_FUNCTION_TOPOLOGY_v1.yaml"
+    },
+    "breadth_control": {
+      "path": "controls/QPS_W283_FEDERATION_SURFACE_CURRENT_v1.json",
+      "state": "CONTROL_FUNCTION_BREADTH_MEASURED_DEPTH_WITHHELD"
+    },
+    "accepted_crosswalk": {
+      "path": "triage/w283/QPS_W283_FEDERATION_SAMPLE_ROUTING_CROSSWALK_v0.1.json",
+      "blob": "cb3133ec98adb2cdf096376fe5b00ccc606172d1"
+    }
+  },
+  "method": {
+    "denominator_rule": "For each already-covered routing function, every exact current_use list entry in the authoritative topology is one non-overlapping function-internal atom. No exploit_next, evidence_basis, activation_trigger or prohibition text is mixed into this denominator.",
+    "numerator_rule": "Credit an atom only when an already-accepted federation sample directly demonstrates that current_use capability; function identity alone creates zero atom credit. One atom can be credited at most once even if multiple samples support it.",
+    "uncovered_function_rule": "The eight uncovered routing functions do not enter D. Their absence is already represented by breadth B=4/12. No zero depth is imputed to an unobserved function.",
+    "aggregation": "D is the unweighted arithmetic mean of per-function depth across the four covered functions, preserving equal function weight. PEN=B*D.",
+    "no_double_counting": true
+  },
+  "covered_functions": [
+    {
+      "function": "MISSION_CONTROL_ORCHESTRATION",
+      "denominator": 5,
+      "numerator": 2,
+      "depth": 0.4,
+      "atoms": [
+        {
+          "id": "MISSION_CONTROL_ORCHESTRATION::CURRENT_USE::01",
+          "text": "method selection",
+          "credited": false,
+          "evidence": []
+        },
+        {
+          "id": "MISSION_CONTROL_ORCHESTRATION::CURRENT_USE::02",
+          "text": "routing and sequencing",
+          "credited": true,
+          "evidence": [
+            "FED-SAMPLE-001-W164-CONTROL"
+          ]
+        },
+        {
+          "id": "MISSION_CONTROL_ORCHESTRATION::CURRENT_USE::03",
+          "text": "receipt correlation",
+          "credited": false,
+          "evidence": []
+        },
+        {
+          "id": "MISSION_CONTROL_ORCHESTRATION::CURRENT_USE::04",
+          "text": "resource pressure and stop/reallocate decisions",
+          "credited": true,
+          "evidence": [
+            "FED-SAMPLE-005-W3-15-OBSERVED-INTERVENTION"
+          ]
+        },
+        {
+          "id": "MISSION_CONTROL_ORCHESTRATION::CURRENT_USE::05",
+          "text": "repository topology projection",
+          "credited": false,
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "function": "DOW_RUNTIME_METRICS_PROJECTION",
+      "denominator": 4,
+      "numerator": 2,
+      "depth": 0.5,
+      "atoms": [
+        {
+          "id": "DOW_RUNTIME_METRICS_PROJECTION::CURRENT_USE::01",
+          "text": "independent denominator measurement",
+          "credited": false,
+          "evidence": []
+        },
+        {
+          "id": "DOW_RUNTIME_METRICS_PROJECTION::CURRENT_USE::02",
+          "text": "runtime and delivery QA",
+          "credited": true,
+          "evidence": [
+            "FED-SAMPLE-002-ABACUS-W74"
+          ]
+        },
+        {
+          "id": "DOW_RUNTIME_METRICS_PROJECTION::CURRENT_USE::03",
+          "text": "measured readiness and evidence census",
+          "credited": true,
+          "evidence": [
+            "FED-SAMPLE-002-ABACUS-W74"
+          ]
+        },
+        {
+          "id": "DOW_RUNTIME_METRICS_PROJECTION::CURRENT_USE::04",
+          "text": "scheduling-only PCA/BT diagnostics when data is sufficient",
+          "credited": false,
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "function": "KEB_SEMANTIC_PROVENANCE",
+      "denominator": 4,
+      "numerator": 2,
+      "depth": 0.5,
+      "atoms": [
+        {
+          "id": "KEB_SEMANTIC_PROVENANCE::CURRENT_USE::01",
+          "text": "semantic challenge",
+          "credited": false,
+          "evidence": []
+        },
+        {
+          "id": "KEB_SEMANTIC_PROVENANCE::CURRENT_USE::02",
+          "text": "provenance and exact-source interpretation",
+          "credited": true,
+          "evidence": [
+            "FED-SAMPLE-003-CODEX-M05"
+          ]
+        },
+        {
+          "id": "KEB_SEMANTIC_PROVENANCE::CURRENT_USE::03",
+          "text": "authority/state-class separation",
+          "credited": true,
+          "evidence": [
+            "FED-SAMPLE-003-CODEX-M05"
+          ]
+        },
+        {
+          "id": "KEB_SEMANTIC_PROVENANCE::CURRENT_USE::04",
+          "text": "controlled visual-semantic federation",
+          "credited": false,
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "function": "EXACT_PAYLOAD_RUNTIME_CARRIER",
+      "denominator": 3,
+      "numerator": 3,
+      "depth": 1,
+      "atoms": [
+        {
+          "id": "EXACT_PAYLOAD_RUNTIME_CARRIER::CURRENT_USE::01",
+          "text": "exact Git-blob identity proof",
+          "credited": true,
+          "evidence": [
+            "FED-SAMPLE-004-W184F-N200-MIRROR"
+          ]
+        },
+        {
+          "id": "EXACT_PAYLOAD_RUNTIME_CARRIER::CURRENT_USE::02",
+          "text": "independent execution when authority-repo Actions admission is blocked",
+          "credited": true,
+          "evidence": [
+            "FED-SAMPLE-004-W184F-N200-MIRROR"
+          ]
+        },
+        {
+          "id": "EXACT_PAYLOAD_RUNTIME_CARRIER::CURRENT_USE::03",
+          "text": "validator/test execution and durable exact-head receipts",
+          "credited": true,
+          "evidence": [
+            "FED-SAMPLE-004-W184F-N200-MIRROR"
+          ]
+        }
+      ]
+    }
+  ],
+  "evidence_bindings": {
+    "FED-SAMPLE-001-W164-CONTROL": {
+      "path": "triage/w164/QPS_W164_MISSION_FEDERATION_RUNTIME_CONTROL_v0.1.yaml",
+      "blob": "476c7d80f42b2850555477a837cb645f3675800a"
+    },
+    "FED-SAMPLE-002-ABACUS-W74": {
+      "path": "triage/w168/QPS_W168_FEDERATION_EXPANSION_RUNTIME_CONTROL_v0.1.json",
+      "blob": "daae9de97fa7304cfd60ee84c7eacaf24fb2c5ba"
+    },
+    "FED-SAMPLE-003-CODEX-M05": {
+      "path": "controls/QPS_W170_FEDERATION_SAMPLE3_CURRENT_v1.json",
+      "blob": "786d057831bb58d60009c21c974e35d477b5a8ee"
+    },
+    "FED-SAMPLE-004-W184F-N200-MIRROR": {
+      "path": "controls/QPS_W189_FEDERATION_SAMPLE4_CURRENT_v1.json",
+      "blob": "31fbed31140783b91fa29d04d8ab0d04d369a274"
+    },
+    "FED-SAMPLE-005-W3-15-OBSERVED-INTERVENTION": {
+      "path": "controls/QPS_W280_FEDERATION_SAMPLE5_CURRENT_v0.1.json",
+      "blob": "ac5983580fcdde44e558537383ca1413fcd2d979"
+    }
+  },
+  "uncovered_functions": [
+    "ACCELERATOR_RTM_BRIDGE",
+    "DEVELOPER_RUNTIME_HELIUM_PROPERTIES",
+    "DOCUMENT_ORGANISATION_ARTIFACT_INDEX",
+    "GENERIC_MATH_PROVIDER",
+    "LEAK_PHYSICS_EVIDENCE",
+    "PRIVATE_BYTE_PROVENANCE_VAULT",
+    "QPS_CHILD_AUTHORITY",
+    "SOURCE_EXTRACTION_RTM_RECONCILIATION"
+  ],
+  "measurement": {
+    "breadth": {
+      "numerator": 4,
+      "denominator": 12,
+      "value": 0.3333333333333333
+    },
+    "covered_atom_totals": {
+      "credited": 9,
+      "denominator": 16,
+      "pooled_ratio": 0.5625
+    },
+    "function_depth": {
+      "aggregation": "UNWEIGHTED_MEAN_PER_COVERED_FUNCTION",
+      "value": 0.6
+    },
+    "global_fleet_penetration": {
+      "formula": "B*D",
+      "value": 0.2
+    }
+  },
+  "guards": [
+    "BOUNDED_SAMPLE_DEPTH_8_OF_8_NE_FUNCTION_DEPTH",
+    "FUNCTION_IDENTITY_NE_CURRENT_USE_ATOM_CREDIT",
+    "UNOBSERVED_FUNCTION_NE_ZERO_DEPTH",
+    "NO_EXPLOIT_NEXT_OR_PROHIBITION_TEXT_IN_DEPTH_DENOMINATOR",
+    "NO_EXECUTOR_DOUBLE_CREDIT",
+    "QPS_REPO_LOCAL_RUNNER_923_NON_COMPENSATING",
+    "W275_R3_PHYSICAL_SUCCESSOR_GIT_BUNDLE_RETURN_NON_COMPENSATING",
+    "GLOBAL_BT_REMAINS_WITHHELD"
+  ],
+  "formal_credit_delta": {
+    "engineering": 0,
+    "compliance": 0,
+    "negotiation": 0,
+    "acceptance": 0,
+    "release": 0
+  },
+  "authority_transfer": false,
+  "next_first_red": "EXTERNAL_SEMANTIC_AND_INDEPENDENT_MEASUREMENT_REPROOF_OF_W285_DEPTH",
+  "rex": {
+    "id": "W285_REX_01_EXACT_TOPOLOGY_CURRENT_USE_TEXT_MISMATCH",
+    "observed_at": "GBOGEB/Q_engineering_tools#58 run 35359203971 job 105645971028",
+    "first_red": "EXACT_PAYLOAD_RUNTIME_CARRIER current_use denominator differs from exact topology",
+    "root_cause": "Candidate normalized 'authority-repo' to 'authority repo'; denominator atoms must preserve exact authoritative topology bytes.",
+    "repair": "Restore exact current_use text; no numerical numerator, denominator, D, B or PEN change.",
+    "retry": "ATTEMPT_1_OF_2"
+  }
+}

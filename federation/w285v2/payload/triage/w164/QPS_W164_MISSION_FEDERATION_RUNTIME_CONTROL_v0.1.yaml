@@ -1,0 +1,113 @@
+schema: qps-w164-mission-federation-runtime-control/0.1
+as_of: '2026-09-13T19:36:05+02:00'
+repo: GBOGEB/cryoplant-project
+wave: W164
+status: CONTROL_FEDERATED_EXACT_PAYLOAD_REPEAT_NATIVE_PREEXECUTION_PRESERVED
+authority: MISSION_CONTROL_DEVOPS_EXECUTION_ONLY
+
+source_functional_payload:
+  pr: 1081
+  merge: 17558b08ac53df9f00476aaed90609c91f40489a
+  implementation_head: a12c5035a2b47524b8a7c92840e4662b4262b427
+  exact_blobs:
+    federation_control: 25ad64142660e89f2dda9c7b404b21b65faa1bfa
+    crew_registry: 1aa9b9955677522ef732feb25e5a5b58c6f85b51
+    schema: 1a49dc2d1e85adfed69cd1be53bff62d7edefd0b
+    validator: 582e22a9af23d94c8a28a092eed0ed6f2bf396a7
+    regression_tests: 05ff2bca36c2bdaaee804d94c8b330efe2bb0592
+  control_scope:
+    ten_point_architecture: PASS_10_OF_10
+    horizontal_missions: [H1_QPS, H2_KEB, H3_DOW, H4_QPS_TRIAGE]
+    federation_mission: MISSION_FED
+    federation_is_not: GM-VI
+    penetration_model: 'PEN=B*D'
+    early_learning_never_implies_launch: true
+    bidirectional_mission_control: true
+    bidirectional_crew_learning: true
+    cross_feed_invariant: true
+    federation_triage_loop: true
+    canonical_operating_loop: [DISCOVER, PRIME, AUTHORISE, EXECUTE, PROVE, RETURN, FEDERATE, LEARN, TRIAGE, REDEPLOY]
+
+native_runtime:
+  repository: GBOGEB/cryoplant-project
+  run: 34771823533
+  job: 103762682228
+  runner_id: 0
+  executed_steps: 0
+  conclusion: failure
+  disposition: WITHHELD_INFRA_PREEXECUTION_REX_006
+  independent_gate: 923
+  guard: FEDERATED_EXECUTION_DOES_NOT_COMPENSATE_NATIVE_RUNNER_ADMISSION
+
+federated_runtime:
+  repository: GBOGEB/Q_engineering_tools
+  pr: 31
+  merge: f87fcb68e4c1c89402c98d29ccd77977964d7f91
+  authority: FEDERATED_EXECUTION_ONLY_SOURCE_AUTHORITY_REMAINS_CRYOPLANT
+  exact_payload_identity: PASS_5_OF_5
+  pr_head_vector:
+    run: 34772055493
+    job: 103763313169
+    runner_id: 1000264865
+    executor_head: 5cbbe44a39693c693b21463363df45c4c434e6b2
+    artifact_id: 10321952918
+    artifact_digest: sha256:3a1ce00eee348c4075ad24b343615c52533e016c1007175a16bb540819c1bfe0
+    observed_steps:
+      exact_blob_proof: PASS_5_OF_5
+      mission_federation_validator: PASS_10_OF_10
+      regression_tests: PASS_7_OF_7
+      federated_receipt: PASS
+      artifact_upload: PASS
+    disposition: PASS_FEDERATED_EXACT_PAYLOAD
+  postmerge_control_vector:
+    run: 34772070746
+    job: 103763359896
+    runner_id: 1000264891
+    executor_main_head: f87fcb68e4c1c89402c98d29ccd77977964d7f91
+    artifact_id: 10321663199
+    artifact_digest: sha256:041fe3d15616f2f97384e8008a4ec54c2aa634f364a490500a13b789a2a9e59d
+    observed_steps:
+      exact_blob_proof: PASS_5_OF_5
+      mission_federation_validator: PASS_10_OF_10
+      regression_tests: PASS_7_OF_7
+      federated_receipt: PASS
+      artifact_upload: PASS
+    disposition: PASS_POSTMERGE_REPEAT
+
+crew_control:
+  measured_existing_controlled_members:
+    - CREW-H1-RUNTIME
+    - CREW-H2-SEMANTIC
+    - CREW-H3-DELIVERY
+    - CREW-H4-TRIAGE
+    - CREW-H4-ANALYTICS
+  seeded_planning_only_members:
+    - CREW-H1-BUILD-REPAIR
+    - CREW-H2-HISTORIAN
+    - CREW-FED-AMBASSADOR
+    - CREW-FED-GEOGRAPHER
+    - CREW-FED-GEOLOGIST
+    - CREW-FED-CALLIGRAPHER
+    - CREW-FED-NEURON
+  promotion_guard: SEEDED_REQUIRES_ACCEPTED_WORK_OR_RUNTIME_RECEIPT_BEFORE_CONTROL
+
+preserved_non_compensating_gates:
+  - QPS_REPO_LOCAL_RUNNER_923
+  - G6_CURRENT_RELEASE_IDENTITY_AND_PARITY
+  - EXTERNAL_SOURCE_AND_AUTHORITY_GATES
+  - VISUAL_N200_INDEPENDENT_COLLECTION
+
+formal_credit_delta:
+  engineering: 0
+  compliance: 0
+  negotiation: 0
+  release: 0
+
+dod:
+  ten_point_machine_binding: PASS
+  exact_payload_federated_runtime: PASS
+  pr_head_execution: PASS
+  postmerge_federated_repeat: PASS
+  source_native_exact_head_runtime: WITHHELD_REPO_LOCAL_RUNNER_923
+  mission_federation_control_state: CONTROL
+  grand_mission_launch_authority_changed: false
