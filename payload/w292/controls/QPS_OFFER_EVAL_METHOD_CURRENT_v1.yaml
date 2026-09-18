@@ -1,0 +1,176 @@
+schema: qps-offer-eval-method-current/2.2
+as_of: '2026-09-18T17:21:00+02:00'
+repo: GBOGEB/cryoplant-project
+mission: M08_OFFER_EVAL_METHOD
+state: CONTROL_MIP1_MIP2_LOCAL_OUTPUT_CONTRACT_PASS_EQUATION_V1_CONTROL_NATIVE_EXCEL_GATE_OPEN
+authority: SUPPLEMENTARY_REVIEW_METHOD_ONLY
+
+upstream_authorities:
+  offer_rtm_eval: W80
+  evidence_vv: W152
+  qps_final_disposition: QPS_TRIAGE_CHILD
+
+governing_surfaces:
+  doctrine: controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml
+  equation_current: controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml
+  w288_3pstar_mip_control: triage/w288/QPS_W288_OFFER_EVAL_3PSTAR_MIP_CONTROL_v0.1.yaml
+  original_wave_control: triage/w176/QPS_W176_3PR_MIP_3PC_3P3_CONTROL_v0.1.yaml
+  mip1_child_reentry_receipt: triage/w179/QPS_W179_M08_MIP1_CHILD_REENTRY_RECEIPT_v0.1.yaml
+  mip2_seed_control: triage/w180/QPS_W180_M08_MIP2_GENERATION_SEED_v0.1.yaml
+  mip2d_child_receipt: triage/w184/QPS_W184_M08_MIP2D_CHILD_REENTRY_RECEIPT_v1.yaml
+  mip2c_repair: triage/w188/QPS_W188_MIP2C_PHYSICAL_ONE_PAGE_FIX_v0.1.yaml
+  current_3pc_mip_control: triage/w190/QPS_W190_M08_3PC_MIP_CONTROL_v1.yaml
+  native_excel_3pstar_mip_receipt: triage/w287/QPS_W287_M08_NATIVE_EXCEL_3PSTAR_MIP_BLOCKED_v1.yaml
+  native_excel_latest_disposition: triage/w289/QPS_W289_M08_NATIVE_EXCEL_3PSTAR_MIP_DISPOSITION_v0.1.yaml
+  native_excel_owner_tooling: triage/w291/QPS_W291_M08_NATIVE_EXCEL_OWNER_TOOLING_v0.1.yaml
+  native_excel_owner_runner: scripts/qps_m08_native_excel_roundtrip.ps1
+  native_excel_receipt_validator: scripts/qps_m08_validate_native_excel_receipt.py
+  native_excel_owner_reentry_dropin: handover/qps_recursive/QPS_W291_M08_NATIVE_EXCEL_OWNER_REENTRY_v1.md
+  lossless_handover: handover/session/SC_2026-09-18_W287_M08_NATIVE_EXCEL_BLOCKED_3PSTAR_MIP_v1.md
+
+mission_control_alignment:
+  mission_control: controls/QPS_MISSION_CONTROL_CURRENT_v1.yaml
+  qtg_current: handover/qps_recursive/QTG_CURRENT.yaml
+  global_bd: controls/QPS_GLOBAL_BD_CURRENT_v0.1.yaml
+  priority_effect: NONE
+  active_noncompensating_fronts:
+    - '#923_REPO_LOCAL_RUNTIME_VETO'
+    - G6_RELEASE_IDENTITY_PARITY
+    - W152_EXTERNAL_EVIDENCE_RETURNS
+    - VISUAL_FRONTIER_CURRENT
+
+three_pc_state:
+  prepare:
+    state: PASS
+    scope: MIP2_LOCAL_OUTPUT_CONTRACT
+  prove:
+    state: PASS_BOUNDED_LOCAL_OUTPUT_CONTRACT
+    executor_repo: GBOGEB/Q_engineering_tools
+    executor_pr: 47
+    exact_head: 40f21cbc6ac94fa52783bf6f860c18bb4fe85b38
+    run: 34871794593
+    job: 104069216313
+    runner_id: 1000279942
+    artifact_id: 10359616494
+    artifact_digest: sha256:f3292b198e657f00bfd0755d87e8b3479683d617fb4d4164dec1c4c6b7d5afab
+    observed:
+      semantic_cross_output_parity: PASS
+      reviewer_docx_count: 8
+      reviewer_physical_one_page: PASS_C1_TO_C8_TWO_CONTEXTS
+      normalized_release_equivalence: PASS_10_OF_10
+      raw_binary_repeat_equal: false
+      normalized_repeat_equal: true
+      content_change_negative_control: PASS
+  commit:
+    state: PASS_TO_EXTERNAL_GATE
+    control_receipt: triage/w190/QPS_W190_M08_3PC_MIP_CONTROL_v1.yaml
+    handover: handover/session/SC_2026-09-18_W287_M08_NATIVE_EXCEL_BLOCKED_3PSTAR_MIP_v1.md
+
+mip_state:
+  MIP_1_DOCTRINE_CONTROL: CONTROL
+  MIP_2_GENERATOR_INTEGRATION: CONTROL_LOCAL_OUTPUT_CONTRACT_NATIVE_EXCEL_GATE_OPEN
+  MIP_3_GLOBAL_BURN_IN: HOLD_UNTIL_EQUATION_IMPLEMENTATION_PARITY_AND_NATIVE_EXCEL_PASS
+
+mip2_generators:
+  MIP2A_WORKBOOK:
+    source_pr: 1153
+    state: PASS_SOURCE_DRIVEN_OPENPYXL_ROUNDTRIP
+  MIP2B_NARRATIVE:
+    source_pr: 1154
+    state: PASS_SOURCE_DRIVEN_NARRATIVE
+  MIP2C_REVIEWER_PAGES:
+    source_pr: 1155
+    repair_pr: 1167
+    state: PASS_EIGHT_DOCX_AND_EXACTLY_ONE_PHYSICAL_PAGE_EACH_TWO_CONTEXTS
+  MIP2D_PARITY:
+    source_pr: 1156
+    state: PASS_CROSS_OUTPUT_SEMANTIC_PARITY
+  OUTPUT_IDENTITY:
+    close_pr: 1176
+    state: PASS_NORMALIZED_RELEASE_EQUIVALENCE_10_OF_10
+    raw_sha_role: EXACT_BYTE_TRANSPORT_IDENTITY
+    normalized_sha_role: RELEASE_EQUIVALENCE_ONLY
+
+equation_freeze:
+  gate: OFFER_EVAL_WORD_001
+  equation_version: OFFER_EVAL_EQ_v1
+  control: controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml
+  semantic_state: CONTROLLED_RISK_ONCE_STATIC_PRIOR_SEPARATED
+  production_state: WITHHELD_IMPLEMENTATION_PARITY
+  risk_policy: OPTION_A_SYSTEM_RISK_APPLIED_ONCE_AT_ITEM_LEVEL
+  final_system_risk_subtraction: PROHIBITED
+  legacy_70_30_blend: RETIRED_FROM_CANONICAL_PRODUCTION_USE
+  known_implementation_gaps:
+    - W183_workbook_Adjusted_A_B_use_RawScore_without_Confidence
+    - explicit_NA_applicability_and_renormalization_not_yet_in_generated_workbook
+    - W183_narrative_does_not_yet_render_equation_v1
+    - PPT_equation_version_binding_requires_outward_artifact_regeneration
+  authority_delta: 0
+
+repo_local_runtime:
+  issue: 923
+  class: PRIVATE_REPO_ACTIONS_ADMISSION_PREEXECUTION
+  state: OPEN_NONCOMPENSATING
+  rule: FEDERATED_EXECUTION_DOES_NOT_CONVERT_REPO_LOCAL_RUNTIME_TO_CONTROL
+
+open_gates:
+  equation_implementation:
+    id: OFFER_EVAL_WORD_001_IMPLEMENTATION_PARITY
+    state: WITHHELD
+    required:
+      - workbook_confidence_conditioning_matches_equation_v1
+      - explicit_NA_applicability_and_renormalization
+      - narrative_visible_equation_family
+      - PPT_equation_version_binding
+      - cross_artifact_equation_parity
+  native_excel:
+    id: MIP2D_NATIVE_EXCEL_CLEAN_ROUNDTRIP
+    state: WITHHELD_REQUIRES_NATIVE_MICROSOFT_EXCEL_RUNTIME
+    executor: GBOGEB/Q_engineering_tools#59
+    attempts: [windows-2022, windows-2025]
+    required:
+      - governed_input_xlsx_sha256
+      - native_Excel_version_environment
+      - open_save_close_reopen
+      - no_repair_dialog
+      - no_table1_xml_recovery_log
+      - output_sha256
+      - execution_timestamp
+      - operator_or_runner_identity
+
+next:
+  immediate_single_action: >-
+    The bounded two-attempt hosted receipt is consumed and blocked externally. On a materially different Windows host
+    with installed Microsoft Excel, generate the governed MIP2A workbook, run scripts/qps_m08_native_excel_roundtrip.ps1
+    visibly with explicit no-repair-dialog operator confirmation, then validate the return with
+    scripts/qps_m08_validate_native_excel_receipt.py. In parallel, repair only the equation-v1 implementation gaps
+    identified by W288. Do not repeat hosted native-Excel attempts or already-green MIP2 proof without new evidence.
+  after_native_excel_pass: >-
+    Only after native Excel PASS AND equation-v1 cross-artifact implementation parity PASS, run exactly one
+    MIP3/3P3 propagation: CODEX semantic/controller receiver -> ABACUS independent consumer ->
+    QPS child ACCEPT/REJECT/DEFER, then STOP/CONTROL unless a new structural red is observed.
+
+stop_rules:
+  - no_third_github_hosted_native_excel_retry_without_material_environment_change
+  - no_repeat_MIP1_without_new_regression
+  - no_repeat_MIP2A_B_C_D_semantic_proof_without_new_regression
+  - no_repeat_physical_one_page_proof_without_new_regression
+  - normalized_digest_ne_raw_binary_SHA256
+  - no_parallel_offer_rtm_truth
+  - no_parallel_evidence_maturity_truth
+  - no_score_as_compliance
+  - no_confidence_as_SCK_acceptance
+  - no_pairwise_as_award_authority
+  - no_federated_proof_as_repo_local_runtime_control
+  - no_LibreOffice_or_openpyxl_substitution_for_native_Excel_gate
+  - no_generator_repair_from_COM_class_not_registered
+  - no_global_3p3_before_equation_implementation_parity_and_native_excel_pass
+  - no_repeat_3p3_after_green
+
+formal_credit_delta:
+  engineering: 0
+  compliance: 0
+  negotiation: 0
+  sck_acceptance: 0
+  release: 0
+  award: 0
