@@ -1,7 +1,7 @@
 {
   "schema": "qps-triage-ultra/routing-function-subsurface-depth/1.0",
   "wave": "W285",
-  "state": "CANDIDATE_DEPTH_DECOMPOSITION_AND_MEASUREMENT",
+  "state": "CANDIDATE_DEPTH_DECOMPOSITION_AND_MEASUREMENT_P1_WEIGHTING_REPAIRED",
   "authority": "MISSION_CONTROL_ROUTING_MEASUREMENT_ONLY",
   "effective_on": "MERGE_TO_PIPELINE_AUTOMATION_HUB_MASTER",
   "source_topology": {
@@ -22,13 +22,14 @@
     "empty_current_use_rule": "EMPTY_CURRENT_USE_CREATES_ZERO_CURRENT_DEPTH_DENOMINATOR",
     "non_overlap_key": "function::atom_id",
     "numerator_rule": "ONE_ACCEPTED_SAMPLE_MAY_CREDIT_AT_MOST_ONE_EXACTLY_NAMED_CURRENT_USE_ATOM; DUPLICATE_ATOM_CREDIT_COUNTS_ONCE",
-    "depth_conditioning": "D_IS_MICRO_AVERAGED_WITHIN_BREADTH_COVERED_FUNCTIONS_ONLY; UNCovered_FUNCTIONS_ARE_ALREADY_ACCOUNTED_FOR_BY_B",
+    "depth_conditioning": "D_IS_MACRO_AVERAGE_OF_PER_FUNCTION_DEPTH_WITHIN_BREADTH_COVERED_FUNCTIONS_SO_B_AND_D_SHARE_FUNCTION_WEIGHTING",
     "formulae": {
       "B": "unique breadth-covered functions / authoritative routing functions",
-      "D": "unique observed covered current-use atoms / current-use atoms available within breadth-covered functions",
-      "PEN": "B * D"
+      "D": "mean over breadth-covered functions of (unique observed atoms in function / current-use atoms in function)",
+      "PEN": "B * D_macro"
     },
-    "guard": "IF_A_SAMPLE_MAPS_TO_A_FUNCTION_WITH_ZERO_CURRENT_DEPTH_DENOMINATOR_THEN_D_REMAINS_WITHHELD_UNTIL_TOPOLOGY_GOVERNS_A_POSITIVE_SUBSURFACE"
+    "guard": "IF_A_SAMPLE_MAPS_TO_A_FUNCTION_WITH_ZERO_CURRENT_DEPTH_DENOMINATOR_THEN_D_REMAINS_WITHHELD_UNTIL_TOPOLOGY_GOVERNS_A_POSITIVE_SUBSURFACE",
+    "weighting_guard": "FUNCTION_WEIGHTED_B_REQUIRES_FUNCTION_WEIGHTED_D_FOR_PEN; MICRO_ATOM_DEPTH_IS_DIAGNOSTIC_ONLY"
   },
   "functions": [
     {
@@ -281,9 +282,8 @@
       "value": 0.3333333333333333
     },
     "depth_conditioned_on_breadth": {
-      "numerator_unique_covered_atoms": 5,
-      "denominator_atoms_in_breadth_covered_functions": 16,
-      "value": 0.3125,
+      "method": "MACRO_AVERAGE_PER_FUNCTION",
+      "breadth_covered_functions": 4,
       "per_function": {
         "MISSION_CONTROL_ORCHESTRATION": {
           "numerator": 2,
@@ -305,11 +305,18 @@
           "denominator": 3,
           "value": 0.3333333333333333
         }
-      }
+      },
+      "value": 0.30833333333333335
     },
     "global_fleet_penetration": {
-      "formula": "B*D",
-      "value": 0.10416666666666666
+      "formula": "B*D_macro",
+      "value": 0.10277777777777777
+    },
+    "depth_micro_diagnostic": {
+      "method": "ATOM_WEIGHTED_DIAGNOSTIC_NOT_USED_IN_PEN",
+      "numerator_unique_covered_atoms": 5,
+      "denominator_atoms_in_breadth_covered_functions": 16,
+      "value": 0.3125
     }
   },
   "guards": [
@@ -319,7 +326,8 @@
     "NO_SUBSURFACE_CREDIT_OUTSIDE_EXACT_TOPOLOGY_CURRENT_USE",
     "ZERO_CURRENT_USE_FUNCTIONS_HAVE_ZERO_DEPTH_DENOMINATOR_NOT_IMPLICIT_COVERAGE",
     "QPS_REPO_LOCAL_RUNNER_923_NONCOMPENSATING",
-    "GLOBAL_BT_REMAINS_INDEPENDENT"
+    "GLOBAL_BT_REMAINS_INDEPENDENT",
+    "PEN_USES_FUNCTION_WEIGHTED_B_AND_FUNCTION_WEIGHTED_D"
   ],
   "authority_transfer": false,
   "formal_credit_delta": 0
