@@ -1,0 +1,74 @@
+schema: qps-w296f-m08-equation-v1-w295-proof/1.0
+as_of: '2026-09-18T17:53:00+02:00'
+executor_repo: GBOGEB/Q_engineering_tools
+source_repo: GBOGEB/cryoplant-project
+source_commit: 8c7a17688a89f996467af3f4228e35f0fed8fe26
+source_pr: 1524
+mission: M08_OFFER_EVAL_METHOD
+classification: INDEPENDENT_EXACT_PAYLOAD_PROOF_ZERO_FORMAL_CREDIT
+
+purpose: >-
+  Execute merged W295 after W294 state preservation plus W295 incomplete-pairwise
+  fail-closed repair. Prove the full local OFFER_EVAL_EQ_v1 implementation on exact
+  child bytes. Native Microsoft Excel and outward PPTX binary proof remain separate gates.
+
+repairs_under_proof:
+  - missing_DEFER_FAIL_risk_components_not_zero
+  - zero_applicability_cluster_UNSCORABLE
+  - incomplete_pairwise_cluster_and_dashboard_totals_withheld
+  - incomplete_weighted_delta_diagnostic_withheld
+
+exact_payload:
+  doctrine: 52592fee795bd19d151f0b7612642d28f5a6a88d
+  equation_control: eae8578123f2fd9d7dc98b3790e5559f9fe07759
+  workbook_control: 2eed4189bef5361bdf25ef79c2e7d1f32a18590e
+  ppt_control: 0520b49259ddb26b293a6c09f281f28a1aae7ee1
+  method_current: 495a899abe383fa7f28831ac4fd6f51eb4b31b53
+  workbook_generator: 89ad644bcfd75205c0d520bba4890c90ad4c2495
+  narrative_generator: 2d92d5335abe905d7276b3b105496c3d72e3fdc1
+  onepager_generator: 0872ac02e89d36ca283f38e6e63dbb17469f7441
+  parity_validator: ec3fbec1f2f114df3e61f283e3398b04ddb66c36
+  equation_validator: f2fe704f8c4c8567d3d2b8c84f1e775b026c77ba
+  normalized_identity: ad9c549a2b205d94dad80d33cd279487f321ac71
+  workbook_test: 270aa5ef47d11944b753c4133ade8a73f7b9a1aa
+  narrative_test: 71e3d0003a75776d2e153ad426053cdb8ddb5ed6
+  parity_test: 15d9a1c6157537ebfca5b7f539d681571a5735b2
+
+three_pstar_mip:
+  3PR:
+    state: PASS
+    refresh: W294_AND_W295_MERGED
+    first_red: W295_EXECUTED_EXACT_PAYLOAD_RECEIPT
+  MIP:
+    modernize: PASS_FROZEN_EQUATION_V1
+    innovate: PROVE_ALL_FAIL_CLOSED_STATE_AND_AGGREGATE_GUARDS
+    perpetuate: EXACT_SOURCE_TEST_STATIC_DYNAMIC_AND_IDENTITY_RECEIPTS
+  3PC:
+    prepare: PASS_14_OF_14_EXACT_BLOBS
+    prove: EXECUTE_THIS_PR
+    commit: RETURN_TO_QPS_CHILD
+  3P3:
+    state: NOT_ADMITTED
+    blockers:
+      - native_Microsoft_Excel_clean_roundtrip
+      - PPTX_outward_binary_regeneration_and_render
+
+pass_predicates:
+  - exact_source_blobs_14_of_14
+  - targeted_pytest_pass
+  - static_equation_validator_pass
+  - generated_cross_output_parity_pass
+  - missing_defer_fail_preserved
+  - all_NA_cluster_unscorable
+  - incomplete_pairwise_totals_withheld
+  - risk_application_count_eq_1
+  - no_final_system_risk_subtraction
+  - generated_OOXML_10
+  - normalized_identity_emitted
+  - formal_credit_delta_zero
+
+noncompensating:
+  native_excel: WITHHELD_EXTERNAL_RUNTIME
+  pptx_binary: WITHHELD_OUTWARD_REGENERATION
+  issue_923: OPEN_INDEPENDENT
+  formal_credit_delta: 0
