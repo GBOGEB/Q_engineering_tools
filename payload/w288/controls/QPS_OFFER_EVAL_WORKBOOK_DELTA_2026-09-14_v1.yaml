@@ -113,13 +113,10 @@ equation_v1_binding:
   canonical_final_review: 'FinalReviewScore_b = SUM_c(alpha_c * ClusterScore_c_b)'
   pairwise_separate: true
   legacy_70_30_blend_canonical: false
-  current_generator_implementation:
-    confidence_in_adjusted_score: IMPLEMENTED_LOCAL_SOURCE
-    explicit_NA_applicability: IMPLEMENTED_LOCAL_SOURCE
-    local_weight_renormalization: IMPLEMENTED_LOCAL_SOURCE
-    noncompensating_gate_state: IMPLEMENTED_LOCAL_SOURCE
-    executor_parity: PENDING_INDEPENDENT_RECEIPT
-    native_excel: BLOCKED_EXTERNAL_RUNTIME_AFTER_2_ATTEMPTS
+  current_generator_gap:
+    confidence_in_adjusted_score: OPEN
+    explicit_NA_applicability: OPEN
+    rule: DO_NOT_PROMOTE_PRODUCTION_PARITY_UNTIL_REPAIRED
 
 cross_artifact_conflicts:
   - id: XART-01
