@@ -1,0 +1,143 @@
+{
+  "schema": "qps-w280-federation-sample5-control/v0.1",
+  "wave": "W280",
+  "state": "CANDIDATE_NOT_ACCEPTED",
+  "purpose": "FIFTH_DISTINCT_FEDERATION_SAMPLE_BT_BRIDGE_PCA_STRESS_AND_CENSUS_ADVANCE",
+  "namespace": {
+    "w277": "OCCUPIED_R3_DMAIC_DEFINE_MEASURE",
+    "w278": "OCCUPIED_R3_DMAIC_ANALYSE_IMPROVE",
+    "w279": "OCCUPIED_R3_DMAIC_CONTROL",
+    "w280": "FEDERATION_SAMPLE_5_CANDIDATE"
+  },
+  "source_surface": {
+    "repo": "GBOGEB/pipeline-automation-hub",
+    "pr": 31,
+    "head": "feaab33e02cdafc026ce81c2dee701eead5510e3",
+    "merge": "7cc101f41a60bce2a858d38d63930612598b6655",
+    "type": "OBSERVED_RED_REPAIR_CONTROL_INTERVENTION_BT",
+    "exact_source_blobs": {
+      "workflow": "be182c723b1bc8a23ec0fe6ccda1743162d9a961",
+      "gate": "ad578c9c6e5ac116acbee81a26583312fcd95de9",
+      "observations": "fe7cae19965ac123434ba294472ccbb5482cdaba"
+    },
+    "changed_files": 3,
+    "measured_runtime_vectors": 6,
+    "measured_pairs": 2,
+    "candidates": [
+      "SEMANTIC_BOUNDARY_GUARD_REPAIR",
+      "STATISTICAL_TOLERANCE_REPAIR",
+      "UNREPAIRED_BASELINE"
+    ]
+  },
+  "independent_negative_control": {
+    "repo": "GBOGEB/ABACUS",
+    "source_pr": 1266,
+    "source_merge": "a0de73a9a60071665f27bf2fecb6e17e24172a93",
+    "range_guard_pr": 1269,
+    "range_guard_merge": "fd5e2f705fe4f5201c6c0986bc3508be6bc257bb",
+    "observed_states": 11,
+    "population_states": 15,
+    "pc1_range_coverage": 0.276351,
+    "required_pc1_range_coverage": 0.7,
+    "spearman_rho": 0.01978,
+    "exact_spearman_p": 0.974459,
+    "loocv_r2": -0.724876,
+    "pairwise_events": 0,
+    "rule": "DO_NOT_DERIVE_BT_PAIRS_FROM_DETERMINISTIC_PC1_OR_RANGE_RESTRICTED_OUTCOMES"
+  },
+  "bounded_measurement_candidate": {
+    "breadth": {
+      "numerator": 15,
+      "denominator": 15,
+      "value": 1
+    },
+    "breadth_components": {
+      "repositories": {
+        "numerator": 1,
+        "denominator": 1
+      },
+      "exact_changed_files": {
+        "numerator": 3,
+        "denominator": 3
+      },
+      "observed_runtime_vectors": {
+        "numerator": 6,
+        "denominator": 6
+      },
+      "measured_pairs": {
+        "numerator": 2,
+        "denominator": 2
+      },
+      "comparator_classes": {
+        "numerator": 3,
+        "denominator": 3
+      }
+    },
+    "depth": {
+      "numerator": 7,
+      "denominator": 8,
+      "value": 0.875
+    },
+    "pending_depth_layer": "MISSION_CONTROL_AUTHORITATIVE_RETURN_AFTER_INDEPENDENT_EXACT_EXECUTION_AND_REPEAT",
+    "penetration_candidate": 0.875
+  },
+  "candidate_feature_row": {
+    "sample_id": "FED-SAMPLE-005-W3-15-OBSERVED-INTERVENTION",
+    "repositories_observed": 1,
+    "artifact_units": 3,
+    "runtime_vectors": 6,
+    "lineage_nodes": 8,
+    "lineage_edges": 7,
+    "runtime_first_red_present": 1,
+    "accepted_sample": 0,
+    "lineage_count_class": "DERIVED_EXPLICIT_TWO_CHAIN_TOPOLOGY"
+  },
+  "candidate_n5_pca": {
+    "status": "SENSITIVITY_ONLY_NOT_ACCEPTED",
+    "features": [
+      "repositories_observed",
+      "artifact_units",
+      "runtime_vectors",
+      "lineage_nodes",
+      "lineage_edges",
+      "runtime_first_red_present"
+    ],
+    "method": "COLUMN_ZSCORE_SAMPLE_STD_DDOF_1_THEN_SVD",
+    "explained_variance_ratio": [
+      0.618903181,
+      0.307076472,
+      0.063649856,
+      0.010370492
+    ],
+    "pc1_loading_congruence_abs_n4_to_n5": 0.972259128,
+    "pc2_loading_congruence_abs_n4_to_n5": 0.257532074,
+    "pc12_subspace_principal_angles_deg": [
+      3.40618031,
+      73.70534049
+    ],
+    "interpretation": "CANDIDATE_ROW_PRESERVES_PC1_DIRECTION_REASONABLY_BUT_PC2_REMAINS_MATERIALLY_UNSTABLE"
+  },
+  "bt_bridge": {
+    "undirected_graph_connected": true,
+    "directed_graph_strongly_connected": false,
+    "source_gate_state": "PASS_OBSERVED_INTERVENTION_BT",
+    "federation_fit_state": "WITHHELD_NO_FINITE_UNREGULARIZED_MLE",
+    "reason": "BOTH_REPAIR_CLASSES_BEAT_BASELINE_AND_BASELINE_HAS_NO_OBSERVED_WIN; CONNECTIVITY_ALONE_DOES_NOT_SATISFY_FINITE_MLE_CONDITION",
+    "next_evidence_needed": "REAL_BASELINE_WIN_TIE_OR_CROSS_REPAIR_COMPARISON; DO_NOT_SYNTHESIZE"
+  },
+  "fleet_census": {
+    "accessible_repository_universe_total": 83,
+    "accessible_repository_universe_state": "ENUMERATED_CONTEXT_DENOMINATOR",
+    "governed_surface_denominator": null,
+    "global_fleet_penetration": null
+  },
+  "guards": [
+    "SAMPLE5_NOT_ACCEPTED",
+    "NO_GLOBAL_BT_FIT",
+    "NO_FINITE_UNREGULARIZED_BT_SCORE",
+    "NO_GLOBAL_FLEET_PENETRATION",
+    "ABACUS_W80_NEGATIVE_CONTROL_PRESERVED",
+    "QPS_REPO_LOCAL_RUNNER_923_NON_COMPENSATING",
+    "FORMAL_CREDIT_DELTA_ZERO"
+  ]
+}
