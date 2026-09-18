@@ -1,0 +1,113 @@
+name: W288 OFFER Eval Equation V1 Exact Proof
+
+on:
+  pull_request:
+    paths:
+      - 'payload/w288/**'
+      - '.github/workflows/w288-offer-eval-equation-v1-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOCTRINE_BLOB: 52592fee795bd19d151f0b7612642d28f5a6a88d
+  EQUATION_BLOB: 0d037b7d985f1dfea795cdbee55195e08658ee40
+  WORKBOOK_CONTROL_BLOB: 23d18eecdf9db27ac26f3a74e681ba13a57daccf
+  PPT_CONTROL_BLOB: 0520b49259ddb26b293a6c09f281f28a1aae7ee1
+  METHOD_CURRENT_BLOB: 035f6af92df5bf4d835ecafc665d1afa7dd9ee4b
+  WORKBOOK_GENERATOR_BLOB: bfdaf0c48bba2cd73e354d143f9a9501700b2ac0
+  NARRATIVE_GENERATOR_BLOB: 2d92d5335abe905d7276b3b105496c3d72e3fdc1
+  ONEPAGER_GENERATOR_BLOB: 0872ac02e89d36ca283f38e6e63dbb17469f7441
+  PARITY_VALIDATOR_BLOB: dd724b242acd425abdf7999772dc0342161fa2c7
+  W288_VALIDATOR_BLOB: 98048962cedc85b938f143b419e8a5440609614d
+
+jobs:
+  equation_v1_exact_proof:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Assert exact checkout and mirrored source blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(git rev-parse HEAD)" = "$expected"
+          check_blob() {
+            local path="$1"
+            local expected_blob="$2"
+            local actual
+            actual="$(git hash-object "$path")"
+            test "$actual" = "$expected_blob" || { echo "$path blob $actual != $expected_blob"; exit 1; }
+          }
+          check_blob payload/w288/controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml "$DOCTRINE_BLOB"
+          check_blob payload/w288/controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml "$EQUATION_BLOB"
+          check_blob payload/w288/controls/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml "$WORKBOOK_CONTROL_BLOB"
+          check_blob payload/w288/controls/QPS_OFFER_EVAL_PPT_CURRENT_v1.yaml "$PPT_CONTROL_BLOB"
+          check_blob payload/w288/controls/QPS_OFFER_EVAL_METHOD_CURRENT_v1.yaml "$METHOD_CURRENT_BLOB"
+          check_blob payload/w288/scripts/qps_w183_generate_offer_eval_workbook.py "$WORKBOOK_GENERATOR_BLOB"
+          check_blob payload/w288/scripts/qps_w183_generate_offer_eval_narrative.py "$NARRATIVE_GENERATOR_BLOB"
+          check_blob payload/w288/scripts/qps_w183_generate_offer_eval_onepagers.py "$ONEPAGER_GENERATOR_BLOB"
+          check_blob payload/w288/scripts/qps_w184_validate_offer_eval_mip2_parity.py "$PARITY_VALIDATOR_BLOB"
+          check_blob payload/w288/scripts/qps_w288_validate_offer_eval_equation_control.py "$W288_VALIDATOR_BLOB"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Assemble exact runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check pyyaml openpyxl python-docx
+          mkdir -p runtime/controls runtime/scripts out/products
+          cp payload/w288/controls/* runtime/controls/
+          cp payload/w288/scripts/* runtime/scripts/
+
+      - name: Validate canonical equation control
+        shell: bash
+        run: |
+          set -euo pipefail
+          python runtime/scripts/qps_w288_validate_offer_eval_equation_control.py             --root runtime             --receipt out/W288_EQUATION_CONTROL_RECEIPT.json
+
+      - name: Execute cross-output equation-v1 parity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python runtime/scripts/qps_w184_validate_offer_eval_mip2_parity.py             --repo-root runtime             --workdir out/products             --receipt out/W288_EQUATION_V1_PARITY_RECEIPT.json
+
+      - name: Enforce fail-closed receipt predicates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          control=json.loads(Path('out/W288_EQUATION_CONTROL_RECEIPT.json').read_text())
+          parity=json.loads(Path('out/W288_EQUATION_V1_PARITY_RECEIPT.json').read_text())
+          assert control['status']=='PASS_CONTROL_AND_IMPLEMENTATION_PARITY_STATIC_NATIVE_EXCEL_GATE_OPEN'
+          assert control['equation_version']=='OFFER_EVAL_EQ_v1'
+          assert control['system_risk_applied_once'] is True
+          assert control['final_system_risk_subtraction'] is False
+          assert control['authority_transfer'] is False
+          assert control['formal_credit_delta']==0
+          assert parity['status']=='PASS_CROSS_OUTPUT_EQUATION_V1_PARITY_WITH_NATIVE_EXCEL_GATE_OPEN'
+          assert parity['equation_version']=='OFFER_EVAL_EQ_v1'
+          assert parity['confidence_conditioning_parity'] is True
+          assert parity['NA_applicability_parity'] is True
+          assert parity['risk_application_count']==1
+          assert parity['final_system_risk_subtraction'] is False
+          assert parity['native_excel_clean_roundtrip']=='WITHHELD_REQUIRES_EXCEL_RUNTIME'
+          assert parity['authority_transfer'] is False
+          assert parity['formal_credit_delta']==0
+          print(json.dumps({'control':control,'parity':parity},sort_keys=True))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w288-offer-eval-equation-v1-proof
+          path: out/
