@@ -40,7 +40,7 @@ jobs:
           check_blob federation/w282/payload/triage/w188/QPS_W188_N200_TABLE_READABILITY_DIAGNOSIS_v0.1.yaml 94493002b863a6e792a84154aa6084508fded3cd
           check_blob federation/w282/payload/triage/w231/QPS_W231_N300_ATOMIC_SWAP_UNIQUE_STATS_v0.1.yaml 98d8dd375af14f09bbaa89906dec48e47ce7756a
           check_blob federation/w282/payload/triage/w231/QPS_W231_TABLE_READABILITY_MSA_DIAGNOSTIC_v0.1.yaml 7a30b9693f004e4266ef29cd739a59e39343db5e
-          check_blob federation/w282/payload/handover/qps_recursive/QTG_CURRENT.yaml 1a7a0a4d67cfb7561406eb3edcf6d65b1981ed79
+          check_blob federation/w282/payload/handover/qps_recursive/QTG_CURRENT.yaml 1a7a0a4d67cfb7561406eb3edcf6d65b1981ed79\n          check_blob federation/w282/payload/triage/w282/QPS_W282_BASE_DRIFT_REVALIDATION_v0.1.yaml 4db7ba1eaae5e4a6e8c2a6aa9bef606ec67a1926
       - name: Install validator dependency
         run: python -m pip install PyYAML==6.0.3
       - name: Execute exact child regression tests
@@ -53,7 +53,7 @@ jobs:
         shell: bash
         env:
           SOURCE_REPO: GBOGEB/cryoplant-project
-          SOURCE_HEAD: 271654848d339096b37e2186932c6ca514ba16c3
+          SOURCE_HEAD: b74ffc5062eb7fb5d56a66f01e515e79cb6870f2
         run: |
           python - <<'PY'
           import json, os, subprocess
