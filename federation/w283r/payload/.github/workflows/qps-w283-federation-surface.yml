@@ -1,0 +1,38 @@
+name: QPS W283 Federation Surface 3Pstar MIP
+
+on:
+  pull_request:
+    paths:
+      - triage/w283/**
+      - scripts/qps_w283_validate_federation_surface.py
+      - tests/test_qps_w283_federation_surface.py
+      - .github/workflows/qps-w283-federation-surface.yml
+  push:
+    branches: [main]
+    paths:
+      - triage/w283/**
+      - scripts/qps_w283_validate_federation_surface.py
+      - tests/test_qps_w283_federation_surface.py
+      - .github/workflows/qps-w283-federation-surface.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prove-w283:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact W283 head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Validate W283
+        run: python scripts/qps_w283_validate_federation_surface.py --out w283-validation-receipt.json
+      - name: Test W283
+        run: python -m unittest tests/test_qps_w283_federation_surface.py -v
+      - name: Upload W283 receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: qps-w283-${{ github.event.pull_request.head.sha || github.sha }}
+          path: w283-validation-receipt.json

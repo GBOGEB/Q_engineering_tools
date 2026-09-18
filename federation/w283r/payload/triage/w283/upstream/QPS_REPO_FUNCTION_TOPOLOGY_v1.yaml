@@ -1,0 +1,313 @@
+schema: qps-triage-ultra/repo-function-topology/1.0
+as_of: '2026-09-14T13:15:00+02:00'
+mission: H4_QPS_TRIAGE
+owner_repo: GBOGEB/pipeline-automation-hub
+authority_transfer: false
+formal_credit_delta:
+  engineering: 0
+  compliance: 0
+  negotiation: 0
+  acceptance: 0
+  release: 0
+  table_10: 0
+
+purpose: >-
+  Current routing topology for GBOGEB repositories that can support QPS TRIAGE.
+  This is a Mission Control projection: it classifies which repository function is
+  actively used, retained in CONTROL/reserve, conditional, dormant-but-exploitable,
+  or maintenance-only. It does not transfer child engineering authority.
+
+state_classes:
+  ACTIVE_USED: current canonical function is actively consumed by QPS TRIAGE
+  EXECUTION_SATELLITE: current bounded execution carrier; may prove exact payloads but cannot promote source authority
+  CONTROL_RESERVE: proven reusable capability held in reserve until a matching consumer need exists
+  CONDITIONAL_RESERVE: usable capability whose current activation depends on a named trigger
+  DORMANT_CANDIDATE: not currently routed; retained as an exploitable candidate under an explicit trigger
+  MAINTENANCE_ONLY: no current QPS TRIAGE worker allocation
+
+repositories:
+  - repo: GBOGEB/cryoplant-project
+    state: ACTIVE_USED
+    function: QPS_CHILD_AUTHORITY
+    plane: H1_QPS
+    current_use:
+      - engineering/source/disposition authority
+      - OFFER MIP-2 generator integration
+      - reliability and Table-10 re-entry gating
+      - visual and release control surfaces
+    evidence_basis:
+      - cryoplant-project#1148
+      - cryoplant-project#1146
+      - cryoplant-project#1142
+    exploit_next:
+      - MIP2A workbook adapter
+      - MIP2B source-driven narrative
+      - MIP2C eight reviewer one-pagers
+      - MIP2D cross-output doctrine parity
+    prohibitions:
+      - do_not_compensate_repo_local_runner_923
+      - no_parent_self_promotion_of_engineering_truth
+
+  - repo: GBOGEB/pipeline-automation-hub
+    state: ACTIVE_USED
+    function: MISSION_CONTROL_ORCHESTRATION
+    plane: H4_QPS_TRIAGE
+    current_use:
+      - method selection
+      - routing and sequencing
+      - receipt correlation
+      - resource pressure and stop/reallocate decisions
+      - repository topology projection
+    evidence_basis:
+      - pipeline-automation-hub#113
+      - pipeline-automation-hub#114
+      - pipeline-automation-hub#115
+      - pipeline-automation-hub#118
+      - level1/ssot.json
+    exploit_next:
+      - route MIP2A/B/C without changing child authority
+      - maintain W2 gate and non-compensating blocker map
+      - arm one 3P3 only after MIP2D/local DoV
+    prohibitions:
+      - no_engineering_truth_promotion
+      - no_compliance_promotion
+      - no_child_authority_transfer
+
+  - repo: GBOGEB/CODEX
+    state: ACTIVE_USED
+    function: KEB_SEMANTIC_PROVENANCE
+    plane: H2_KEB
+    current_use:
+      - semantic challenge
+      - provenance and exact-source interpretation
+      - authority/state-class separation
+      - controlled visual-semantic federation
+    evidence_basis:
+      - CODEX#679
+      - CODEX#680
+      - CODEX#683
+    exploit_next:
+      - one semantic receiver in the post-MIP2D 3P3 chain only
+      - semantic review when a new cross-repo contract is introduced
+    prohibitions:
+      - no_QPS_engineering_authority
+      - no_early_3P3_before_local_DoV
+
+  - repo: GBOGEB/ABACUS
+    state: ACTIVE_USED
+    function: DOW_RUNTIME_METRICS_PROJECTION
+    plane: H3_DOW
+    current_use:
+      - independent denominator measurement
+      - runtime and delivery QA
+      - measured readiness and evidence census
+      - scheduling-only PCA/BT diagnostics when data is sufficient
+    evidence_basis:
+      - ABACUS#1202
+    exploit_next:
+      - independent consumer in the single post-MIP2D 3P3 chain
+      - measured comparison only when a valid denominator exists
+    prohibitions:
+      - no_parent_score_authority
+      - no_seed_PCA_when_population_is_not_comparable
+      - no_engineering_promotion
+
+  - repo: GBOGEB/DOCX_RTM_Automation
+    state: ACTIVE_USED
+    function: SOURCE_EXTRACTION_RTM_RECONCILIATION
+    plane: TOOLING_PROJECTION
+    current_use:
+      - parser and extraction
+      - RTM/DTM traceability
+      - reliability analytical consumer
+      - exact-SHA evidence receipt pipeline
+    evidence_basis:
+      - DOCX_RTM_Automation#54
+      - DOCX_RTM_Automation#57
+      - DOCX_RTM_Automation#58
+    exploit_next:
+      - consume source-normalized outputs for RTM/evidence views
+      - reuse reliability consumer without creating a fifth primary lane
+    prohibitions:
+      - tooling_ACCEPT_is_not_child_ACCEPT
+      - reliability_is_cross_cutting_not_primary_lane
+
+  - repo: GBOGEB/Q_engineering_tools
+    state: EXECUTION_SATELLITE
+    function: EXACT_PAYLOAD_RUNTIME_CARRIER
+    plane: EXECUTION
+    current_use:
+      - exact Git-blob identity proof
+      - independent execution when authority-repo Actions admission is blocked
+      - validator/test execution and durable exact-head receipts
+    evidence_basis:
+      - Q_engineering_tools#38
+      - Q_engineering_tools#39
+      - Q_engineering_tools#40
+      - Q_engineering_tools#41
+      - Q_engineering_tools#42
+    exploit_next:
+      - highest-immediate-leverage carrier for MIP2A/B/C exact-runtime and binary/adapter proof
+      - retain exact-payload mirroring rather than widening credentials
+    prohibitions:
+      - cannot_compensate_cryoplant_issue_923
+      - cannot_promote_QPS_source_authority
+      - cannot_create_engineering_or_acceptance_credit
+
+  - repo: GBOGEB/gg_MATH
+    state: CONTROL_RESERVE
+    function: GENERIC_MATH_PROVIDER
+    plane: ANALYTICS_PROVIDER
+    current_use:
+      - reusable PCA/covariance/state-space mathematics
+      - Bradley-Terry implementation kernel
+      - Monte-Carlo and uncertainty kernel
+    evidence_basis:
+      - gg_MATH#1
+      - gg_MATH#3
+      - gg_MATH#5
+    exploit_next:
+      - use only when a QPS consumer requires generic math that should not be reimplemented locally
+      - prefer measured-feature PCA and independently checkable kernels
+    prohibitions:
+      - consumer_policy_remains_with_consumer
+      - no_governance_or_engineering_authority
+      - no_BT_claim_without_valid_pairwise_outcomes
+
+  - repo: GBOGEB/CODESPACES_jyperter
+    state: CONDITIONAL_RESERVE
+    function: DEVELOPER_RUNTIME_HELIUM_PROPERTIES
+    plane: SPECIALIST_RUNTIME
+    current_use:
+      - no current H4 transaction ownership
+    evidence_basis:
+      - MIP/GBOGEB_RECENT_ACTIVITY_INDEX.yaml@2026-09-10
+    activation_trigger:
+      - source-bound helium-property runtime or notebook/CLI validation is required
+    exploit_next:
+      - activate for bounded property calculations with exact source/runtime receipts
+    prohibitions:
+      - no_unsourced_property_promotion
+
+  - repo: GBOGEB/cryogenic-accelerator-workspace
+    state: CONTROL_RESERVE
+    function: ACCELERATOR_RTM_BRIDGE
+    plane: SPECIALIST_REFERENCE
+    current_use:
+      - quarantined/reference engineering workspace
+    evidence_basis:
+      - MIP/GBOGEB_RECENT_ACTIVITY_INDEX.yaml@2026-09-10
+      - mission-control/qps-triage-ultra/EXPEDITION_FLEET_STATUS.md
+    activation_trigger:
+      - source-bound geometry, dimensional, accelerator-interface or property provenance need
+    exploit_next:
+      - re-enter only with an exact-source bounded consumer
+    prohibitions:
+      - no_generalist_fanout_without_consumer
+
+  - repo: GBOGEB/cryo_leak_rate_dashboard
+    state: CONTROL_RESERVE
+    function: LEAK_PHYSICS_EVIDENCE
+    plane: SPECIALIST_REFERENCE
+    current_use:
+      - bounded leak-physics kernel / historical control
+    evidence_basis:
+      - MIP/GBOGEB_RECENT_ACTIVITY_INDEX.yaml@2026-09-10
+      - mission-control/qps-triage-ultra/EXPEDITION_FLEET_STATUS.md
+    activation_trigger:
+      - current source return or named leak-physics consumer need
+    exploit_next:
+      - reuse kernel rather than rebuild leak physics in Mission Control
+    prohibitions:
+      - no_stale_input_as_current_source
+
+  - repo: GBOGEB/document-organization-system
+    state: DORMANT_CANDIDATE
+    function: DOCUMENT_ORGANISATION_ARTIFACT_INDEX
+    plane: FEDERATION_CANDIDATE
+    current_use: []
+    evidence_basis:
+      - MIP/GBOGEB_RECENT_ACTIVITY_INDEX.yaml@2026-09-10
+    activation_trigger:
+      - deterministic artifact index/hash navigation becomes a current blocker
+    exploit_next:
+      - bounded artifact-index adapter before any broad migration
+    prohibitions:
+      - no_parallel_requirement_authority
+
+  - repo: GBOGEB/github_Documents
+    state: DORMANT_CANDIDATE
+    function: PRIVATE_BYTE_PROVENANCE_VAULT
+    plane: FEDERATION_CANDIDATE
+    current_use: []
+    evidence_basis:
+      - MIP/GBOGEB_RECENT_ACTIVITY_INDEX.yaml@2026-09-10
+    activation_trigger:
+      - exact private-byte ingress/retrieval hash cycle is required
+    exploit_next:
+      - prove deterministic ingress/retrieval identity on one bounded artifact
+    prohibitions:
+      - no_metadata_only_byte_identity_claim
+
+  - repo: GBOGEB/stale
+    state: MAINTENANCE_ONLY
+    function: NONE
+    plane: NONE
+    current_use: []
+    evidence_basis:
+      - MIP/GBOGEB_RECENT_ACTIVITY_INDEX.yaml@2026-09-10
+    exploit_next: []
+    prohibitions:
+      - worker_allocation_zero
+
+routing_selector:
+  engineering_source_disposition: GBOGEB/cryoplant-project
+  semantics_provenance: GBOGEB/CODEX
+  independent_measurement_runtime_QA: GBOGEB/ABACUS
+  parser_RTM_evidence_normalization: GBOGEB/DOCX_RTM_Automation
+  exact_payload_execution_when_authority_repo_runtime_blocked: GBOGEB/Q_engineering_tools
+  generic_math_provider: GBOGEB/gg_MATH
+  orchestration_triage_topology: GBOGEB/pipeline-automation-hub
+
+exploit_pressure:
+  P0:
+    repo: GBOGEB/Q_engineering_tools
+    reason: >-
+      Current proven execution carrier. Use for MIP2A/B/C exact-runtime, clean-binary,
+      adapter and regression receipts while cryoplant #923 remains independently red.
+  P1:
+    repos: [GBOGEB/CODEX, GBOGEB/ABACUS]
+    reason: >-
+      Activate as the semantic receiver and independent consumer only after MIP2D/local DoV,
+      or earlier for a specifically observed semantic/runtime challenge.
+  P2:
+    repo: GBOGEB/gg_MATH
+    reason: generic diagnostics only when a current consumer requires reusable mathematics.
+  P3:
+    repos:
+      - GBOGEB/CODESPACES_jyperter
+      - GBOGEB/cryogenic-accelerator-workspace
+      - GBOGEB/cryo_leak_rate_dashboard
+      - GBOGEB/document-organization-system
+      - GBOGEB/github_Documents
+    reason: activate only against a named current source/consumer/blocker; no speculative fleet growth.
+
+current_gate:
+  h4_w1: CONTROL_BOUNDED_DOV_WITH_EXTERNAL_RUNTIME_DEFER
+  h4_w2_3pc_mip_i: HOLD_QPS_REPO_LOCAL_RUNNER_923
+  h4_w3_3p3_mip_p: GATED_BY_W2_LOCAL_DOV
+  independent_non_h4_progress:
+    m08_mip2_seed: PASS_FEDERATED_EXACT_RUNTIME
+    next: [MIP2A, MIP2B, MIP2C, MIP2D]
+  post_mip2d_once_only:
+    chain: [GBOGEB/CODEX, GBOGEB/ABACUS, GBOGEB/cryoplant-project]
+    method: 3P3
+    terminal_rule: STOP_OR_CONTROL
+
+invariants:
+  - topology_is_routing_not_authority
+  - active_repo_does_not_mean_engineering_acceptance
+  - reserve_repo_does_not_receive_workers_without_trigger
+  - dormant_candidate_is_not_deprecated_or_deleted
+  - exact_payload_execution_does_not_compensate_local_runtime_gate
+  - one_post_local_DoV_3P3_then_stop

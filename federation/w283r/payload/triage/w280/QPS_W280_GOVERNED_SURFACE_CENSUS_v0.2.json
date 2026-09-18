@@ -1,0 +1,649 @@
+{
+  "schema": "qps-w280r-governed-surface-census/v0.2",
+  "wave": "W280R",
+  "accessible_repository_universe_total": 83,
+  "classification_complete": true,
+  "classification_counts": {
+    "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR": 64,
+    "GOVERNED_ROUTING_SURFACE": 12,
+    "GOVERNED_MISSION_OUTSIDE_ROUTING_DENOMINATOR": 6,
+    "MAINTENANCE_ONLY": 1
+  },
+  "denominator": {
+    "type": "CURRENT_CANONICAL_ROUTING_FUNCTION_SURFACES",
+    "governed_surface_denominator": 12,
+    "dedup_key": "function",
+    "unique_functions": [
+      "ACCELERATOR_RTM_BRIDGE",
+      "DEVELOPER_RUNTIME_HELIUM_PROPERTIES",
+      "DOCUMENT_ORGANISATION_ARTIFACT_INDEX",
+      "DOW_RUNTIME_METRICS_PROJECTION",
+      "EXACT_PAYLOAD_RUNTIME_CARRIER",
+      "GENERIC_MATH_PROVIDER",
+      "KEB_SEMANTIC_PROVENANCE",
+      "LEAK_PHYSICS_EVIDENCE",
+      "MISSION_CONTROL_ORCHESTRATION",
+      "PRIVATE_BYTE_PROVENANCE_VAULT",
+      "QPS_CHILD_AUTHORITY",
+      "SOURCE_EXTRACTION_RTM_RECONCILIATION"
+    ],
+    "evidence": {
+      "repo": "GBOGEB/pipeline-automation-hub",
+      "path": "mission-control/qps-triage-ultra/topology/QPS_REPO_FUNCTION_TOPOLOGY_v1.yaml",
+      "blob": "df0ee845697578cd644691b81eafb2465249d772"
+    },
+    "exclusions": {
+      "governed_mission_outside_routing_denominator": 6,
+      "maintenance_only": 1,
+      "account_context_not_admitted": 64
+    },
+    "rule": "ONLY_CANONICAL_ROUTING_TOPOLOGY_FUNCTIONS_RECEIVE_DENOMINATOR_CREDIT; REPO_COUNT_IS_NOT_SURFACE_COUNT"
+  },
+  "global_fleet_penetration": null,
+  "reason_global_penetration_null": "ACCEPTED_FEDERATION_SAMPLE_ROWS_ARE_NOT_YET_MAPPED_ONE_TO_ONE_AGAINST_THE_12_ROUTING_FUNCTION_SURFACES",
+  "mission_evidence": {
+    "m03_recon_blob": "10d79a75528346562e4bca55372610a86346304b",
+    "expedition_fleet_status_blob": "bbf60efb10b9da8295204180b2583cced06c4f50"
+  },
+  "rows": [
+    {
+      "repo": "GBOGEB/skills-introduction-to-github",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/GBOGEB-profile",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/cryogenic-compliance",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/DOCX_RTM_Automation",
+      "category": "GOVERNED_ROUTING_SURFACE",
+      "surface": "SOURCE_EXTRACTION_RTM_RECONCILIATION",
+      "routing_state": "ACTIVE_USED",
+      "denominator_credit": 1,
+      "basis": "QPS_REPO_FUNCTION_TOPOLOGY_v1"
+    },
+    {
+      "repo": "GBOGEB/markdownlint",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/OMI_PTIT",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/omi",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/openai-cookbook",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/gpt_session_toolkit",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/grid-table-editor",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/welcome-_-test",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/Edit_WORD_Roundtrip",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/awesome",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/the-book-of-secret-knowledge",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/document-organization-system_GBOGEB",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/GBOGEB",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/document-organization-system",
+      "category": "GOVERNED_ROUTING_SURFACE",
+      "surface": "DOCUMENT_ORGANISATION_ARTIFACT_INDEX",
+      "routing_state": "DORMANT_CANDIDATE",
+      "denominator_credit": 1,
+      "basis": "QPS_REPO_FUNCTION_TOPOLOGY_v1"
+    },
+    {
+      "repo": "GBOGEB/downloads-organization",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/cryoplant-project",
+      "category": "GOVERNED_ROUTING_SURFACE",
+      "surface": "QPS_CHILD_AUTHORITY",
+      "routing_state": "ACTIVE_USED",
+      "denominator_credit": 1,
+      "basis": "QPS_REPO_FUNCTION_TOPOLOGY_v1"
+    },
+    {
+      "repo": "GBOGEB/python-proofreader",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/segment-anything",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/ExplorerPatcher",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/RouteLLM",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/Encode-Sans",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/github-mcp-server",
+      "category": "GOVERNED_MISSION_OUTSIDE_ROUTING_DENOMINATOR",
+      "surface": "M03_MCP_BRIDGEHEAD",
+      "denominator_credit": 0,
+      "basis": "MISSION_REGISTRY_M03_RECON_OR_EXPEDITION_FLEET_STATUS",
+      "reason": "REQUIRES_ROUTING_TOPOLOGY_RECONCILIATION_BEFORE_DENOMINATOR_CREDIT"
+    },
+    {
+      "repo": "GBOGEB/stale",
+      "category": "MAINTENANCE_ONLY",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "QPS_REPO_FUNCTION_TOPOLOGY_v1"
+    },
+    {
+      "repo": "GBOGEB/attest-build-provenance",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/vscode-emacs-mcx",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/qplant-system-v0-1-1-dmaic2-temp",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/dmaic-recursive-pipeline",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/dmaic-recursive-pipeline_ALL_agennts-CP-G5-GEM-ABAC-as-4-sources",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/vscode-drawio",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/codespaces-jupyter",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/CODESPACES_jyperter",
+      "category": "GOVERNED_ROUTING_SURFACE",
+      "surface": "DEVELOPER_RUNTIME_HELIUM_PROPERTIES",
+      "routing_state": "CONDITIONAL_RESERVE",
+      "denominator_credit": 1,
+      "basis": "QPS_REPO_FUNCTION_TOPOLOGY_v1"
+    },
+    {
+      "repo": "GBOGEB/ariana",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/haikus-for-codespaces",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/orchestration-sandbox",
+      "category": "GOVERNED_MISSION_OUTSIDE_ROUTING_DENOMINATOR",
+      "surface": "M03_EXPERIMENT_RANGE",
+      "denominator_credit": 0,
+      "basis": "MISSION_REGISTRY_M03_RECON_OR_EXPEDITION_FLEET_STATUS",
+      "reason": "REQUIRES_ROUTING_TOPOLOGY_RECONCILIATION_BEFORE_DENOMINATOR_CREDIT"
+    },
+    {
+      "repo": "GBOGEB/camelot",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/node-glob",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/python-sdk",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/CODEX",
+      "category": "GOVERNED_ROUTING_SURFACE",
+      "surface": "KEB_SEMANTIC_PROVENANCE",
+      "routing_state": "ACTIVE_USED",
+      "denominator_credit": 1,
+      "basis": "QPS_REPO_FUNCTION_TOPOLOGY_v1"
+    },
+    {
+      "repo": "GBOGEB/tesseract",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/Awesome-Hacking",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/ABACUS",
+      "category": "GOVERNED_ROUTING_SURFACE",
+      "surface": "DOW_RUNTIME_METRICS_PROJECTION",
+      "routing_state": "ACTIVE_USED",
+      "denominator_credit": 1,
+      "basis": "QPS_REPO_FUNCTION_TOPOLOGY_v1"
+    },
+    {
+      "repo": "GBOGEB/pipeline-automation-hub",
+      "category": "GOVERNED_ROUTING_SURFACE",
+      "surface": "MISSION_CONTROL_ORCHESTRATION",
+      "routing_state": "ACTIVE_USED",
+      "denominator_credit": 1,
+      "basis": "QPS_REPO_FUNCTION_TOPOLOGY_v1"
+    },
+    {
+      "repo": "GBOGEB/plotly.py",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/notebook",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/codex-universal",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/prettier",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/prettier-vscode",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/eslint-config-prettier",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/prettier-eslint",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/code-prettify",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/morris.js",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/vscode",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/gk-cli",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/CoolProp",
+      "category": "GOVERNED_MISSION_OUTSIDE_ROUTING_DENOMINATOR",
+      "surface": "M01_COOLPROP_PRIVATE_QPS",
+      "denominator_credit": 0,
+      "basis": "MISSION_REGISTRY_M03_RECON_OR_EXPEDITION_FLEET_STATUS",
+      "reason": "REQUIRES_ROUTING_TOPOLOGY_RECONCILIATION_BEFORE_DENOMINATOR_CREDIT"
+    },
+    {
+      "repo": "GBOGEB/ExcelAddinInstaller",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/vscode-powershell",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/github_documentorganisatiesysteem_GBOGEB",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/github_Documents",
+      "category": "GOVERNED_ROUTING_SURFACE",
+      "surface": "PRIVATE_BYTE_PROVENANCE_VAULT",
+      "routing_state": "DORMANT_CANDIDATE",
+      "denominator_credit": 1,
+      "basis": "QPS_REPO_FUNCTION_TOPOLOGY_v1"
+    },
+    {
+      "repo": "GBOGEB/Q_engineering_tools",
+      "category": "GOVERNED_ROUTING_SURFACE",
+      "surface": "EXACT_PAYLOAD_RUNTIME_CARRIER",
+      "routing_state": "EXECUTION_SATELLITE",
+      "denominator_credit": 1,
+      "basis": "QPS_REPO_FUNCTION_TOPOLOGY_v1"
+    },
+    {
+      "repo": "GBOGEB/docker-stacks",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/cli",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/python",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/yaml-grammar",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/yaml-reference-parser",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/skills",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/telegraf",
+      "category": "GOVERNED_MISSION_OUTSIDE_ROUTING_DENOMINATOR",
+      "surface": "M06_TELEGRAF_OBSERVER_RETURN_PARK",
+      "denominator_credit": 0,
+      "basis": "MISSION_REGISTRY_M03_RECON_OR_EXPEDITION_FLEET_STATUS",
+      "reason": "REQUIRES_ROUTING_TOPOLOGY_RECONCILIATION_BEFORE_DENOMINATOR_CREDIT"
+    },
+    {
+      "repo": "GBOGEB/scientific-agent-skills",
+      "category": "GOVERNED_MISSION_OUTSIDE_ROUTING_DENOMINATOR",
+      "surface": "M03_SCIENTIFIC_SKILL_INCUBATOR",
+      "denominator_credit": 0,
+      "basis": "MISSION_REGISTRY_M03_RECON_OR_EXPEDITION_FLEET_STATUS",
+      "reason": "REQUIRES_ROUTING_TOPOLOGY_RECONCILIATION_BEFORE_DENOMINATOR_CREDIT"
+    },
+    {
+      "repo": "GBOGEB/awesome-system-design-resources",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/awesome-sysadmin",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/css-protips",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/awesome-deep-learning",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/openai-node",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/cryo_leak_rate_dashboard",
+      "category": "GOVERNED_ROUTING_SURFACE",
+      "surface": "LEAK_PHYSICS_EVIDENCE",
+      "routing_state": "CONTROL_RESERVE",
+      "denominator_credit": 1,
+      "basis": "QPS_REPO_FUNCTION_TOPOLOGY_v1"
+    },
+    {
+      "repo": "GBOGEB/cryogenic-accelerator-workspace",
+      "category": "GOVERNED_ROUTING_SURFACE",
+      "surface": "ACCELERATOR_RTM_BRIDGE",
+      "routing_state": "CONTROL_RESERVE",
+      "denominator_credit": 1,
+      "basis": "QPS_REPO_FUNCTION_TOPOLOGY_v1"
+    },
+    {
+      "repo": "GBOGEB/ARTSTYLE-WIP",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/GBOGEB-PROGRAM-COOL",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/GEMINI",
+      "category": "GOVERNED_MISSION_OUTSIDE_ROUTING_DENOMINATOR",
+      "surface": "M03_OBSERVER_TWIN_PLUS_CURRENT_R3_PROVIDER",
+      "denominator_credit": 0,
+      "basis": "MISSION_REGISTRY_M03_RECON_OR_EXPEDITION_FLEET_STATUS",
+      "reason": "REQUIRES_ROUTING_TOPOLOGY_RECONCILIATION_BEFORE_DENOMINATOR_CREDIT"
+    },
+    {
+      "repo": "GBOGEB/anthropic",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/inkscape",
+      "category": "ACCOUNT_CONTEXT_NOT_ADMITTED_TO_GOVERNED_DENOMINATOR",
+      "surface": null,
+      "denominator_credit": 0,
+      "basis": "NO_CURRENT_CANONICAL_ROUTING_SURFACE_BOUND_IN_W280R"
+    },
+    {
+      "repo": "GBOGEB/gg_MATH",
+      "category": "GOVERNED_ROUTING_SURFACE",
+      "surface": "GENERIC_MATH_PROVIDER",
+      "routing_state": "CONTROL_RESERVE",
+      "denominator_credit": 1,
+      "basis": "QPS_REPO_FUNCTION_TOPOLOGY_v1"
+    }
+  ]
+}

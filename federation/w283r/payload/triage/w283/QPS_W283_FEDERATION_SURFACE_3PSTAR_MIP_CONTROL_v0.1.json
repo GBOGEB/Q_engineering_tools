@@ -1,0 +1,71 @@
+{
+  "schema": "qps-w283-federation-surface-3pstar-mip-control/v0.2",
+  "wave": "W283R",
+  "state": "CANDIDATE_REPAIR_P1_AUTHORITY_BINDING_WAIT_EXACT_PROOF",
+  "base_main_at_prepare": "039e1fa84a6b32bcdb89e65807613377d50b4bb7",
+  "namespace": {
+    "w281": "OCCUPIED_ROOT_UNBOUND_EVALUATION_SCOPE_REPAIR",
+    "w282": "OCCUPIED_BRANCH_VISUAL_LINEAGE_3PSTAR_MIP_HANDOVER",
+    "w283": "FEDERATION_SURFACE_MAPPING_3PSTAR_MIP"
+  },
+  "three_pr": {
+    "refresh": "PASS_CURRENT_MAIN_W281_AND_W282_NAMESPACE_REFRESHED",
+    "probe": {
+      "fleet": "FIVE_ACCEPTED_SAMPLES_NOT_YET_BOUND_TO_CANONICAL_ROUTING_FUNCTIONS",
+      "bt": "REPAIR_COMPONENT_COMPLETE_SEPARATION_NO_COUNTER_OUTCOME",
+      "runtime": "#923_ZERO_STEP_NON_COMPENSATING",
+      "validator": "P1_SELF_REFERENTIAL_AUTHORITY_SET_NOT_EXTERNALIZED"
+    },
+    "rank": [
+      "P0_MAP_ACCEPTED_SAMPLES_TO_ROUTING_FUNCTIONS_AND_FREEZE_FUNCTION_BREADTH",
+      "P1_DEFINE_ROUTING_FUNCTION_DEPTH_DECOMPOSITION_FIRST_RED",
+      "P1_BT_ADMISSIBILITY_WATCH_NO_SYNTHESIS",
+      "P0_PRESERVE_923_AS_EXTERNAL_OWNER_ACTION"
+    ]
+  },
+  "mip": {
+    "modernize": "SEPARATE_FUNCTION_REACH_BREADTH_FROM_DEPTH_AND_EXTERNALIZE_AUTHORITATIVE_FUNCTION_SET",
+    "innovate": "TWO_LEVEL_PENETRATION_PLUS_EXACT_EXTERNAL_AUTHORITY_SET_BINDING",
+    "perpetuate": "REPAIRED_VALIDATOR_TESTS_EXACT_TOPOLOGY_BYTES_EXTERNAL_REPROOF_AND_LOSSLESS_HANDOVER"
+  },
+  "three_pc": {
+    "prepare": "PASS_REPAIR_PAYLOAD_MATERIALISED",
+    "prove": "WAIT_REPAIRED_EXACT_EXTERNAL_PR_HEAD_AND_DISTINCT_REPEAT",
+    "commit": "HOLD_UNTIL_REPAIRED_PROVE",
+    "three_p3": "NOT_AUTHORIZED"
+  },
+  "measured_candidate": {
+    "sample_mapping": "5_OF_5",
+    "unique_routing_functions_covered": "4_OF_12",
+    "function_breadth": 0.3333333333333333,
+    "function_depth": null,
+    "global_fleet_penetration": null
+  },
+  "bt": {
+    "repair_component": "WITHHELD_NO_FINITE_UNREGULARIZED_MLE",
+    "global": "WITHHELD_DISCONNECTED_HETEROGENEOUS_COMPARISON_GRAPH"
+  },
+  "preserved_noncompensating": [
+    "QPS_REPO_LOCAL_RUNNER_923",
+    "W275_R3_PHYSICAL_SUCCESSOR_GIT_BUNDLE_RETURN",
+    "GT_BDQ_0",
+    "VISUAL_CHILD_PROMOTIONS",
+    "EXTERNAL_SOURCE_AND_AUTHORITY_GATES"
+  ],
+  "formal_credit_delta": {
+    "engineering": 0,
+    "compliance": 0,
+    "negotiation": 0,
+    "acceptance": 0,
+    "release": 0
+  },
+  "authority_transfer": false,
+  "base_main_at_repair": "bb6f09e90a6af86e2601d3bad706209fa429eadc",
+  "rex": {
+    "id": "W283_REX_SELF_REFERENTIAL_FUNCTION_SET_VALIDATION",
+    "observed_in": "GBOGEB/Q_engineering_tools#52",
+    "severity": "P1",
+    "repair": "LOAD_EXACT_TOPOLOGY_AND_CENSUS_BYTES_AND_PROVE_SET_EQUALITY",
+    "prior_green_proof_disposition": "INSUFFICIENT_FOR_CONTROL_AFTER_P1"
+  }
+}
