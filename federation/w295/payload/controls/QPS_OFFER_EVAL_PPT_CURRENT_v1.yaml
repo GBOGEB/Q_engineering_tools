@@ -1,0 +1,64 @@
+schema: qps-offer-eval-ppt-current/1.1
+as_of: '2026-09-18T17:20:00+02:00'
+repo: GBOGEB/cryoplant-project
+status: CONTENT_ALIGNED_BINARY_VISUAL_DOV_WITHHELD
+authority_class: SUPPLEMENTARY_PRESENTATION_CONTROL_NOT_ENGINEERING_SSOT
+purpose: >-
+  Bind the user-reviewed OFFER v7.1 METHOD and EVAL presentation delta into QPS TRIAGE without
+  changing the locked evaluation method, equations, ranking logic, Bradley-Terry semantics, bidder
+  evidence authority, workbook calculation authority, or visual N100/N200 population by assertion.
+canonical_equation_binding:
+  control: controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml
+  version: OFFER_EVAL_EQ_v1
+  risk_policy: OPTION_A_SYSTEM_RISK_APPLIED_ONCE_AT_ITEM_LEVEL
+  final_system_risk_subtraction: PROHIBITED
+  governing_pairwise_separate_from_final_review_score: true
+  legacy_70_30_blend: RETIRED_FROM_CANONICAL_PRODUCTION_USE
+  outward_artifact_regeneration: REQUIRED_FOR_FULL_PARITY
+canonical_method_boundary:
+  baseline: v7.1_engineering_handover
+  locked: true
+  prohibited_changes: [equations, static_requirement_ranking_logic, frozen_precedence, conditional_cost_activation_rule, Bradley_Terry_method, risk_adjustment_method]
+source_decks:
+  method: {artifact: OFFER_BT_METHOD_v7_1_DELTA_User.pptx, conversation_file_id: file_00000000e74071f7bd09d35432e4162a, source_identity_class: CURRENT_CHAT_ATTACHMENT, content_read: PASS, exact_binary_sha256: WITHHELD_NOT_MATERIALIZED_IN_EXECUTION_RUNTIME, visual_render_dov: WITHHELD_EXACT_BINARY_RENDER_NOT_AVAILABLE}
+  evaluation: {artifact: OFFER_EVAL_v7_1_DELTA.pptx, conversation_file_id: file_00000000064c71f58081f644dbed0ebf, source_identity_class: CURRENT_CHAT_ATTACHMENT, content_read: PASS, exact_binary_sha256: WITHHELD_NOT_MATERIALIZED_IN_EXECUTION_RUNTIME, visual_render_dov: WITHHELD_EXACT_BINARY_RENDER_NOT_AVAILABLE}
+method_deck_content_alignment:
+  structure: [overview_locked_baseline, static_ranking_logic, frozen_precedence_hierarchy, tier_structure, deterministic_pairwise_examples, automated_BT_pairwise_engine, ranking_not_risk, risk_methodology, risk_calculation, recursive_DMAIC_idempotency, code_excel_mapping, legacy_v1_appendix_traceability]
+  tier_0: [OFFER-01, OFFER-02, OFFER-03, OFFER-47, OFFER-48, OFFER-49]
+  tier_1: [OFFER-11, OFFER-04, OFFER-21, OFFER-22, OFFER-28, OFFER-39, OFFER-20, OFFER-13, OFFER-27, OFFER-29]
+  tier_2: [OFFER-06, OFFER-07, OFFER-12, OFFER-19, OFFER-23, OFFER-24, OFFER-26, OFFER-30, OFFER-33, OFFER-34, OFFER-35, OFFER-37, OFFER-41, OFFER-42, OFFER-43, OFFER-46]
+  tier_3: contextual_supporting_differentiators
+  risk_ranking_split: {ranking: importance_of_requirement, risk: confidence_in_bidder_delivery, impact_expression: importance_x_bidder_score_x_one_minus_risk}
+  risk_expression: R_i_b = MIN(R_max, BaseRisk_i + BidderRisk_i_b + SystemRisk_i_b)
+  conditioned_evaluator_expression: E_i_b = q_i_b * C_i_b
+  adjusted_expression: X_i_b = E_i_b * G_i_b * (1 - R_i_b)
+  final_review_expression: FinalReviewScore_b = SUM_c(alpha_c * ClusterScore_c_b)
+  governing_pairwise_expression: BT(A,B) = SUM_i(W_i * S_i(A,B))
+  second_system_risk_subtraction: PROHIBITED
+  legacy_appendix: {retained: true, topics: [BT_latent_strength_model, convergence_gt_98pct, operating_modes_A_B_C, controlled_external_BT_refresh]}
+evaluation_deck_content_alignment:
+  story_order: [architecture, ranking_logic, linkage, tier_definition, criteria_sensitivity_heatmap, winner, risk_formula, sample_calculation, risk_override_logic, workbook_implementation, close]
+  seeded_snapshot: {Bidder_A_adjusted_total: 2353.3, Bidder_B_adjusted_total: 2160.1, preferred_under_seeded_assumptions: Bidder_A, final_award_decision: false}
+  winner_rationale: [higher_adjusted_total_score, dominance_in_Tier_1_requirements, lower_system_adjusted_risk]
+  heatmap_shell: {state: PRESENTATION_STRUCTURE_ONLY_PENDING_EXCEL_DRIVEN_REGENERATION, source_intent: [STATIC_BT, CATEGORY_COMPARE], board_message: final_ranking_driven_by_high_dominance_items_not_lower_tier_offsets, manual_colour_promotion: prohibited}
+workbook_to_ppt_contract:
+  flow: [STATIC_BT, INPUT_AB, CALC_AB, CATEGORY_COMPARE, DASHBOARD]
+  interpretation: {STATIC_BT: requirement_importance_engine, INPUT_AB: bidder_evidence_input, CALC_AB: scoring_and_risk_engine, CATEGORY_COMPARE: category_aggregation, DASHBOARD: visual_projection_layer}
+  dashboard_current_limitation: Current dashboard visuals are pasted/static presentation objects rather than proven generated plots; no generated-plot provenance or automatic chart-refresh claim is made by this control.
+user_completion_register:
+  - {id: PPT-U01, action: bind_exact_PPTX_SHA256_and_render_receipt_for_both_current_decks, state: OPEN}
+  - {id: PPT-U02, action: replace_heatmap_shell_with_Excel_driven_values_and_colours_from_STATIC_BT_plus_CATEGORY_COMPARE, state: OPEN}
+  - {id: PPT-U03, action: confirm_exact_Tier_2_numeric_bands_if_workbook_defines_numeric_thresholds, state: OPEN}
+  - {id: PPT-U04, action: bind_actual_risk_cap_value_and_formula_cell_or_named_range_from_workbook, state: OPEN}
+  - {id: PPT-U05, action: insert_code_and_workbook_hyperlinks_and_exact_version_references, state: OPEN}
+  - {id: PPT-U06, action: regenerate_dashboard_plots_from_workbook_instead_of_pasted_plot_objects_where_required, state: OPEN}
+  - {id: PPT-U07, action: regenerate_and_crosscheck_equation_v1_symbols_score_delta_and_sheet_names_against_Word_and_Excel, state: CONTROL_BOUND_OUTWARD_REGENERATION_OPEN}
+visual_QA_relationship:
+  frozen_visual_N100_mutation: 0
+  N200_checkpoint_credit: 0
+  W173_historical_exclusion_preserved: true
+  W173_excluded_artifact: OFFER_BT_METHOD_v7_1_DELTA
+  current_user_method_deck_is_same_binary_as_W173_excluded_artifact: UNKNOWN_NOT_HASH_BOUND
+  promotion_rule: Do not replace or reinstate the W173 excluded statistical artifact until the current user deck is exact-hash-bound, rendered, content-parity checked, visual-release checked and deduplicated against frozen N100 plus all valid post-N100 observations.
+  current_visual_collection_authority: {source: ocd-adr/40_implementation/QPS_VISUAL_N400_EXPANSION_PLAN_v0.1.yaml, staging_N: 156, per_format: {HTML: 39, PDF: 50, PPTX: 34, XLSX: 33}, remaining_to_N200: {HTML: 11, PDF: 0, PPTX: 16, XLSX: 17}, first_red: VBD-N200-06_CLOSE_REMAINING_44}
+credit_guard: {engineering_delta: 0, compliance_delta: 0, negotiation_delta: 0, acceptance_delta: 0, release_delta: 0, visual_N200_delta: 0, project_global_PCA_delta: 0}
