@@ -31,10 +31,10 @@ jobs:
       - name: Verify five exact QPS source blobs
         shell: bash
         run: |
-          test "$(git hash-object triage/w285/QPS_W285_FEDERATION_FUNCTION_DEPTH_v0.1.json)" = "0503aeaf611f84afd8e00a87c19270e3e641a8a5"
+          test "$(git hash-object triage/w285/QPS_W285_FEDERATION_FUNCTION_DEPTH_v0.1.json)" = "691680cdf11289142b402a0ae02c95d46a246473"
           test "$(git hash-object scripts/qps_w285_validate_federation_depth.py)" = "a1ca2be58ee38fd3e4d0d1aa2f03c3fc544a8c90"
           test "$(git hash-object tests/test_qps_w285_federation_depth.py)" = "ad0ac000b9e1d9eb7a44ba13a6a0d185f6f434a4"
-          test "$(git hash-object triage/w285/QPS_W285_3PSTAR_MIP_CONTROL_v0.1.json)" = "495ab81b7d21b0d7c023f18854a77889a5bed4c0"
+          test "$(git hash-object triage/w285/QPS_W285_3PSTAR_MIP_CONTROL_v0.1.json)" = "4e1fe2d4481680d4a38e4152f20add3cecb87347"
           test "$(git hash-object triage/w283/upstream/QPS_REPO_FUNCTION_TOPOLOGY_v1.yaml)" = "df0ee845697578cd644691b81eafb2465249d772"
 
       - name: Execute W285 function depth validator
@@ -58,4 +58,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          gh issue create             --repo "${GITHUB_REPOSITORY}"             --title "W285F MAIN REPEAT PASS ${GITHUB_RUN_ID}"             --body "Exact W285 5/5 source blobs, topology current_use denominator, validator, tests and artifact upload passed on main. run_id=${GITHUB_RUN_ID}; sha=${GITHUB_SHA}; source_qps_pr=1490; source_qps_head=e847e40957df14af363afe822da04f0f90a2c89c; B=4/12; D=0.6; PEN=0.2; authority_transfer=false; formal_credit_delta=0."
+          gh issue create             --repo "${GITHUB_REPOSITORY}"             --title "W285F MAIN REPEAT PASS ${GITHUB_RUN_ID}"             --body "Exact W285 5/5 source blobs, topology current_use denominator, validator, tests and artifact upload passed on main. run_id=${GITHUB_RUN_ID}; sha=${GITHUB_SHA}; source_qps_pr=1490; source_qps_head=23abb271c2747b63fa2a2c4c71a484ccdc339700; B=4/12; D=0.6; PEN=0.2; authority_transfer=false; formal_credit_delta=0."
