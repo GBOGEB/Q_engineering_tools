@@ -1,0 +1,107 @@
+schema: qps-w231-table-readability-msa-diagnostic/0.1
+as_of: '2026-09-15T08:43:00+02:00'
+repo: GBOGEB/cryoplant-project
+status: PASS_DIAGNOSTIC_ONLY_CONTROL_WITHHELD
+parent_receipt: triage/w231/QPS_W231_N300_ATOMIC_SWAP_UNIQUE_STATS_v0.1.yaml
+matrix:
+  path: /QPS/W231/QPS_W231_N300_UNIQUE_ARTIFACT_MATRIX_v0.1.csv
+  library_file_id: libfile_8f84043d6700819195e4b037a38e0267
+  sha256_expected: c2c1e6983886fbdf64a75317d4728fe0030d70d7c8be1110be76f9daff653d0b
+  sha256_observed: c2c1e6983886fbdf64a75317d4728fe0030d70d7c8be1110be76f9daff653d0b
+  hash_match: true
+  rows: 300
+  numeric_features: 12
+  format_counts: {HTML: 75, PDF: 75, PPTX: 75, XLSX: 75}
+  unique_format_artifact_keys: 300
+  duplicate_format_artifact_keys: 0
+
+method:
+  pooled_KMO_MSA: inverse_correlation_partial_correlation_definition
+  pair_diagnostic: pooled_simple_and_full_order_partial_correlations_for_table_readability
+  per_format: recompute_KMO_MSA_separately_within_each_75_row_format_stratum
+  replacement_sensitivity: remove_all_12_W229_replacement_rows_then_recompute
+  format_residualization:
+    demean: subtract_each_format_mean_from_each_feature_then_recompute
+    zscore: zscore_each_feature_within_format_then_recompute
+  evidence_mutation: false
+  deletion_or_rescore_to_improve_gate: false
+
+baseline_reproduction:
+  pooled_KMO: 0.7595879668089061
+  pooled_table_readability_MSA: 0.4466305167113997
+  canonical_receipt_table_readability_MSA: 0.4466305167113992
+  reproduction: PASS_NUMERIC_PARITY
+
+per_format_table_readability_MSA:
+  HTML: {N: 75, KMO: 0.8404467977678961, MSA: 0.8432612753290836, mean: 7.614666666666666, sd: 0.9124800380390903}
+  PDF: {N: 75, KMO: 0.681502262649849, MSA: 0.5265071545258736, mean: 6.640185003994586, sd: 1.702858786714975}
+  PPTX: {N: 75, KMO: 0.8257263167595514, MSA: 0.7350345889944088, mean: 7.016000000000001, sd: 1.3857420687419002}
+  XLSX: {N: 75, KMO: 0.733509157851146, MSA: 0.8984250997204521, mean: 7.902444444444444, sd: 0.7676731218572278}
+  all_format_strata_above_0_50: true
+
+replacement_sensitivity:
+  remove_all_12_W229_replacements:
+    N: 288
+    KMO: 0.7566834946525618
+    table_readability_MSA: 0.44291996706913933
+    delta_vs_canonical: -0.00371054964226037
+    interpretation: REMOVING_REPLACEMENTS_SLIGHTLY_WORSENS_POOLED_MSA
+  remove_only_replacement_HTML: {N: 295, KMO: 0.7596183351225021, table_readability_MSA: 0.4442824311185345}
+  remove_only_replacement_PDF: {N: 298, KMO: 0.7579630179036678, table_readability_MSA: 0.44738443810744466}
+  remove_only_replacement_PPTX: {N: 297, KMO: 0.7579737345428122, table_readability_MSA: 0.4470693995587052}
+  remove_only_replacement_XLSX: {N: 298, KMO: 0.7599614319163767, table_readability_MSA: 0.4441801028935027}
+  replacement_rows_are_root_cause: false
+
+format_effect_diagnostic:
+  format_eta_squared_on_table_readability: 0.13701200904161703
+  within_format_demeaned:
+    KMO: 0.757093983893552
+    table_readability_MSA: 0.5914834587524337
+  within_format_zscored:
+    KMO: 0.8033130110173422
+    table_readability_MSA: 0.7449190686813593
+  interpretation: >-
+    The pooled table_readability MSA deficit is not reproduced within any individual format stratum and materially relaxes
+    after format effects are removed. This is evidence of a heterogeneous-format pooling / suppression structure, not evidence
+    that the canonical rows are wrong and not authority to delete, rescore, retune, or silently redefine the CONTROL gate.
+
+pooled_table_readability_pair_diagnostic:
+  - {feature: information_density, simple_r: 0.601558765199358, full_partial_r: 0.5523327925744942}
+  - {feature: figure_quality, simple_r: 0.02518966066392999, full_partial_r: -0.4129484965050049}
+  - {feature: diagram_consistency, simple_r: 0.19774162818354205, full_partial_r: 0.38578606622908207}
+  - {feature: whitespace_grid, simple_r: -0.17152421819534935, full_partial_r: -0.22942939406825902}
+  - {feature: captions_citations, simple_r: 0.27793159443241544, full_partial_r: 0.18833499259483566}
+  - {feature: typographic_hierarchy, simple_r: 0.07598699401418352, full_partial_r: -0.18697705351489768}
+  suppression_signal: >-
+    figure_quality and typographic_hierarchy show near-zero/small pooled simple correlation but material negative full-order partial
+    correlation with table_readability, consistent with suppression / heterogeneous covariance structure in the pooled matrix.
+
+control_disposition:
+  N300_unique_population: PASS
+  canonical_pooled_MSA_gate: STILL_FAIL_0_4466305167113992
+  N300_CONTROL: WITHHELD
+  per_format_diagnostic: PASS_ALL_FOUR_ABOVE_0_50
+  governed_gate_redefinition: NOT_AUTHORIZED_BY_THIS_DIAGNOSTIC
+  Bradley_Terry: STILL_WITHHELD_NO_OBSERVED_PAIRWISE_OUTCOMES
+  formal_credit_delta: {engineering: 0, compliance: 0, negotiation: 0, acceptance: 0, release: 0, runtime_gold: 0}
+
+next_decision:
+  id: N300_MSA_GOVERNANCE_BASIS
+  question: >-
+    Is the intended adequacy object one pooled heterogeneous cross-format population, or a format-stratified / format-adjusted
+    visual-quality construct? Answer by governed methodology and intended inference, not by choosing the version that passes.
+  if_pooled_remains_authority:
+    - retain_MSA_0_4466305167113992_and_CONTROL_WITHHELD
+    - inspect_specific_suppression_pairs_and_measurement_semantics
+  if_governance_authorizes_format_adjusted_analysis:
+    - version_the_method_explicitly
+    - preserve_original_pooled_receipt_as_history
+    - rerun_full_KMO_MSA_Bartlett_PCA_PA95_under_new_governed_method
+    - do_not_back_promote_old_results
+
+guards:
+  - NO_DELETE_RESCORE_RETUNE_FOR_THRESHOLD_COSMETICS
+  - DIAGNOSTIC_NE_CONTROL
+  - FORMAT_ADJUSTMENT_REQUIRES_EXPLICIT_GOVERNANCE
+  - W199_OR_REAL_SOURCE_RETURN_PREEMPTS_VISUAL_DIAGNOSTIC
+  - ISSUE_923_REMAINS_NONCOMPENSATING
