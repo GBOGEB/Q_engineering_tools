@@ -35,7 +35,7 @@ $workPath = Join-Path (Resolve-Path -LiteralPath $OutDir).Path ("native_roundtri
 Copy-Item -LiteralPath $inputResolved -Destination $workPath -Force
 
 $receipt = [ordered]@{
-  schema = "qps-m08-native-excel-roundtrip-attempt/1.0"
+  schema = "qps-m08-native-excel-roundtrip-attempt/1.1"
   attempt_id = $AttemptId
   started_utc = $startUtc.ToString("o")
   runner_os = $env:RUNNER_OS
@@ -47,6 +47,8 @@ $receipt = [ordered]@{
   excel_com_available = $false
   excel_version = $null
   excel_build = $null
+  repair_mode_first_open = $null
+  repair_mode_reopen = $null
   open_save_close_reopen = $false
   no_modal_block_observed = $false
   no_table1_xml_part_after_save = $false
@@ -77,14 +79,16 @@ try {
   try { $excel.AskToUpdateLinks = $false } catch {}
 
   $wb = $excel.Workbooks.Open($workPath, 0, $false)
+  try { $receipt.repair_mode_first_open = [bool]$wb.RepairMode } catch {}
   $wb.Save()
   $wb.Close($false)
-  [void][System.Runtime.InteropServices.Marshal]::ReleaseComObject($wb)
+  [void][System.Runtime.InteropServices.Marshal]::FinalReleaseComObject($wb)
   $wb = $null
 
   $wb = $excel.Workbooks.Open($workPath, 0, $false)
+  try { $receipt.repair_mode_reopen = [bool]$wb.RepairMode } catch {}
   $wb.Close($false)
-  [void][System.Runtime.InteropServices.Marshal]::ReleaseComObject($wb)
+  [void][System.Runtime.InteropServices.Marshal]::FinalReleaseComObject($wb)
   $wb = $null
 
   $receipt.open_save_close_reopen = $true
@@ -104,21 +108,27 @@ try {
   $receipt.repair_log_count = @($logs).Count
   $receipt.output_sha256 = Get-Sha256 $workPath
 
-  if ($receipt.open_save_close_reopen -and $receipt.no_modal_block_observed -and $receipt.no_table1_xml_part_after_save -and $receipt.repair_log_count -eq 0) {
+  $repairModeProven = ($receipt.repair_mode_first_open -eq $false -and $receipt.repair_mode_reopen -eq $false)
+  if ($receipt.open_save_close_reopen -and $receipt.no_modal_block_observed -and $repairModeProven -and $receipt.no_table1_xml_part_after_save -and $receipt.repair_log_count -eq 0) {
     $receipt.status = "PASS_NATIVE_MICROSOFT_EXCEL_CLEAN_ROUNDTRIP"
+  } elseif (-not $repairModeProven) {
+    $receipt.status = "WITHHELD_REPAIR_MODE_NOT_PROVEN_FALSE"
   } else {
     $receipt.status = "RED_NATIVE_EXCEL_REPAIR_OR_INTEGRITY_SIGNAL"
   }
 } catch {
   if (-not $receipt.error) { $receipt.error = $_.Exception.Message }
+  if ($receipt.excel_com_available) {
+    $receipt.status = "RED_NATIVE_EXCEL_EXECUTION_EXCEPTION"
+  }
 } finally {
   if ($wb -ne $null) {
     try { $wb.Close($false) } catch {}
-    try { [void][System.Runtime.InteropServices.Marshal]::ReleaseComObject($wb) } catch {}
+    try { [void][System.Runtime.InteropServices.Marshal]::FinalReleaseComObject($wb) } catch {}
   }
   if ($excel -ne $null) {
     try { $excel.Quit() } catch {}
-    try { [void][System.Runtime.InteropServices.Marshal]::ReleaseComObject($excel) } catch {}
+    try { [void][System.Runtime.InteropServices.Marshal]::FinalReleaseComObject($excel) } catch {}
   }
   [gc]::Collect()
   [gc]::WaitForPendingFinalizers()
