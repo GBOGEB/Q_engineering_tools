@@ -1,0 +1,137 @@
+{
+  "schema": "qps-w189-federation-sample4-control/v2",
+  "wave": "W189R",
+  "sample_id": "FED-SAMPLE-004-W184F-N200-MIRROR",
+  "authority": "MISSION_CONTROL_AUTHORITATIVE_RETURN_CANDIDATE",
+  "activation_rule": "EFFECTIVE_ON_W189R_MERGE_AFTER_EXACT_RETURN_PAYLOAD_PR_HEAD_AND_POSTMERGE_REPEAT",
+  "namespace": {
+    "w188": "OCCUPIED_VISUAL_N200_AND_MIP2C",
+    "w189": "FEDERATION_EXPANSION_SAMPLE_4"
+  },
+  "source_package": {
+    "repo": "GBOGEB/cryoplant-project",
+    "pr": 1169,
+    "head": "e4bce25ef4d07d4d472f29aad9793f6974eb43ad",
+    "merge": "dd28b8471bada007add5b1a94b3d131f7d0b6748"
+  },
+  "surface": {
+    "type": "SELF_CONTAINED_EXACT_HASH_ANALYTICAL_CARRIER",
+    "source_authority_repo": "GBOGEB/cryoplant-project",
+    "source_analytical_head": "8fe56e088514660babdd0002055ef99dec939eb6",
+    "carrier_repo": "GBOGEB/Q_engineering_tools",
+    "failed_carrier_pr": 45,
+    "failed_carrier_head": "ed16a57fea9207a9bc488a69a8171740ca6913fe",
+    "failed_carrier_merge": "1193a35113342e8de9ffb79c8e28a96974d84921",
+    "repaired_carrier_pr": 46,
+    "repaired_carrier_head": "766f064e561c28e41cc70dd1a17a29cd71343da5",
+    "mirror_manifest_blob": "45c001cee27d8d0c86307a0db693ae5f51b00eac",
+    "source_file_count": 18,
+    "child_reentry_pr": 1166,
+    "child_reentry_head": "788e0aa6ee9a68b1cf1a96b709befaa4e681576c",
+    "child_reentry_merge": "4c7ae5f569440dc2a70668363dbda6f411ab7a0f"
+  },
+  "native_missioncontrol_runtime": {
+    "run_id": 34869673997,
+    "job_id": 104062162358,
+    "recorded_steps": 0,
+    "classification": "WITHHELD_INFRA_PREEXECUTION_REX_006",
+    "compensated": false
+  },
+  "source_surface_runtime": {
+    "transport_first_red": {
+      "run_id": 34861447664,
+      "job_id": 104034424600,
+      "result": "FAIL_PRIVATE_CROSS_REPO_CHECKOUT",
+      "failed_step": "Checkout exact cryoplant W184 payload",
+      "classification": "FEDERATION_AUTH_NOT_923"
+    },
+    "exact_hash_mirror_pass": {
+      "run_id": 34868622367,
+      "job_id": 104058671463,
+      "runner_id": 1000278450,
+      "result": "PASS",
+      "artifact_id": 10358281452,
+      "artifact_digest": "sha256:4861d40ac0a1ee626e3c541714b8310e18486f5cfc6d98839c1ffbbde0e16e39"
+    }
+  },
+  "federated_exact_proof": {
+    "repo": "GBOGEB/ABACUS",
+    "pr": 1210,
+    "source_exact_blob_count": 7,
+    "pr_head": {
+      "sha": "2ad9bea507e75abc0416d536eeb9db96217e92ef",
+      "run_id": 34870010866,
+      "job_id": 104063747625,
+      "runner_id": 1000279224,
+      "artifact_id": 10358408631,
+      "artifact_digest": "sha256:b47e407cce90f62db6ba38ec8ecf354d95b8a69cddaa8899b73536a3b38216bf",
+      "result": "PASS"
+    },
+    "merge_sha": "13b072208bc9eacba18a69e6e7c299325b778fb6",
+    "postmerge_repeat": {
+      "run_id": 34870512101,
+      "job_id": 104064963064,
+      "runner_id": 1000279443,
+      "artifact_id": 10359305424,
+      "artifact_digest": "sha256:d33623e43da71b0e320743dc15fff3f5266f1f0b64fcaa3eaa4e374b728c4143",
+      "result": "PASS"
+    }
+  },
+  "child_disposition": {
+    "pr": 1166,
+    "state": "MEASURED_EVIDENCE_REENTERED_FIRST_RED_EXPOSED",
+    "kmo": 0.78587,
+    "minimum_msa": 0.39953,
+    "minimum_msa_feature": "table_readability",
+    "planned_minimum_msa_target": 0.60,
+    "pc1_explained_variance": 0.4710,
+    "pc2_explained_variance": 0.1402,
+    "pc3_explained_variance": 0.1306,
+    "pc1_n100_n200_loading_congruence": 0.99441,
+    "pc2_n100_n200_loading_congruence": 0.83250,
+    "visual_reverse_pressure_spearman": 0.93706,
+    "n200_control_promotion": false,
+    "federation_acceptance_may_not_promote_child": true
+  },
+  "measurement": {
+    "breadth": {"numerator": 30, "denominator": 30, "value": 1.0},
+    "depth": {"numerator": 8, "denominator": 8, "value": 1.0},
+    "penetration_formula": "PEN=B*D",
+    "penetration": 1.0,
+    "scope": "BOUNDED_W184F_N200_EXACT_HASH_CARRIER_ONLY"
+  },
+  "specialists": {
+    "roles": [
+      "CREW-FED-AMBASSADOR",
+      "CREW-FED-GEOGRAPHER",
+      "CREW-FED-GEOLOGIST",
+      "CREW-FED-CALLIGRAPHER",
+      "CREW-FED-NEURON",
+      "CREW-H2-HISTORIAN"
+    ],
+    "distinct_accepted_samples": 4,
+    "control_eligibility_already_true_before_w189": true,
+    "automatic_control_promotion": false
+  },
+  "analytics": {
+    "accepted_bounded_samples": 4,
+    "known_sample_set_denominator": 4,
+    "pca": "MEASURED_SMALL_N_N4_PC1_STABLE_PC2_ROTATING",
+    "bt": "REPEATED_TRANSPORT_COMPONENT_CONNECTED_BUT_SEPARATED_GLOBAL_FIT_WITHHELD"
+  },
+  "fleet_census": {
+    "state": "PARTIAL_CLASSIFICATION_DENOMINATOR_NOT_YET_FROZEN",
+    "accessible_repository_universe_total": null,
+    "mission_relevant_surface_denominator": null,
+    "rule": "ACCESSIBLE_REPOSITORY_UNIVERSE_IS_CONTEXT_NOT_AUTOMATIC_FEDERATION_DENOMINATOR"
+  },
+  "preserved_non_compensating_gates": [
+    "QPS_REPO_LOCAL_RUNNER_923",
+    "G6_CURRENT_RELEASE_IDENTITY_AND_PARITY",
+    "W165_EDGE_K8S_MEASUREMENT_GATE",
+    "VISUAL_N200_CHILD_PROMOTION_REVIEW",
+    "W152_EXTERNAL_EVIDENCE_RETURN",
+    "EXTERNAL_SOURCE_AND_AUTHORITY_GATES"
+  ],
+  "formal_credit_delta": {"engineering": 0, "compliance": 0, "negotiation": 0, "acceptance": 0, "release": 0}
+}
