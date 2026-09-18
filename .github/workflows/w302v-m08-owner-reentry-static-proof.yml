@@ -1,0 +1,119 @@
+name: W302V M08 Owner Reentry Static Proof
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/w302v-m08-owner-reentry-static-proof.yml'
+      - 'federation/w302v/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/w302v-m08-owner-reentry-static-proof.yml'
+      - 'federation/w302v/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prove_owner_reentry_contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact executor head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Verify exact QPS W302 blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          declare -A expected=(
+            ["federation/w302v/controls/QPS_M08_NATIVE_EXCEL_OWNER_INPUT_CURRENT_v1.yaml"]="1ba94a39f8be30b0546b9e76aa53762e74ff619a"
+            ["federation/w302v/controls/QPS_OFFER_EVAL_METHOD_CURRENT_v1.yaml"]="d7f7f0011cf89f1d9fa4af8de62bb651cd8f79a0"
+            ["federation/w302v/scripts/run_qps_m08_native_excel_owner_reentry.ps1"]="ec6719b18882c76e6257cc8cec19fa00cc9241c4"
+            ["federation/w302v/scripts/qps_m08_validate_native_excel_owner_reentry.py"]="68261497cb5f6add3436df839f98989c61fb9404"
+            ["federation/w302v/tests/test_qps_m08_native_excel_owner_reentry.py"]="ed4957330c37312fa0539f851de9e17daec233bb"
+            ["federation/w302v/triage/w302/QPS_W302_M08_NATIVE_EXCEL_OWNER_INPUT_PIN_v1.yaml"]="a707d891885f8471ee119288ab9abfe7e60fb3db"
+            ["federation/w302v/handover/qps_recursive/QPS_W302_M08_NATIVE_EXCEL_OWNER_REENTRY_v1.md"]="d3c9d7bc032982e2d5bd94c076311bf86d6c32f1"
+          )
+          for p in "${!expected[@]}"; do
+            test "$(git hash-object "$p")" = "${expected[$p]}"
+          done
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install static proof dependencies
+        run: python -m pip install --disable-pip-version-check pytest pyyaml
+
+      - name: Validate YAML control bindings
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import yaml
+          from pathlib import Path
+          root=Path('federation/w302v')
+          owner=yaml.safe_load((root/'controls/QPS_M08_NATIVE_EXCEL_OWNER_INPUT_CURRENT_v1.yaml').read_text())
+          method=yaml.safe_load((root/'controls/QPS_OFFER_EVAL_METHOD_CURRENT_v1.yaml').read_text())
+          triage=yaml.safe_load((root/'triage/w302/QPS_W302_M08_NATIVE_EXCEL_OWNER_INPUT_PIN_v1.yaml').read_text())
+          assert owner['state']=='OWNER_INPUT_PINNED_NATIVE_EXCEL_EXTERNAL_EXECUTION_REQUIRED'
+          assert owner['owner_input']['raw_sha256']=='a01b53014681f8c154c349b273c9db9686abe6f7d00b0e03d9b10f6f685f226a'
+          assert owner['owner_input']['normalized_release_sha256']=='de54d5ccf3da1afcf8d517d7c22244765073798e0572ee1beef14cd0d8b9b18e'
+          assert owner['native_gate']['no_third_equivalent_hosted_retry'] is True
+          assert method['state']=='CONTROL_EQUATION_V1_CROSS_ARTIFACT_AND_POST_W299_PARITY_PASS_NATIVE_EXCEL_BLOCKED'
+          assert method['open_gates']['native_excel']['owner_input']['stale_input_may_pass'] is False
+          assert method['open_gates']['native_excel']['owner_input']['raw_sha256']==owner['owner_input']['raw_sha256']
+          assert method['open_gates']['native_excel']['owner_input']['normalized_release_sha256']==owner['owner_input']['normalized_release_sha256']
+          assert triage['three_pc']['prove']=='BLOCKED_EXTERNAL_WINDOWS_WITH_REAL_MICROSOFT_EXCEL'
+          assert triage['three_p3']['state']=='NOT_ADMITTED'
+          assert owner['authority_transfer'] is False and owner['formal_credit_delta']==0
+          PY
+
+      - name: Run owner receipt validator regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pytest -q federation/w302v/tests/test_qps_m08_native_excel_owner_reentry.py
+
+      - name: Parse PowerShell wrapper only
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $text = Get-Content -Raw 'federation/w302v/scripts/run_qps_m08_native_excel_owner_reentry.ps1'
+          $null = [scriptblock]::Create($text)
+          Write-Output 'PASS_POWERSHELL_PARSE_ONLY_NO_NATIVE_EXCEL_EXECUTION'
+
+      - name: Bind static proof receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          out={
+            'schema':'qps.m08.native_excel_owner_reentry_static_proof.v1',
+            'status':'PASS_STATIC_OWNER_REENTRY_CONTRACT',
+            'workflow_sha':os.environ['GITHUB_SHA'],
+            'run_id':int(os.environ['GITHUB_RUN_ID']),
+            'exact_qps_blobs_verified':7,
+            'validator_regressions':'PASS',
+            'powershell_parse':'PASS_NO_EXECUTION',
+            'native_excel_attempt_executed':False,
+            'owner_input_raw_sha256':'a01b53014681f8c154c349b273c9db9686abe6f7d00b0e03d9b10f6f685f226a',
+            'owner_input_normalized_release_sha256':'de54d5ccf3da1afcf8d517d7c22244765073798e0572ee1beef14cd0d8b9b18e',
+            'native_excel_gate':'BLOCKED_EXTERNAL_OWNER_RUNTIME',
+            'authority_transfer':False,
+            'formal_credit_delta':0,
+          }
+          Path('W302V_OWNER_REENTRY_STATIC_PROOF.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          print(json.dumps(out,sort_keys=True))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w302v-m08-owner-reentry-static-proof
+          path: W302V_OWNER_REENTRY_STATIC_PROOF.json
+          if-no-files-found: error

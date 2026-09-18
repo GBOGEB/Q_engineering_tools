@@ -1,0 +1,82 @@
+schema: qps-w302-m08-native-excel-owner-input-pin/1.0
+as_of: '2026-09-18T18:46:00+02:00'
+repo: GBOGEB/cryoplant-project
+wave: W302
+mission: M08_OFFER_EVAL_METHOD
+state: PASS_OWNER_INPUT_PREP_EXTERNAL_NATIVE_EXCEL_STILL_BLOCKED
+authority_transfer: false
+formal_credit_delta: 0
+
+three_pr:
+  refresh:
+    state: PASS
+    current_main: e65f5d0cae72696200c10c46cac0acc7e316845c
+    prior_m08_close: triage/w301/QPS_W301_M08_POST_W299_PROOF_BINDING_v1.yaml
+    equation_implementation: PASS_EXECUTED_EXACT_POST_W299
+    sole_promotion_blocker: NATIVE_EXCEL_CLEAN_ROUNDTRIP_EXTERNAL_RUNTIME
+  probe:
+    state: PASS_GAP_FOUND
+    gap: >-
+      W291 generic native-Excel receipt validation did not bind the owner transaction to the exact
+      current post-W301 workbook release identity, so a stale governed-looking workbook could have
+      satisfied the generic receipt schema.
+  rank:
+    state: PASS
+    first_internal_action: PIN_EXACT_OWNER_INPUT_BEFORE_EXTERNAL_NATIVE_EXCEL_RETURN
+    global_priority_effect: NONE
+
+mip:
+  modernize:
+    state: PASS
+    action: source_bound_owner_input_manifest
+  innovate:
+    state: PASS_BOUNDED
+    action:
+      - exact_payload_blob_verification
+      - raw_and_normalized_owner_input_identity
+      - post_transaction_operator_confirmation
+      - owner_level_fail_closed_receipt
+  perpetuate:
+    state: PASS_TO_EXTERNAL_GATE
+    control: controls/QPS_M08_NATIVE_EXCEL_OWNER_INPUT_CURRENT_v1.yaml
+    wrapper: scripts/run_qps_m08_native_excel_owner_reentry.ps1
+    validator: scripts/qps_m08_validate_native_excel_owner_reentry.py
+    restart: handover/qps_recursive/QPS_W302_M08_NATIVE_EXCEL_OWNER_REENTRY_v1.md
+
+independent_preparation:
+  executor_repo: GBOGEB/Q_engineering_tools
+  executor_pr: 75
+  executor_merge: df2e012c30c113fcebcce1dcbc32f6caa125484c
+  run: 35370048827
+  job: 105681613060
+  artifact_id: 10558465889
+  artifact_digest: sha256:7537c3c0ed5f96d5e3749fb4f7e881dcc8bc1093b16f5b29ff1a5d6f1e6aa0d3
+  result: PASS_OWNER_INPUT_GENERATED_AND_IDENTITY_BOUND
+
+owner_input:
+  raw_sha256: a01b53014681f8c154c349b273c9db9686abe6f7d00b0e03d9b10f6f685f226a
+  normalized_release_sha256: de54d5ccf3da1afcf8d517d7c22244765073798e0572ee1beef14cd0d8b9b18e
+  stale_input_allowed: false
+
+three_pc:
+  prepare: PASS
+  prove: BLOCKED_EXTERNAL_WINDOWS_WITH_REAL_MICROSOFT_EXCEL
+  commit: HOLD_WAIT_OWNER_RETURN
+
+three_p3:
+  state: NOT_ADMITTED
+  admission: PASS_VALIDATED_OWNER_NATIVE_EXCEL_CLEAN_ROUNDTRIP
+
+noncompensation:
+  issue_923: OPEN_UNCHANGED
+  G6: UNDISTURBED
+  W152: UNDISTURBED
+  N200: UNDISTURBED
+  formal_credit_delta: 0
+
+next:
+  action: >-
+    Run scripts/run_qps_m08_native_excel_owner_reentry.ps1 on a materially different Windows host
+    with installed/licensed/COM-registered desktop Microsoft Excel, then return the unedited owner receipt.
+  on_pass: EXACTLY_ONE_CODEX_ABACUS_QPS_CHILD_MIP3_3P3_THEN_STOP
+  on_red: REPAIR_ONLY_OBSERVED_NATIVE_EXCEL_OR_WORKBOOK_RED
