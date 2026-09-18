@@ -1,0 +1,306 @@
+name: W276 M08 Native Excel Two-Attempt Probe
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/w276-m08-native-excel-two-attempt.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/w276-m08-native-excel-two-attempt.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOCTRINE_BLOB: 52592fee795bd19d151f0b7612642d28f5a6a88d
+  WORKBOOK_CONTROL_BLOB: 74387b2e09f9a0ef0f6c440a5362e1d51a7f6a55
+  WORKBOOK_GENERATOR_BLOB: 34d3f66ed97c1ef90fb0448b38d2590eec04cd6d
+
+jobs:
+  attempt_1_windows_2022:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Assert exact checkout and source blobs
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $expected = '${{ github.event.pull_request.head.sha || github.sha }}'
+          $actual = (git rev-parse HEAD).Trim()
+          if ($actual -ne $expected) { throw "checkout mismatch $actual != $expected" }
+          function Assert-Blob([string]$Path,[string]$Expected) {
+            $actualBlob = (git hash-object $Path).Trim()
+            if ($actualBlob -ne $Expected) { throw "$Path blob $actualBlob != $Expected" }
+          }
+          Assert-Blob 'payload/w183/common/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml' $env:DOCTRINE_BLOB
+          Assert-Blob 'payload/w183/common/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml' $env:WORKBOOK_CONTROL_BLOB
+          Assert-Blob 'payload/w183/mip2a/qps_w183_generate_offer_eval_workbook.py' $env:WORKBOOK_GENERATOR_BLOB
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate governed workbook
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m pip install --disable-pip-version-check pyyaml openpyxl
+          New-Item -ItemType Directory -Force runtime\scripts,runtime\controls,out | Out-Null
+          Copy-Item payload\w183\common\QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml runtime\controls\
+          Copy-Item payload\w183\common\QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml runtime\controls\
+          Copy-Item payload\w183\mip2a\qps_w183_generate_offer_eval_workbook.py runtime\scripts\
+          Push-Location runtime
+          python scripts\qps_w183_generate_offer_eval_workbook.py --out ..\out\OFFER_EVAL_MIP2A.xlsx --receipt ..\out\MIP2A_RECEIPT.json
+          Pop-Location
+
+      - name: Probe native Microsoft Excel attempt 1
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $start = Get-Date
+          $input = (Resolve-Path 'out\OFFER_EVAL_MIP2A.xlsx').Path
+          $work = Join-Path (Resolve-Path 'out').Path 'OFFER_EVAL_MIP2A_NATIVE_ROUNDTRIP.xlsx'
+          Copy-Item $input $work -Force
+          $inputSha = (Get-FileHash -Algorithm SHA256 $input).Hash.ToLowerInvariant()
+          $receipt = [ordered]@{
+            schema = 'qps.m08.native_excel_probe.v1'
+            attempt = 1
+            runner_image = $env:ImageOS
+            runner_name = $env:RUNNER_NAME
+            runner_arch = $env:RUNNER_ARCH
+            workflow_sha = $env:GITHUB_SHA
+            exact_head = (git rev-parse HEAD).Trim()
+            governed_input = 'OFFER_EVAL_MIP2A.xlsx'
+            governed_input_sha256 = $inputSha
+            excel_version = $null
+            repair_mode_observed = $null
+            table1_recovery_log_observed = $null
+            output_sha256 = $null
+            timestamp_utc = (Get-Date).ToUniversalTime().ToString('o')
+            status = 'UNKNOWN'
+            authority_transfer = $false
+            formal_credit_delta = 0
+          }
+          $excel = $null
+          $wb = $null
+          try {
+            $excel = New-Object -ComObject Excel.Application -ErrorAction Stop
+          } catch {
+            $receipt.status = 'BLOCKED_NATIVE_EXCEL_COM_UNAVAILABLE'
+            $receipt.blocker = $_.Exception.Message
+          }
+          if ($excel -ne $null) {
+            try {
+              $receipt.excel_version = [string]$excel.Version
+              $excel.Visible = $false
+              $excel.DisplayAlerts = $false
+              $wb = $excel.Workbooks.Open($work)
+              try { $receipt.repair_mode_observed = [bool]$wb.RepairMode } catch { $receipt.repair_mode_observed = $false }
+              $wb.Save()
+              $wb.Close($true)
+              $wb = $null
+              $wb = $excel.Workbooks.Open($work)
+              try { if ([bool]$wb.RepairMode) { $receipt.repair_mode_observed = $true } } catch {}
+              $wb.Close($false)
+              $wb = $null
+              $logs = Get-ChildItem -Path out,$env:TEMP -Filter '*.xml' -File -ErrorAction SilentlyContinue |
+                Where-Object { $_.LastWriteTime -ge $start } |
+                Select-String -Pattern 'table1.xml|repairedRecords' -SimpleMatch:$false -ErrorAction SilentlyContinue
+              $receipt.table1_recovery_log_observed = [bool]$logs
+              $receipt.output_sha256 = (Get-FileHash -Algorithm SHA256 $work).Hash.ToLowerInvariant()
+              if (-not $receipt.repair_mode_observed -and -not $receipt.table1_recovery_log_observed) {
+                $receipt.status = 'PASS_NATIVE_EXCEL_CLEAN_ROUNDTRIP'
+              } else {
+                $receipt.status = 'RED_NATIVE_EXCEL_REPAIR_OR_RECOVERY_OBSERVED'
+              }
+            } catch {
+              $receipt.status = 'RED_NATIVE_EXCEL_OPERATION_FAILED'
+              $receipt.blocker = $_.Exception.Message
+            } finally {
+              if ($wb -ne $null) { try { $wb.Close($false) } catch {} }
+              if ($excel -ne $null) { try { $excel.Quit() } catch {} }
+            }
+          }
+          $receipt | ConvertTo-Json -Depth 6 | Set-Content -Encoding UTF8 out\NATIVE_EXCEL_ATTEMPT_1.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w276-native-excel-attempt-1
+          path: out/
+
+  attempt_2_windows_2025:
+    needs: attempt_1_windows_2022
+    if: always()
+    runs-on: windows-2025
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Assert exact checkout and source blobs
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $expected = '${{ github.event.pull_request.head.sha || github.sha }}'
+          $actual = (git rev-parse HEAD).Trim()
+          if ($actual -ne $expected) { throw "checkout mismatch $actual != $expected" }
+          function Assert-Blob([string]$Path,[string]$Expected) {
+            $actualBlob = (git hash-object $Path).Trim()
+            if ($actualBlob -ne $Expected) { throw "$Path blob $actualBlob != $Expected" }
+          }
+          Assert-Blob 'payload/w183/common/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml' $env:DOCTRINE_BLOB
+          Assert-Blob 'payload/w183/common/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml' $env:WORKBOOK_CONTROL_BLOB
+          Assert-Blob 'payload/w183/mip2a/qps_w183_generate_offer_eval_workbook.py' $env:WORKBOOK_GENERATOR_BLOB
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate governed workbook
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m pip install --disable-pip-version-check pyyaml openpyxl
+          New-Item -ItemType Directory -Force runtime\scripts,runtime\controls,out | Out-Null
+          Copy-Item payload\w183\common\QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml runtime\controls\
+          Copy-Item payload\w183\common\QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml runtime\controls\
+          Copy-Item payload\w183\mip2a\qps_w183_generate_offer_eval_workbook.py runtime\scripts\
+          Push-Location runtime
+          python scripts\qps_w183_generate_offer_eval_workbook.py --out ..\out\OFFER_EVAL_MIP2A.xlsx --receipt ..\out\MIP2A_RECEIPT.json
+          Pop-Location
+
+      - name: Probe native Microsoft Excel attempt 2
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $start = Get-Date
+          $input = (Resolve-Path 'out\OFFER_EVAL_MIP2A.xlsx').Path
+          $work = Join-Path (Resolve-Path 'out').Path 'OFFER_EVAL_MIP2A_NATIVE_ROUNDTRIP.xlsx'
+          Copy-Item $input $work -Force
+          $inputSha = (Get-FileHash -Algorithm SHA256 $input).Hash.ToLowerInvariant()
+          $receipt = [ordered]@{
+            schema = 'qps.m08.native_excel_probe.v1'
+            attempt = 2
+            runner_image = $env:ImageOS
+            runner_name = $env:RUNNER_NAME
+            runner_arch = $env:RUNNER_ARCH
+            workflow_sha = $env:GITHUB_SHA
+            exact_head = (git rev-parse HEAD).Trim()
+            governed_input = 'OFFER_EVAL_MIP2A.xlsx'
+            governed_input_sha256 = $inputSha
+            excel_version = $null
+            repair_mode_observed = $null
+            table1_recovery_log_observed = $null
+            output_sha256 = $null
+            timestamp_utc = (Get-Date).ToUniversalTime().ToString('o')
+            status = 'UNKNOWN'
+            authority_transfer = $false
+            formal_credit_delta = 0
+          }
+          $excel = $null
+          $wb = $null
+          try {
+            $excel = New-Object -ComObject Excel.Application -ErrorAction Stop
+          } catch {
+            $receipt.status = 'BLOCKED_NATIVE_EXCEL_COM_UNAVAILABLE'
+            $receipt.blocker = $_.Exception.Message
+          }
+          if ($excel -ne $null) {
+            try {
+              $receipt.excel_version = [string]$excel.Version
+              $excel.Visible = $false
+              $excel.DisplayAlerts = $false
+              $wb = $excel.Workbooks.Open($work)
+              try { $receipt.repair_mode_observed = [bool]$wb.RepairMode } catch { $receipt.repair_mode_observed = $false }
+              $wb.Save()
+              $wb.Close($true)
+              $wb = $null
+              $wb = $excel.Workbooks.Open($work)
+              try { if ([bool]$wb.RepairMode) { $receipt.repair_mode_observed = $true } } catch {}
+              $wb.Close($false)
+              $wb = $null
+              $logs = Get-ChildItem -Path out,$env:TEMP -Filter '*.xml' -File -ErrorAction SilentlyContinue |
+                Where-Object { $_.LastWriteTime -ge $start } |
+                Select-String -Pattern 'table1.xml|repairedRecords' -SimpleMatch:$false -ErrorAction SilentlyContinue
+              $receipt.table1_recovery_log_observed = [bool]$logs
+              $receipt.output_sha256 = (Get-FileHash -Algorithm SHA256 $work).Hash.ToLowerInvariant()
+              if (-not $receipt.repair_mode_observed -and -not $receipt.table1_recovery_log_observed) {
+                $receipt.status = 'PASS_NATIVE_EXCEL_CLEAN_ROUNDTRIP'
+              } else {
+                $receipt.status = 'RED_NATIVE_EXCEL_REPAIR_OR_RECOVERY_OBSERVED'
+              }
+            } catch {
+              $receipt.status = 'RED_NATIVE_EXCEL_OPERATION_FAILED'
+              $receipt.blocker = $_.Exception.Message
+            } finally {
+              if ($wb -ne $null) { try { $wb.Close($false) } catch {} }
+              if ($excel -ne $null) { try { $excel.Quit() } catch {} }
+            }
+          }
+          $receipt | ConvertTo-Json -Depth 6 | Set-Content -Encoding UTF8 out\NATIVE_EXCEL_ATTEMPT_2.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w276-native-excel-attempt-2
+          path: out/
+
+  fan_in:
+    needs: [attempt_1_windows_2022, attempt_2_windows_2025]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: w276-native-excel-attempt-*
+          path: evidence
+      - name: Bind two-attempt disposition
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[]
+          for p in sorted(Path('evidence').rglob('NATIVE_EXCEL_ATTEMPT_*.json')):
+              rows.append(json.loads(p.read_text(encoding='utf-8-sig')))
+          if len(rows) != 2:
+              raise SystemExit(f'expected 2 attempt receipts, found {len(rows)}')
+          statuses=[r['status'] for r in rows]
+          passed=any(s=='PASS_NATIVE_EXCEL_CLEAN_ROUNDTRIP' for s in statuses)
+          red=any(s.startswith('RED_NATIVE_EXCEL_') for s in statuses)
+          unavailable=all(s=='BLOCKED_NATIVE_EXCEL_COM_UNAVAILABLE' for s in statuses)
+          if passed:
+              final_status='PASS_NATIVE_EXCEL_GATE'
+              admission='ADMITTED'
+          elif red:
+              final_status='RED_NATIVE_EXCEL_WORKBOOK_OR_OPERATION_FAILURE'
+              admission='WITHHELD_NATIVE_EXCEL_GATE'
+          elif unavailable:
+              final_status='BLOCKED_AFTER_2_ATTEMPTS_NATIVE_EXCEL_RUNTIME_UNAVAILABLE'
+              admission='WITHHELD_NATIVE_EXCEL_GATE'
+          else:
+              final_status='WITHHELD_MIXED_OR_UNKNOWN_NATIVE_EXCEL_RESULT'
+              admission='WITHHELD_NATIVE_EXCEL_GATE'
+          summary={
+              'schema':'qps.m08.native_excel_two_attempt_disposition.v1',
+              'attempts':rows,
+              'attempt_count':2,
+              'status':final_status,
+              'mip3_3p3_admission':admission,
+              'authority_transfer':False,
+              'formal_credit_delta':0,
+          }
+          Path('W276_NATIVE_EXCEL_TWO_ATTEMPT_RECEIPT.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          print(json.dumps(summary,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w276-native-excel-two-attempt-disposition
+          path: W276_NATIVE_EXCEL_TWO_ATTEMPT_RECEIPT.json
