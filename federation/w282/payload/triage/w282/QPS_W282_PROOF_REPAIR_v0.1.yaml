@@ -1,0 +1,38 @@
+schema: qps-w282-proof-repair/0.1
+as_of: '2026-09-18T15:31:00+02:00'
+repo: GBOGEB/cryoplant-project
+wave: W282
+state: REPAIR_PREPARED_AFTER_OBSERVED_FEDERATED_FIRST_RED
+source_run:
+  executor_repo: GBOGEB/Q_engineering_tools
+  pr: 51
+  run_id: 35350317260
+  job_id: 105616619911
+  observed:
+    runner_allocated: true
+    steps_gt_zero: true
+    exact_blob_proof: PASS_9_OF_9
+    dependency_install: PASS
+    regression_tests: FAIL
+    validator: SKIPPED
+classification:
+  first_red: HISTORICAL_W231_DIAGNOSTIC_YAML_PARSE_INCOMPATIBILITY
+  attributable_to_visual_lineage_semantics: false
+  details: >-
+    PyYAML rejects the historical W231 diagnostic because a mapping key follows a block sequence at
+    the same indentation. W231 is historical evidence and SHALL NOT be rewritten to satisfy a new
+    validator.
+repair:
+  strategy: IMMUTABLE_HISTORICAL_BYTES_TEXT_MARKER_VALIDATION
+  validator_change: >-
+    Parse valid W162/W188/W231-statistics/QTG YAML normally, but treat the historical W231 diagnostic
+    as immutable text and verify exact governed markers needed by W282.
+  historical_w231_mutated: false
+  governance_weakened: false
+  expected_next: FEDERATED_EXACT_PAYLOAD_REPROOF
+non_compensation:
+  issue_923: RED_OWNER_ACTION
+  project_global_PCA: WITHHELD
+  Bradley_Terry: WITHHELD_NO_OBSERVED_PAIRWISE_OUTCOMES
+  formal_credit_delta: {engineering: 0, compliance: 0, negotiation: 0, acceptance: 0, release: 0}
+authority_transfer: false
