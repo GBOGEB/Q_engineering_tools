@@ -1,0 +1,70 @@
+schema: qps-w292f-m08-equation-v1-implementation-proof/1.0
+as_of: '2026-09-18T17:28:00+02:00'
+executor_repo: GBOGEB/Q_engineering_tools
+source_repo: GBOGEB/cryoplant-project
+source_commit: ebe6db02bd195f93af56ef183171cd29d7e86f50
+mission: M08_OFFER_EVAL_METHOD
+classification: FEDERATED_IMPLEMENTATION_PROOF_ONLY_ZERO_FORMAL_CREDIT
+
+purpose: >-
+  Execute the already-merged W288 OFFER_EVAL_EQ_v1 implementation on a real runner.
+  Prove static control alignment plus generated workbook/narrative/one-pager cross-output
+  equation parity. Do not perform or substitute the native Microsoft Excel gate and do not
+  claim outward PPTX binary regeneration.
+
+exact_payload:
+  controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml: 52592fee795bd19d151f0b7612642d28f5a6a88d
+  controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml: 474d57256122b87a996d5eec445351c71b125967
+  controls/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml: 2eed4189bef5361bdf25ef79c2e7d1f32a18590e
+  controls/QPS_OFFER_EVAL_PPT_CURRENT_v1.yaml: 0520b49259ddb26b293a6c09f281f28a1aae7ee1
+  controls/QPS_OFFER_EVAL_METHOD_CURRENT_v1.yaml: 9dc0cc79ba3f3dc557f227e0928eb451d74f3287
+  scripts/qps_w183_generate_offer_eval_workbook.py: bfdaf0c48bba2cd73e354d143f9a9501700b2ac0
+  scripts/qps_w183_generate_offer_eval_narrative.py: 2d92d5335abe905d7276b3b105496c3d72e3fdc1
+  scripts/qps_w183_generate_offer_eval_onepagers.py: 0872ac02e89d36ca283f38e6e63dbb17469f7441
+  scripts/qps_w184_validate_offer_eval_mip2_parity.py: dd724b242acd425abdf7999772dc0342161fa2c7
+  scripts/qps_w288_validate_offer_eval_equation_control.py: 98048962cedc85b938f143b419e8a5440609614d
+
+three_pstar_mip:
+  3PR:
+    state: PASS
+    refresh: W288_W289_W291_CURRENT_MAIN
+    first_internal_red: EQUATION_V1_EXECUTED_IMPLEMENTATION_RECEIPT
+    external_red: NATIVE_MICROSOFT_EXCEL_RUNTIME
+  MIP:
+    modernize: REUSE_MERGED_W288_IMPLEMENTATION
+    innovate: EXECUTE_STATIC_AND_GENERATED_CROSS_OUTPUT_PARITY
+    perpetuate: BIND_EXACT_SOURCE_AND_OUTPUT_RECEIPTS
+  3PC:
+    prepare: PASS_EXACT_SOURCE_BLOBS
+    prove: EXECUTE_THIS_PR
+    commit: RETURN_RECEIPT_TO_QPS_CHILD_ON_PASS
+  3P3:
+    state: NOT_ADMITTED
+    blockers:
+      - NATIVE_MICROSOFT_EXCEL_CLEAN_ROUNDTRIP
+      - PPTX_OUTWARD_BINARY_REGENERATION_IF_REQUIRED_BY_CONTROL
+
+pass_predicates:
+  - source_blob_identity_10_of_10
+  - static_equation_control_validator_pass
+  - generated_workbook_equation_v1_pass
+  - generated_narrative_equation_v1_visible
+  - generated_eight_onepagers_pass
+  - cross_output_equation_v1_parity_pass
+  - confidence_conditioning_pass
+  - NA_applicability_and_renormalization_pass
+  - risk_application_count_eq_1
+  - no_final_system_risk_subtraction
+  - pairwise_separate_from_final_review_score
+  - formal_credit_delta_zero
+
+noncompensating:
+  native_excel_gate: WITHHELD_EXTERNAL_RUNTIME
+  pptx_binary_regeneration: NOT_PROVEN_BY_THIS_TRANSACTION
+  issue_923: OPEN_INDEPENDENT
+  engineering_credit: 0
+  compliance_credit: 0
+  negotiation_credit: 0
+  sck_acceptance_credit: 0
+  release_credit: 0
+  award_credit: 0
