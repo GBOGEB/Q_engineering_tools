@@ -1,0 +1,43 @@
+schema: qtools-w287-m08-native-excel-gate/1.0
+as_of: '2026-09-18T17:06:00+02:00'
+mission: M08_OFFER_EVAL_METHOD
+source_authority: GBOGEB/cryoplant-project
+carrier_repo: GBOGEB/Q_engineering_tools
+
+resolved_3P_star:
+  stack: [3PR, MIP, 3PC, 3P3]
+  current_frontier: MIP2D_NATIVE_EXCEL_CLEAN_ROUNDTRIP
+
+three_pr:
+  refresh: PASS_REPOSITORY_AUTHORITY_REFRESHED
+  probe: PASS_SINGLE_FIRST_RED_NATIVE_EXCEL_RUNTIME
+  rank: PASS_DO_NOT_REPLAY_GREEN_MIP2_OUTPUT_CONTRACT
+
+mip:
+  modernize:
+    action: materialize_native_excel_COM_roundtrip_probe
+    state: IMPLEMENTED
+  innovate:
+    action: fail_closed_repair_dialog_and_recovery_log_observation
+    state: IMPLEMENTED_BOUNDED
+  perpetuate:
+    action: exact_receipt_artifact_and_two_attempt_execution
+    state: PENDING_RUNTIME
+
+three_pc:
+  prepare: PASS
+  prove: PENDING_NATIVE_EXCEL_RUNTIME
+  commit: HOLD_UNTIL_PROVE
+
+three_p3:
+  state: HOLD_UNTIL_NATIVE_EXCEL_PASS
+
+source_blobs:
+  generator: 34d3f66ed97c1ef90fb0448b38d2590eec04cd6d
+  doctrine: 52592fee795bd19d151f0b7612642d28f5a6a88d
+  workbook_control: 74387b2e09f9a0ef0f6c440a5362e1d51a7f6a55
+
+non_compensating:
+  cryoplant_issue_923: true
+  engineering_credit_delta: 0
+  authority_transfer: false
