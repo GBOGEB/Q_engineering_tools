@@ -1,0 +1,51 @@
+schema: qps-m08-native-excel-gate-executor/1.0
+as_of: '2026-09-18T17:05:00+02:00'
+executor_repo: GBOGEB/Q_engineering_tools
+source_repo: GBOGEB/cryoplant-project
+mission: M08_OFFER_EVAL_METHOD
+classification: EXECUTION_PROOF_ONLY_NO_QPS_AUTHORITY
+
+source_identity:
+  doctrine_blob: 52592fee795bd19d151f0b7612642d28f5a6a88d
+  workbook_control_blob: 74387b2e09f9a0ef0f6c440a5362e1d51a7f6a55
+  workbook_generator_blob: 34d3f66ed97c1ef90fb0448b38d2590eec04cd6d
+  payload_policy: EXACT_GIT_BLOB_IDENTITY
+
+three_p_mip_sequence:
+  3PR:
+    state: PASS_REFRESHED_FROM_W190_CURRENT
+    first_red: MIP2D_NATIVE_EXCEL_CLEAN_ROUNDTRIP
+  MIP:
+    modernize: PASS_REUSE_W183_GENERATOR_AND_W190_GATE
+    innovate: TWO_DISTINCT_WINDOWS_HOSTED_RUNTIME_ATTEMPTS
+    perpetuate: EMIT_EXACT_MACHINE_RECEIPTS_AND_LOCAL_OPERATOR_FALLBACK
+  3PC:
+    prepare: PASS_EXACT_PAYLOAD
+    prove: RUN_ATTEMPT_1_THEN_ATTEMPT_2
+    commit: RETURN_PASS_OR_BLOCK_RECEIPT_TO_QPS_CHILD
+  3P3:
+    state: GATED_UNTIL_NATIVE_EXCEL_PASS
+
+attempts:
+  - id: attempt1
+    runner: windows-2022
+  - id: attempt2
+    runner: windows-2025
+    after: attempt1
+
+pass_condition:
+  - Microsoft_Excel_COM_available
+  - open_save_close_reopen
+  - no_modal_block_observed
+  - no_table1_xml_part_after_save
+  - no_new_repair_log_signal
+  - input_and_output_sha256_bound
+  - Excel_version_and_runner_identity_bound
+
+blocked_condition: BOTH_HOSTED_WINDOWS_ATTEMPTS_LACK_NATIVE_EXCEL_OR_CANNOT_COMPLETE_GATE
+
+non_compensating:
+  - hosted_Windows_ne_native_Excel_if_COM_absent
+  - federated_pass_ne_repo_local_923_closure
+  - formal_credit_delta_zero
+  - global_MIP3_3P3_ne_admitted_until_native_Excel_PASS
