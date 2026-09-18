@@ -1,7 +1,7 @@
 {
   "schema": "qps-w285-federation-function-depth/v0.1",
   "wave": "W285",
-  "state": "CANDIDATE_FUNCTION_DEPTH_MEASURED_WAIT_EXTERNAL_PROOF",
+  "state": "CANDIDATE_REPAIRED_WAIT_EXTERNAL_PROOF",
   "purpose": "Resolve W283_DEPTH_01 by deriving function-internal depth only from exact authoritative current_use atoms for the four already-covered routing functions. Uncovered functions remain breadth-only and create no inferred depth.",
   "authority": "MISSION_CONTROL_FEDERATION_MEASUREMENT_ONLY",
   "namespace": {
@@ -162,7 +162,7 @@
         },
         {
           "id": "EXACT_PAYLOAD_RUNTIME_CARRIER::CURRENT_USE::02",
-          "text": "independent execution when authority repo Actions admission is blocked",
+          "text": "independent execution when authority-repo Actions admission is blocked",
           "credited": true,
           "evidence": [
             "FED-SAMPLE-004-W184F-N200-MIRROR"
@@ -249,5 +249,13 @@
     "release": 0
   },
   "authority_transfer": false,
-  "next_first_red": "EXTERNAL_SEMANTIC_AND_INDEPENDENT_MEASUREMENT_REPROOF_OF_W285_DEPTH"
+  "next_first_red": "EXTERNAL_SEMANTIC_AND_INDEPENDENT_MEASUREMENT_REPROOF_OF_W285_DEPTH",
+  "rex": {
+    "id": "W285_REX_01_EXACT_TOPOLOGY_CURRENT_USE_TEXT_MISMATCH",
+    "observed_at": "GBOGEB/Q_engineering_tools#58 run 35359203971 job 105645971028",
+    "first_red": "EXACT_PAYLOAD_RUNTIME_CARRIER current_use denominator differs from exact topology",
+    "root_cause": "Candidate normalized 'authority-repo' to 'authority repo'; denominator atoms must preserve exact authoritative topology bytes.",
+    "repair": "Restore exact current_use text; no numerical numerator, denominator, D, B or PEN change.",
+    "retry": "ATTEMPT_1_OF_2"
+  }
 }
