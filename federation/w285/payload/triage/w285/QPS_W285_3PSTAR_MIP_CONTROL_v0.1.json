@@ -1,7 +1,7 @@
 {
   "schema": "qps-w285-3pstar-mip-control/v0.1",
   "wave": "W285",
-  "state": "CANDIDATE_WAIT_EXTERNAL_PROOF",
+  "state": "RETEST_EXTERNAL_PROOF_ATTEMPT_2",
   "three_pstar": {
     "refresh": {
       "state": "PASS",
@@ -33,7 +33,7 @@
       "change": "Use equal-function aggregation: D=mean(per-function atom coverage); PEN=B*D; uncovered functions are represented by B and receive no imputed zero depth."
     },
     "perpetuate": {
-      "state": "WAIT_EXTERNAL_EXACT_PROOF_AND_PARENT_CHALLENGE",
+      "state": "RETEST_EXTERNAL_EXACT_PROOF_ATTEMPT_2",
       "required": [
         "Q_engineering_tools exact-payload execution",
         "CODEX semantic/provenance review",
@@ -50,7 +50,7 @@
   },
   "three_pc": {
     "prepare": "PASS",
-    "prove": "WAIT_EXTERNAL",
+    "prove": "RETEST_EXTERNAL_ATTEMPT_2",
     "commit": "HOLD"
   },
   "preserved_noncompensating": [
@@ -61,5 +61,12 @@
     "EXTERNAL_SOURCE_AND_AUTHORITY_GATES"
   ],
   "formal_credit_delta": 0,
-  "authority_transfer": false
+  "authority_transfer": false,
+  "rex": {
+    "id": "W285_REX_01_EXACT_TOPOLOGY_CURRENT_USE_TEXT_MISMATCH",
+    "external_run": 35359203971,
+    "external_job": 105645971028,
+    "repair": "EXACT_TEXT_RESTORED",
+    "retry": "ATTEMPT_2_PENDING"
+  }
 }
