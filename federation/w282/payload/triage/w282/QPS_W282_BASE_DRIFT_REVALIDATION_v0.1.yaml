@@ -1,0 +1,32 @@
+schema: qps-w282-base-drift-revalidation/0.1
+as_of: '2026-09-18T15:28:00+02:00'
+repo: GBOGEB/cryoplant-project
+wave: W282
+state: PASS_BASE_ADVANCE_VISUAL_AUTHORITY_UNCHANGED
+initial_refresh_main: 48454561de70a8873f8fe2f32e4c9cbf8e31e51b
+current_main_after_pr_open: eeac2b60fc16e5b2131d4054f95da0b0c663cc40
+ahead_commits: 9
+changed_paths:
+  - scripts/qps_unbound_root_streak.py
+  - tests/test_qps_unbound_root_streak.py
+  - triage/release/v6/QPS_V6_RELEASE_DOD_CONTROL_RECEIPT.json
+  - triage/release/v6/README.md
+  - triage/release/v6/dictionary.yaml
+  - triage/w247/QPS_W247_LEG6_PROSPECTIVE_STREAK_EVALUATION_v0.1.json
+  - triage/w248/QPS_W248_LEG6_PROSPECTIVE_STREAK_EVALUATION_v0.1.json
+visual_authority_revalidation:
+  QTG_CURRENT_blob: 1a7a0a4d67cfb7561406eb3edcf6d65b1981ed79
+  SESSION_CLOSE_CURRENT_blob: 2d4e51e568d4de36b3a2486da7a632295bf7147d
+  W231_N300_stats_blob: 98d8dd375af14f09bbaa89906dec48e47ce7756a
+  W231_N300_diagnostic_blob: 7a30b9693f004e4266ef29cd739a59e39343db5e
+  result: UNCHANGED
+disposition:
+  rebase_required_for_semantic_correctness: false
+  refresh_required_before_merge: true
+  proof_payload_requires_visual_blobs_only: true
+guards:
+  - NO_VISUAL_STATE_INFERENCE_FROM_UNRELATED_ROOT_STREAK_OR_RELEASE_CHANGES
+  - QTG_CURRENT_REMAINS_GLOBAL_PRIORITY_AUTHORITY
+  - W282_REMAINS_PARALLEL_NONCOMPENSATING_RESTART_CONTROL
+formal_credit_delta: {engineering: 0, compliance: 0, negotiation: 0, acceptance: 0, release: 0}
+authority_transfer: false
