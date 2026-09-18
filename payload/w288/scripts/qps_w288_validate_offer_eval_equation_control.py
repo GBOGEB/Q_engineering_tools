@@ -58,7 +58,12 @@ def validate(root: Path) -> dict[str, Any]:
     require("J{r}*N{r}*(1-E{r})" in generator, "risk-adjusted conditioned score not implemented")
     require("SUMIFS" in generator and "LocalWeight_A_Renorm" in generator, "N/A renormalization not implemented")
     require("OFFER_EVAL_EQ_v1" in narrative, "narrative equation version not visible")
-    require("No second final system-risk subtraction" in narrative, "narrative double-risk guard missing")
+    # The generator emits the visible sentence from adjacent Python string literals, so
+    # searching its source for one contiguous rendered sentence is formatting-sensitive.
+    # Static validation binds the two semantic clauses; cross-output parity below validates
+    # the actual generated DOCX contains the complete visible guard.
+    require("System risk is already included inside R_i_b" in narrative, "narrative risk-once premise missing")
+    require("subtraction or second risk multiplier is permitted" in narrative, "narrative double-risk guard missing")
     require("PASS_CROSS_OUTPUT_EQUATION_V1_PARITY_WITH_NATIVE_EXCEL_GATE_OPEN" in parity, "cross-output equation parity validator not upgraded")
 
     legacy = [x["expression"] for x in eq["legacy_expressions"]]
