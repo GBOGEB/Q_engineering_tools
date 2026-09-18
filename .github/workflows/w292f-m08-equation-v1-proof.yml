@@ -1,4 +1,4 @@
-name: W292F M08 Equation v1 Implementation Proof
+name: W297F M08 Equation v1 Post-W296 Reproof
 
 on:
   pull_request:
@@ -25,15 +25,15 @@ jobs:
           set -euo pipefail
           cd federation/w292/payload
           test "$(git hash-object controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml)" = "52592fee795bd19d151f0b7612642d28f5a6a88d"
-          test "$(git hash-object controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml)" = "474d57256122b87a996d5eec445351c71b125967"
+          test "$(git hash-object controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml)" = "6fc4f4be4537e1b3d0f1dec65e2dc2c96c7ecc53"
           test "$(git hash-object controls/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml)" = "2eed4189bef5361bdf25ef79c2e7d1f32a18590e"
           test "$(git hash-object controls/QPS_OFFER_EVAL_PPT_CURRENT_v1.yaml)" = "0520b49259ddb26b293a6c09f281f28a1aae7ee1"
-          test "$(git hash-object controls/QPS_OFFER_EVAL_METHOD_CURRENT_v1.yaml)" = "9dc0cc79ba3f3dc557f227e0928eb451d74f3287"
-          test "$(git hash-object scripts/qps_w183_generate_offer_eval_workbook.py)" = "bfdaf0c48bba2cd73e354d143f9a9501700b2ac0"
+          test "$(git hash-object controls/QPS_OFFER_EVAL_METHOD_CURRENT_v1.yaml)" = "474b5021c2b4c91b9dcec0016ed9f13f553c48d6"
+          test "$(git hash-object scripts/qps_w183_generate_offer_eval_workbook.py)" = "137f97f7e8e01efdd575927efbce03d3445b0961"
           test "$(git hash-object scripts/qps_w183_generate_offer_eval_narrative.py)" = "2d92d5335abe905d7276b3b105496c3d72e3fdc1"
           test "$(git hash-object scripts/qps_w183_generate_offer_eval_onepagers.py)" = "0872ac02e89d36ca283f38e6e63dbb17469f7441"
-          test "$(git hash-object scripts/qps_w184_validate_offer_eval_mip2_parity.py)" = "dd724b242acd425abdf7999772dc0342161fa2c7"
-          test "$(git hash-object scripts/qps_w288_validate_offer_eval_equation_control.py)" = "52c3d4973a726e5efb2c713814305d99f438d000"
+          test "$(git hash-object scripts/qps_w184_validate_offer_eval_mip2_parity.py)" = "3e6d15f7db4279a8a0885ea6f8263e2b0dd69272"
+          test "$(git hash-object scripts/qps_w288_validate_offer_eval_equation_control.py)" = "3446833f0f132e523b3c5363ad29e091399427ef"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -84,6 +84,8 @@ jobs:
           assert static["confidence_conditioning_implemented"] is True
           assert static["NA_applicability_implemented"] is True
           assert static["narrative_equation_visibility"] is True
+          assert static["risk_state_precedence_FAIL_DEFER_MISSING"] is True
+          assert static["risk_state_precedes_score_completeness"] is True
           assert static["offer_count"] == 50
           assert static["cluster_count"] == 8
           assert static["native_excel_clean_roundtrip"] == "WITHHELD_EXTERNAL_RUNTIME"
@@ -92,6 +94,8 @@ jobs:
           assert parity["equation_version"] == "OFFER_EVAL_EQ_v1"
           assert parity["confidence_conditioning_parity"] is True
           assert parity["NA_applicability_parity"] is True
+          assert parity["risk_state_precedence_FAIL_DEFER_MISSING"] is True
+          assert parity["risk_state_precedes_score_completeness"] is True
           assert parity["risk_application_count"] == 1
           assert parity["final_system_risk_subtraction"] is False
           assert parity["pairwise_and_risk_separate"] is True
@@ -112,10 +116,10 @@ jobs:
                   })
 
           final = {
-              "schema": "qps-w292f-m08-equation-v1-executed-receipt/1.0",
+              "schema": "qps-w297f-m08-equation-v1-post-w296-executed-receipt/1.0",
               "status": "PASS_EXECUTED_EQUATION_V1_IMPLEMENTATION_AND_CROSS_OUTPUT_PARITY",
               "source_repo": "GBOGEB/cryoplant-project",
-              "source_commit": "f81dfffa3afa72355061bdb37ca4ffe92dde5f18",
+              "source_commit": "b324075abeb9149f20193bd6652f9988a331d95a",
               "executor_repo": "GBOGEB/Q_engineering_tools",
               "executor_head_sha": os.environ["EXECUTOR_SHA"],
               "workflow_run_id": int(os.environ["RUN_ID"]),
@@ -126,6 +130,8 @@ jobs:
               "workbook_confidence_conditioning": "PASS",
               "NA_applicability_and_renormalization": "PASS",
               "narrative_equation_visibility": "PASS",
+              "risk_state_precedence_FAIL_DEFER_MISSING": "PASS",
+              "risk_state_precedes_score_completeness": "PASS",
               "ppt_control_semantic_binding": "PASS_CONTROL_ONLY",
               "pptx_outward_binary_regeneration": "WITHHELD_NOT_PROVEN_BY_THIS_TRANSACTION",
               "native_excel_clean_roundtrip": "WITHHELD_EXTERNAL_RUNTIME",
@@ -143,7 +149,7 @@ jobs:
       - name: Upload W292 equation-v1 proof
         uses: actions/upload-artifact@v4
         with:
-          name: qps-w292f-m08-equation-v1-proof
+          name: qps-w297f-m08-equation-v1-post-w296-proof
           path: |
             federation/w292/proof/W292_STATIC_EQUATION_RECEIPT.json
             federation/w292/proof/W292_CROSS_OUTPUT_PARITY_RECEIPT.json
