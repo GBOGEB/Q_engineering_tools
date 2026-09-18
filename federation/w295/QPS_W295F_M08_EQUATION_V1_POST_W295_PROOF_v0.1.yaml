@@ -1,0 +1,73 @@
+schema: qps-w295f-m08-equation-v1-post-w295-proof/1.0
+as_of: '2026-09-18T17:47:00+02:00'
+executor_repo: GBOGEB/Q_engineering_tools
+source_repo: GBOGEB/cryoplant-project
+source_pr: 1524
+source_merge_sha: 8c7a17688a89f996467af3f4228e35f0fed8fe26
+classification: EXECUTION_PROOF_ONLY_ZERO_FORMAL_CREDIT
+authority_transfer: false
+
+purpose: >-
+  Execute the exact post-W295 OFFER_EVAL_EQ_v1 implementation after W294 P1 state-preservation repairs
+  and W295 incomplete-pairwise completion repair. This is the fresh independent 3PC Prove carrier.
+  It does not retry native Microsoft Excel and it does not admit 3P3.
+
+exact_payload:
+  controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml: 52592fee795bd19d151f0b7612642d28f5a6a88d
+  controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml: eae8578123f2fd9d7dc98b3790e5559f9fe07759
+  controls/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml: 2eed4189bef5361bdf25ef79c2e7d1f32a18590e
+  controls/QPS_OFFER_EVAL_PPT_CURRENT_v1.yaml: 0520b49259ddb26b293a6c09f281f28a1aae7ee1
+  controls/QPS_OFFER_EVAL_METHOD_CURRENT_v1.yaml: 495a899abe383fa7f28831ac4fd6f51eb4b31b53
+  scripts/qps_w183_generate_offer_eval_workbook.py: 89ad644bcfd75205c0d520bba4890c90ad4c2495
+  scripts/qps_w183_generate_offer_eval_narrative.py: 2d92d5335abe905d7276b3b105496c3d72e3fdc1
+  scripts/qps_w183_generate_offer_eval_onepagers.py: 0872ac02e89d36ca283f38e6e63dbb17469f7441
+  scripts/qps_w184_validate_offer_eval_mip2_parity.py: ec3fbec1f2f114df3e61f283e3398b04ddb66c36
+  scripts/qps_w288_validate_offer_eval_equation_control.py: f2fe704f8c4c8567d3d2b8c84f1e775b026c77ba
+  tests/test_w183_offer_eval_workbook_adapter.py: 270aa5ef47d11944b753c4133ade8a73f7b9a1aa
+  tests/test_w184_offer_eval_mip2_parity.py: 15d9a1c6157537ebfca5b7f539d681571a5735b2
+
+three_pstar_mip:
+  3PR: PASS_POST_W295_REFRESH_PROBE_RANK
+  MIP:
+    modernize: PASS_EQUATION_FAMILY_UNCHANGED
+    innovate: PASS_W294_W295_BOUNDED_IMPLEMENTATION_REPAIRS
+    perpetuate: PROVE_THIS_EXACT_PAYLOAD_AND_EMIT_RECEIPT
+  3PC:
+    prepare: PASS_EXACT_12_OF_12_SOURCE_BLOBS
+    prove: THIS_WORKFLOW
+    commit: WITHHELD_UNTIL_EXECUTED_PASS
+  3P3: NOT_ADMITTED
+
+pass_predicates:
+  - intended_steps_gt_zero
+  - exact_source_blob_identity_12_of_12
+  - static_equation_validator_PASS
+  - pytest_workbook_adapter_PASS
+  - pytest_cross_output_parity_PASS
+  - generated_cross_output_equation_v1_parity_PASS
+  - missing_DEFER_FAIL_preserved
+  - all_NA_cluster_UNSCORABLE
+  - incomplete_pairwise_totals_withheld
+  - confidence_conditioning_PASS
+  - NA_applicability_and_renormalization_PASS
+  - risk_application_count_1
+  - final_system_risk_subtraction_false
+  - BT_separate_from_final_review_score
+  - narrative_equation_visibility_PASS
+  - exactly_8_reviewer_onepagers
+  - native_excel_remains_WITHHELD
+  - formal_credit_delta_0
+
+non_compensating:
+  native_excel:
+    state: BLOCKED_AFTER_2_HOSTED_ATTEMPTS
+    retry_here: false
+  issue_923: OPEN
+  ppt_outward_binary_render: STILL_SEPARATE_GATE
+  source_safety_legal_contract_acceptance: INDEPENDENT
+
+on_pass:
+  qps_transition: BIND_W295F_RECEIPT_AND_MARK_EQUATION_IMPLEMENTATION_PARITY_PASS
+  next_internal_gate: PPT_OUTWARD_BINARY_EQUATION_V1_REGENERATION_AND_RENDER
+  next_external_gate: NATIVE_EXCEL_OWNER_RETURN_ON_MATERIALLY_DIFFERENT_ENVIRONMENT
+  global_3p3: HOLD_UNTIL_BOTH_LOCAL_GATES_PASS
