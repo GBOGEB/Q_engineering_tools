@@ -1,0 +1,84 @@
+{
+  "schema": "qps-federation-cross-surface-feature-matrix/v0.6-candidate",
+  "wave": "W280",
+  "accepted_reference_rows": [
+    {
+      "sample_id": "FED-SAMPLE-001-W164-CONTROL",
+      "repositories_observed": 2,
+      "artifact_units": 5,
+      "runtime_vectors": 3,
+      "lineage_nodes": 9,
+      "lineage_edges": 8,
+      "runtime_first_red_present": 1,
+      "accepted_sample": 1
+    },
+    {
+      "sample_id": "FED-SAMPLE-002-ABACUS-W74",
+      "repositories_observed": 2,
+      "artifact_units": 8,
+      "runtime_vectors": 1,
+      "lineage_nodes": 9,
+      "lineage_edges": 8,
+      "runtime_first_red_present": 1,
+      "accepted_sample": 1
+    },
+    {
+      "sample_id": "FED-SAMPLE-003-CODEX-M05",
+      "repositories_observed": 5,
+      "artifact_units": 4,
+      "runtime_vectors": 3,
+      "lineage_nodes": 8,
+      "lineage_edges": 7,
+      "runtime_first_red_present": 0,
+      "accepted_sample": 1
+    },
+    {
+      "sample_id": "FED-SAMPLE-004-W184F-N200-MIRROR",
+      "repositories_observed": 2,
+      "artifact_units": 18,
+      "runtime_vectors": 2,
+      "lineage_nodes": 10,
+      "lineage_edges": 9,
+      "runtime_first_red_present": 1,
+      "accepted_sample": 1
+    }
+  ],
+  "candidate_row": {
+    "sample_id": "FED-SAMPLE-005-W3-15-OBSERVED-INTERVENTION",
+    "repositories_observed": 1,
+    "artifact_units": 3,
+    "runtime_vectors": 6,
+    "lineage_nodes": 8,
+    "lineage_edges": 7,
+    "runtime_first_red_present": 1,
+    "accepted_sample": 0,
+    "lineage_count_class": "DERIVED_EXPLICIT_TWO_CHAIN_TOPOLOGY"
+  },
+  "n4_reference_state": "MEASURED_SMALL_N_N4_PC1_STABLE_PC2_ROTATING",
+  "n5_candidate_state": {
+    "status": "SENSITIVITY_ONLY_NOT_ACCEPTED",
+    "features": [
+      "repositories_observed",
+      "artifact_units",
+      "runtime_vectors",
+      "lineage_nodes",
+      "lineage_edges",
+      "runtime_first_red_present"
+    ],
+    "method": "COLUMN_ZSCORE_SAMPLE_STD_DDOF_1_THEN_SVD",
+    "explained_variance_ratio": [
+      0.618903181,
+      0.307076472,
+      0.063649856,
+      0.010370492
+    ],
+    "pc1_loading_congruence_abs_n4_to_n5": 0.972259128,
+    "pc2_loading_congruence_abs_n4_to_n5": 0.257532074,
+    "pc12_subspace_principal_angles_deg": [
+      3.40618031,
+      73.70534049
+    ],
+    "interpretation": "CANDIDATE_ROW_PRESERVES_PC1_DIRECTION_REASONABLY_BUT_PC2_REMAINS_MATERIALLY_UNSTABLE"
+  },
+  "guard": "CANDIDATE_ROW_EXCLUDED_FROM_CANONICAL_ACCEPTED_SAMPLE_COUNT_UNTIL_W280_RETURN"
+}
