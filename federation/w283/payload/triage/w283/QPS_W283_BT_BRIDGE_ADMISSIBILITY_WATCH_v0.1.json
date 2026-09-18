@@ -1,0 +1,58 @@
+{
+  "schema": "qps-w283-bt-bridge-admissibility-watch/v0.1",
+  "wave": "W283",
+  "source": {
+    "repair_component": "triage/w280/QPS_W280_BT_COUNTEROUTCOME_SEARCH_v0.2.json",
+    "blob": "ad3f9709f6478b8018161e9aadc86b56ccf7587e",
+    "missioncontrol_observations": "mission-control/qps-triage-ultra/w3_bt_observations.json"
+  },
+  "current_repair_component": {
+    "nodes": [
+      "SEMANTIC_BOUNDARY_GUARD_REPAIR",
+      "STATISTICAL_TOLERANCE_REPAIR",
+      "UNREPAIRED_BASELINE"
+    ],
+    "observations": 2,
+    "finite_unregularized_mle": false,
+    "state": "WITHHELD_NO_FINITE_UNREGULARIZED_MLE"
+  },
+  "refresh_search": {
+    "result": "NO_NEW_QUALIFYING_REVERSE_TIE_OR_DIRECT_CROSS_REPAIR_OBSERVATION_FOUND",
+    "forbidden_substitutes": [
+      "ALLOC_SINGLE_CELL_VS_ALLOC_PAIRED_CELL",
+      "PCA_OR_REVERSE_PRESSURE_SCORES",
+      "UNRELATED_TRANSPORT_OR_TEST_HARNESS_REPAIRS",
+      "SYNTHETIC_PAIR_GENERATION"
+    ]
+  },
+  "admissible_next_events": [
+    {
+      "class": "BASELINE_WIN",
+      "requirement": "SAME_COMPARABLE_OBJECTIVE_AND_FIXTURE_AS_ONE_EXISTING_REPAIR_PAIR_WITH_EXACT_RUNTIME_EVIDENCE"
+    },
+    {
+      "class": "DIRECT_CROSS_REPAIR",
+      "requirement": "BOTH_REPAIR_CLASSES_APPLICABLE_TO_THE_SAME_OBJECTIVE_FIXTURE_AND_MEASURED_HEAD_TO_HEAD"
+    },
+    {
+      "class": "TIE",
+      "requirement": "PREDECLARED_TIE_MODEL_AND_EQUIVALENCE_THRESHOLD_ON_A_SHARED_COMPARABLE_OBJECTIVE; DO_NOT_TREAT_AN_UNRELATED_EQUAL_STATUS_AS_A_TIE"
+    }
+  ],
+  "separate_observed_component": {
+    "source": "GBOGEB/pipeline-automation-hub#56",
+    "candidates": [
+      "ALLOC_SINGLE_CELL",
+      "ALLOC_PAIRED_CELL"
+    ],
+    "observed_pairs": 12,
+    "wins": [
+      8,
+      4
+    ],
+    "finite_local_mle": true,
+    "bridge_to_repair_component": false
+  },
+  "global_bt": "WITHHELD_DISCONNECTED_HETEROGENEOUS_COMPARISON_GRAPH",
+  "next_first_red": "OBSERVE_ONE_ADMISSIBLE_REVERSE_TIE_OR_DIRECT_CROSS_REPAIR_EVENT"
+}
