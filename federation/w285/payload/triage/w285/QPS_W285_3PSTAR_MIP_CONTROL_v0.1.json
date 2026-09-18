@@ -1,7 +1,7 @@
 {
   "schema": "qps-w285-3pstar-mip-control/v0.1",
   "wave": "W285",
-  "state": "RETEST_EXTERNAL_PROOF_ATTEMPT_2",
+  "state": "RETEST_EXTERNAL_PROOF_ATTEMPT_2_REVIEW_GUARDS_REPAIRED",
   "three_pstar": {
     "refresh": {
       "state": "PASS",
@@ -33,7 +33,7 @@
       "change": "Use equal-function aggregation: D=mean(per-function atom coverage); PEN=B*D; uncovered functions are represented by B and receive no imputed zero depth."
     },
     "perpetuate": {
-      "state": "RETEST_EXTERNAL_EXACT_PROOF_ATTEMPT_2",
+      "state": "RETEST_EXTERNAL_EXACT_PROOF_ATTEMPT_2_REVIEW_GUARDS_REPAIRED",
       "required": [
         "Q_engineering_tools exact-payload execution",
         "CODEX semantic/provenance review",
@@ -50,7 +50,7 @@
   },
   "three_pc": {
     "prepare": "PASS",
-    "prove": "RETEST_EXTERNAL_ATTEMPT_2",
+    "prove": "RETEST_EXTERNAL_ATTEMPT_2_AFTER_FAIL_CLOSED_REVIEW_REPAIR",
     "commit": "HOLD"
   },
   "preserved_noncompensating": [
@@ -67,6 +67,18 @@
     "external_run": 35359203971,
     "external_job": 105645971028,
     "repair": "EXACT_TEXT_RESTORED",
-    "retry": "ATTEMPT_2_PENDING"
+    "retry": "ATTEMPT_2_REPAIRED_WAIT_REPROOF",
+    "review_repairs": [
+      {
+        "id": "W285_REX_02_EVIDENCE_BINDING_NOT_BYTE_VERIFIED",
+        "source": "cryoplant-project#1490 Codex P2",
+        "repair": "Bind exact W283 crosswalk blob, require exact sample path/blob identity, read each evidence path and verify Git blob SHA, and require evidence sample mapped_function to equal credited function."
+      },
+      {
+        "id": "W285_REX_03_DUPLICATE_COVERED_FUNCTION_MASKED_BY_SET",
+        "source": "cryoplant-project#1490 Codex P2",
+        "repair": "Require exactly four covered-function entries and reject duplicate function names before any set-based partition or depth aggregation."
+      }
+    ]
   }
 }
