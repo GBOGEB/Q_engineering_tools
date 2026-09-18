@@ -141,10 +141,10 @@ def build(
             f"=STATIC_BT!F{r}",
             f'=IF(OR(INPUT_AB!B{r}="",INPUT_AB!G{r}=""),"",SIGN(INPUT_AB!B{r}-INPUT_AB!G{r}))',
             f'=IF(OR(B{r}="",C{r}=""),"",B{r}*C{r})',
-            f'=IF(INPUT_AB!M{r}=0,"",IF(OR(INPUT_AB!M{r}="",COUNTA(INPUT_AB!D{r}:F{r})<3),"",MIN(CONFIG!$B$2,SUM(INPUT_AB!D{r}:F{r}))))',
-            f'=IF(INPUT_AB!M{r}=0,"",IF(OR(J{r}="",N{r}="",E{r}=""),"",J{r}*N{r}*(1-E{r})))',
-            f'=IF(INPUT_AB!O{r}=0,"",IF(OR(INPUT_AB!O{r}="",COUNTA(INPUT_AB!I{r}:K{r})<3),"",MIN(CONFIG!$B$2,SUM(INPUT_AB!I{r}:K{r}))))',
-            f'=IF(INPUT_AB!O{r}=0,"",IF(OR(K{r}="",O{r}="",G{r}=""),"",K{r}*O{r}*(1-G{r})))',
+            f'=IF(INPUT_AB!M{r}=0,"",IF(INPUT_AB!M{r}="","",IF(COUNT(INPUT_AB!D{r}:F{r})<3,IF(COUNTIF(INPUT_AB!D{r}:F{r},"FAIL")>0,"FAIL",IF(COUNTIF(INPUT_AB!D{r}:F{r},"DEFER")>0,"DEFER","MISSING")),MIN(CONFIG!$B$2,SUM(INPUT_AB!D{r}:F{r})))))',
+            f'=IF(INPUT_AB!M{r}=0,"",IF(NOT(ISNUMBER(E{r})),E{r},IF(N{r}="","MISSING",IF(NOT(ISNUMBER(N{r})),N{r},IF(J{r}="","MISSING",J{r}*N{r}*(1-E{r}))))) )',
+            f'=IF(INPUT_AB!O{r}=0,"",IF(INPUT_AB!O{r}="","",IF(COUNT(INPUT_AB!I{r}:K{r})<3,IF(COUNTIF(INPUT_AB!I{r}:K{r},"FAIL")>0,"FAIL",IF(COUNTIF(INPUT_AB!I{r}:K{r},"DEFER")>0,"DEFER","MISSING")),MIN(CONFIG!$B$2,SUM(INPUT_AB!I{r}:K{r})))))',
+            f'=IF(INPUT_AB!O{r}=0,"",IF(NOT(ISNUMBER(G{r})),G{r},IF(O{r}="","MISSING",IF(NOT(ISNUMBER(O{r})),O{r},IF(K{r}="","MISSING",K{r}*O{r}*(1-G{r}))))) )',
             f'=IF(OR(B{r}="",F{r}="",H{r}="",SUM($B$2:$B$51)=0),"",(B{r}/SUM($B$2:$B$51))*(F{r}-H{r}))',
             f'=IF(OR(INPUT_AB!M{r}<>1,INPUT_AB!B{r}="",INPUT_AB!C{r}=""),"",INPUT_AB!B{r}*INPUT_AB!C{r})',
             f'=IF(OR(INPUT_AB!O{r}<>1,INPUT_AB!G{r}="",INPUT_AB!H{r}=""),"",INPUT_AB!G{r}*INPUT_AB!H{r})',
@@ -158,8 +158,8 @@ def build(
             f'=IF(M{r}<>1,"",IF({denom_b}=0,"",Q{r}/{denom_b}))',
             f'=IF(OR(R{r}="",F{r}=""),"",R{r}*F{r})',
             f'=IF(OR(S{r}="",H{r}=""),"",S{r}*H{r})',
-            f'=IF(L{r}=0,"NA",IF(L{r}="","UNSET",IF(N{r}=0,"GATE_FAIL",IF(OR(J{r}="",E{r}="",N{r}=""),"MISSING","READY"))))',
-            f'=IF(M{r}=0,"NA",IF(M{r}="","UNSET",IF(O{r}=0,"GATE_FAIL",IF(OR(K{r}="",G{r}="",O{r}=""),"MISSING","READY"))))',
+            f'=IF(L{r}=0,"NA",IF(L{r}="","UNSET",IF(N{r}=0,"GATE_FAIL",IF(N{r}="","MISSING",IF(N{r}<>1,IF(ISTEXT(N{r}),N{r},"DEFER"),IF(OR(J{r}="",E{r}=""),"MISSING",IF(NOT(ISNUMBER(E{r})),E{r},"READY")))))))',
+            f'=IF(M{r}=0,"NA",IF(M{r}="","UNSET",IF(O{r}=0,"GATE_FAIL",IF(O{r}="","MISSING",IF(O{r}<>1,IF(ISTEXT(O{r}),O{r},"DEFER"),IF(OR(K{r}="",G{r}=""),"MISSING",IF(NOT(ISNUMBER(G{r})),G{r},"READY")))))))',
         ])
 
     cat = wb["CATEGORY_COMPARE"]
@@ -185,12 +185,12 @@ def build(
             cid,
             clusters[cid]["name"],
             float(doctrine["cluster_weights"][cid]),
-            f'=IF(COUNTA({bt_terms})=0,"",SUM({bt_terms}))',
-            f'=IF(COUNTA({a_terms})=0,"",SUM({a_terms}))',
-            f'=IF(COUNTA({b_terms})=0,"",SUM({b_terms}))',
-            f'=IF(E{i}="","",C{i}*E{i})',
-            f'=IF(F{i}="","",C{i}*F{i})',
-            f'=IF(OR(G{i}="",H{i}=""),"",G{i}-H{i})',
+            f'=IF(COUNT({bt_terms})<{len(offers)},"",SUM({bt_terms}))',
+            f'=IF(L{i}=0,"UNSCORABLE",IF(COUNT({a_terms})<L{i},"",SUM({a_terms})))',
+            f'=IF(M{i}=0,"UNSCORABLE",IF(COUNT({b_terms})<M{i},"",SUM({b_terms})))',
+            f'=IF(ISNUMBER(E{i}),C{i}*E{i},"")',
+            f'=IF(ISNUMBER(F{i}),C{i}*F{i},"")',
+            f'=IF(AND(ISNUMBER(G{i}),ISNUMBER(H{i})),G{i}-H{i},"")',
             f"={gate_a}",
             f"={gate_b}",
             f"={app_a}",
@@ -200,18 +200,18 @@ def build(
     dash = wb["DASHBOARD"]
     dash.append(["Metric", "Value", "Interpretation"])
     dash.append(["Equation_Version", equation["equation_version"], "one canonical score/risk equation family"])
-    dash.append(["Pairwise_BT_Total", '=IF(COUNTA(CALC_AB!D2:D51)=0,"",SUM(CALC_AB!D2:D51))', "sign-based fixed-weight pairwise; separate from final review score"])
+    dash.append(["Pairwise_BT_Total", '=IF(COUNT(CALC_AB!D2:D51)<50,"",SUM(CALC_AB!D2:D51))', "sign-based fixed-weight pairwise; withheld until all 50 contributions are numeric; separate from final review score"])
     dash.append([
         "FinalReviewScore_A",
-        '=IF(COUNTIF(CALC_AB!V2:V51,"GATE_FAIL")>0,"GATE_FAIL",IF(OR(COUNTIF(CALC_AB!V2:V51,"MISSING")>0,COUNTIF(CALC_AB!V2:V51,"UNSET")>0),"",SUM(CATEGORY_COMPARE!G2:G9)))',
+        '=IF(COUNTIF(CALC_AB!V2:V51,"GATE_FAIL")>0,"GATE_FAIL",IF(COUNTIF(CALC_AB!V2:V51,"FAIL")>0,"FAIL",IF(COUNTIF(CALC_AB!V2:V51,"DEFER")>0,"DEFER",IF(OR(COUNTIF(CALC_AB!V2:V51,"MISSING")>0,COUNTIF(CALC_AB!V2:V51,"UNSET")>0),"MISSING",IF(COUNTIF(CATEGORY_COMPARE!L2:L9,0)>0,"UNSCORABLE",IF(COUNTIF(CALC_AB!V2:V51,"READY")+COUNTIF(CALC_AB!V2:V51,"NA")<50,"WITHHELD",SUM(CATEGORY_COMPARE!G2:G9)))))))',
         "cluster-weighted review support; invalidated by gate failure; not award authority",
     ])
     dash.append([
         "FinalReviewScore_B",
-        '=IF(COUNTIF(CALC_AB!W2:W51,"GATE_FAIL")>0,"GATE_FAIL",IF(OR(COUNTIF(CALC_AB!W2:W51,"MISSING")>0,COUNTIF(CALC_AB!W2:W51,"UNSET")>0),"",SUM(CATEGORY_COMPARE!H2:H9)))',
+        '=IF(COUNTIF(CALC_AB!W2:W51,"GATE_FAIL")>0,"GATE_FAIL",IF(COUNTIF(CALC_AB!W2:W51,"FAIL")>0,"FAIL",IF(COUNTIF(CALC_AB!W2:W51,"DEFER")>0,"DEFER",IF(OR(COUNTIF(CALC_AB!W2:W51,"MISSING")>0,COUNTIF(CALC_AB!W2:W51,"UNSET")>0),"MISSING",IF(COUNTIF(CATEGORY_COMPARE!M2:M9,0)>0,"UNSCORABLE",IF(COUNTIF(CALC_AB!W2:W51,"READY")+COUNTIF(CALC_AB!W2:W51,"NA")<50,"WITHHELD",SUM(CATEGORY_COMPARE!H2:H9)))))))',
         "cluster-weighted review support; invalidated by gate failure; not award authority",
     ])
-    dash.append(["WeightedDelta_Diagnostic_Total", '=IF(COUNTA(CALC_AB!I2:I51)=0,"",SUM(CALC_AB!I2:I51))', "diagnostic only; MUST NOT be called Bradley-Terry"])
+    dash.append(["WeightedDelta_Diagnostic_Total", '=IF(COUNT(CALC_AB!I2:I51)<50,"",SUM(CALC_AB!I2:I51))', "diagnostic only; withheld until all 50 contributions are numeric; MUST NOT be called Bradley-Terry"])
     dash.append(["System_Risk_Final_Subtraction", "PROHIBITED", "system risk is already applied once inside TotalRisk"])
     dash.append(["Formal_Credit", 0, "engineering/compliance/negotiation/acceptance/release/award"])
 
@@ -241,6 +241,11 @@ def build(
         "table_parts": [],
         "confidence_conditioning_implemented": True,
         "explicit_applicability_NA_implemented": True,
+        "missing_defer_fail_preserved": True,
+        "all_NA_cluster_unscorable": True,
+        "incomplete_pairwise_totals_withheld": True,
+        "risk_state_precedence_FAIL_DEFER_MISSING": True,
+        "risk_state_precedes_score_completeness": True,
         "risk_application_count": 1,
         "final_system_risk_subtraction": False,
         "excel_native_clean_roundtrip": "WITHHELD_REQUIRES_EXCEL_RUNTIME",
