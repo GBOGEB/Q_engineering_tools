@@ -1,0 +1,93 @@
+schema: qps-w188-n200-table-readability-diagnosis/0.1
+as_of: '2026-09-14T18:47:00+02:00'
+mission: VISUAL_N200_CHILD_PROMOTION_REVIEW
+source_checkpoint:
+  child_receipt: triage/w188/QPS_W188_VISUAL_N200_MEASURED_CHECKPOINT_REENTRY_v0.1.yaml
+  independent_executor_repo: GBOGEB/Q_engineering_tools
+  independent_executor_pr: 46
+  run: 34868622367
+  job: 104058671463
+  artifact: 10358281452
+  artifact_digest: sha256:4861d40ac0a1ee626e3c541714b8310e18486f5cfc6d98839c1ffbbde0e16e39
+  population: {N: 200, HTML: 50, PDF: 50, PPTX: 50, XLSX: 50}
+observed_full_model:
+  kmo: 0.7858737213981477
+  minimum_msa:
+    feature: table_readability
+    value: 0.39952543948706976
+    planned_target: 0.60
+    target_pass: false
+  table_readability:
+    overall_mean: 7.167083333333332
+    overall_std: 1.5118298059266522
+    PC1_loading: 0.06509
+    PC2_loading: 0.85711
+    PC3_loading: 0.29811
+    visual_reverse_pressure_rank: 12
+    interpretation: >-
+      Table readability is not a weak-maturity pressure item. Its mean score is relatively high and
+      it ranks last in improvement pressure, while its common-factor sampling adequacy is poor and
+      its strongest loading is on PC2 rather than PC1. Treat this as a structural/model-fit diagnosis,
+      not as permission to lower table scores or manufacture more table-heavy artifacts.
+format_stratification:
+  HTML: {n: 50, mean: 7.48, std: 1.014990, min: 5.0, max: 9.0}
+  PDF: {n: 50, mean: 6.578333, std: 1.949796, min: 3.0, max: 9.0}
+  PPTX: {n: 50, mean: 6.69, std: 1.541567, min: 2.0, max: 9.0}
+  XLSX: {n: 50, mean: 7.92, std: 0.899887, min: 5.0, max: 9.0}
+  eta_squared_format_share_of_table_readability_variance: 0.13620556179714796
+  interpretation: FORMAT_EFFECT_PRESENT_BUT_NOT_DOMINANT
+feature_relationships:
+  strongest_positive_correlations:
+    information_density: 0.568679
+    metadata_versioning: 0.201393
+    captions_citations: 0.150833
+  selected_negative_correlations:
+    whitespace_grid: -0.196335
+    export_print_fidelity: -0.105689
+leave_one_feature_out_probe:
+  removed_feature: table_readability
+  kmo: 0.7998893317185505
+  minimum_msa:
+    feature: information_density
+    value: 0.6718323214215468
+    target_0_60_pass: true
+  next_lowest_msa:
+    diagram_consistency: 0.7055885121875465
+    figure_quality: 0.7208357352137316
+    metadata_versioning: 0.7239932460311532
+  interpretation: >-
+    The predeclared minimum-MSA gate failure is concentrated in table_readability. Removing the
+    feature only as a diagnostic probe restores every remaining feature above 0.60. This is not
+    authority to delete or redefine the governed twelve-feature census; any model-boundary change
+    requires an explicit design decision and replay against N100/N200 continuity.
+child_disposition:
+  N200_measurement: ACCEPT_MEASURED_CHECKPOINT_EVIDENCE
+  N200_CONTROL_promotion: WITHHELD
+  reason:
+    - PREDECLARED_MINIMUM_MSA_TARGET_FAILS_ON_TABLE_READABILITY
+    - PC3_REQUIRES_RECURSIVE_CONFIRMATION_AND_SEMANTIC_REVIEW
+  table_readability_action: DIAGNOSE_FACTOR_ROLE_NOT_VISUAL_BURNDOWN
+  allowed_next_tests:
+    - inspect_table_bearing_vs_non_table_bearing_artifact_applicability_without_zero_or_NA_imputation
+    - inspect_partial_correlation_anti_image_structure_for_table_readability
+    - compare_full_12_feature_model_to_explicit_11_feature_diagnostic_model_only
+    - carry_table_readability_as_governed_feature_even_if_common_factor_model_boundary_is_later_changed
+  prohibited_actions:
+    - silently_drop_table_readability_from_governed_feature_contract
+    - rescore_rows_to_force_MSA_pass
+    - collect_extra_artifacts_only_to_normalize_the_statistic
+    - promote_PC3_from_one_checkpoint
+    - convert_visual_measurement_into_engineering_compliance_negotiation_acceptance_or_release_credit
+promotion_gate:
+  current_state: HOLD_CHILD_REVIEW
+  next_first_red: VBD-N200-11A_TABLE_READABILITY_MODEL_BOUNDARY_DISPOSITION
+  then:
+    - VBD-N200-11B_PC3_RECURSIVE_RETENTION_REVIEW
+    - VBD-N200-11C_ATOMIC_CONTROL_PROMOTION_OR_DEFER
+non_compensating:
+  project_global_PCA: WITHHELD
+  true_Bradley_Terry_fit: NOT_PERFORMED
+  G6: INDEPENDENT_ARMED
+  W152: INDEPENDENT_ARMED
+  cryoplant_issue_923: INDEPENDENT_OWNER_ACTION
+  formal_credit_delta: 0
