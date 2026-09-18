@@ -57,6 +57,11 @@ def validate(root: Path) -> dict[str, Any]:
     require("INPUT_AB!B{r}*INPUT_AB!C{r}" in generator, "confidence conditioning not implemented")
     require("J{r}*N{r}*(1-E{r})" in generator, "risk-adjusted conditioned score not implemented")
     require("SUMIFS" in generator and "LocalWeight_A_Renorm" in generator, "N/A renormalization not implemented")
+    require("COUNT(INPUT_AB!D{r}:F{r})<3" in generator and "ISTEXT(INPUT_AB!D{r})" in generator, "nonnumeric risk state propagation not implemented")
+    require("NOT(ISNUMBER(E{r}))" in generator, "adjusted score does not fail closed on nonnumeric risk state")
+    require('L{i}=0,"UNSCORABLE"' in generator and 'COUNT({a_terms})<L{i}' in generator, "all-N/A or incomplete cluster guard missing")
+    require('"missing_defer_fail_preserved": True' in generator, "missing/DEFER/FAIL receipt guard missing")
+    require('"all_NA_cluster_unscorable": True' in generator, "all-N/A unscorable receipt guard missing")
     require("OFFER_EVAL_EQ_v1" in narrative, "narrative equation version not visible")
     # The generator emits the visible sentence from adjacent Python string literals, so
     # searching its source for one contiguous rendered sentence is formatting-sensitive.
@@ -79,6 +84,8 @@ def validate(root: Path) -> dict[str, Any]:
         "bt_separate_from_final_review_score": True,
         "confidence_conditioning_implemented": True,
         "NA_applicability_implemented": True,
+        "missing_defer_fail_preserved": True,
+        "all_NA_cluster_unscorable": True,
         "narrative_equation_visibility": True,
         "offer_count": 50,
         "cluster_count": 8,
