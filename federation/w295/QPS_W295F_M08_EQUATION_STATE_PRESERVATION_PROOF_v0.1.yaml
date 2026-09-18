@@ -1,0 +1,72 @@
+schema: qps-w295f-m08-equation-state-preservation-proof/1.0
+as_of: '2026-09-18T17:48:00+02:00'
+executor_repo: GBOGEB/Q_engineering_tools
+source_repo: GBOGEB/cryoplant-project
+source_commit: f554074065559ac3854271723f0610b7b51b8c9d
+source_pr: 1522
+mission: M08_OFFER_EVAL_METHOD
+classification: INDEPENDENT_EXACT_PAYLOAD_PROOF_ZERO_FORMAL_CREDIT
+
+purpose: >-
+  Execute the W294 repaired OFFER_EVAL_EQ_v1 payload after independent reviews identified
+  two P1 state-preservation defects. Prove the repair plus existing equation-v1 invariants,
+  generate the governed review artifact family, and emit a normalized OOXML identity for
+  exact owner-native Excel re-entry. Do not perform the native Excel gate here.
+
+p1_repairs_under_proof:
+  - missing_DEFER_FAIL_risk_components_are_not_numeric_zero
+  - zero_applicability_cluster_is_UNSCORABLE_not_zero
+
+exact_payload:
+  doctrine: 52592fee795bd19d151f0b7612642d28f5a6a88d
+  equation_control: e6f9a891d3481a9fc1081ebe890b62785e619981
+  workbook_control: 2eed4189bef5361bdf25ef79c2e7d1f32a18590e
+  ppt_control: 0520b49259ddb26b293a6c09f281f28a1aae7ee1
+  method_current: ebe8c05db90e63841f54b4b67fd6a8785f73b99c
+  workbook_generator: b3d0f22e9d4e77dd8ece267c3e4b141442a53182
+  narrative_generator: 2d92d5335abe905d7276b3b105496c3d72e3fdc1
+  onepager_generator: 0872ac02e89d36ca283f38e6e63dbb17469f7441
+  parity_validator: 9b8b4b818a33f95a349d7a29725eeccd015beab0
+  equation_validator: d18e215672238e2f914c2b30f9de7206051062c6
+  normalized_identity: ad9c549a2b205d94dad80d33cd279487f321ac71
+  workbook_test: b1765a0cb9aa627cedd355455f9e7048d59e5edf
+  narrative_test: 71e3d0003a75776d2e153ad426053cdb8ddb5ed6
+  parity_test: dfdecb04ae3d6588a83b265c4984ecaef35495bc
+
+three_pstar_mip:
+  3PR:
+    state: PASS
+    source: W294_MERGED
+    first_red: EXECUTED_EXACT_PAYLOAD_W294_PROOF
+  MIP:
+    modernize: PASS_REUSE_FROZEN_EQUATION_V1
+    innovate: PROVE_STATE_PRESERVATION_AND_ALL_NA_GUARD
+    perpetuate: EMIT_TEST_STATIC_PARITY_NORMALIZED_IDENTITY_RECEIPTS
+  3PC:
+    prepare: PASS_14_OF_14_EXACT_BLOBS
+    prove: EXECUTE_THIS_PR
+    commit: RETURN_PASS_OR_FIRST_EXECUTED_RED_TO_QPS_CHILD
+  3P3:
+    state: NOT_ADMITTED
+    blockers:
+      - native_Microsoft_Excel_clean_roundtrip
+      - PPTX_outward_binary_regeneration_and_render
+
+pass_predicates:
+  - exact_source_blobs_14_of_14
+  - targeted_pytest_pass
+  - static_equation_validator_pass
+  - cross_output_parity_pass
+  - missing_defer_fail_preserved
+  - all_NA_cluster_unscorable
+  - risk_application_count_eq_1
+  - no_final_system_risk_subtraction
+  - 10_generated_OOXML_outputs
+  - normalized_identity_emitted
+  - formal_credit_delta_zero
+
+noncompensating:
+  native_excel: WITHHELD_EXTERNAL_RUNTIME
+  pptx_binary: WITHHELD_EXTERNAL_ARTIFACT_REGENERATION
+  issue_923: OPEN_INDEPENDENT
+  formal_credit_delta: 0
