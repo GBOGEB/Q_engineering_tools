@@ -1,0 +1,140 @@
+name: W292 M08 Equation V1 Exact Parity
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/w292-m08-equation-v1-exact-parity.yml'
+      - 'payload/w292/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/w292-m08-equation-v1-exact-parity.yml'
+      - 'payload/w292/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CRYOPLANT_SOURCE_HEAD: ebe6db02bd195f93af56ef183171cd29d7e86f50
+
+jobs:
+  equation_v1_parity:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact executor head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Verify exact source blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          declare -A expected=(
+            ["payload/w292/controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml"]="52592fee795bd19d151f0b7612642d28f5a6a88d"
+            ["payload/w292/controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml"]="474d57256122b87a996d5eec445351c71b125967"
+            ["payload/w292/controls/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml"]="2eed4189bef5361bdf25ef79c2e7d1f32a18590e"
+            ["payload/w292/controls/QPS_OFFER_EVAL_PPT_CURRENT_v1.yaml"]="0520b49259ddb26b293a6c09f281f28a1aae7ee1"
+            ["payload/w292/controls/QPS_OFFER_EVAL_METHOD_CURRENT_v1.yaml"]="9dc0cc79ba3f3dc557f227e0928eb451d74f3287"
+            ["payload/w292/scripts/qps_w183_generate_offer_eval_workbook.py"]="bfdaf0c48bba2cd73e354d143f9a9501700b2ac0"
+            ["payload/w292/scripts/qps_w183_generate_offer_eval_narrative.py"]="2d92d5335abe905d7276b3b105496c3d72e3fdc1"
+            ["payload/w292/scripts/qps_w183_generate_offer_eval_onepagers.py"]="0872ac02e89d36ca283f38e6e63dbb17469f7441"
+            ["payload/w292/scripts/qps_w184_validate_offer_eval_mip2_parity.py"]="dd724b242acd425abdf7999772dc0342161fa2c7"
+            ["payload/w292/scripts/qps_w288_validate_offer_eval_equation_control.py"]="98048962cedc85b938f143b419e8a5440609614d"
+          )
+          for p in "${!expected[@]}"; do
+            test "$(git hash-object "$p")" = "${expected[$p]}"
+          done
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install exact runtime dependencies
+        run: python -m pip install --disable-pip-version-check pyyaml openpyxl python-docx
+
+      - name: Materialize exact QPS payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf runtime evidence
+          mkdir -p runtime/controls runtime/scripts evidence/out
+          cp payload/w292/controls/* runtime/controls/
+          cp payload/w292/scripts/* runtime/scripts/
+
+      - name: Execute W288 static control and implementation validator
+        shell: bash
+        run: |
+          set -euo pipefail
+          python runtime/scripts/qps_w288_validate_offer_eval_equation_control.py             --root runtime             --receipt evidence/W292_STATIC_EQUATION_VALIDATION.json | tee evidence/static_stdout.json
+          python - <<'PY'
+          import json
+          d=json.load(open('evidence/W292_STATIC_EQUATION_VALIDATION.json',encoding='utf-8'))
+          assert d['status']=='PASS_CONTROL_AND_IMPLEMENTATION_PARITY_STATIC_NATIVE_EXCEL_GATE_OPEN'
+          assert d['confidence_conditioning_implemented'] is True
+          assert d['NA_applicability_implemented'] is True
+          assert d['narrative_equation_visibility'] is True
+          assert d['system_risk_applied_once'] is True
+          assert d['final_system_risk_subtraction'] is False
+          assert d['native_excel_clean_roundtrip']=='WITHHELD_EXTERNAL_RUNTIME'
+          assert d['authority_transfer'] is False and d['formal_credit_delta']==0
+          PY
+
+      - name: Execute cross-output equation-v1 parity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python runtime/scripts/qps_w184_validate_offer_eval_mip2_parity.py             --repo-root runtime             --workdir evidence/out             --receipt evidence/W292_CROSS_OUTPUT_PARITY.json | tee evidence/parity_stdout.json
+          python - <<'PY'
+          import json
+          d=json.load(open('evidence/W292_CROSS_OUTPUT_PARITY.json',encoding='utf-8'))
+          assert d['status']=='PASS_CROSS_OUTPUT_EQUATION_V1_PARITY_WITH_NATIVE_EXCEL_GATE_OPEN'
+          assert d['offer_count']==50 and d['cluster_count']==8
+          assert d['confidence_conditioning_parity'] is True
+          assert d['NA_applicability_parity'] is True
+          assert d['risk_application_count']==1
+          assert d['final_system_risk_subtraction'] is False
+          assert d['same_doctrine_identity'] is True
+          assert d['same_offer_cluster_map'] is True
+          assert d['native_excel_clean_roundtrip']=='WITHHELD_REQUIRES_EXCEL_RUNTIME'
+          assert d['authority_transfer'] is False and d['formal_credit_delta']==0
+          PY
+
+      - name: Bind executed parity receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          s=json.load(open('evidence/W292_STATIC_EQUATION_VALIDATION.json',encoding='utf-8'))
+          p=json.load(open('evidence/W292_CROSS_OUTPUT_PARITY.json',encoding='utf-8'))
+          out={
+            'schema':'qps.m08.equation_v1.executed_parity.v1',
+            'source_repo':'GBOGEB/cryoplant-project',
+            'source_head':os.environ['CRYOPLANT_SOURCE_HEAD'],
+            'executor_repo':os.environ['GITHUB_REPOSITORY'],
+            'executor_head':(Path('.git/HEAD').read_text(encoding='utf-8').strip()),
+            'workflow_sha':os.environ['GITHUB_SHA'],
+            'run_id':int(os.environ['GITHUB_RUN_ID']),
+            'static_result':s,
+            'cross_output_result':p,
+            'static_receipt_sha256':hashlib.sha256(Path('evidence/W292_STATIC_EQUATION_VALIDATION.json').read_bytes()).hexdigest(),
+            'parity_receipt_sha256':hashlib.sha256(Path('evidence/W292_CROSS_OUTPUT_PARITY.json').read_bytes()).hexdigest(),
+            'equation_implementation_parity':'PASS_EXECUTED',
+            'native_excel_gate':'BLOCKED_EXTERNAL_RUNTIME',
+            'ppt_binary_outward_regeneration':'WITHHELD_EXACT_BINARY_RUNTIME',
+            'global_3p3_admission':'WITHHELD_NATIVE_EXCEL_AND_OUTWARD_PPT_BINARY',
+            'authority_transfer':False,
+            'formal_credit_delta':0,
+          }
+          Path('evidence/W292_EXECUTED_PARITY_RECEIPT.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          print(json.dumps(out,sort_keys=True))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w292-m08-equation-v1-executed-parity
+          path: evidence/
+          if-no-files-found: error
