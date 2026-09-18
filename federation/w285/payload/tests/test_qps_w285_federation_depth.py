@@ -55,6 +55,11 @@ class W285DepthTests(unittest.TestCase):
         self.assertEqual(rows["DOCUMENT_ORGANISATION_ARTIFACT_INDEX"]["subsurfaces"], [])
         self.assertEqual(rows["PRIVATE_BYTE_PROVENANCE_VAULT"]["subsurfaces"], [])
 
+    def test_maintenance_none_row_is_not_a_routing_function(self):
+        topo = mod.topology_current_use(mod.TOPOLOGY.read_text(encoding="utf-8"))
+        self.assertNotIn("NONE", topo)
+        self.assertEqual(len(topo), 12)
+
 
 if __name__ == "__main__":
     unittest.main()
