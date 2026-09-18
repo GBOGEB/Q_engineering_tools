@@ -1,0 +1,210 @@
+schema: qps-offer-eval-equation-control/1.0
+as_of: '2026-09-18T18:07:00+02:00'
+repo: GBOGEB/cryoplant-project
+wave: W288
+mission: M08_OFFER_EVAL_METHOD
+gate_id: OFFER_EVAL_WORD_001
+status: CONTROLLED_CANONICAL_EQUATION_FAMILY_POST_W299_PARITY_AND_CROSS_ARTIFACT_PASS_NATIVE_EXCEL_BLOCKED
+authority: SUPPLEMENTARY_REVIEW_METHOD_ONLY
+authority_transfer: false
+formal_credit_delta: 0
+
+purpose: >-
+  Freeze one canonical OFFER-evaluation score/risk equation family from the already-governed
+  W166/W176/W183 surfaces. Preserve static importance before bidder comparison, N/A/missing
+  semantics, non-compensating gates, seeded-only A/B status and Option-A risk-once treatment.
+  This control explicitly prevents a second system-risk subtraction and prevents the static
+  OFFER prior, commercial action ranking and TRIAGE execution pressure from being conflated.
+
+upstream:
+  word_alignment: triage/w166/QPS_W166_OFFER_EVAL_WORD_AUDIT_RISK_ALIGNMENT_v0.1.md
+  word_handover: handover/qps_recursive/QPS_W166_OFFER_EVAL_WORD_AUDIT_HANDOVER_2026-09-14_v1.md
+  doctrine: controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml
+  workbook_control: controls/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml
+  ppt_control: controls/QPS_OFFER_EVAL_PPT_CURRENT_v1.yaml
+  current_method: controls/QPS_OFFER_EVAL_METHOD_CURRENT_v1.yaml
+
+equation_version: OFFER_EVAL_EQ_v1
+
+symbols:
+  i: OFFER_item
+  c: primary_cluster
+  b: bidder
+  q_i_b: reviewer_response_quality_score_for_bidder_b_on_item_i
+  C_i_b: reviewer_confidence_factor_for_that_score
+  A_i_b: applicability_indicator_1_applicable_0_true_NA
+  lambda_i_c: local_item_weight_inside_cluster_c
+  lambda_prime_i_c_b: local_item_weight_renormalized_over_applicable_items_for_bidder_b
+  alpha_c: cluster_weight
+  G_i_b: hard_gate_indicator_1_pass_0_fail
+  BaseRisk_i: item_or_requirement_base_risk
+  BidderRisk_i_b: bidder_specific_delivery_risk
+  SystemRisk_i_b: allocated_system_or_category_risk_applied_once_at_item_level
+  R_max: configured_maximum_risk_factor
+  R_i_b: capped_total_risk_applied_once
+  E_i_b: conditioned_evaluator_score_q_i_b_times_C_i_b
+  X_i_b: risk_adjusted_item_input_after_gate
+  ClusterScore_c_b: applicable_weighted_cluster_review_score
+  FinalReviewScore_b: aggregate_review_support_score_if_all_noncompensating_gates_pass
+  W_i: static_OFFER_importance_weight_used_by_pairwise_prior
+  S_i_A_B: sign_pairwise_outcome_in_minus1_0_plus1
+  BT_A_B: static_prior_weighted_pairwise_review_signal
+  WeightedDelta: optional_magnitude_diagnostic_not_Bradley_Terry
+
+canonical_equations:
+  conditioned_evaluator:
+    expression: 'E_i_b = q_i_b * C_i_b'
+    role: BIDDER_RESPONSE_QUALITY_CONDITIONING
+  applicability_renormalization:
+    expression: 'lambda_prime_i_c_b = (A_i_b * lambda_i_c) / SUM_j_in_c(A_j_b * lambda_j_c)'
+    guard: 'if denominator = 0 then cluster state = NOT_APPLICABLE_OR_UNSCORABLE; do not substitute zero or neutral score'
+  raw_risk:
+    expression: 'RawRisk_i_b = BaseRisk_i + BidderRisk_i_b + SystemRisk_i_b'
+  total_risk:
+    expression: 'R_i_b = MIN(R_max, RawRisk_i_b)'
+    selected_policy: OPTION_A_SYSTEM_RISK_APPLIED_ONCE_AT_ITEM_LEVEL
+  adjusted_item:
+    expression: 'X_i_b = E_i_b * G_i_b * (1 - R_i_b)'
+    risk_application_count: 1
+  cluster_score:
+    expression: 'ClusterScore_c_b = SUM_i_in_c(lambda_prime_i_c_b * X_i_b)'
+  final_review_score:
+    expression: 'FinalReviewScore_b = SUM_c(alpha_c * ClusterScore_c_b)'
+    validity_guard: >-
+      FinalReviewScore is decision-support only and is not a valid compensating result when any
+      mandatory non-compensating gate is failed. A gate failure remains an explicit GATE_FAIL/HOLD.
+  governing_pairwise:
+    expression: 'BT(A,B) = SUM_i(W_i * S_i(A,B))'
+    S_domain: [-1, 0, 1]
+    role: STATIC_IMPORTANCE_PRIOR_WEIGHTED_PAIRWISE_REVIEW_SIGNAL
+    separate_from_final_review_score: true
+  diagnostic_delta:
+    expression: 'WeightedDelta_i = W_norm_i * (X_i_A - X_i_B)'
+    role: DIAGNOSTIC_ONLY
+    must_not_be_called: Bradley_Terry_score
+
+risk_once_proof:
+  system_risk_included_in_R_i_b: true
+  final_system_risk_subtraction_allowed: false
+  second_risk_multiplier_allowed: false
+  proof_identity: >-
+    Because SystemRisk_i_b is an addend of RawRisk_i_b and therefore already contained in R_i_b,
+    X_i_b applies it exactly once through (1-R_i_b). Subtracting R_system again from the aggregate,
+    or multiplying by a second system-risk factor, would count the same system-risk allocation twice.
+  invariant: SYSTEM_RISK_NE_DOUBLE_COUNTED
+
+legacy_expressions:
+  - expression: 'Final = 0.70 * Evaluator + 0.30 * BT - Risk'
+    disposition: RETIRED_FROM_CANONICAL_PRODUCTION_USE
+    reason: >-
+      It mixes the independent bidder-response and static-pairwise layers and permits an ambiguous
+      second risk subtraction after item-level risk has already been applied.
+  - expression: 'Score_i = W_i * E_i * G_i'
+    disposition: RETIRED_AS_CANONICAL_BIDDER_SCORE_FORM
+    reason: >-
+      W_i is the static requirement-importance prior. The current governed doctrine requires
+      reviewer response quality to remain separate from requirement importance; importance is
+      consumed by the pairwise/static-prior layer and any explicitly governed diagnostics.
+  - expression: 'Final = 0.70 * SUM(Adjusted_i) + 0.30 * BT - R_system'
+    disposition: PROHIBITED
+    reason: SYSTEM_RISK_WOULD_BE_APPLIED_AT_ITEM_LEVEL_AND_SUBTRACTED_AGAIN
+
+applicability_and_missing:
+  N_A:
+    action: EXCLUDE_AND_RENORMALIZE_APPLICABLE_LOCAL_WEIGHTS
+    not_equal_to: [0, 50]
+  missing_but_applicable:
+    preserve: [MISSING, DEFER, FAIL]
+    not_equal_to_zero: true
+    not_cross_bidder_substitutable: true
+
+gate_semantics:
+  noncompensating: true
+  numeric_indicator_allowed_for_local_formula: true
+  aggregate_validity_rule: ANY_MANDATORY_GATE_FAIL_WITHHOLDS_COMPARABLE_FINAL_REVIEW_SCORE
+  high_score_cannot_compensate_gate_fail: true
+
+seed_semantics:
+  current_A_B_rows: METHOD_DEMONSTRATION_SEEDED_ONLY
+  bidder_evidence: false
+  award_result: false
+  replacement_trigger: SOURCE_BOUND_REAL_OFFER_INTAKE
+
+surface_contract:
+  word:
+    required:
+      - render_equation_version_and_symbol_definitions_visibly
+      - show_risk_once_proof
+      - mark_legacy_70_30_and_second_system_risk_subtraction_noncanonical
+      - preserve_paragraph_first_audit_narrative
+  excel:
+    required:
+      - algebraically_match_equation_version
+      - retain_one_risk_application
+      - preserve_NA_and_missing_states
+      - keep_BT_pairwise_separate
+      - keep_weighted_delta_diagnostic_only
+  ppt:
+    required:
+      - semantically_match_equation_version
+      - explain_ranking_vs_risk_separation
+      - show_no_second_system_risk_subtraction
+      - no_independent_scoring_ontology
+
+current_implementation_assessment:
+  workbook_risk_once: PASS
+  workbook_native_excel_roundtrip: WITHHELD_EXTERNAL_RUNTIME_GATE
+  workbook_pairwise_separation: PASS
+  workbook_pairwise_completion_guard:
+    state: IMPLEMENTED_LOCAL_SOURCE_W295
+    detail: Pairwise and weighted-delta aggregate totals remain blank until all required numeric contributions exist; incomplete or unset inputs cannot surface as neutral zero.
+  workbook_conditioned_score_parity:
+    state: IMPLEMENTED_LOCAL_SOURCE
+    detail: W183 CALC_AB conditions RawScore by Confidence before gate/risk adjustment.
+  workbook_applicability_state:
+    state: IMPLEMENTED_LOCAL_SOURCE
+    detail: W183 INPUT_AB carries explicit Applicable_A/B and gate fields with applicable-weight renormalization.
+  workbook_missing_state_preservation:
+    state: IMPLEMENTED_LOCAL_SOURCE_W294
+    detail: Nonnumeric applicable risk states are propagated as MISSING/DEFER/FAIL rather than coerced through SUM to zero; adjusted score and final review remain withheld.
+  workbook_all_NA_cluster_guard:
+    state: IMPLEMENTED_LOCAL_SOURCE_W294
+    detail: A cluster with zero applicable items is explicitly UNSCORABLE and cannot enter FinalReviewScore as numeric zero.
+  narrative_equation_visibility:
+    state: IMPLEMENTED_LOCAL_SOURCE
+    detail: W183 narrative renders OFFER_EVAL_EQ_v1 equations and the risk-once proof.
+  independent_executor_equation_v1_parity:
+    state: PASS_FEDERATED_EXACT_POST_W299
+    executor_repo: GBOGEB/Q_engineering_tools
+    executor_pr: 74
+    executor_head: bb9c0f689e840df4b0c63f38558be00cead5daea
+    workflow_run: 35366032101
+    job: 105668610788
+    artifact_id: 10556283529
+    artifact_digest: sha256:6d4e46dc8084d3131cb2cc8cdcdb2261ea23c0d48a7a36a77bcaf1904aed85f4
+  ppt_semantic_alignment:
+    state: PASS_CONTROLLED_EQUATION_FREEZE_BINARY_RENDER
+    detail: W298 binds the rendered four-slide controlled equation-freeze deck to OFFER_EVAL_EQ_v1; full method ontology remains repo-controlled.
+    receipt: triage/w298/QPS_W298_M08_CROSS_ARTIFACT_EQUATION_BINDING_v1.yaml
+
+three_ranking_surfaces:
+  static_offer_prior: STATIC_REQUIREMENT_IMPORTANCE
+  commercial_action_ranking: COMMERCIAL_DUE_DILIGENCE_ACTION_ORDER
+  qps_triage_pressure: GOVERNED_ORDINAL_EXECUTION_PRIORITY_NOT_BRADLEY_TERRY
+  invariant: OFFER_STATIC_PRIOR_NE_COMMERCIAL_ACTION_RANKING_NE_TRIAGE_EXECUTION_PRESSURE
+
+production_promotion_gate:
+  state: WITHHELD
+  required:
+    - native_Excel_clean_roundtrip_PASS_in_materially_different_environment
+
+stop_rules:
+  - no_second_system_risk_subtraction
+  - no_legacy_70_30_blend_as_canonical
+  - no_static_importance_double_application
+  - no_NA_to_zero_or_neutral_50
+  - no_missing_or_DEFER_to_zero
+  - no_seed_as_bidder_fact
+  - no_pairwise_as_award_authority
+  - no_document_polish_as_engineering_or_acceptance_credit
+  - no_global_3P3_before_local_parity_and_native_Excel_gate
