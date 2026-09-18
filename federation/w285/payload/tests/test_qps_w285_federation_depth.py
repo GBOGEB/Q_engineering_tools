@@ -17,10 +17,10 @@ class W285DepthTests(unittest.TestCase):
         self.assertEqual(r["result"], "PASS_EXACT_DEPTH_DENOMINATOR_AND_MEASUREMENT")
         self.assertEqual(r["functions"], 12)
         self.assertEqual(r["all_current_use_atoms"], 29)
-        self.assertEqual(r["depth_numerator"], 5)
-        self.assertEqual(r["depth_denominator"], 16)
-        self.assertAlmostEqual(r["function_depth"], 5/16)
-        self.assertAlmostEqual(r["global_fleet_penetration"], 5/48)
+        self.assertEqual(r["depth_micro_numerator"], 5)
+        self.assertEqual(r["depth_micro_denominator"], 16)
+        self.assertAlmostEqual(r["function_depth"], ((2/5)+(1/4)+(1/4)+(1/3))/4)
+        self.assertAlmostEqual(r["global_fleet_penetration"], 37/360)
         self.assertFalse(r["authority_transfer"])
         self.assertEqual(r["formal_credit_delta"], 0)
 
@@ -45,8 +45,10 @@ class W285DepthTests(unittest.TestCase):
         depth = mod.load_json(mod.DEPTH)
         m = depth["measurement"]
         self.assertAlmostEqual(m["breadth"]["value"], 4/12)
-        self.assertAlmostEqual(m["depth_conditioned_on_breadth"]["value"], 5/16)
-        self.assertAlmostEqual(m["global_fleet_penetration"]["value"], (4/12)*(5/16))
+        self.assertEqual(m["depth_conditioned_on_breadth"]["method"], "MACRO_AVERAGE_PER_FUNCTION")
+        self.assertAlmostEqual(m["depth_conditioned_on_breadth"]["value"], ((2/5)+(1/4)+(1/4)+(1/3))/4)
+        self.assertAlmostEqual(m["depth_micro_diagnostic"]["value"], 5/16)
+        self.assertAlmostEqual(m["global_fleet_penetration"]["value"], 37/360)
 
     def test_zero_current_use_functions_do_not_create_implicit_atoms(self):
         depth = mod.load_json(mod.DEPTH)
