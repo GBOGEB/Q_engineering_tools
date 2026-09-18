@@ -1,0 +1,63 @@
+name: W283F Exact Federation Surface Proof
+
+on:
+  pull_request:
+    paths:
+      - federation/w283/**
+      - .github/workflows/w283f-federation-surface-exact.yml
+  push:
+    branches: [main]
+    paths:
+      - federation/w283/**
+      - .github/workflows/w283f-federation-surface-exact.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  exact-w283:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: federation/w283/payload
+    steps:
+      - name: Checkout exact consumer head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Verify six exact W283 source blobs
+        shell: bash
+        run: |
+          test "$(git hash-object triage/w283/QPS_W283_FEDERATION_SAMPLE_ROUTING_CROSSWALK_v0.1.json)" = "83e7c672dfdd495d88644f087db234bbeb293400"
+          test "$(git hash-object triage/w283/QPS_W283_BT_BRIDGE_ADMISSIBILITY_WATCH_v0.1.json)" = "2f9819f62e2c493e2529e5e81d9a8559017bd0fb"
+          test "$(git hash-object triage/w283/QPS_W283_FEDERATION_SURFACE_3PSTAR_MIP_CONTROL_v0.1.json)" = "2ebedb16abe53481bcecc49a72c026ead96db207"
+          test "$(git hash-object scripts/qps_w283_validate_federation_surface.py)" = "a59dd45fb45afdf0a4264aee49a11849672a302a"
+          test "$(git hash-object tests/test_qps_w283_federation_surface.py)" = "825ae87af311ec7a22502e27ae6f745436c7b724"
+          test "$(git hash-object .github/workflows/qps-w283-federation-surface.yml)" = "b2e08ac0168ef878c41392735867672123d59544"
+
+      - name: Execute W283 validator
+        run: python scripts/qps_w283_validate_federation_surface.py --out w283f-validation-receipt.json
+
+      - name: Execute W283 tests
+        run: python -m unittest tests/test_qps_w283_federation_surface.py -v
+
+      - name: Upload W283F receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: w283f-${{ github.event.pull_request.head.sha || github.sha }}
+          path: federation/w283/payload/w283f-validation-receipt.json
+
+      - name: Publish observable W283F main repeat
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh issue create \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "W283F MAIN REPEAT PASS ${GITHUB_RUN_ID}" \
+            --body "Exact W283 6/6 source blobs, function-breadth validator, tests, and artifact upload passed on main. run_id=${GITHUB_RUN_ID}; sha=${GITHUB_SHA}; source_qps_pr=1477; source_qps_head=b5d42e3cc273686bc8538cbb6cdca41d428de95f; authority_transfer=false; global_fleet_penetration=null."

@@ -1,0 +1,148 @@
+{
+  "schema": "qps-w283-federation-sample-routing-crosswalk/v0.1",
+  "wave": "W283",
+  "purpose": "MAP_ALL_ACCEPTED_FEDERATION_SAMPLES_TO_CANONICAL_ROUTING_FUNCTIONS_WITHOUT_INFERRING_FUNCTION_DEPTH",
+  "authority": "MISSION_CONTROL_FEDERATION_MEASUREMENT_ONLY",
+  "source_denominator": {
+    "repo": "GBOGEB/cryoplant-project",
+    "path": "triage/w280/QPS_W280_GOVERNED_SURFACE_CENSUS_v0.2.json",
+    "blob": "967205bb52ce9c7c43771b63641df6d714d7ca07",
+    "governed_surface_denominator": 12,
+    "denominator_key": "CURRENT_CANONICAL_ROUTING_FUNCTION_SURFACES"
+  },
+  "routing_topology": {
+    "repo": "GBOGEB/pipeline-automation-hub",
+    "path": "mission-control/qps-triage-ultra/topology/QPS_REPO_FUNCTION_TOPOLOGY_v1.yaml",
+    "blob": "df0ee845697578cd644691b81eafb2465249d772"
+  },
+  "mapping_rule": {
+    "primary_credit": "ONE_ACCEPTED_SAMPLE_MAY_CREDIT_AT_MOST_ONE_CANONICAL_ROUTING_FUNCTION",
+    "supporting_repos": "SOURCE_EXECUTOR_OR_RETURN_REPOS_DO_NOT_CREATE_ADDITIONAL_SURFACE_CREDIT",
+    "historical_function_identity": "FUNCTION_IDENTITY_MAY_MAP_ACROSS_REPO_RELOCATION_ONLY_WHEN_AUTHORITY_AND_PURPOSE_ARE_EXPLICIT",
+    "depth_guard": "BOUNDED_SAMPLE_DEPTH_1_DOES_NOT_IMPLY_COMPLETE_DEPTH_OF_THE_ROUTING_FUNCTION"
+  },
+  "accepted_samples": [
+    {
+      "sample_id": "FED-SAMPLE-001-W164-CONTROL",
+      "measured_surface": "MISSION_FEDERATION_CONTROL",
+      "mapped_function": "MISSION_CONTROL_ORCHESTRATION",
+      "evidence_class": "FUNCTION_IDENTITY_MATCH_HISTORICAL_HOST_RELOCATED",
+      "evidence": {
+        "path": "triage/w164/QPS_W164_MISSION_FEDERATION_RUNTIME_CONTROL_v0.1.yaml",
+        "blob": "476c7d80f42b2850555477a837cb645f3675800a",
+        "authority": "MISSION_CONTROL_DEVOPS_EXECUTION_ONLY",
+        "reason": "W164 measures MissionControl federation architecture/control rather than QPS engineering source authority"
+      },
+      "secondary_repos": [
+        "GBOGEB/cryoplant-project",
+        "GBOGEB/Q_engineering_tools"
+      ],
+      "secondary_credit": 0
+    },
+    {
+      "sample_id": "FED-SAMPLE-002-ABACUS-W74",
+      "measured_surface": "KUBERNETES_DEPLOYMENT_CONTRACT",
+      "mapped_function": "DOW_RUNTIME_METRICS_PROJECTION",
+      "evidence_class": "DIRECT_SOURCE_REPO_FUNCTION_MATCH",
+      "evidence": {
+        "path": "triage/w168/QPS_W168_FEDERATION_EXPANSION_RUNTIME_CONTROL_v0.1.json",
+        "blob": "daae9de97fa7304cfd60ee84c7eacaf24fb2c5ba",
+        "source_repo": "GBOGEB/ABACUS"
+      },
+      "secondary_repos": [
+        "GBOGEB/cryoplant-project",
+        "GBOGEB/Q_engineering_tools"
+      ],
+      "secondary_credit": 0
+    },
+    {
+      "sample_id": "FED-SAMPLE-003-CODEX-M05",
+      "measured_surface": "SUPPLY_CHAIN_PROVENANCE_ATTESTATION",
+      "mapped_function": "KEB_SEMANTIC_PROVENANCE",
+      "evidence_class": "DIRECT_SOURCE_REPO_FUNCTION_MATCH",
+      "evidence": {
+        "path": "controls/QPS_W170_FEDERATION_SAMPLE3_CURRENT_v1.json",
+        "blob": "786d057831bb58d60009c21c974e35d477b5a8ee",
+        "source_repo": "GBOGEB/CODEX"
+      },
+      "secondary_repos": [
+        "GBOGEB/cryoplant-project",
+        "GBOGEB/Q_engineering_tools"
+      ],
+      "secondary_credit": 0
+    },
+    {
+      "sample_id": "FED-SAMPLE-004-W184F-N200-MIRROR",
+      "measured_surface": "SELF_CONTAINED_EXACT_HASH_ANALYTICAL_CARRIER",
+      "mapped_function": "EXACT_PAYLOAD_RUNTIME_CARRIER",
+      "evidence_class": "EXPLICIT_CARRIER_FUNCTION_MATCH",
+      "evidence": {
+        "path": "controls/QPS_W189_FEDERATION_SAMPLE4_CURRENT_v1.json",
+        "blob": "31fbed31140783b91fa29d04d8ab0d04d369a274",
+        "carrier_repo": "GBOGEB/Q_engineering_tools",
+        "source_authority_repo": "GBOGEB/cryoplant-project"
+      },
+      "secondary_repos": [
+        "GBOGEB/cryoplant-project",
+        "GBOGEB/ABACUS"
+      ],
+      "secondary_credit": 0
+    },
+    {
+      "sample_id": "FED-SAMPLE-005-W3-15-OBSERVED-INTERVENTION",
+      "measured_surface": "OBSERVED_RED_REPAIR_CONTROL_INTERVENTION_BT",
+      "mapped_function": "MISSION_CONTROL_ORCHESTRATION",
+      "evidence_class": "DIRECT_SOURCE_REPO_FUNCTION_MATCH",
+      "evidence": {
+        "path": "controls/QPS_W280_FEDERATION_SAMPLE5_CURRENT_v0.1.json",
+        "blob": "ac5983580fcdde44e558537383ca1413fcd2d979",
+        "source_repo": "GBOGEB/pipeline-automation-hub"
+      },
+      "secondary_repos": [
+        "GBOGEB/cryoplant-project",
+        "GBOGEB/Q_engineering_tools"
+      ],
+      "secondary_credit": 0
+    }
+  ],
+  "measured_result": {
+    "accepted_sample_mapping": {
+      "numerator": 5,
+      "denominator": 5,
+      "value": 1
+    },
+    "unique_functions_covered": [
+      "DOW_RUNTIME_METRICS_PROJECTION",
+      "EXACT_PAYLOAD_RUNTIME_CARRIER",
+      "KEB_SEMANTIC_PROVENANCE",
+      "MISSION_CONTROL_ORCHESTRATION"
+    ],
+    "function_breadth": {
+      "numerator": 4,
+      "denominator": 12,
+      "value": 0.3333333333333333
+    },
+    "uncovered_functions": [
+      "ACCELERATOR_RTM_BRIDGE",
+      "DEVELOPER_RUNTIME_HELIUM_PROPERTIES",
+      "DOCUMENT_ORGANISATION_ARTIFACT_INDEX",
+      "GENERIC_MATH_PROVIDER",
+      "LEAK_PHYSICS_EVIDENCE",
+      "PRIVATE_BYTE_PROVENANCE_VAULT",
+      "QPS_CHILD_AUTHORITY",
+      "SOURCE_EXTRACTION_RTM_RECONCILIATION"
+    ],
+    "global_function_depth": null,
+    "global_fleet_penetration": null,
+    "pen_formula": "PEN=B*D",
+    "state": "BREADTH_MEASURED_DEPTH_WITHHELD"
+  },
+  "next_first_red": "DECOMPOSE_12_ROUTING_FUNCTIONS_INTO_NONOVERLAPPING_GOVERNED_SUBSURFACE_DENOMINATORS_THEN_MEASURE_DEPTH",
+  "guards": [
+    "NO_SAMPLE_COUNT_DIVIDED_BY_SURFACE_DENOMINATOR",
+    "NO_EXECUTOR_DOUBLE_CREDIT",
+    "NO_BOUNDED_SAMPLE_DEPTH_EXTRAPOLATION",
+    "GLOBAL_FLEET_PEN_REMAINS_NULL",
+    "QPS_REPO_LOCAL_RUNNER_923_NON_COMPENSATING"
+  ]
+}
