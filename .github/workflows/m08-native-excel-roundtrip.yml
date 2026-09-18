@@ -1,10 +1,6 @@
-name: M08 Native Excel Clean Roundtrip - 2 Attempts
+name: M08 Native Excel Clean Roundtrip - Explicit 2 Attempts
 
 on:
-  pull_request:
-    paths:
-      - 'federation/m08-native-excel/**'
-      - '.github/workflows/m08-native-excel-roundtrip.yml'
   workflow_dispatch:
 
 permissions:
@@ -20,7 +16,7 @@ jobs:
       - name: Checkout exact executor head
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.sha }}
       - name: Verify exact QPS source blob identities
         shell: bash
         run: |
@@ -69,7 +65,7 @@ jobs:
       - name: Checkout exact executor head
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.sha }}
       - name: Verify exact QPS source blob identities
         shell: bash
         run: |
@@ -113,12 +109,12 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: Emit 2-attempt gate receipt
+      - name: Emit fail-closed 2-attempt gate receipt
         shell: bash
         env:
           A1: ${{ needs.attempt1.outputs.gate_status }}
           A2: ${{ needs.attempt2.outputs.gate_status }}
-          EXECUTOR_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          EXECUTOR_SHA: ${{ github.sha }}
           RUN_ID: ${{ github.run_id }}
         run: |
           mkdir -p federation/m08-native-excel/final
@@ -126,10 +122,20 @@ jobs:
           import json, os, pathlib
           a1=os.environ.get("A1") or "NO_STATUS"
           a2=os.environ.get("A2") or "NO_STATUS"
-          passed = "PASS_NATIVE_MICROSOFT_EXCEL_CLEAN_ROUNDTRIP" in {a1,a2}
-          status = "PASS_NATIVE_EXCEL_GATE" if passed else "BLOCKED_AFTER_2_HOSTED_WINDOWS_ATTEMPTS"
+          statuses={a1,a2}
+          passed = "PASS_NATIVE_MICROSOFT_EXCEL_CLEAN_ROUNDTRIP" in statuses
+          red = any(s.startswith("RED_") for s in statuses)
+          blocked = statuses <= {"BLOCKED_NATIVE_EXCEL_COM_UNAVAILABLE","NO_STATUS"} and "BLOCKED_NATIVE_EXCEL_COM_UNAVAILABLE" in statuses
+          if passed:
+              status="PASS_NATIVE_EXCEL_GATE"
+          elif red:
+              status="RED_NATIVE_EXCEL_GATE"
+          elif blocked:
+              status="BLOCKED_AFTER_2_HOSTED_WINDOWS_ATTEMPTS"
+          else:
+              status="WITHHELD_NATIVE_EXCEL_GATE"
           out = {
-            "schema":"qps-m08-native-excel-two-attempt-receipt/1.0",
+            "schema":"qps-m08-native-excel-two-attempt-receipt/1.1",
             "status":status,
             "attempt1":a1,
             "attempt2":a2,
