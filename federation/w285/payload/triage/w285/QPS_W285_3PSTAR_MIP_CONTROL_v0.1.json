@@ -1,0 +1,84 @@
+{
+  "schema": "qps-w285-3pstar-mip-control/v0.1",
+  "wave": "W285",
+  "state": "RETEST_EXTERNAL_PROOF_ATTEMPT_2_REVIEW_GUARDS_REPAIRED",
+  "three_pstar": {
+    "refresh": {
+      "state": "PASS",
+      "facts": [
+        "cryoplant main refreshed at 41998c71cf187e3640cf273f7be9b5b96539aab1",
+        "W275 physical successor bundle still absent from repository and connected Drive search",
+        "issue 923 remains independent owner-action runtime veto",
+        "W284 namespace occupied by GM-I-C/HM-01 in pipeline-automation-hub; W285 selected"
+      ]
+    },
+    "probe": {
+      "state": "PASS",
+      "first_red": "W283_DEPTH_01",
+      "finding": "W283 function breadth 4/12 is controlled; function depth is null. Exact topology current_use lists provide a governed non-overlapping capability denominator for already-covered functions."
+    },
+    "rank": {
+      "state": "PASS",
+      "primary_blocked": "W275_R3_PHYSICAL_SUCCESSOR_GIT_BUNDLE_RETURN_1248290C",
+      "selected_attainable": "W283_DEPTH_01_TO_W285_FUNCTION_DEPTH"
+    }
+  },
+  "mip": {
+    "modernize": {
+      "state": "PASS_CANDIDATE",
+      "change": "Replace ambiguous sample-depth reuse with exact topology current_use atoms as function-internal denominators."
+    },
+    "innovate": {
+      "state": "PASS_CANDIDATE",
+      "change": "Use equal-function aggregation: D=mean(per-function atom coverage); PEN=B*D; uncovered functions are represented by B and receive no imputed zero depth."
+    },
+    "perpetuate": {
+      "state": "RETEST_EXTERNAL_EXACT_PROOF_ATTEMPT_2_REVIEW_GUARDS_REPAIRED",
+      "required": [
+        "Q_engineering_tools exact-payload execution",
+        "CODEX semantic/provenance review",
+        "ABACUS independent denominator recomputation",
+        "QPS authoritative return and current-pointer update"
+      ]
+    }
+  },
+  "candidate_measurement": {
+    "B": 0.3333333333333333,
+    "D": 0.6,
+    "PEN": 0.2,
+    "covered_atom_credit": "9/16"
+  },
+  "three_pc": {
+    "prepare": "PASS",
+    "prove": "RETEST_EXTERNAL_ATTEMPT_2_AFTER_FAIL_CLOSED_REVIEW_REPAIR",
+    "commit": "HOLD"
+  },
+  "preserved_noncompensating": [
+    "W275_R3_PHYSICAL_SUCCESSOR_GIT_BUNDLE_RETURN",
+    "QPS_REPO_LOCAL_RUNNER_923",
+    "GT_BDQ_0",
+    "GLOBAL_BT_GRAPH_CONNECTIVITY",
+    "EXTERNAL_SOURCE_AND_AUTHORITY_GATES"
+  ],
+  "formal_credit_delta": 0,
+  "authority_transfer": false,
+  "rex": {
+    "id": "W285_REX_01_EXACT_TOPOLOGY_CURRENT_USE_TEXT_MISMATCH",
+    "external_run": 35359203971,
+    "external_job": 105645971028,
+    "repair": "EXACT_TEXT_RESTORED",
+    "retry": "ATTEMPT_2_REPAIRED_WAIT_REPROOF",
+    "review_repairs": [
+      {
+        "id": "W285_REX_02_EVIDENCE_BINDING_NOT_BYTE_VERIFIED",
+        "source": "cryoplant-project#1490 Codex P2",
+        "repair": "Bind exact W283 crosswalk blob, require exact sample path/blob identity, read each evidence path and verify Git blob SHA, and require evidence sample mapped_function to equal credited function."
+      },
+      {
+        "id": "W285_REX_03_DUPLICATE_COVERED_FUNCTION_MASKED_BY_SET",
+        "source": "cryoplant-project#1490 Codex P2",
+        "repair": "Require exactly four covered-function entries and reject duplicate function names before any set-based partition or depth aggregation."
+      }
+    ]
+  }
+}
