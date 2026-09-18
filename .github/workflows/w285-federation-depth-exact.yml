@@ -32,8 +32,8 @@ jobs:
         shell: bash
         run: |
           test "$(git hash-object upstream/QPS_ROUTING_FUNCTION_SUBSURFACE_DEPTH_v1.json)" = "a9ba70c2ed00e30e0153099062736c347c51cfa0"
-          test "$(git hash-object scripts/qps_w285_validate_federation_depth.py)" = "972a8c38e0e906ba8ca5e3f5faf1449f1cd70b3d"
-          test "$(git hash-object tests/test_qps_w285_federation_depth.py)" = "39f362fbc1fbba4a7791ff636fd0a7377ed031c7"
+          test "$(git hash-object scripts/qps_w285_validate_federation_depth.py)" = "4b9b6df5bb88129977facd2068af40cbca307365"
+          test "$(git hash-object tests/test_qps_w285_federation_depth.py)" = "b14f08eca90415d0aed5dd562bb6b41f534da51c"
           test "$(git hash-object ../../w283r/payload/triage/w283/upstream/QPS_REPO_FUNCTION_TOPOLOGY_v1.yaml)" = "df0ee845697578cd644691b81eafb2465249d772"
           test "$(git hash-object ../../w283r/payload/triage/w283/QPS_W283_FEDERATION_SAMPLE_ROUTING_CROSSWALK_v0.1.json)" = "cb3133ec98adb2cdf096376fe5b00ccc606172d1"
 
