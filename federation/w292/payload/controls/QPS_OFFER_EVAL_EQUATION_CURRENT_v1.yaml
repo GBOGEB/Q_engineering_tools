@@ -1,10 +1,10 @@
 schema: qps-offer-eval-equation-control/1.0
-as_of: '2026-09-18T17:20:00+02:00'
+as_of: '2026-09-18T17:51:00+02:00'
 repo: GBOGEB/cryoplant-project
 wave: W288
 mission: M08_OFFER_EVAL_METHOD
 gate_id: OFFER_EVAL_WORD_001
-status: CONTROLLED_CANONICAL_EQUATION_FAMILY_PRODUCTION_PROPAGATION_WITHHELD
+status: CONTROLLED_CANONICAL_EQUATION_FAMILY_EXECUTOR_PARITY_PASS_PPT_AND_NATIVE_EXCEL_BLOCKED
 authority: SUPPLEMENTARY_REVIEW_METHOD_ONLY
 authority_transfer: false
 formal_credit_delta: 0
@@ -155,21 +155,36 @@ current_implementation_assessment:
   workbook_risk_once: PASS
   workbook_native_excel_roundtrip: WITHHELD_EXTERNAL_RUNTIME_GATE
   workbook_pairwise_separation: PASS
+  workbook_pairwise_completion_guard:
+    state: IMPLEMENTED_LOCAL_SOURCE_W295
+    detail: Pairwise and weighted-delta aggregate totals remain blank until all required numeric contributions exist; incomplete or unset inputs cannot surface as neutral zero.
   workbook_conditioned_score_parity:
-    state: GAP_OPEN
-    detail: >-
-      Current W183 generator carries Confidence_A/B columns but CALC_AB Adjusted_A/B currently use
-      RawScore directly. The canonical equation requires E_i_b = q_i_b*C_i_b before risk adjustment.
-      Do not silently claim algebraic parity until this is repaired and re-proved.
+    state: IMPLEMENTED_LOCAL_SOURCE
+    detail: W183 CALC_AB conditions RawScore by Confidence before gate/risk adjustment.
   workbook_applicability_state:
-    state: GAP_OPEN
-    detail: current generated INPUT_AB does not yet carry an explicit N/A applicability field
+    state: IMPLEMENTED_LOCAL_SOURCE
+    detail: W183 INPUT_AB carries explicit Applicable_A/B and gate fields with applicable-weight renormalization.
+  workbook_missing_state_preservation:
+    state: IMPLEMENTED_LOCAL_SOURCE_W294
+    detail: Nonnumeric applicable risk states are propagated as MISSING/DEFER/FAIL rather than coerced through SUM to zero; adjusted score and final review remain withheld.
+  workbook_all_NA_cluster_guard:
+    state: IMPLEMENTED_LOCAL_SOURCE_W294
+    detail: A cluster with zero applicable items is explicitly UNSCORABLE and cannot enter FinalReviewScore as numeric zero.
   narrative_equation_visibility:
-    state: GAP_OPEN
-    detail: current W183 narrative generator describes risk conceptually but does not render this equation family
+    state: IMPLEMENTED_LOCAL_SOURCE
+    detail: W183 narrative renders OFFER_EVAL_EQ_v1 equations and the risk-once proof.
+  independent_executor_equation_v1_parity:
+    state: PASS_FEDERATED_EXACT_POST_W295
+    executor_repo: GBOGEB/Q_engineering_tools
+    executor_pr: 71
+    executor_head: c7e78ec095653d27610d55c22a18e20af20d2007
+    workflow_run: 35364698004
+    job: 105664184698
+    artifact_id: 10556395792
+    artifact_digest: sha256:1b3c7b68889496438cd75b36df26a978b0d777cc1b3b20ae44d9cf1b6dd2521f
   ppt_semantic_alignment:
-    state: PARTIAL_PASS
-    detail: risk-once semantics align, but equation version and no-final-subtraction statement must be bound explicitly
+    state: CONTROL_BOUND_OUTWARD_BINARY_REGENERATION_OPEN
+    detail: PPT control is equation-v1 aligned; exact outward binary regeneration/render proof remains open.
 
 three_ranking_surfaces:
   static_offer_prior: STATIC_REQUIREMENT_IMPORTANCE
@@ -180,12 +195,9 @@ three_ranking_surfaces:
 production_promotion_gate:
   state: WITHHELD
   required:
-    - workbook_conditioned_score_parity_PASS
-    - workbook_applicability_NA_semantics_PASS
-    - narrative_equation_visibility_PASS
-    - ppt_equation_version_binding_PASS
-    - native_Excel_clean_roundtrip_PASS
-    - cross_artifact_equation_parity_PASS
+    - ppt_outward_binary_equation_v1_regeneration_and_render_PASS
+    - native_Excel_clean_roundtrip_PASS_in_materially_different_environment
+    - cross_artifact_equation_parity_PASS_EXECUTED_POST_W295
 
 stop_rules:
   - no_second_system_risk_subtraction
