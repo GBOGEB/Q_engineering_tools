@@ -1,0 +1,165 @@
+schema: qps-w231-n300-atomic-swap-unique-stats/0.1
+as_of: '2026-09-15T04:44:00+02:00'
+repo: GBOGEB/cryoplant-project
+status: PASS_UNIQUE_N300_DIAGNOSTIC_STATS_COMPLETE_MSA_TABLE_READABILITY_RED
+authority_transfer: false
+formal_credit_delta: {engineering: 0, compliance: 0, negotiation: 0, acceptance: 0, release: 0, runtime_gold: 0}
+
+parents:
+  - triage/w227/QPS_W227_N300_EXACT_MATRIX_RECONSTRUCTION_AUDIT_v0.1.yaml
+  - triage/w228/QPS_W228_N300_REPLACEMENT_SOURCE_CAPACITY_SCREEN_v0.1.yaml
+  - triage/w230/QPS_W230_N300_HTML_QUALIFICATION_XLSX_HASH_BIND_v0.1.yaml
+
+selector_refresh:
+  issue_923: STILL_OWNER_ACTION_INFRA_PREEXECUTION
+  W191_actual_Windows_Master_Input_return: STILL_MISSING
+  G6_governed_release_return: STILL_MISSING
+  W152_authoritative_return: STILL_OPEN
+  NEGO1_authoritative_LKT_return: STILL_WAIT_REAL_RETURN
+  W199_real_return: NOT_OBSERVED_IN_CONNECTED_CENSUS
+  disposition: FALL_THROUGH_TO_W230_XLSX1_EXACT_RENDER_AND_ATOMIC_SWAP
+
+xlsx1_exact_qualification:
+  artifact_id: QPS_AGENDA_CONSOLIDATED_ARTIFACT_INDEX_v6
+  source_file_library_id: file_00000000edc482108948c6aa6d50ce40
+  source_sha256: 24d6fd9530461969fc3173b4d03727376745f5be825fe3b9a3d9a2175840fa3b
+  source_bytes: 23453
+  tabs: 7
+  formulas: 0
+  cached_error_like_cells: 0
+  render_method: OPENPYXL_EXACT_CELL_VALUE_STYLE_PROXY_FULL_TEXT_WRAP_NON_NATIVE_EXCEL
+  render_images: 11
+  content_parity: PASS_BY_DIRECT_CELL_VALUE_RENDER_WITH_FULL_TEXT_WRAP
+  visual_release: PASS
+  M08_credit: 0
+  frozen_12_features:
+    typographic_hierarchy: 8.0
+    whitespace_grid: 7.0
+    figure_quality: 2.0
+    table_readability: 8.0
+    colour_discipline: 8.0
+    diagram_consistency: 3.0
+    branding_restraint: 8.0
+    captions_citations: 6.0
+    metadata_versioning: 9.0
+    export_print_fidelity: 8.0
+    information_density: 8.0
+    executive_legibility: 8.0
+  render_pack:
+    path: /QPS/W231/QPS_W231_XLSX1_RENDER_PACK.zip
+    library_file_id: libfile_41320a2951588191a9656e559cfe4aa5
+    sha256: 893ac83ebe56f8b726cf47f3cd2d9de4061301aefe823ab55496ae547d3f044f
+
+html5_from_W230:
+  artifact_id: QPS_CANONICAL_RTM_HANDOVER_V5_3_0_HTML
+  source_sha256: d1f94762674e3b9209afe2730f92cd1641d8d853ecab24b917a387ec03a530ea
+  disposition: QUALIFIED_HTML5_OF5
+  frozen_12_features: {typographic_hierarchy: 8.5, whitespace_grid: 8.5, figure_quality: 4.0, table_readability: 7.0, colour_discipline: 8.5, diagram_consistency: 5.0, branding_restraint: 9.0, captions_citations: 6.0, metadata_versioning: 9.0, export_print_fidelity: 8.5, information_density: 7.5, executive_legibility: 8.0}
+
+atomic_replacement:
+  executed: true
+  rule: RETAIN_FIRST_FORMAT_ARTIFACT_OCCURRENCE_REMOVE_LATER_DUPLICATE_APPEND_12_QUALIFIED_REPLACEMENTS
+  denominator_before: 300
+  denominator_after: 300
+  removed_duplicate_vector: {HTML: 5, PDF: 2, PPTX: 3, XLSX: 2}
+  added_replacement_vector: {HTML: 5, PDF: 2, PPTX: 3, XLSX: 2}
+  format_counts_after: {HTML: 75, PDF: 75, PPTX: 75, XLSX: 75}
+  unique_format_artifact_keys_after: 300
+  duplicate_format_artifact_keys_after: 0
+  replacement_set:
+    HTML: [QPS_TRIAGE_CANONICAL_SAMPLE_20260915, QPS_Canonical_Dashboard_v0_1, LKT_NEGO1_Internal_Peer_Review_v0.7, LKT_Agenda_Internal_Peer_Review_v0.2, QPS_CANONICAL_RTM_HANDOVER_V5_3_0_HTML]
+    PDF: [QPS_TRIAGE_CANONICAL_SAMPLE_20260915, QPS_Canonical_Boardroom_v0_1]
+    PPTX: [QPS_TRIAGE_CANONICAL_SAMPLE_20260915, QPS_Canonical_Boardroom_v0_1, QPLANT_3PC_MIP_Method_Handover]
+    XLSX: [QPS_TRIAGE_CANONICAL_SAMPLE_20260915, QPS_AGENDA_CONSOLIDATED_ARTIFACT_INDEX_v6]
+
+unique_matrix:
+  rows: 300
+  numeric_features: 12
+  per_format: {HTML: 75, PDF: 75, PPTX: 75, XLSX: 75}
+  unique_format_artifact_keys: 300
+  zero_imputation: false
+  path: /QPS/W231/QPS_W231_N300_UNIQUE_ARTIFACT_MATRIX_v0.1.csv
+  library_file_id: libfile_8f84043d6700819195e4b037a38e0267
+  sha256: c2c1e6983886fbdf64a75317d4728fe0030d70d7c8be1110be76f9daff653d0b
+
+replacement_feature_review:
+  path: /QPS/W231/QPS_W231_REPLACEMENT_FEATURE_REVIEW_v0.1.csv
+  library_file_id: libfile_62f768e6d50081919b809a5b34c15e42
+  sha256: 830c088e2ceafe9f8544d1236768bfef874fc77727baadc96f8da22600f25782
+
+adequacy:
+  KMO: 0.7595879668089068
+  MSA:
+    typographic_hierarchy: 0.8595812497427578
+    whitespace_grid: 0.843192575004765
+    figure_quality: 0.6277044473426279
+    table_readability: 0.4466305167113992
+    colour_discipline: 0.7701360109429478
+    diagram_consistency: 0.6485571111536076
+    branding_restraint: 0.8431823174547997
+    captions_citations: 0.7877213826300355
+    metadata_versioning: 0.6549574048035071
+    export_print_fidelity: 0.8273552135235633
+    information_density: 0.7650473419212818
+    executive_legibility: 0.8445056244424076
+  minimum_MSA: {dimension: table_readability, value: 0.4466305167113992, conventional_0_50_floor: FAIL}
+  Bartlett: {chi_square: 2682.3179326951595, df: 66, p_value: NUMERIC_UNDERFLOW_TO_ZERO_OVERWHELMINGLY_SIGNIFICANT, det_corr: 0.00010963419386495633}
+
+PCA_PA95:
+  method: CORRELATION_MATRIX_STANDARDIZED_FEATURES
+  PA95_seed: 777
+  PA95_simulations: 5000
+  retained_components: [PC1, PC2, PC3]
+  PC1: {eigenvalue: 5.15697389511626, explained_pct: 42.97478245930217, PA95: 1.420180742068283, retained: true}
+  PC2: {eigenvalue: 2.0296180405110316, explained_pct: 16.913483670925263, PA95: 1.3075365926440816, retained: true}
+  PC3: {eigenvalue: 1.6063228585775442, explained_pct: 13.386023821479535, PA95: 1.2297062466838409, retained: true}
+  cumulative_PC1_PC3_pct: 73.274289951707
+  PC4: {eigenvalue: 0.842407554681722, PA95: 1.1638024390448254, retained: false}
+  eigen_receipt:
+    path: /QPS/W231/QPS_W231_N300_EIGEN_PA95_v0.1.csv
+    library_file_id: libfile_13f47399f6a88191b5e71d915d1b2f9e
+    sha256: 485f74ca5a3eb2e7d730e17856020980cce41139cae40073b28e3084093985ee
+
+visual_reverse_pressure:
+  method_class: NON_BT_WEIGHTED_SCALAR_PRIORITY
+  formula: 70pct_normalized_maturity_gap_plus_30pct_normalized_absolute_PC1_loading
+  rank: [figure_quality, diagram_consistency, captions_citations, information_density, typographic_hierarchy, executive_legibility, whitespace_grid, colour_discipline, branding_restraint, table_readability, export_print_fidelity, metadata_versioning]
+  Bradley_Terry_fit_performed: false
+  pairwise_outcomes_used: false
+  path: /QPS/W231/QPS_W231_N300_LOADINGS_REVERSE_PRESSURE_v0.1.csv
+  library_file_id: libfile_688e365db97c8191bebcb161d4317323
+  sha256: 568dd33cde0df9df1f36d46d833c3d25f2570b772ba5d8af5f042cd51f1c82ec
+
+statistical_receipt:
+  path: /QPS/W231/QPS_W231_N300_STATISTICAL_RECEIPT_v0.1.json
+  library_file_id: libfile_6c4486cdd4d08191bc911e3a2557e082
+  sha256: 0fac4d61d8eedf2a0f32a18a049c61cb6ea4ccaadefd8351716a3c3f640f8947
+
+control_disposition:
+  unique_N300_population_gate: PASS
+  KMO_global_gate: PASS_EXPLORATORY
+  Bartlett_gate: PASS
+  minimum_MSA_gate: FAIL_TABLE_READABILITY_BELOW_0_50
+  PCA_PA95_execution: COMPLETE_MEASURED_DIAGNOSTIC
+  visual_reverse_pressure_execution: COMPLETE_MEASURED_DIAGNOSTIC
+  N300_CONTROL: WITHHELD_MSA_FIRST_RED
+  Bradley_Terry: WITHHELD_NO_OBSERVED_PAIRWISE_OUTCOMES
+  project_global_PCA: WITHHELD_OUT_OF_SCOPE
+
+next_first_red:
+  id: N300_MSA_TABLE_READABILITY_0_4466
+  state: OPEN_LOCAL_STATISTICAL_DIAGNOSTIC
+  action: >-
+    Diagnose table_readability partial-correlation inadequacy using correlation/partial-correlation structure, per-format
+    distributions and sensitivity to the twelve replacement rows. Do not delete, re-score or retune evidence merely to
+    increase MSA. Re-run only if a governed population/schema/provenance defect is identified. Bradley-Terry remains
+    prohibited until genuine observed pairwise outcomes exist.
+
+guards:
+  - ISSUE_923_NON_COMPENSATING
+  - W199_REAL_RETURN_PREEMPTS_VISUAL_WORK
+  - M08_NATIVE_EXCEL_CREDIT_ZERO
+  - UNIQUE_N300_DIAGNOSTIC_NE_PROJECT_GLOBAL_PCA
+  - GLOBAL_KMO_PASS_NE_ALL_MSA_PASS
+  - NO_DELETE_RESCORE_RETUNE_SOLELY_TO_IMPROVE_MSA
+  - NO_BRADLEY_TERRY_WITHOUT_OBSERVED_PAIRWISE_OUTCOMES

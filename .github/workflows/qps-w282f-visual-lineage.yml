@@ -1,0 +1,86 @@
+name: W282F Visual Lineage Exact Payload
+
+on:
+  pull_request:
+    paths:
+      - 'federation/w282/**'
+      - '.github/workflows/qps-w282f-visual-lineage.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'federation/w282/**'
+      - '.github/workflows/qps-w282f-visual-lineage.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  exact-w282-payload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prove exact cryoplant W282 and source blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          check_blob() {
+            local path="$1" expected="$2"
+            actual="$(git hash-object "$path")"
+            echo "$path $actual"
+            test "$actual" = "$expected"
+          }
+          check_blob federation/w282/payload/controls/QPS_VISUAL_LINEAGE_CURRENT_v0.1.yaml 90a8f31cd3ad18da4cac03121929efc37fcbfecb
+          check_blob federation/w282/payload/triage/w282/QPS_W282_VISUAL_LINEAGE_3PSTAR_MIP_CONTROL_v0.1.yaml fb8ee6b1c6016332dd500d8dd40cce349585ab1a
+          check_blob federation/w282/payload/scripts/qps_w282_validate_visual_lineage.py e7368b6307da79443a99b1196753b9ec89acd603
+          check_blob federation/w282/payload/tests/test_qps_w282_visual_lineage.py 205d90e4e7ece433b44e0108ea3cdb21a4b80b9f
+          check_blob federation/w282/payload/triage/w162/QPS_W162_VISUAL_CONVERGENCE_RUNTIME_CONTROL_v0.1.yaml e497cb83b9744f9cdd5bffaa82d50f20b2d6582b
+          check_blob federation/w282/payload/triage/w188/QPS_W188_N200_TABLE_READABILITY_DIAGNOSIS_v0.1.yaml 94493002b863a6e792a84154aa6084508fded3cd
+          check_blob federation/w282/payload/triage/w231/QPS_W231_N300_ATOMIC_SWAP_UNIQUE_STATS_v0.1.yaml 98d8dd375af14f09bbaa89906dec48e47ce7756a
+          check_blob federation/w282/payload/triage/w231/QPS_W231_TABLE_READABILITY_MSA_DIAGNOSTIC_v0.1.yaml 7a30b9693f004e4266ef29cd739a59e39343db5e
+          check_blob federation/w282/payload/handover/qps_recursive/QTG_CURRENT.yaml 1a7a0a4d67cfb7561406eb3edcf6d65b1981ed79
+      - name: Install validator dependency
+        run: python -m pip install PyYAML==6.0.3
+      - name: Execute exact child regression tests
+        working-directory: federation/w282/payload
+        run: python -m unittest discover -s tests -p 'test_qps_w282_visual_lineage.py' -v
+      - name: Execute exact child visual lineage validator
+        working-directory: federation/w282/payload
+        run: python scripts/qps_w282_validate_visual_lineage.py --output W282F_CHILD_RECEIPT.json
+      - name: Emit federated proof receipt
+        shell: bash
+        env:
+          SOURCE_REPO: GBOGEB/cryoplant-project
+          SOURCE_HEAD: 271654848d339096b37e2186932c6ca514ba16c3
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          p='federation/w282/payload/W282F_CHILD_RECEIPT.json'
+          child=json.load(open(p,encoding='utf-8'))
+          assert child['status']=='PASS_VISUAL_LINEAGE_RESTART_CONTROL', child
+          out={
+            'schema':'qps.w282f.visual_lineage_exact_payload.v1',
+            'status':'PASS_FEDERATED_EXACT_PAYLOAD',
+            'authority':'FEDERATED_EXECUTION_ONLY_RESTART_GOVERNANCE',
+            'source_repo':os.environ['SOURCE_REPO'],
+            'source_head':os.environ['SOURCE_HEAD'],
+            'executor_repo':'GBOGEB/Q_engineering_tools',
+            'executor_head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+            'child':child,
+            'native_qps_runtime_gate':'INDEPENDENTLY_WITHHELD_ISSUE_923',
+            'formal_credit_delta':{'engineering':0,'compliance':0,'negotiation':0,'acceptance':0,'release':0},
+            'authority_transfer':False
+          }
+          with open('QPS_W282F_VISUAL_LINEAGE_PROOF.json','w',encoding='utf-8') as f:
+              json.dump(out,f,indent=2,sort_keys=True); f.write('\n')
+          print('PASS_W282F_VISUAL_LINEAGE_EXACT_PAYLOAD')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qps-w282f-visual-lineage-${{ github.sha }}
+          path: |
+            federation/w282/payload/W282F_CHILD_RECEIPT.json
+            QPS_W282F_VISUAL_LINEAGE_PROOF.json
+          if-no-files-found: error

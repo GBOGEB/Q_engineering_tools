@@ -1,0 +1,92 @@
+schema: qps-w162-visual-convergence-runtime-control/0.1
+as_of: '2026-09-13T18:31:00+02:00'
+repo: GBOGEB/cryoplant-project
+wave: W162
+status: CONTROL_FEDERATED_EXACT_PAYLOAD_REPEAT_NATIVE_PREEXECUTION_PRESERVED
+authority: VISUAL_QA_MEASUREMENT_ONLY
+
+source_functional_payload:
+  pr: 1078
+  merge: 829573b0740503e47dae59624a2dc34a52dc8cfb
+  head: 4db05943868af1f502dba3090485534600349bd3
+  receipt: triage/w162/QPS_W162_VISUAL_N200_CENSUS_v0.2.yaml
+  exact_blobs:
+    receipt: 175e76a66c9e75c3cf6e1c258d3094c6744a7a42
+    validator: 88c3674a9aab170e45eabe169e500aa3e1f4f204
+    tests: 95b7f52d0c8bbfada247c0ec8dd37dd82773f3ee
+    generation_receipt: 98249f0ae574d2d97292dc415d421bfc7a128202
+    convergence_csv: ebe87e800e4b8614127787b63c12e768a9eaf8b0
+    expansion_plan: 4db6deabb05f7a77d17326a5dad332c7e0490c3e
+
+native_runtime:
+  repository: GBOGEB/cryoplant-project
+  run: 34768562236
+  job: 103753843429
+  runner_id: 0
+  executed_steps: 0
+  disposition: WITHHELD_INFRA_PREEXECUTION_REX_006
+  independent_gate: 923
+  guard: FEDERATED_EXECUTION_DOES_NOT_COMPENSATE_NATIVE_RUNNER_ADMISSION
+
+federated_runtime:
+  repository: GBOGEB/Q_engineering_tools
+  pr: 29
+  merge: dd6de9cc5ca3317533088821f19499bf6981b38d
+  authority: FEDERATED_EXECUTION_ONLY_VISUAL_QA_MEASUREMENT
+  pr_head_vector:
+    run: 34768715271
+    job: 103754257018
+    runner_id: 1000264293
+    executor_head: 1796dcbb8b47e26df7783dad35f613bf7c98c55e
+    artifact_id: 10321209223
+    artifact_digest: sha256:f7107231760301b1db6721889333f7b80243a4e5bcdcfd57680aebaf5bb07fef
+    observed_steps:
+      exact_blob_proof: PASS
+      regression_tests: PASS
+      visual_convergence_validator: PASS
+      federated_receipt: PASS
+      artifact_upload: PASS
+    disposition: PASS_FEDERATED_EXACT_PAYLOAD
+  postmerge_control_vector:
+    run: 34768739802
+    job: 103754319804
+    runner_id: 1000264344
+    executor_main_head: dd6de9cc5ca3317533088821f19499bf6981b38d
+    artifact_id: 10321306379
+    artifact_digest: sha256:246f2da83644a8db40ee1a662147e0db82435868d76d019c630b8e9ca6ff1511
+    observed_steps:
+      exact_blob_proof: PASS
+      regression_tests: PASS
+      visual_convergence_validator: PASS
+      federated_receipt: PASS
+      artifact_upload: PASS
+    disposition: PASS_POSTMERGE_REPEAT
+
+measured_convergence_control:
+  validated_N: [60, 80, 100]
+  interpretation: WITHIN_FROZEN_N100_BALANCED_SUBSAMPLING_ONLY
+  N200_credit_delta: 0
+  N200_independently_new_eligible_artifacts: 0
+  N200_remaining_deficit_total: 100
+  N200_remaining_deficit_per_format: {HTML: 25, PDF: 25, PPTX: 25, XLSX: 25}
+  N200_state: OPEN_UNEARNED_COLLECTION_GATE
+  project_global_PCA: WITHHELD
+  Bradley_Terry_fit: NOT_PERFORMED
+
+parallel_boundary:
+  W163_namespace_control: CLOSED_INDEPENDENT_CONTROL_LANE
+  relationship: NO_RENUMBER_NO_REWRITE_NO_PROMOTION_TRANSFER
+
+formal_credit_delta:
+  engineering: 0
+  compliance: 0
+  negotiation: 0
+  release: 0
+
+dod:
+  N60_N80_N100_metrics_bound: PASS
+  convergence_validator: PASS_FEDERATED_EXACT_PAYLOAD
+  postmerge_federated_repeat: PASS
+  N200_collection_gate: OPEN_UNEARNED
+  native_exact_head_runtime: WITHHELD_REPO_LOCAL_RUNNER_923
+  visual_measurement_control_state: CONTROL

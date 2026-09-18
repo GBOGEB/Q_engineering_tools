@@ -1,0 +1,93 @@
+schema: qps-w282-visual-lineage-3pstar-mip-control/0.1
+as_of: '2026-09-18T15:17:00+02:00'
+repo: GBOGEB/cryoplant-project
+wave: W282
+status: PREPARED_VISUAL_LINEAGE_RECONCILIATION_WAIT_PROOF
+authority: MISSION_CONTROL_DEVOPS_GOVERNANCE_ONLY
+scope: VISUAL_LINEAGE_RESTART_RECONCILIATION
+source_main_at_refresh: 48454561de70a8873f8fe2f32e4c9cbf8e31e51b
+
+three_pr:
+  refresh:
+    result: PASS
+    observed:
+      main: 48454561de70a8873f8fe2f32e4c9cbf8e31e51b
+      session_close:
+        path: handover/qps_recursive/SESSION_CLOSE_CURRENT.yaml
+        blob: 2d4e51e568d4de36b3a2486da7a632295bf7147d
+        state: CONTROLLED_SAFE_CONTINUE_W275_R3_PRODUCER_READY_WAIT_PHYSICAL_BUNDLE
+      qtg_current:
+        path: handover/qps_recursive/QTG_CURRENT.yaml
+        blob: 1a7a0a4d67cfb7561406eb3edcf6d65b1981ed79
+        visual_rule: NO_FURTHER_N300_MSA_ITERATION_WITHOUT_GOVERNED_TRIGGER
+      w280_bd_closeout:
+        path: triage/w280/QPS_W280_BD_QUEUE_CLOSEOUT_v0.1.json
+        blob: f8b8e63ae5aefbfafb57c6af623c724f5887971d
+  probe:
+    result: PASS_STALE_MESSAGE_DETECTED
+    finding: >-
+      The conversation restart statement still described W162 as waiting for N200 +100 artifacts.
+      Repository authority has advanced through measured balanced N200 and unique balanced N300.
+      Replaying W162 collection now would violate current QTG stop rules and duplicate historical work.
+  rank:
+    result: PASS
+    selected_first_red: VISUAL_RESTART_AUTHORITY_DRIFT
+    action: BIND_MACHINE_READABLE_CURRENT_VISUAL_LINEAGE_AND_FAIL_CLOSED_STALE_RESTART_GUARD
+    not_selected:
+      - REOPEN_N200_COLLECTION
+      - RETUNE_N300_MSA
+      - CHANGE_POOLED_VS_FORMAT_ADJUSTED_GOVERNANCE_WITHOUT_DECISION
+      - COMPENSATE_ISSUE_923
+
+MIP:
+  modernize:
+    state: PASS_PREPARED
+    change: >-
+      Replace implicit chat-era visual continuation with one machine-readable lineage pointer spanning
+      W162 within-N100 convergence, W188 measured N200, and W231 unique N300 diagnostic state.
+  innovate:
+    state: PASS_PREPARED
+    change: >-
+      Add a fail-closed lineage validator that rejects stale N200-deficit restarts, N300 CONTROL promotion,
+      ungoverned MSA reruns, and Bradley-Terry claims without observed pairwise outcomes.
+  perpetuate:
+    state: PREPARED_WAIT_PROOF
+    outputs:
+      current_pointer: controls/QPS_VISUAL_LINEAGE_CURRENT_v0.1.yaml
+      validator: scripts/qps_w282_validate_visual_lineage.py
+      tests: tests/test_qps_w282_visual_lineage.py
+      handover: handover/session/SC_2026-09-18_W282_VISUAL_LINEAGE_3PSTAR_MIP_LOSSLESS_HANDOVER_v1.md
+      dropin: handover/session/RESTART_DROPIN_2026-09-18_W282_VISUAL_LINEAGE_v1.md
+    rule: DO_NOT_REWRITE_HISTORICAL_W162_W188_W231_RECEIPTS
+
+three_pc:
+  prepare:
+    state: PASS
+    exact_blobs:
+      W162_runtime_control: e497cb83b9744f9cdd5bffaa82d50f20b2d6582b
+      W188_n200_diagnosis: 94493002b863a6e792a84154aa6084508fded3cd
+      W231_n300_stats: 98d8dd375af14f09bbaa89906dec48e47ce7756a
+      W231_n300_diagnostic: 7a30b9693f004e4266ef29cd739a59e39343db5e
+      QTG_CURRENT: 1a7a0a4d67cfb7561406eb3edcf6d65b1981ed79
+  prove:
+    state: WAIT_EXECUTED_VALIDATOR
+  commit:
+    state: HOLD_WAIT_PROVE
+
+three_p3:
+  state: NOT_AUTHORIZED_BEFORE_PROVE
+  propagation_target: QPS_RESTART_SURFACE_ONLY
+  no_fleet_or_engineering_authority_transfer: true
+
+preserved_guards:
+  - ISSUE_923_NON_COMPENSATING
+  - PROJECT_GLOBAL_PCA_WITHHELD
+  - NO_FURTHER_N300_MSA_ITERATION_WITHOUT_GOVERNED_TRIGGER
+  - NO_DELETE_RESCORE_RETUNE_FOR_THRESHOLD_COSMETICS
+  - NO_BRADLEY_TERRY_WITHOUT_OBSERVED_PAIRWISE_OUTCOMES
+  - HISTORICAL_RECEIPTS_IMMUTABLE
+  - SESSION_CLOSE_NE_GLOBAL_PRIORITY_OVERRIDE
+  - CURRENT_VISUAL_POINTER_NE_QTG_CURRENT_OVERRIDE
+
+formal_credit_delta: {engineering: 0, compliance: 0, negotiation: 0, acceptance: 0, release: 0}
+authority_transfer: false

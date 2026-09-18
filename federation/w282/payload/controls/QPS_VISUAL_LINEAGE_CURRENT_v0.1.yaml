@@ -1,0 +1,70 @@
+schema: qps-visual-lineage-current/0.1
+as_of: '2026-09-18T15:17:00+02:00'
+repo: GBOGEB/cryoplant-project
+status: FROZEN_N300_DIAGNOSTIC_WAIT_GOVERNED_TRIGGER
+authority: VISUAL_QA_MEASUREMENT_ONLY
+source_main_at_refresh: 48454561de70a8873f8fe2f32e4c9cbf8e31e51b
+
+lineage:
+  W162:
+    role: N60_N80_N100_WITHIN_N100_CONVERGENCE_CONTROL
+    receipt: triage/w162/QPS_W162_VISUAL_CONVERGENCE_RUNTIME_CONTROL_v0.1.yaml
+    blob: e497cb83b9744f9cdd5bffaa82d50f20b2d6582b
+    state: CONTROL_FEDERATED_EXACT_PAYLOAD_REPEAT
+    artifact_N: 100
+    rule: RESAMPLING_EVIDENCE_NE_NEW_ARTIFACT_CREDIT
+  W188:
+    role: BALANCED_N200_MEASURED_CHECKPOINT
+    receipt: triage/w188/QPS_W188_N200_TABLE_READABILITY_DIAGNOSIS_v0.1.yaml
+    blob: 94493002b863a6e792a84154aa6084508fded3cd
+    artifact_N: 200
+    counts: {HTML: 50, PDF: 50, PPTX: 50, XLSX: 50}
+    measurement: ACCEPT_MEASURED_CHECKPOINT_EVIDENCE
+    control_promotion: WITHHELD
+    first_red: TABLE_READABILITY_MSA_0_39952543948706976
+  W231:
+    role: UNIQUE_BALANCED_N300_DIAGNOSTIC
+    receipt: triage/w231/QPS_W231_N300_ATOMIC_SWAP_UNIQUE_STATS_v0.1.yaml
+    blob: 98d8dd375af14f09bbaa89906dec48e47ce7756a
+    diagnostic: triage/w231/QPS_W231_TABLE_READABILITY_MSA_DIAGNOSTIC_v0.1.yaml
+    diagnostic_blob: 7a30b9693f004e4266ef29cd739a59e39343db5e
+    artifact_N: 300
+    counts: {HTML: 75, PDF: 75, PPTX: 75, XLSX: 75}
+    unique_format_artifact_keys: 300
+    pooled_KMO: 0.7595879668089068
+    minimum_MSA: {dimension: table_readability, value: 0.4466305167113992}
+    retained_PA95: [PC1, PC2, PC3]
+    control_promotion: WITHHELD_MSA_FIRST_RED
+    diagnostic_interpretation: HETEROGENEOUS_FORMAT_POOLING_SUPPRESSION_STRUCTURE
+
+current_visual_predicate:
+  state: STOP_FROZEN_WAIT_GOVERNED_TRIGGER
+  source: handover/qps_recursive/QTG_CURRENT.yaml
+  qtg_blob: 1a7a0a4d67cfb7561406eb3edcf6d65b1981ed79
+  qtg_rule: NO_FURTHER_N300_MSA_ITERATION_WITHOUT_GOVERNED_TRIGGER
+  current_bd_item: N300_method_or_population_change
+  current_bd_state: STOP_UNTIL_GOVERNED_TRIGGER
+  prohibited_stale_restart:
+    - REOPEN_N200_COLLECTION_FROM_W162
+    - CLAIM_N200_DEFICIT_PLUS100
+    - RERUN_N300_MSA_WITHOUT_METHOD_OR_POPULATION_TRIGGER
+    - PROMOTE_N300_CONTROL_FROM_DIAGNOSTIC_ONLY_EVIDENCE
+    - CLAIM_TRUE_BRADLEY_TERRY_WITHOUT_OBSERVED_PAIRWISE_OUTCOMES
+
+governed_trigger_examples:
+  - explicit_methodology_decision_on_pooled_vs_format_adjusted_inference_object
+  - governed_population_change
+  - schema_or_provenance_defect_that_changes_inference_object
+  - new_observed_pairwise_outcomes_for_true_Bradley_Terry
+  - observed_regression_in_current_visual_control_chain
+
+non_compensation:
+  issue_923: RED_OWNER_ACTION
+  project_global_PCA: WITHHELD
+  Bradley_Terry: WITHHELD_NO_OBSERVED_PAIRWISE_OUTCOMES
+  formal_credit_delta: {engineering: 0, compliance: 0, negotiation: 0, acceptance: 0, release: 0}
+  authority_transfer: false
+
+next_action:
+  visual_lane: WAIT_GOVERNED_TRIGGER
+  global_execution: FOLLOW_QTG_CURRENT_AND_CURRENT_SESSION_AUTHORITY

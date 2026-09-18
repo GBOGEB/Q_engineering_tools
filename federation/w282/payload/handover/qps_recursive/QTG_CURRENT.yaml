@@ -1,0 +1,250 @@
+schema: qps-triage-current/1.39.1
+as_of: '2026-09-17T04:26:00+02:00'
+status: ACTIVE_SOURCE_RETURN_WAIT_RUNTIME_923_RED_W105_ABACUS_PASS_LEG6_CONTROL_5_OF_5
+wave: QTG_W248_LEG6_PROSPECTIVE_MACHINE_CONTROL_5_OF_5
+intent: >-
+  Preserve the current global execution truth after W248 Leg6 process CONTROL while recording the W256 temporal-PCA multi-clock lane as a completed parallel non-compensating diagnostic CONTROL and synchronizing the v6 release identity. The v6 release train is governed by QPS issue #1379 / HM-01 with candidate v6.0.0-rc.1; stale symbol ISSUE_996_G6_CURRENT_RELEASE_IDENTITY_PARITY is quarantined as a pointer-identity mismatch. Canonical Golden Thread W267 / GT_BDQ_0 remains explicitly RED_BLOCKED_ON_923 and is not compensated by release or parallel-lineage progress. This synchronization does not advance the global Wave, alter source authority or formal credit, compensate QPS runtime GOLD issue #923, or convert the v6 RC into stable publication.
+canonical_surfaces:
+  stable_root: handover/qps_recursive/GLOB.yaml
+  current_global_bd: controls/QPS_GLOBAL_BD_CURRENT_v0.1.yaml
+  release_identity: controls/QPS_RELEASE_IDENTITY_CURRENT_v0.1.yaml
+  release_parent: GBOGEB/cryoplant-project#1379
+  golden_thread_control: controls/QPS_GOLDEN_THREAD_CURRENT_v0.1.yaml
+  golden_thread_issue: GBOGEB/cryoplant-project#1390
+  execution_core: handover/session/SC_2026-09-15_EXECUTION_CORE_WAVES_DOV_DOD_BD_v1.yaml
+  w155_validator: scripts/qps_w155_validate_cost_ped_return.py
+  visual_population: triage/w231/QPS_W231_N300_ATOMIC_SWAP_UNIQUE_STATS_v0.1.yaml
+  visual_method_diagnostic: triage/w231/QPS_W231_TABLE_READABILITY_MSA_DIAGNOSTIC_v0.1.yaml
+  semantic_ssot: ssot/qps/QPS_CANONICAL_CONTENT_SSOT_v0.1.yaml
+  root_input_contract: controls/QPS_ROOT_UNBOUND_INPUT_LEGS6_9_v0.1.yaml
+  root_input_reader: scripts/qps_unbound_root_input_reader.py
+  root_input_streak_evaluator: scripts/qps_unbound_root_streak.py
+  w243_leg6_baseline: triage/w243/QPS_W243_LEG6_PROSPECTIVE_MACHINE_BASELINE_v0.1.yaml
+  w244_abacus_runtime: triage/w244/QPS_W244_W105_ABACUS_RUNTIME_CLOSEOUT_v0.1.yaml
+  w245_leg6_receipt: triage/w245/QPS_W245_LEG6_PROSPECTIVE_MACHINE_SNAPSHOT_02_v0.1.yaml
+  w245_leg6_snapshot: triage/w245/QPS_W245_LEG6_PROSPECTIVE_MACHINE_SNAPSHOT_v0.1.json
+  w245_leg6_streak: triage/w245/QPS_W245_LEG6_PROSPECTIVE_STREAK_EVALUATION_v0.1.json
+  w246_leg6_receipt: triage/w246/QPS_W246_LEG6_PROSPECTIVE_MACHINE_SNAPSHOT_03_v0.1.yaml
+  w246_leg6_snapshot: triage/w246/QPS_W246_LEG6_PROSPECTIVE_MACHINE_SNAPSHOT_v0.1.json
+  w246_leg6_streak: triage/w246/QPS_W246_LEG6_PROSPECTIVE_STREAK_EVALUATION_v0.1.json
+  w247_leg6_receipt: triage/w247/QPS_W247_LEG6_PROSPECTIVE_MACHINE_SNAPSHOT_04_v0.1.yaml
+  w247_leg6_snapshot: triage/w247/QPS_W247_LEG6_PROSPECTIVE_MACHINE_SNAPSHOT_v0.1.json
+  w247_leg6_streak: triage/w247/QPS_W247_LEG6_PROSPECTIVE_STREAK_EVALUATION_v0.1.json
+  w248_leg6_receipt: triage/w248/QPS_W248_LEG6_PROSPECTIVE_MACHINE_SNAPSHOT_05_CONTROL_v0.1.yaml
+  w248_leg6_snapshot: triage/w248/QPS_W248_LEG6_PROSPECTIVE_MACHINE_SNAPSHOT_v0.1.json
+  w248_leg6_streak: triage/w248/QPS_W248_LEG6_PROSPECTIVE_STREAK_EVALUATION_v0.1.json
+  w248_leg6_zod: triage/w248/QPS_W248_ROOT_UNBOUND_LEG6_CONTRACT.zod.ts
+  temporal_pca_multiclock: controls/QPS_TEMPORAL_PCA_MULTICLOCK_CURRENT_v0.1.yaml
+  w256_temporal_pca_provider_receipt: triage/w256/QPS_W256_TEMPORAL_PCA_PROVIDER_RECEIPT_v0.1.yaml
+  w256_temporal_pca_three_pulse: triage/w256/QPS_W256_3PULSE_3PR_MIP_3PC_CONTROL_v0.1.yaml
+  w256_temporal_pca_closure: triage/w256/QPS_W256_TEMPORAL_PCA_POSTMERGE_CLOSURE_v0.1.yaml
+  gold_gate: GBOGEB/cryoplant-project#923
+lineage:
+  W155_W233: {validator_P1: CLOSED_MERGED_PR1310, state: WAIT_REAL_CURRENT_SOURCE_RETURN}
+  W191: {first_red: W191_R1_ACTUAL_WINDOWS_MASTER_INPUT_RETURN_MISSING}
+  W192: {current_state: CONTROL_5_OF_5_REAL, process_credit_only: true}
+  W231_visual:
+    denominator: 300
+    counts: {HTML: 75, PDF: 75, PPTX: 75, XLSX: 75}
+    pooled_KMO: 0.7595879668089068
+    pooled_table_readability_MSA: 0.4466305167113992
+    PCA_PA95:
+      retained: [PC1, PC2, PC3]
+      PC1_explained_pct: 42.97478245930217
+      PC2_explained_pct: 16.913483670925263
+      PC3_explained_pct: 13.386023821479535
+      cumulative_PC1_PC3_pct: 73.274289951707
+    Bradley_Terry: WITHHELD_NO_OBSERVED_PAIRWISE_OUTCOMES
+    N300_CONTROL: WITHHELD_POOLED_MSA
+  W235_semantic_SSOT:
+    state: PILOT_MERGED_ZERO_FORMAL_CREDIT
+    repair_merge_commit: 69eff6db3716e9589629606654251e778a141f7b
+  W238_W240_root_intake:
+    leg6_historical_receipt_lineage: FIVE_OR_MORE_DISTINCT_SUCCESSFUL_INPUTS
+    reader_modernize_merge: 42242fdc011a94e918aefb55079bf055e54abc18
+    streak_enforcer_merge: 48cfdeaaf48014aad9514218d2f4f958126c3c4e
+  W243_prospective_leg6_baseline:
+    pr: 1332
+    merge: 6e56e86427b3abe72529c594d95bab2dbb74655b
+    state: PASS_PROSPECTIVE_MACHINE_BASELINE_1_OF_5_CONTROL_WITHHELD
+    source_sha256: 7619791727ad66f1b674db32c83f560b85b943fa0d355c7603b28eae47bafe38
+    prospective_machine_streak: 1_of_5
+    leg6_CONTROL: WITHHELD
+    authority_transfer: false
+  W105_ABACUS_runtime:
+    instrumentation_pr: 1247
+    first_target_run: 34941975046
+    first_target_state: NAMED_W007_RUNTIME_MANIFEST_FAILURE
+    named_invariant_repair_pr: 1244
+    named_invariant_repair_merge: c4dd80fe37ecc902e8115023efa964eeb7e95e25
+    follow_on_repair_pr: 1249
+    exact_head: 0fa891e77931b6223d1c9dc7140a54a11a178522
+    exact_head_run: 34981882011
+    target_jobs: {lint: PASS, phase_tests: PASS, full_dmaic: PASS, quality_gate: PASS, documentation: PASS, deploy: SKIPPED_EXPECTED_PR}
+    pytest: {collected: 415, passed: 402, failed: 0, skipped: 10, xpassed: 3, warnings: 2, seconds: 7.05}
+    artifact: {id: 10400869667, sha256: ff1b0e794ef8690a5734ce81a79db01df4a39eb5e84f9e972fe6920e1c0a7587}
+    disposition: ACCEPT_TARGET_RUNTIME_AND_DOC_REPAIR
+    independent_first_red: ABACUS_CI_GOVERNANCE_DRIFT
+  W245_prospective_leg6_snapshot_02:
+    state: PASS_PROSPECTIVE_MACHINE_SNAPSHOT_2_OF_5_CONTROL_WITHHELD
+    source_drive_id: 1QRbS_LGXRlIm27vZEl_WK1zeP1Ahar4v
+    source_name: CANVAS_1_System_Interfaces_v4.7.md
+    source_bytes: 103
+    source_sha256: 23da280ef95937b585ac9039417e0ab5b48ec25b27cbd7e546677c29ec57c2b1
+    prospective_machine_streak: 2_of_5
+    duplicates: 0
+    regressions: 0
+    leg6_CONTROL: WITHHELD
+    authority_transfer: false
+  W246_prospective_leg6_snapshot_03:
+    state: PASS_PROSPECTIVE_MACHINE_SNAPSHOT_3_OF_5_CONTROL_WITHHELD
+    source_drive_id: 1U5wUDzc1GRQApeiUA9B6BwwLZAdGXHCF
+    source_name: CANVAS_3_OTC_Granting_v4.7.md
+    source_bytes: 94
+    source_sha256: 27f24f9a32deaafee6ac56bdc5f9f39ab3bcd650c7135424ad0324449d0e19c9
+    prospective_machine_streak: 3_of_5
+    duplicates: 0
+    regressions: 0
+    leg6_CONTROL: WITHHELD
+    authority_transfer: false
+  W247_prospective_leg6_snapshot_04:
+    state: PASS_PROSPECTIVE_MACHINE_SNAPSHOT_4_OF_5_CONTROL_WITHHELD
+    pr: 1341
+    merge: f5cd4908542b3700e8915be504ac7c118a53b4ff
+    source_drive_id: 1b9f2wzFomr6I9-fDy4-caQEhGV5yrfx6
+    source_name: CANVAS_4_Stakeholder_Requirements_v4.7.md
+    source_bytes: 88
+    source_sha256: 8b77d3cf2d36c134199f87df9db2c6193b486a2586ae8b7cf0c99491304d9876
+    prospective_machine_streak: 4_of_5
+    duplicates: 0
+    regressions: 0
+    leg6_CONTROL: WITHHELD
+    authority_transfer: false
+  W248_prospective_leg6_snapshot_05:
+    state: PASS_PROSPECTIVE_MACHINE_SNAPSHOT_5_OF_5_LEG6_CONTROL_PROCESS_ONLY
+    pr: 1351
+    merge: be0497346f769ce9812745ff427989413c33ca40
+    source_drive_id: 1n0EnOWQe3rkdX17z35-50yBGdw-8dk8w
+    source_name: RFO_v4.7.md
+    source_bytes: 80
+    source_sha256: e123620798200a85e9f0e04335ee5dc61cbacc4c6dd4864f83ef749bbeaf7d02
+    prospective_machine_streak: 5_of_5
+    duplicates: 0
+    regressions: 0
+    leg6_CONTROL: CONTROL_PROCESS_ONLY_NO_AUTHORITY_TRANSFER
+    authority_transfer: false
+    zod_contract: triage/w248/QPS_W248_ROOT_UNBOUND_LEG6_CONTRACT.zod.ts
+    zod_contract_binding: PASS
+    zod_executable_parse: NOT_EXECUTED
+  W255_W256_temporal_pca:
+    state: CONTROL_PROVIDER_BOUND_QPS_MERGED
+    authority_transfer: false
+    formal_credit_delta: 0
+    provider_repo: GBOGEB/gg_MATH
+    staging_pr: 14
+    execution_pr: 15
+    provider_exact_runtime_head: a99d7cacd03ed3a392c063a1b3f8dbffdba0d060
+    provider_merge: 513e4f7e06d1316512c820715b6eb41f3f9a066f
+    workflow_run: 35138067439
+    job: 104935342799
+    challenge_result: PASS_C01_C07
+    qps_integration_pr: 1364
+    qps_integration_merge: 5470e8d70b61dcb29121a50178b79c414e4b7f47
+    closure_receipt: triage/w256/QPS_W256_TEMPORAL_PCA_POSTMERGE_CLOSURE_v0.1.yaml
+    qps_runtime_gold: WITHHELD_ISSUE_923
+  W267_Golden_Thread:
+    issue: 1390
+    canonical_queue: GT_BDQ_0_TO_9
+    current_gate: GT_BDQ_0
+    state: RED_BLOCKED_ON_923
+    tracking_runtime_gate: 923
+    cross_lineage_compensation_allowed: false
+    downstream_gate_burn_allowed_while_GT_BDQ_0_red: false
+first_red:
+  global: {id: ISSUE_923, state: RED_OWNER_ACTION}
+  canonical_golden_thread: {id: W267_GT_BDQ_0, state: RED_BLOCKED_ON_923}
+  source_preemption: {id: W155_OR_W199_REAL_CURRENT_RETURN, state: WAIT_EXTERNAL}
+  local_external: {id: W191_R1_ACTUAL_WINDOWS_MASTER_INPUT_RETURN_MISSING, state: WAIT_RETURN}
+  release_parallel: {id: ISSUE_1379_V6_RELEASE_TRAIN, state: ACTIVE_RC_CONTRACT_R2_ACTIVE_R3_PENDING}
+  evidence_external: {id: W152_RTM_661_664_680_681, state: FOUR_GAPS_OPEN}
+  local_runnable: {id: ROOT_JSON_YAML_YML_DISTINCT_REAL_INPUTS, state: LEGS7_8_9_1_OF_5}
+  runtime_parallel: {id: ABACUS_CI_GOVERNANCE_DRIFT, state: DEFER_SEPARATE_NONCOMPENSATING}
+parallel_noncompensating:
+  W199: {state: WAIT_FIRST_REAL_RETURN, preemption: PREEMPT_LOCAL_CURATION_ON_ARRIVAL}
+  NEGO1: {state: WAIT_REAL_LKT_RETURN}
+  BD02: {state: SOURCE_REENTRY_WITH_EXTERNAL_HOLDS, first_red: SAME_BOUNDARY_STREAM_AND_OEM_ATOMS_DEFERRED, no_uniform_interpolation: true}
+  PVPS: {state: WAIT_SOURCE, first_red: PVPS_83KW_SAME_POINT_PACKET}
+  intake: {leg5: CONTROL, leg6_executable_CONTROL: CONTROL_PROCESS_ONLY, leg7_json: 1_of_5, leg8_yaml: 1_of_5, leg9_yml: 1_of_5, authority_transfer: false}
+  v6_release_train:
+    state: ACTIVE_RC_CONTRACT_R2_ACTIVE_R3_PENDING
+    authority: controls/QPS_RELEASE_IDENTITY_CURRENT_v0.1.yaml
+    parent_issue: GBOGEB/cryoplant-project#1379
+    mission: HM-01
+    previous_canonical: v5.3.0
+    candidate: v6.0.0-rc.1
+    stable_target: v6.0.0
+    stale_pointer: ISSUE_996_G6_CURRENT_RELEASE_IDENTITY_PARITY
+    stale_pointer_disposition: QUARANTINED_POINTER_IDENTITY_MISMATCH
+    runtime_gold_compensation_allowed: false
+    authority_transfer: false
+    formal_credit_delta: 0
+  temporal_pca_multiclock:
+    state: CONTROL_PROVIDER_BOUND_QPS_MERGED
+    provider_merge: 513e4f7e06d1316512c820715b6eb41f3f9a066f
+    qps_integration_merge: 5470e8d70b61dcb29121a50178b79c414e4b7f47
+    authority_transfer: false
+    formal_credit_delta: 0
+    hard_gate_compensation_allowed: false
+    global_priority_displacement_allowed: false
+  structured_input_census:
+    drive_json: NO_MATERIALIZABLE_RAW_INPUT_FOUND
+    drive_yaml: NO_MATERIALIZABLE_RAW_INPUT_FOUND
+    drive_yml: NO_MATERIALIZABLE_RAW_INPUT_FOUND
+    file_library_yaml_candidate: glob(20260902-042439).yaml
+    file_library_candidate_state: REFERENCE_ONLY_NOT_MATERIALIZED_THIS_PULSE
+  ABACUS_governance:
+    state: DEFER_SEPARATE
+    observed_workflows: 138
+    checked_in_inventory: 135
+    unclassified_count: 3
+    W107_target_gate: PASS
+current_bd:
+  - {rank: 0, item: '#923 runtime/GOLD', state: RED_OWNER_ACTION}
+  - {rank: 0, item: W267_GT_BDQ_0, state: RED_BLOCKED_ON_923}
+  - {rank: 0, item: W155_or_W199_first_real_current_source_return, state: WAIT_EXTERNAL_PREEMPTS_ON_ARRIVAL}
+  - {rank: 1, item: W191_actual_Master_Input_return, state: WAIT_LOCAL_EXTERNAL}
+  - {rank: 2, item: '#1379_v6_release_train', state: ACTIVE_RC_CONTRACT_R2_ACTIVE_R3_PENDING}
+  - {rank: 3, item: W152_four_LKT_gaps, state: WAIT_RETURN_OR_DISPOSITION}
+  - {rank: 4, item: LEG6_PROSPECTIVE_MACHINE_STREAK, state: CONTROL_5_OF_5_PROCESS_ONLY_CLOSED_UNLESS_REGRESSION}
+  - {rank: 5, item: ROOT_JSON_YAML_YML_DISTINCT_REAL_INPUTS, state: NEXT_LOCAL_CONTROL_RED_LEGS7_8_9_1_OF_5}
+  - {rank: 6, item: ABACUS_CI_GOVERNANCE_DRIFT, state: DEFER_SEPARATE_NONCOMPENSATING}
+  - {rank: 7, item: BD02_C30_2KSB_DOWNSTREAM_SOURCE_ATOMS, state: WAIT_SOURCE_DEFER}
+  - {rank: 8, item: PVPS_83KW_SAME_POINT_PACKET, state: WAIT_SOURCE}
+  - {rank: 9, item: N300_method_or_population_change, state: STOP_UNTIL_GOVERNED_TRIGGER}
+formal_guards: {engineering: '70/90', strict_numerical: '4/5', negotiation: '0/20', global_project_DoV: WITHHELD, runtime_GOLD: WITHHELD, formal_credit_delta: 0}
+stop_rules:
+  - ZERO_STEP_NE_APPLICATION_FAIL
+  - UNKNOWN_OR_DEFER_NE_ZERO
+  - W155_OR_W199_REAL_RETURN_PREEMPTS_LOCAL_CURATION
+  - W105_ABACUS_TARGET_PASS_NE_ENGINEERING_CREDIT
+  - W105_ABACUS_TARGET_PASS_NE_REPOSITORY_GOVERNANCE_PASS
+  - DO_NOT_WIDEN_W107_TO_REPAIR_UNRELATED_GOVERNANCE_DRIFT
+  - LEG6_CONTROL_NE_ENGINEERING_OR_SOURCE_AUTHORITY
+  - ZOD_CONTRACT_PRESENCE_NE_ZOD_EXECUTION
+  - ZOD_PASS_NE_CHILD_ACCEPT
+  - ZOD_PASS_NE_RUNTIME_PROOF
+  - EXACT_SHA_DUPLICATE_NE_NEW_EVIDENCE
+  - FILE_REFERENCE_NE_MATERIALIZED_RAW_INPUT
+  - UNIQUE_N300_NE_N300_CONTROL
+  - RETAIN_POOLED_N300_AS_CANONICAL_UNLESS_GOVERNANCE_CHANGES_INFERENCE_OBJECT
+  - NO_FURTHER_N300_MSA_ITERATION_WITHOUT_GOVERNED_TRIGGER
+  - NO_BRADLEY_TERRY_WITHOUT_OBSERVED_PAIRWISE_OUTCOMES
+  - PROVIDER_RUNTIME_PASS_NE_QPS_RUNTIME_GOLD
+  - PCA_SIGN_NE_PHYSICAL_POLARITY_BEFORE_ALIGNMENT
+  - TEMPORAL_DIAGNOSTIC_NE_FORMAL_CREDIT
+  - ISSUE_996_NE_RELEASE_AUTHORITY
+  - V6_RC_NE_STABLE_PUBLICATION
+  - V6_RC_NE_RUNTIME_GOLD
+  - GT_BDQ_0_MUST_REMAIN_EXPLICIT_UNTIL_BURNED_OR_FORMALLY_DEFERRED
+restart_rule: >-
+  Refresh main and real external/runtime returns first. If source evidence or real QPS runner execution exists, consume it immediately through the existing governed path. Keep canonical W267 / GT_BDQ_0 explicitly RED_BLOCKED_ON_923 until a fully bound current-SHA >0-step proof burns it or a formal DEFER disposition is recorded. Continue the v6 release train only through controls/QPS_RELEASE_IDENTITY_CURRENT_v0.1.yaml and issue #1379 / HM-01; never re-enter #996 as release authority, and never use release progress to compensate #923 or GT_BDQ_0. Otherwise continue the next distinct materialized exact-byte JSON/YAML/YML inputs for Legs7/8/9. Preserve Leg6 process CONTROL unless an observed qualifying regression resets its governed streak. Treat ABACUS CI-governance drift as a separate lane; do not reopen the passed W105/W107 target runtime gate without observed regression. Keep N300 frozen unless governance independently changes the inference object or population. W256 temporal-PCA is diagnostic CONTROL and shall not consume further priority unless provider regression, consumer binding drift, or a governed new temporal-PCA requirement appears; return normal execution priority to the global first-reds above.
