@@ -20,6 +20,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   exact-w280f:
@@ -51,3 +52,14 @@ jobs:
         with:
           name: w280f-${{ github.event.pull_request.head.sha || github.sha }}
           path: w280f-validation-receipt.json
+
+      - name: Publish observable main-repeat receipt
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh issue create \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "W280F MAIN REPEAT PASS ${GITHUB_RUN_ID}" \
+            --body "Exact W280 6/6 blob gate, validator, tests, and artifact upload passed on main. run_id=${GITHUB_RUN_ID}; sha=${GITHUB_SHA}; source_pr=48; source_merge=107602529e5f31e4efc63e0cbf81a46752bc98f3; authority_transfer=false; sample5_acceptance=false."
