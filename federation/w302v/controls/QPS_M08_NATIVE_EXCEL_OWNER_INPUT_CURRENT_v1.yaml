@@ -1,0 +1,86 @@
+schema: qps-m08-native-excel-owner-input-current/1.0
+as_of: '2026-09-18T18:45:00+02:00'
+repo: GBOGEB/cryoplant-project
+mission: M08_OFFER_EVAL_METHOD
+wave: W302
+state: OWNER_INPUT_PINNED_NATIVE_EXCEL_EXTERNAL_EXECUTION_REQUIRED
+authority_transfer: false
+formal_credit_delta: 0
+
+purpose: >-
+  Bind the exact current OFFER_EVAL_EQ_v1 workbook input identity that the remaining owner-side
+  native Microsoft Excel clean roundtrip must consume. Prevent a stale MIP2A workbook from satisfying
+  the generic W291 native-Excel receipt contract.
+
+source_release:
+  m08_source_commit: d2e495fca88752ed5efff82bd2466432ce5a8e35
+  current_main_observed_after_unrelated_merge: e65f5d0cae72696200c10c46cac0acc7e316845c
+  m08_payload_blobs_unchanged_on_current_main: true
+  equation_version: OFFER_EVAL_EQ_v1
+  payload_git_blobs:
+    controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml: 52592fee795bd19d151f0b7612642d28f5a6a88d
+    controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml: 2bda13cc9a5353986ebe6f9d3adc7a45e3a611c3
+    controls/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml: 2eed4189bef5361bdf25ef79c2e7d1f32a18590e
+    scripts/qps_w183_generate_offer_eval_workbook.py: 77b69c721d84434ac5c81269df757d95c512637a
+    scripts/qps_ooxml_normalized_release_identity.py: ad9c549a2b205d94dad80d33cd279487f321ac71
+
+independent_preparation:
+  executor_repo: GBOGEB/Q_engineering_tools
+  executor_pr: 75
+  executor_head: c1dfc9ad52539611631abf7d6f828a17081d75f3
+  executor_merge: df2e012c30c113fcebcce1dcbc32f6caa125484c
+  workflow_run: 35370048827
+  job: 105681613060
+  artifact_id: 10558465889
+  artifact_digest: sha256:7537c3c0ed5f96d5e3749fb4f7e881dcc8bc1093b16f5b29ff1a5d6f1e6aa0d3
+  status: PASS_OWNER_INPUT_GENERATED_AND_IDENTITY_BOUND
+
+owner_input:
+  file: OFFER_EVAL_MIP2A_OWNER_INPUT.xlsx
+  raw_sha256: a01b53014681f8c154c349b273c9db9686abe6f7d00b0e03d9b10f6f685f226a
+  normalized_release_sha256: de54d5ccf3da1afcf8d517d7c22244765073798e0572ee1beef14cd0d8b9b18e
+  normalized_identity_semantics: NORMALIZED_RELEASE_EQUIVALENCE_NOT_RAW_BYTE_IDENTITY
+  generator_receipt_sha256: 3a9057e991d0ad086c30e78c5171951bc181a1e10ccf4a4754b5b6591bf54672
+  normalized_identity_receipt_sha256: 17429966bf6154d4164b224c481de0860c10ae126e08768199ebb3328275828e
+
+execution_tooling:
+  wrapper: scripts/run_qps_m08_native_excel_owner_reentry.ps1
+  native_runner: scripts/qps_m08_native_excel_roundtrip.ps1
+  generic_native_receipt_validator: scripts/qps_m08_validate_native_excel_receipt.py
+  owner_reentry_validator: scripts/qps_m08_validate_native_excel_owner_reentry.py
+  required_runtime: WINDOWS_WITH_INSTALLED_LICENSED_COM_REGISTERED_DESKTOP_MICROSOFT_EXCEL
+
+native_gate:
+  state: BLOCKED_EXTERNAL_RUNTIME_UNTIL_OWNER_RETURN
+  hosted_retry_budget: EXHAUSTED_2_OF_2
+  no_third_equivalent_hosted_retry: true
+  pass_requires:
+    - exact_payload_blob_verification
+    - regenerated_owner_input_raw_sha256_match
+    - regenerated_owner_input_normalized_release_sha256_match
+    - native_Excel_version_and_build
+    - open_save_close_reopen
+    - no_repair_mode
+    - no_table1_xml_or_repairedRecords_recovery_signal
+    - visible_operator_confirmation_no_repair_dialog
+    - exact_output_sha256
+    - host_user_timestamp
+    - owner_reentry_final_receipt_PASS
+
+next:
+  action: >-
+    On a materially different Windows host with installed Microsoft Excel, run
+    scripts/run_qps_m08_native_excel_owner_reentry.ps1. Return the generated
+    QPS_M08_NATIVE_EXCEL_OWNER_REENTRY_RECEIPT.json without manual editing.
+  on_pass: >-
+    Validate the returned owner receipt in QPS child. Then execute exactly one MIP3/3P3
+    CODEX -> ABACUS -> QPS child propagation and STOP/CONTROL.
+  on_red: RECURSE_ONLY_ON_OBSERVED_NATIVE_EXCEL_OR_WORKBOOK_RED
+
+stop_rules:
+  - no_stale_workbook_native_excel_pass
+  - no_third_equivalent_hosted_retry
+  - no_LibreOffice_or_openpyxl_substitution_for_native_gate
+  - no_manual_receipt_fabrication
+  - no_global_3p3_before_owner_reentry_PASS
+  - no_formal_credit_from_preparation_or_documentation
