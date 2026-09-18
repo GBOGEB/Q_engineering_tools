@@ -31,9 +31,9 @@ jobs:
       - name: Verify exact W285 source and validator blobs
         shell: bash
         run: |
-          test "$(git hash-object upstream/QPS_ROUTING_FUNCTION_SUBSURFACE_DEPTH_v1.json)" = "a9ba70c2ed00e30e0153099062736c347c51cfa0"
-          test "$(git hash-object scripts/qps_w285_validate_federation_depth.py)" = "4b9b6df5bb88129977facd2068af40cbca307365"
-          test "$(git hash-object tests/test_qps_w285_federation_depth.py)" = "b14f08eca90415d0aed5dd562bb6b41f534da51c"
+          test "$(git hash-object upstream/QPS_ROUTING_FUNCTION_SUBSURFACE_DEPTH_v1.json)" = "2bf94393a7516b7f45a1a8a5e4408cfae6bd7659"
+          test "$(git hash-object scripts/qps_w285_validate_federation_depth.py)" = "4ab641d920932eaa57b45ca36f098bf131fc88ca"
+          test "$(git hash-object tests/test_qps_w285_federation_depth.py)" = "e25e3ff8ec89b1e2cd1995fb4abe8498e115eaf0"
           test "$(git hash-object ../../w283r/payload/triage/w283/upstream/QPS_REPO_FUNCTION_TOPOLOGY_v1.yaml)" = "df0ee845697578cd644691b81eafb2465249d772"
           test "$(git hash-object ../../w283r/payload/triage/w283/QPS_W283_FEDERATION_SAMPLE_ROUTING_CROSSWALK_v0.1.json)" = "cb3133ec98adb2cdf096376fe5b00ccc606172d1"
 
@@ -59,4 +59,4 @@ jobs:
           gh issue create \
             --repo "${GITHUB_REPOSITORY}" \
             --title "W285 DEPTH MAIN REPEAT PASS ${GITHUB_RUN_ID}" \
-            --body "Exact W285 function-depth proof passed on main. run_id=${GITHUB_RUN_ID}; sha=${GITHUB_SHA}; pipeline_source_pr=259; depth_blob=a9ba70c2ed00e30e0153099062736c347c51cfa0; B=4/12; D=5/16; PEN=5/48; authority_transfer=false; formal_credit_delta=0."
+            --body "Exact W285 function-depth proof passed on main. run_id=${GITHUB_RUN_ID}; sha=${GITHUB_SHA}; pipeline_source_pr=259; depth_blob=a9ba70c2ed00e30e0153099062736c347c51cfa0; B=4/12; D_macro=37/120; D_micro_diag=5/16; PEN=37/360; authority_transfer=false; formal_credit_delta=0."
