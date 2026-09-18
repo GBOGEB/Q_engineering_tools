@@ -1,0 +1,69 @@
+schema: qps-w303f-m08-self-hosted-native-excel-owner-gate/1.0
+as_of: '2026-09-18T18:47:00+02:00'
+executor_repo: GBOGEB/Q_engineering_tools
+mission: M08_OFFER_EVAL_METHOD
+classification: MATERIAL_ENVIRONMENT_CHANGE_NATIVE_EXCEL_OWNER_GATE
+authority_transfer: false
+formal_credit_delta: 0
+
+purpose: >-
+  Consume the exact W302 governed owner-input workbook on a materially different self-hosted
+  Windows/X64 executor. Require real Microsoft Excel COM. Produce the canonical W291 receipt
+  and validate it before admitting any global MIP3/3P3 propagation.
+
+upstream:
+  qps_source_commit: d2e495fca88752ed5efff82bd2466432ce5a8e35
+  owner_input_preparation_pr: GBOGEB/Q_engineering_tools#75
+  owner_input_run: 35370048827
+  owner_input_artifact_id: 10558465889
+  owner_input_artifact_digest: sha256:7537c3c0ed5f96d5e3749fb4f7e881dcc8bc1093b16f5b29ff1a5d6f1e6aa0d3
+  governed_input_raw_sha256: a01b53014681f8c154c349b273c9db9686abe6f7d00b0e03d9b10f6f685f226a
+  governed_input_normalized_release_sha256: de54d5ccf3da1afcf8d517d7c22244765073798e0572ee1beef14cd0d8b9b18e
+  canonical_roundtrip_tool_blob: 0323123732a3b5897881f5c41654bf74fc15069f
+  canonical_receipt_validator_blob: 2c5996546725e629f612f54205e867fa8a4f40a8
+
+execution:
+  workflow: .github/workflows/w303f-m08-self-hosted-native-excel.yml
+  runner_labels: [self-hosted, Windows, X64]
+  hosted_retry_consumed: false
+  materially_different_from_prior_hosted_attempts: true
+  operator_confirmation:
+    source: SELF_HOSTED_RUNNER_ENV_M08_OPERATOR_CONFIRMED_NO_REPAIR_DIALOG
+    truthy_values: [true, 1, yes]
+    rule: >-
+      The workflow never fabricates operator confirmation. Without an attended operator setting
+      the runner-local confirmation after observing the visible Excel transaction, a clean technical
+      transaction remains TECHNICAL_PASS_OPERATOR_CONFIRMATION_REQUIRED and does not admit 3P3.
+
+pass_contract:
+  receipt_schema: qps.m08.native_excel_roundtrip.v1
+  required_status: PASS_NATIVE_EXCEL_CLEAN_ROUNDTRIP
+  validator_status: PASS_VALIDATED_NATIVE_EXCEL_CLEAN_ROUNDTRIP_RECEIPT
+  required:
+    - real_Excel_version_present
+    - open_save_close_reopen_true
+    - repair_mode_observed_false
+    - table1_recovery_log_observed_false
+    - operator_confirmed_no_repair_dialog_true
+    - host_user_timestamp_bound
+    - governed_input_sha256_bound
+    - output_sha256_bound
+    - authority_transfer_false
+    - formal_credit_delta_zero
+
+on_pass:
+  next_once_only: CODEX_TO_ABACUS_TO_QPS_CHILD
+  stop_after_one_green_chain: true
+
+on_not_pass:
+  no_third_github_hosted_retry: true
+  no_openpyxl_or_LibreOffice_substitution: true
+  no_global_3p3: true
+  recurse_only_on_first_real_native_excel_or_workbook_red: true
+
+noncompensating:
+  issue_923: OPEN_INDEPENDENT
+  G6: PRESERVED
+  W152: PRESERVED
+  N200: PRESERVED
+  table10_delta_per_year: 0.0
