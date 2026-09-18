@@ -1,0 +1,157 @@
+name: M08 Native Excel Clean Roundtrip - 2 Attempts
+
+on:
+  pull_request:
+    paths:
+      - 'federation/m08-native-excel/**'
+      - '.github/workflows/m08-native-excel-roundtrip.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  attempt1:
+    name: native-excel-attempt-1-windows-2022
+    runs-on: windows-2022
+    outputs:
+      gate_status: ${{ steps.classify.outputs.gate_status }}
+    steps:
+      - name: Checkout exact executor head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify exact QPS source blob identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/m08-native-excel/payload/controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml)" = "52592fee795bd19d151f0b7612642d28f5a6a88d"
+          test "$(git hash-object federation/m08-native-excel/payload/controls/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml)" = "74387b2e09f9a0ef0f6c440a5362e1d51a7f6a55"
+          test "$(git hash-object federation/m08-native-excel/payload/scripts/qps_w183_generate_offer_eval_workbook.py)" = "34d3f66ed97c1ef90fb0448b38d2590eec04cd6d"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install workbook generator dependencies
+        shell: pwsh
+        run: python -m pip install --disable-pip-version-check pyyaml openpyxl
+      - name: Generate governed MIP2 workbook
+        shell: pwsh
+        working-directory: federation/m08-native-excel/payload
+        run: |
+          New-Item -ItemType Directory -Force -Path ..\attempt1 | Out-Null
+          python scripts/qps_w183_generate_offer_eval_workbook.py --doctrine controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml --control controls/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml --out ..\attempt1\OFFER_EVAL_MIP2A.xlsx --receipt ..\attempt1\generator_receipt.json
+      - name: Native Microsoft Excel open-save-close-reopen
+        shell: pwsh
+        run: ./federation/m08-native-excel/Invoke-M08NativeExcelRoundtrip.ps1 -InputXlsx ./federation/m08-native-excel/attempt1/OFFER_EVAL_MIP2A.xlsx -OutDir ./federation/m08-native-excel/attempt1 -AttemptId attempt1
+      - name: Classify attempt 1
+        id: classify
+        shell: pwsh
+        run: |
+          $r = Get-Content ./federation/m08-native-excel/attempt1/native_excel_receipt_attempt1.json -Raw | ConvertFrom-Json
+          "gate_status=$($r.status)" >> $env:GITHUB_OUTPUT
+          $r | ConvertTo-Json -Depth 8
+      - name: Upload attempt 1 receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: m08-native-excel-attempt1
+          path: federation/m08-native-excel/attempt1/
+          if-no-files-found: error
+
+  attempt2:
+    name: native-excel-attempt-2-windows-2025
+    needs: attempt1
+    if: always()
+    runs-on: windows-2025
+    outputs:
+      gate_status: ${{ steps.classify.outputs.gate_status }}
+    steps:
+      - name: Checkout exact executor head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify exact QPS source blob identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/m08-native-excel/payload/controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml)" = "52592fee795bd19d151f0b7612642d28f5a6a88d"
+          test "$(git hash-object federation/m08-native-excel/payload/controls/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml)" = "74387b2e09f9a0ef0f6c440a5362e1d51a7f6a55"
+          test "$(git hash-object federation/m08-native-excel/payload/scripts/qps_w183_generate_offer_eval_workbook.py)" = "34d3f66ed97c1ef90fb0448b38d2590eec04cd6d"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install workbook generator dependencies
+        shell: pwsh
+        run: python -m pip install --disable-pip-version-check pyyaml openpyxl
+      - name: Generate governed MIP2 workbook
+        shell: pwsh
+        working-directory: federation/m08-native-excel/payload
+        run: |
+          New-Item -ItemType Directory -Force -Path ..\attempt2 | Out-Null
+          python scripts/qps_w183_generate_offer_eval_workbook.py --doctrine controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml --control controls/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml --out ..\attempt2\OFFER_EVAL_MIP2A.xlsx --receipt ..\attempt2\generator_receipt.json
+      - name: Native Microsoft Excel open-save-close-reopen
+        shell: pwsh
+        run: ./federation/m08-native-excel/Invoke-M08NativeExcelRoundtrip.ps1 -InputXlsx ./federation/m08-native-excel/attempt2/OFFER_EVAL_MIP2A.xlsx -OutDir ./federation/m08-native-excel/attempt2 -AttemptId attempt2
+      - name: Classify attempt 2
+        id: classify
+        shell: pwsh
+        run: |
+          $r = Get-Content ./federation/m08-native-excel/attempt2/native_excel_receipt_attempt2.json -Raw | ConvertFrom-Json
+          "gate_status=$($r.status)" >> $env:GITHUB_OUTPUT
+          $r | ConvertTo-Json -Depth 8
+      - name: Upload attempt 2 receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: m08-native-excel-attempt2
+          path: federation/m08-native-excel/attempt2/
+          if-no-files-found: error
+
+  classify:
+    name: classify-two-attempt-native-excel-gate
+    needs: [attempt1, attempt2]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Emit 2-attempt gate receipt
+        shell: bash
+        env:
+          A1: ${{ needs.attempt1.outputs.gate_status }}
+          A2: ${{ needs.attempt2.outputs.gate_status }}
+          EXECUTOR_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          mkdir -p federation/m08-native-excel/final
+          python - <<'PY'
+          import json, os, pathlib
+          a1=os.environ.get("A1") or "NO_STATUS"
+          a2=os.environ.get("A2") or "NO_STATUS"
+          passed = "PASS_NATIVE_MICROSOFT_EXCEL_CLEAN_ROUNDTRIP" in {a1,a2}
+          status = "PASS_NATIVE_EXCEL_GATE" if passed else "BLOCKED_AFTER_2_HOSTED_WINDOWS_ATTEMPTS"
+          out = {
+            "schema":"qps-m08-native-excel-two-attempt-receipt/1.0",
+            "status":status,
+            "attempt1":a1,
+            "attempt2":a2,
+            "executor_repo":"GBOGEB/Q_engineering_tools",
+            "executor_head_sha":os.environ["EXECUTOR_SHA"],
+            "workflow_run_id":int(os.environ["RUN_ID"]),
+            "source_repo":"GBOGEB/cryoplant-project",
+            "source_blobs":{
+              "doctrine":"52592fee795bd19d151f0b7612642d28f5a6a88d",
+              "workbook_control":"74387b2e09f9a0ef0f6c440a5362e1d51a7f6a55",
+              "generator":"34d3f66ed97c1ef90fb0448b38d2590eec04cd6d"
+            },
+            "mip3_3p3_admitted": passed,
+            "formal_credit_delta":0
+          }
+          p=pathlib.Path("federation/m08-native-excel/final/M08_NATIVE_EXCEL_2ATTEMPT_RECEIPT.json")
+          p.write_text(json.dumps(out,indent=2,sort_keys=True)+"\n")
+          print(p.read_text())
+          PY
+      - name: Upload final gate receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: m08-native-excel-final-receipt
+          path: federation/m08-native-excel/final/M08_NATIVE_EXCEL_2ATTEMPT_RECEIPT.json
+          if-no-files-found: error
