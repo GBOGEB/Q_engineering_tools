@@ -1,0 +1,125 @@
+name: W302F M08 Native Excel Owner Input Preparation
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/w302f-m08-owner-input-prep.yml'
+      - 'federation/w302/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/w302f-m08-owner-input-prep.yml'
+      - 'federation/w302/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  QPS_SOURCE_COMMIT: d2e495fca88752ed5efff82bd2466432ce5a8e35
+
+jobs:
+  prepare_owner_input:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact executor head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Verify exact QPS source blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          declare -A expected=(
+            ["federation/w302/payload/controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml"]="52592fee795bd19d151f0b7612642d28f5a6a88d"
+            ["federation/w302/payload/controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml"]="2bda13cc9a5353986ebe6f9d3adc7a45e3a611c3"
+            ["federation/w302/payload/controls/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml"]="2eed4189bef5361bdf25ef79c2e7d1f32a18590e"
+            ["federation/w302/payload/scripts/qps_w183_generate_offer_eval_workbook.py"]="77b69c721d84434ac5c81269df757d95c512637a"
+            ["federation/w302/payload/scripts/qps_ooxml_normalized_release_identity.py"]="ad9c549a2b205d94dad80d33cd279487f321ac71"
+          )
+          for p in "${!expected[@]}"; do
+            test "$(git hash-object "$p")" = "${expected[$p]}"
+          done
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install generation runtime
+        run: python -m pip install --disable-pip-version-check pyyaml openpyxl
+
+      - name: Materialize governed owner-input runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf runtime evidence
+          mkdir -p runtime/controls runtime/scripts evidence
+          cp federation/w302/payload/controls/* runtime/controls/
+          cp federation/w302/payload/scripts/* runtime/scripts/
+
+      - name: Generate current governed workbook
+        shell: bash
+        run: |
+          set -euo pipefail
+          pushd runtime >/dev/null
+          python scripts/qps_w183_generate_offer_eval_workbook.py             --out ../evidence/OFFER_EVAL_MIP2A_OWNER_INPUT.xlsx             --receipt ../evidence/W302_GENERATOR_RECEIPT.json
+          popd >/dev/null
+
+      - name: Compute governed normalized input identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python runtime/scripts/qps_ooxml_normalized_release_identity.py             evidence/OFFER_EVAL_MIP2A_OWNER_INPUT.xlsx             --receipt evidence/W302_NORMALIZED_IDENTITY.json > evidence/normalized_stdout.json
+
+      - name: Bind owner-input manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+
+          gen=json.loads(Path('evidence/W302_GENERATOR_RECEIPT.json').read_text(encoding='utf-8'))
+          norm_all=json.loads(Path('evidence/W302_NORMALIZED_IDENTITY.json').read_text(encoding='utf-8'))
+          key='evidence/OFFER_EVAL_MIP2A_OWNER_INPUT.xlsx'
+          norm=norm_all[key]
+          assert gen['status']=='PASS_OPENPYXL_EQUATION_V1_ROUNDTRIP_NO_TABLE_PART'
+          assert gen['equation_version']=='OFFER_EVAL_EQ_v1'
+          assert gen['confidence_conditioning_implemented'] is True
+          assert gen['explicit_applicability_NA_implemented'] is True
+          assert gen['risk_application_count']==1
+          assert gen['final_system_risk_subtraction'] is False
+          assert gen['excel_native_clean_roundtrip']=='WITHHELD_REQUIRES_EXCEL_RUNTIME'
+          assert norm['identity_semantics']=='NORMALIZED_RELEASE_EQUIVALENCE_NOT_RAW_BYTE_IDENTITY'
+
+          out={
+            'schema':'qps.m08.native_excel_owner_input_manifest.v1',
+            'source_repo':'GBOGEB/cryoplant-project',
+            'source_commit':os.environ['QPS_SOURCE_COMMIT'],
+            'equation_version':'OFFER_EVAL_EQ_v1',
+            'input_file':'OFFER_EVAL_MIP2A_OWNER_INPUT.xlsx',
+            'input_raw_sha256':norm['raw_sha256'],
+            'input_normalized_release_sha256':norm['normalized_release_sha256'],
+            'payload_git_blobs':{
+              'controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml':'52592fee795bd19d151f0b7612642d28f5a6a88d',
+              'controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml':'2bda13cc9a5353986ebe6f9d3adc7a45e3a611c3',
+              'controls/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml':'2eed4189bef5361bdf25ef79c2e7d1f32a18590e',
+              'scripts/qps_w183_generate_offer_eval_workbook.py':'77b69c721d84434ac5c81269df757d95c512637a',
+              'scripts/qps_ooxml_normalized_release_identity.py':'ad9c549a2b205d94dad80d33cd279487f321ac71',
+            },
+            'generator_receipt_sha256':hashlib.sha256(Path('evidence/W302_GENERATOR_RECEIPT.json').read_bytes()).hexdigest(),
+            'normalized_identity_receipt_sha256':hashlib.sha256(Path('evidence/W302_NORMALIZED_IDENTITY.json').read_bytes()).hexdigest(),
+            'native_excel_gate':'WITHHELD_EXTERNAL_OWNER_RUNTIME',
+            'authority_transfer':False,
+            'formal_credit_delta':0,
+          }
+          Path('evidence/W302_OWNER_INPUT_MANIFEST.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          print(json.dumps(out,sort_keys=True))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w302-m08-native-excel-owner-input
+          path: evidence/
+          if-no-files-found: error
