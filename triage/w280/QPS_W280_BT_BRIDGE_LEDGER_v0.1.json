@@ -1,0 +1,42 @@
+{
+  "schema": "qps-w280-bt-bridge-ledger/v0.1",
+  "wave": "W280",
+  "source": {
+    "repo": "GBOGEB/pipeline-automation-hub",
+    "pr": 31,
+    "merge": "7cc101f41a60bce2a858d38d63930612598b6655",
+    "observations_blob": "fe7cae19965ac123434ba294472ccbb5482cdaba"
+  },
+  "comparisons": [
+    {
+      "winner": "SEMANTIC_BOUNDARY_GUARD_REPAIR",
+      "loser": "UNREPAIRED_BASELINE",
+      "loser_run_id": 34685627860,
+      "winner_run_id": 34685651566,
+      "control_repeat_run_id": 34685675385,
+      "evidence_class": "MEASURED"
+    },
+    {
+      "winner": "STATISTICAL_TOLERANCE_REPAIR",
+      "loser": "UNREPAIRED_BASELINE",
+      "loser_run_id": 34685697076,
+      "winner_run_id": 34685737519,
+      "control_repeat_run_id": 34685792883,
+      "evidence_class": "MEASURED"
+    }
+  ],
+  "topology": {
+    "node_count": 3,
+    "edge_count": 2,
+    "undirected_components": 1,
+    "directed_strongly_connected": false
+  },
+  "source_interpretation": "PASS_OBSERVED_INTERVENTION_BT",
+  "federation_interpretation": "WITHHELD_NO_FINITE_UNREGULARIZED_MLE",
+  "statistical_guard": "UNDIRECTED_CONNECTEDNESS_IS_NECESSARY_BUT_NOT_SUFFICIENT_FOR_FINITE_BT_MLE; REQUIRE_WIN_PATHS_ACROSS_PARTITIONS",
+  "abacus_w80_guard": {
+    "pairwise_events": 0,
+    "permitted_as_bt_evidence": false,
+    "reason": "OUTCOME_VALIDATION_NOT_SUPPORTED_AND_RANGE_RESTRICTED"
+  }
+}

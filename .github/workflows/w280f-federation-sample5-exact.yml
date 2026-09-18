@@ -1,0 +1,53 @@
+name: W280F Exact Federation Sample 5 Candidate
+
+on:
+  pull_request:
+    paths:
+      - controls/QPS_W280_FEDERATION_SAMPLE5_CURRENT_v0.1.json
+      - triage/w280/**
+      - scripts/qps_w280_validate_federation_sample5.py
+      - tests/test_qps_w280_federation_sample5.py
+      - .github/workflows/w280f-federation-sample5-exact.yml
+  push:
+    branches: [main]
+    paths:
+      - controls/QPS_W280_FEDERATION_SAMPLE5_CURRENT_v0.1.json
+      - triage/w280/**
+      - scripts/qps_w280_validate_federation_sample5.py
+      - tests/test_qps_w280_federation_sample5.py
+      - .github/workflows/w280f-federation-sample5-exact.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-w280f:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact consumer head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Verify six exact W280 source blobs
+        shell: bash
+        run: |
+          test "$(git hash-object controls/QPS_W280_FEDERATION_SAMPLE5_CURRENT_v0.1.json)" = "a9c61ac089557fa3befb5041fe3ab75f4989c064"
+          test "$(git hash-object triage/w280/QPS_W280_SAMPLE5_FEATURE_MATRIX_CANDIDATE_v0.1.json)" = "48f205bf68e224e0243da5b08f2c5b5e2c4822fd"
+          test "$(git hash-object triage/w280/QPS_W280_BT_BRIDGE_LEDGER_v0.1.json)" = "e103fa4f3c80c45074dbc1fa6cb3e4872546b1c2"
+          test "$(git hash-object triage/w280/QPS_W280_FLEET_CENSUS_FRAME_v0.1.json)" = "7269075730380dec45e59cdd70a078f12528d7b3"
+          test "$(git hash-object scripts/qps_w280_validate_federation_sample5.py)" = "3fd564e086e643c334082afe690f93faba749189"
+          test "$(git hash-object tests/test_qps_w280_federation_sample5.py)" = "3c75dd8deee4e8f1510837e3c6db3df5ec216d66"
+
+      - name: Execute W280 validator
+        run: python scripts/qps_w280_validate_federation_sample5.py --out w280f-validation-receipt.json
+
+      - name: Execute W280 tests
+        run: python -m unittest tests/test_qps_w280_federation_sample5.py -v
+
+      - name: Upload W280F receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: w280f-${{ github.event.pull_request.head.sha || github.sha }}
+          path: w280f-validation-receipt.json
