@@ -1,0 +1,326 @@
+{
+  "schema": "qps-triage-ultra/routing-function-subsurface-depth/1.0",
+  "wave": "W285",
+  "state": "CANDIDATE_DEPTH_DECOMPOSITION_AND_MEASUREMENT",
+  "authority": "MISSION_CONTROL_ROUTING_MEASUREMENT_ONLY",
+  "effective_on": "MERGE_TO_PIPELINE_AUTOMATION_HUB_MASTER",
+  "source_topology": {
+    "path": "mission-control/qps-triage-ultra/topology/QPS_REPO_FUNCTION_TOPOLOGY_v1.yaml",
+    "git_blob": "df0ee845697578cd644691b81eafb2465249d772",
+    "authoritative_function_count": 12
+  },
+  "source_sample_crosswalk": {
+    "repo": "GBOGEB/cryoplant-project",
+    "path": "triage/w283/QPS_W283_FEDERATION_SAMPLE_ROUTING_CROSSWALK_v0.1.json",
+    "git_blob": "cb3133ec98adb2cdf096376fe5b00ccc606172d1",
+    "accepted_samples": 5,
+    "breadth_covered_functions": 4
+  },
+  "method": {
+    "subsurface_denominator_rule": "ONE_ATOM_PER_POSITIVE_CURRENT_USE_ENTRY_IN_EXACT_TOPOLOGY_BYTES",
+    "negative_current_use_rule": "EXPLICIT_NEGATIVE_STATEMENTS_DO_NOT_CREATE_POSITIVE_DEPTH_DENOMINATOR_ATOMS",
+    "empty_current_use_rule": "EMPTY_CURRENT_USE_CREATES_ZERO_CURRENT_DEPTH_DENOMINATOR",
+    "non_overlap_key": "function::atom_id",
+    "numerator_rule": "ONE_ACCEPTED_SAMPLE_MAY_CREDIT_AT_MOST_ONE_EXACTLY_NAMED_CURRENT_USE_ATOM; DUPLICATE_ATOM_CREDIT_COUNTS_ONCE",
+    "depth_conditioning": "D_IS_MICRO_AVERAGED_WITHIN_BREADTH_COVERED_FUNCTIONS_ONLY; UNCovered_FUNCTIONS_ARE_ALREADY_ACCOUNTED_FOR_BY_B",
+    "formulae": {
+      "B": "unique breadth-covered functions / authoritative routing functions",
+      "D": "unique observed covered current-use atoms / current-use atoms available within breadth-covered functions",
+      "PEN": "B * D"
+    },
+    "guard": "IF_A_SAMPLE_MAPS_TO_A_FUNCTION_WITH_ZERO_CURRENT_DEPTH_DENOMINATOR_THEN_D_REMAINS_WITHHELD_UNTIL_TOPOLOGY_GOVERNS_A_POSITIVE_SUBSURFACE"
+  },
+  "functions": [
+    {
+      "repo": "GBOGEB/cryoplant-project",
+      "function": "QPS_CHILD_AUTHORITY",
+      "state": "ACTIVE_USED",
+      "subsurfaces": [
+        {
+          "atom_id": "engineering_source_disposition_authority",
+          "source_text": "engineering/source/disposition authority"
+        },
+        {
+          "atom_id": "offer_mip2_generator_integration",
+          "source_text": "OFFER MIP-2 generator integration"
+        },
+        {
+          "atom_id": "reliability_table10_reentry_gating",
+          "source_text": "reliability and Table-10 re-entry gating"
+        },
+        {
+          "atom_id": "visual_release_control_surfaces",
+          "source_text": "visual and release control surfaces"
+        }
+      ]
+    },
+    {
+      "repo": "GBOGEB/pipeline-automation-hub",
+      "function": "MISSION_CONTROL_ORCHESTRATION",
+      "state": "ACTIVE_USED",
+      "subsurfaces": [
+        {
+          "atom_id": "method_selection",
+          "source_text": "method selection"
+        },
+        {
+          "atom_id": "routing_and_sequencing",
+          "source_text": "routing and sequencing"
+        },
+        {
+          "atom_id": "receipt_correlation",
+          "source_text": "receipt correlation"
+        },
+        {
+          "atom_id": "resource_pressure_stop_reallocate",
+          "source_text": "resource pressure and stop/reallocate decisions"
+        },
+        {
+          "atom_id": "repository_topology_projection",
+          "source_text": "repository topology projection"
+        }
+      ]
+    },
+    {
+      "repo": "GBOGEB/CODEX",
+      "function": "KEB_SEMANTIC_PROVENANCE",
+      "state": "ACTIVE_USED",
+      "subsurfaces": [
+        {
+          "atom_id": "semantic_challenge",
+          "source_text": "semantic challenge"
+        },
+        {
+          "atom_id": "provenance_exact_source_interpretation",
+          "source_text": "provenance and exact-source interpretation"
+        },
+        {
+          "atom_id": "authority_state_class_separation",
+          "source_text": "authority/state-class separation"
+        },
+        {
+          "atom_id": "controlled_visual_semantic_federation",
+          "source_text": "controlled visual-semantic federation"
+        }
+      ]
+    },
+    {
+      "repo": "GBOGEB/ABACUS",
+      "function": "DOW_RUNTIME_METRICS_PROJECTION",
+      "state": "ACTIVE_USED",
+      "subsurfaces": [
+        {
+          "atom_id": "independent_denominator_measurement",
+          "source_text": "independent denominator measurement"
+        },
+        {
+          "atom_id": "runtime_delivery_QA",
+          "source_text": "runtime and delivery QA"
+        },
+        {
+          "atom_id": "measured_readiness_evidence_census",
+          "source_text": "measured readiness and evidence census"
+        },
+        {
+          "atom_id": "scheduling_only_pca_bt_diagnostics",
+          "source_text": "scheduling-only PCA/BT diagnostics when data is sufficient"
+        }
+      ]
+    },
+    {
+      "repo": "GBOGEB/DOCX_RTM_Automation",
+      "function": "SOURCE_EXTRACTION_RTM_RECONCILIATION",
+      "state": "ACTIVE_USED",
+      "subsurfaces": [
+        {
+          "atom_id": "parser_extraction",
+          "source_text": "parser and extraction"
+        },
+        {
+          "atom_id": "rtm_dtm_traceability",
+          "source_text": "RTM/DTM traceability"
+        },
+        {
+          "atom_id": "reliability_analytical_consumer",
+          "source_text": "reliability analytical consumer"
+        },
+        {
+          "atom_id": "exact_sha_evidence_receipt_pipeline",
+          "source_text": "exact-SHA evidence receipt pipeline"
+        }
+      ]
+    },
+    {
+      "repo": "GBOGEB/Q_engineering_tools",
+      "function": "EXACT_PAYLOAD_RUNTIME_CARRIER",
+      "state": "EXECUTION_SATELLITE",
+      "subsurfaces": [
+        {
+          "atom_id": "exact_git_blob_identity_proof",
+          "source_text": "exact Git-blob identity proof"
+        },
+        {
+          "atom_id": "independent_execution_authority_repo_blocked",
+          "source_text": "independent execution when authority-repo Actions admission is blocked"
+        },
+        {
+          "atom_id": "validator_test_execution_durable_receipts",
+          "source_text": "validator/test execution and durable exact-head receipts"
+        }
+      ]
+    },
+    {
+      "repo": "GBOGEB/gg_MATH",
+      "function": "GENERIC_MATH_PROVIDER",
+      "state": "CONTROL_RESERVE",
+      "subsurfaces": [
+        {
+          "atom_id": "pca_covariance_state_space_math",
+          "source_text": "reusable PCA/covariance/state-space mathematics"
+        },
+        {
+          "atom_id": "bradley_terry_kernel",
+          "source_text": "Bradley-Terry implementation kernel"
+        },
+        {
+          "atom_id": "monte_carlo_uncertainty_kernel",
+          "source_text": "Monte-Carlo and uncertainty kernel"
+        }
+      ]
+    },
+    {
+      "repo": "GBOGEB/CODESPACES_jyperter",
+      "function": "DEVELOPER_RUNTIME_HELIUM_PROPERTIES",
+      "state": "CONDITIONAL_RESERVE",
+      "subsurfaces": [],
+      "excluded_current_use": [
+        "no current H4 transaction ownership"
+      ]
+    },
+    {
+      "repo": "GBOGEB/cryogenic-accelerator-workspace",
+      "function": "ACCELERATOR_RTM_BRIDGE",
+      "state": "CONTROL_RESERVE",
+      "subsurfaces": [
+        {
+          "atom_id": "quarantined_reference_engineering_workspace",
+          "source_text": "quarantined/reference engineering workspace"
+        }
+      ]
+    },
+    {
+      "repo": "GBOGEB/cryo_leak_rate_dashboard",
+      "function": "LEAK_PHYSICS_EVIDENCE",
+      "state": "CONTROL_RESERVE",
+      "subsurfaces": [
+        {
+          "atom_id": "bounded_leak_physics_kernel_historical_control",
+          "source_text": "bounded leak-physics kernel / historical control"
+        }
+      ]
+    },
+    {
+      "repo": "GBOGEB/document-organization-system",
+      "function": "DOCUMENT_ORGANISATION_ARTIFACT_INDEX",
+      "state": "DORMANT_CANDIDATE",
+      "subsurfaces": []
+    },
+    {
+      "repo": "GBOGEB/github_Documents",
+      "function": "PRIVATE_BYTE_PROVENANCE_VAULT",
+      "state": "DORMANT_CANDIDATE",
+      "subsurfaces": []
+    }
+  ],
+  "sample_to_subsurface": [
+    {
+      "sample_id": "FED-SAMPLE-001-W164-CONTROL",
+      "function": "MISSION_CONTROL_ORCHESTRATION",
+      "atom_id": "routing_and_sequencing",
+      "classification": "DERIVED_ROUTING_MEASUREMENT",
+      "rationale": "bounded federation architecture/control sample directly exercises Mission Control routing/sequencing"
+    },
+    {
+      "sample_id": "FED-SAMPLE-002-ABACUS-W74",
+      "function": "DOW_RUNTIME_METRICS_PROJECTION",
+      "atom_id": "runtime_delivery_QA",
+      "classification": "DERIVED_ROUTING_MEASUREMENT",
+      "rationale": "Kubernetes deployment contract is a bounded runtime/delivery QA observation"
+    },
+    {
+      "sample_id": "FED-SAMPLE-003-CODEX-M05",
+      "function": "KEB_SEMANTIC_PROVENANCE",
+      "atom_id": "provenance_exact_source_interpretation",
+      "classification": "DERIVED_ROUTING_MEASUREMENT",
+      "rationale": "supply-chain provenance attestation directly measures provenance/exact-source interpretation"
+    },
+    {
+      "sample_id": "FED-SAMPLE-004-W184F-N200-MIRROR",
+      "function": "EXACT_PAYLOAD_RUNTIME_CARRIER",
+      "atom_id": "exact_git_blob_identity_proof",
+      "classification": "DERIVED_ROUTING_MEASUREMENT",
+      "rationale": "self-contained exact-hash analytical carrier directly measures exact Git-blob identity proof"
+    },
+    {
+      "sample_id": "FED-SAMPLE-005-W3-15-OBSERVED-INTERVENTION",
+      "function": "MISSION_CONTROL_ORCHESTRATION",
+      "atom_id": "resource_pressure_stop_reallocate",
+      "classification": "DERIVED_ROUTING_MEASUREMENT",
+      "rationale": "observed red-repair-control intervention measures stop/reallocate control behavior"
+    }
+  ],
+  "measurement": {
+    "all_functions_current_use_atoms": {
+      "numerator": 29,
+      "denominator": 29,
+      "value": 1
+    },
+    "breadth": {
+      "numerator": 4,
+      "denominator": 12,
+      "value": 0.3333333333333333
+    },
+    "depth_conditioned_on_breadth": {
+      "numerator_unique_covered_atoms": 5,
+      "denominator_atoms_in_breadth_covered_functions": 16,
+      "value": 0.3125,
+      "per_function": {
+        "MISSION_CONTROL_ORCHESTRATION": {
+          "numerator": 2,
+          "denominator": 5,
+          "value": 0.4
+        },
+        "DOW_RUNTIME_METRICS_PROJECTION": {
+          "numerator": 1,
+          "denominator": 4,
+          "value": 0.25
+        },
+        "KEB_SEMANTIC_PROVENANCE": {
+          "numerator": 1,
+          "denominator": 4,
+          "value": 0.25
+        },
+        "EXACT_PAYLOAD_RUNTIME_CARRIER": {
+          "numerator": 1,
+          "denominator": 3,
+          "value": 0.3333333333333333
+        }
+      }
+    },
+    "global_fleet_penetration": {
+      "formula": "B*D",
+      "value": 0.10416666666666666
+    }
+  },
+  "guards": [
+    "ROUTING_MEASUREMENT_ONLY_NOT_ENGINEERING_AUTHORITY",
+    "NO_EXECUTOR_DOUBLE_CREDIT",
+    "NO_SAMPLE_CREDITS_MORE_THAN_ONE_SUBSURFACE",
+    "NO_SUBSURFACE_CREDIT_OUTSIDE_EXACT_TOPOLOGY_CURRENT_USE",
+    "ZERO_CURRENT_USE_FUNCTIONS_HAVE_ZERO_DEPTH_DENOMINATOR_NOT_IMPLICIT_COVERAGE",
+    "QPS_REPO_LOCAL_RUNNER_923_NONCOMPENSATING",
+    "GLOBAL_BT_REMAINS_INDEPENDENT"
+  ],
+  "authority_transfer": false,
+  "formal_credit_delta": 0
+}
