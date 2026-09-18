@@ -1,0 +1,75 @@
+{
+  "schema": "qps-w304-federation-depth-exact-reproof/v0.1",
+  "canonical_wave": "W304",
+  "historical_source_wave": "W285",
+  "purpose": "RECONCILE_W285_NAMESPACE_COLLISION_AND_COMPLETE_EXACT_PROVE_WITHOUT_CHANGING_GOVERNED_MEASUREMENT",
+  "source_authority": {
+    "qps_pr": 1490,
+    "qps_merge": "89bffcda5e8709d669865d09049b8a2ef9d20087",
+    "depth_blob": "691680cdf11289142b402a0ae02c95d46a246473",
+    "control_blob": "868861de8da3221a2a9bd934ac960e7798340110",
+    "validator_blob": "1ae329f7485cd8bc32dd4253dc2c8bc147410d7b",
+    "tests_blob": "19ffae87a17198a2a3725be8035db0ccde9e8433",
+    "topology_blob": "df0ee845697578cd644691b81eafb2465249d772",
+    "crosswalk_blob": "cb3133ec98adb2cdf096376fe5b00ccc606172d1"
+  },
+  "consumed_proofs": {
+    "codex": {
+      "pr": 770,
+      "head": "e90448273f3f12223ae90a4a2a2fe335b7a43720",
+      "run": 35360845121,
+      "result": "PASS_SEMANTIC_REVIEW"
+    },
+    "abacus": {
+      "pr": 1282,
+      "head": "841456b0a405336e7c13699bedfdf6b522dc10b7",
+      "run": 35360903434,
+      "result": "PASS_INDEPENDENT_RECOMPUTE"
+    },
+    "qtools_prior": [
+      {
+        "pr": 60,
+        "head": "a9c3542e1ce765195e7df6b698f18e2297f016fc",
+        "run": 35360698543,
+        "validator": "PASS",
+        "tests": "FAIL_MISSING_PYTEST"
+      },
+      {
+        "pr": 63,
+        "head": "98ef55ba1208f40fcd9637ed6b1e07b9ecb449a5",
+        "run": 35360861517,
+        "validator": "PASS",
+        "tests": "FAIL_MISSING_PYTEST"
+      }
+    ]
+  },
+  "rex": {
+    "id": "W304_REX_QTOOLS_TEST_HARNESS_DEPENDENCY",
+    "classification": "HARNESS_DEPENDENCY_NOT_MEASUREMENT_FAILURE",
+    "observed": "python -m pytest failed because pytest is not installed on hosted runner after exact blob verification and validator PASS",
+    "repair": "Execute the existing repository test functions directly with the Python standard library import path; do not alter candidate bytes, validator semantics, numerator, denominator, D, B or PEN."
+  },
+  "measurement": {
+    "breadth": {
+      "numerator": 4,
+      "denominator": 12,
+      "value": 0.3333333333333333
+    },
+    "function_depth": 0.6,
+    "global_fleet_penetration": 0.2,
+    "formula": "PEN=B*D",
+    "credited_atoms": 9,
+    "covered_atom_denominator": 16
+  },
+  "expected_result": "PASS_EXACT_REPROOF_W304",
+  "guards": [
+    "NO_MEASUREMENT_CHANGE",
+    "NO_AUTHORITY_TRANSFER",
+    "NO_FORMAL_CREDIT",
+    "QPS_923_NON_COMPENSATING",
+    "W275_PHYSICAL_BUNDLE_NON_COMPENSATING",
+    "GLOBAL_BT_UNCHANGED"
+  ],
+  "formal_credit_delta": 0,
+  "authority_transfer": false
+}
