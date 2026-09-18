@@ -13,7 +13,7 @@ DEPTH = PAYLOAD / "upstream/QPS_ROUTING_FUNCTION_SUBSURFACE_DEPTH_v1.json"
 TOPOLOGY = REPO_ROOT / "federation/w283r/payload/triage/w283/upstream/QPS_REPO_FUNCTION_TOPOLOGY_v1.yaml"
 CROSSWALK = REPO_ROOT / "federation/w283r/payload/triage/w283/QPS_W283_FEDERATION_SAMPLE_ROUTING_CROSSWALK_v0.1.json"
 
-EXPECTED_DEPTH_BLOB = "a9ba70c2ed00e30e0153099062736c347c51cfa0"
+EXPECTED_DEPTH_BLOB = "2bf94393a7516b7f45a1a8a5e4408cfae6bd7659"
 EXPECTED_TOPOLOGY_BLOB = "df0ee845697578cd644691b81eafb2465249d772"
 EXPECTED_CROSSWALK_BLOB = "cb3133ec98adb2cdf096376fe5b00ccc606172d1"
 
@@ -128,10 +128,16 @@ def validate() -> dict:
     assert m["breadth"]["denominator"] == 12
     assert abs(m["breadth"]["value"] - (4/12)) < 1e-12
     d = m["depth_conditioned_on_breadth"]
-    assert d["numerator_unique_covered_atoms"] == 5
-    assert d["denominator_atoms_in_breadth_covered_functions"] == 16
-    assert abs(d["value"] - (5/16)) < 1e-12
-    assert abs(m["global_fleet_penetration"]["value"] - ((4/12)*(5/16))) < 1e-12
+    assert d["method"] == "MACRO_AVERAGE_PER_FUNCTION"
+    assert d["breadth_covered_functions"] == 4
+    expected_macro = ((2/5) + (1/4) + (1/4) + (1/3)) / 4
+    assert abs(d["value"] - expected_macro) < 1e-12
+    micro = m["depth_micro_diagnostic"]
+    assert micro["method"] == "ATOM_WEIGHTED_DIAGNOSTIC_NOT_USED_IN_PEN"
+    assert micro["numerator_unique_covered_atoms"] == 5
+    assert micro["denominator_atoms_in_breadth_covered_functions"] == 16
+    assert abs(micro["value"] - (5/16)) < 1e-12
+    assert abs(m["global_fleet_penetration"]["value"] - ((4/12)*expected_macro)) < 1e-12
 
     return {
         "schema": "qps-w285-federation-depth-validation/v1",
@@ -143,10 +149,10 @@ def validate() -> dict:
         "functions": 12,
         "all_current_use_atoms": 29,
         "breadth": 4/12,
-        "depth_numerator": 5,
-        "depth_denominator": 16,
-        "function_depth": 5/16,
-        "global_fleet_penetration": (4/12)*(5/16),
+        "depth_micro_numerator": 5,
+        "depth_micro_denominator": 16,
+        "function_depth": ((2/5) + (1/4) + (1/4) + (1/3)) / 4,
+        "global_fleet_penetration": (4/12)*(((2/5) + (1/4) + (1/4) + (1/3)) / 4),
         "authority_transfer": False,
         "formal_credit_delta": 0,
     }
