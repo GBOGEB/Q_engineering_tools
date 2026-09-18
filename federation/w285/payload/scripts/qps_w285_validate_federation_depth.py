@@ -12,7 +12,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEPTH = ROOT / "triage/w285/QPS_W285_FEDERATION_FUNCTION_DEPTH_v0.1.json"
 TOPOLOGY = ROOT / "triage/w283/upstream/QPS_REPO_FUNCTION_TOPOLOGY_v1.yaml"
+CROSSWALK = ROOT / "triage/w283/QPS_W283_FEDERATION_SAMPLE_ROUTING_CROSSWALK_v0.1.json"
 EXPECTED_TOPOLOGY_BLOB = "df0ee845697578cd644691b81eafb2465249d772"
+EXPECTED_CROSSWALK_BLOB = "cb3133ec98adb2cdf096376fe5b00ccc606172d1"
 
 
 def git_blob_sha(data: bytes) -> str:
@@ -50,8 +52,8 @@ def extract_functions_and_current_use(text: str) -> tuple[set[str], dict[str, li
     return functions, current_use
 
 
-def validate() -> dict[str, object]:
-    candidate = json.loads(DEPTH.read_text(encoding="utf-8"))
+def validate(candidate_override: dict[str, object] | None = None) -> dict[str, object]:
+    candidate = candidate_override if candidate_override is not None else json.loads(DEPTH.read_text(encoding="utf-8"))
     topology_bytes = TOPOLOGY.read_bytes()
     observed_blob = git_blob_sha(topology_bytes)
     if observed_blob != EXPECTED_TOPOLOGY_BLOB:
@@ -65,15 +67,46 @@ def validate() -> dict[str, object]:
     if len(functions) != 12:
         raise AssertionError(f"expected 12 authoritative functions, got {len(functions)}")
 
+    crosswalk_bytes = CROSSWALK.read_bytes()
+    observed_crosswalk_blob = git_blob_sha(crosswalk_bytes)
+    if observed_crosswalk_blob != EXPECTED_CROSSWALK_BLOB:
+        raise AssertionError(
+            f"crosswalk blob mismatch: {observed_crosswalk_blob} != {EXPECTED_CROSSWALK_BLOB}"
+        )
+    crosswalk = json.loads(crosswalk_bytes.decode("utf-8"))
+    accepted_by_id = {row["sample_id"]: row for row in crosswalk["accepted_samples"]}
+    bindings = candidate["evidence_bindings"]
+    if set(bindings) != set(accepted_by_id):
+        raise AssertionError("evidence binding keys differ from exact accepted crosswalk")
+
+    for sample_id, accepted in accepted_by_id.items():
+        binding = bindings[sample_id]
+        expected = accepted["evidence"]
+        if binding["path"] != expected["path"] or binding["blob"] != expected["blob"]:
+            raise AssertionError(f"{sample_id} binding differs from exact crosswalk")
+        evidence_path = ROOT / binding["path"]
+        if not evidence_path.is_file():
+            raise AssertionError(f"{sample_id} evidence path missing: {binding['path']}")
+        observed = git_blob_sha(evidence_path.read_bytes())
+        if observed != binding["blob"]:
+            raise AssertionError(
+                f"{sample_id} evidence blob mismatch: {observed} != {binding['blob']}"
+            )
+
     covered = candidate["covered_functions"]
-    covered_names = {entry["function"] for entry in covered}
+    if len(covered) != 4:
+        raise AssertionError(f"expected exactly four covered-function entries, got {len(covered)}")
+    covered_name_list = [entry["function"] for entry in covered]
+    if len(set(covered_name_list)) != len(covered_name_list):
+        raise AssertionError("duplicate covered-function entries are prohibited")
+    covered_names = set(covered_name_list)
     uncovered_names = set(candidate["uncovered_functions"])
     if covered_names | uncovered_names != functions:
         raise AssertionError("covered union uncovered does not equal authoritative function set")
     if covered_names & uncovered_names:
         raise AssertionError("covered and uncovered function sets overlap")
 
-    accepted_samples = set(candidate["evidence_bindings"])
+    accepted_samples = set(accepted_by_id)
     per_function_depths: list[float] = []
     total_credited = 0
     total_atoms = 0
@@ -100,6 +133,15 @@ def validate() -> dict[str, object]:
                 unknown = set(atom["evidence"]) - accepted_samples
                 if unknown:
                     raise AssertionError(f"unknown evidence on {atom_id}: {sorted(unknown)}")
+                wrong_function = [
+                    sample_id
+                    for sample_id in atom["evidence"]
+                    if accepted_by_id[sample_id]["mapped_function"] != function
+                ]
+                if wrong_function:
+                    raise AssertionError(
+                        f"evidence mapped to wrong function on {atom_id}: {sorted(wrong_function)}"
+                    )
             elif atom["evidence"]:
                 raise AssertionError(f"uncredited atom has evidence: {atom_id}")
 
@@ -154,6 +196,7 @@ def validate() -> dict[str, object]:
     return {
         "status": "PASS",
         "topology_blob": observed_blob,
+        "crosswalk_blob": observed_crosswalk_blob,
         "authoritative_functions": len(functions),
         "covered_functions": len(covered_names),
         "credited_atoms": total_credited,
