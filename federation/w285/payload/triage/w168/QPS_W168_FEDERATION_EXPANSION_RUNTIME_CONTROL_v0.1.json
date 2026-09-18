@@ -1,0 +1,153 @@
+{
+  "schema": "qps-w168-federation-expansion-runtime-control/v0.1",
+  "wave": "W168R",
+  "parent_wave": "W168",
+  "sample_id": "FED-SAMPLE-002-ABACUS-W74",
+  "authority": "MISSION_CONTROL_AUTHORITATIVE_RETURN",
+  "status": "CONTROL_BOUNDED_SAMPLE2_ACCEPTED_SPECIALISTS_CONTROL_ELIGIBLE_NATIVE_PREEXECUTION_PRESERVED",
+  "activation_rule": "AUTHORITATIVE_RETURN_IS_EFFECTIVE_WHEN_THIS_RECEIPT_IS_MERGED_TO_CRYOPLANT_MAIN",
+  "namespace": {
+    "requested": "W167_FEDERATION_EXPANSION_SAMPLE_2",
+    "collision_preserved": "W167_VISUAL_N200_RENDER_IDENTITY_HUNT",
+    "canonical_execution_wave": "W168"
+  },
+  "source_surface": {
+    "repository": "GBOGEB/ABACUS",
+    "source_pr": 1178,
+    "source_head_sha": "0af0c834a9fdb6677fb62454096f9cf439b872ab",
+    "source_merge_sha": "54ca866d9a191fff69289ff4a74a3e299689aa18",
+    "surface_type": "KUBERNETES_DEPLOYMENT_CONTRACT"
+  },
+  "defect_lineage": {
+    "original_run_id": 34772257778,
+    "original_job_id": 103763867689,
+    "original_runner_id": 1000265098,
+    "validator": "PASS",
+    "regression": "FAIL_COLLECTION_NUMPY",
+    "classification": "TEST_HARNESS_SCOPE_LEAKAGE_NOT_KUBERNETES_CONTRACT_FAILURE",
+    "rex": "TARGETED_CONTRACT_TEST_MUST_NOT_INHERIT_UNRELATED_REPOSITORY_WIDE_FIXTURES"
+  },
+  "source_authority_repair": {
+    "repository": "GBOGEB/ABACUS",
+    "pr": 1183,
+    "head_sha": "faca2038eae08446e098fccb785a02adf8388fcd",
+    "repair": "pytest --noconftest tests/test_w74_qplant_k8s_contract.py -q",
+    "run_id": 34774368482,
+    "job_id": 103769636936,
+    "runner_id": 1000266616,
+    "result": "PASS",
+    "merge_sha": "e53a92490a9ae8b5b67cb75eb7f522f84ccb0188"
+  },
+  "mission_control_source": {
+    "repository": "GBOGEB/cryoplant-project",
+    "pr": 1097,
+    "head_sha": "43f75756ebe967f4903ddcbded06a840de128cff",
+    "merge_sha": "4268ba9894788de636b2b4c8fa778efae890f5ed",
+    "native_runtime": {
+      "run_id": 34774474668,
+      "job_id": 103769929432,
+      "runner_id": 0,
+      "recorded_steps": 0,
+      "classification": "WITHHELD_INFRA_PREEXECUTION_REX_006_GATE_923"
+    }
+  },
+  "federated_exact_executor": {
+    "repository": "GBOGEB/Q_engineering_tools",
+    "pr": 34,
+    "pr_head_sha": "293a8714427f1fdd2f7896834a77921b0e91548e",
+    "merge_sha": "f269b2dc212826ecfa4d91325080493f84c8288c",
+    "payload_blobs": {
+      "control": "f712567d4211db645dd0cc4da4b434492fe90eca",
+      "census": "b567d112a628fb01cdde1f36c31d69e9bbe6c6a4",
+      "matrix": "fdc977f2057a6368eb3719b50c4afd11a536e465",
+      "validator": "ad7adbb810489be1bfaf4394d801b7fcd3902018",
+      "tests": "e96bdcffdf72e61225ae961fe774219b5f57f486"
+    },
+    "pr_head_execution": {
+      "run_id": 34774633112,
+      "job_id": 103770373493,
+      "runner_id": 1000266842,
+      "result": "PASS",
+      "artifact_id": 10323023136,
+      "artifact_digest": "sha256:b818ca8a35de8034f8f0072a432a755fb482ec46eacaa482951b00678fb8556a"
+    },
+    "postmerge_repeat": {
+      "run_id": 34774657192,
+      "job_id": 103770439360,
+      "runner_id": 1000266850,
+      "result": "PASS",
+      "artifact_id": 10323186204,
+      "artifact_digest": "sha256:fc85d701da87eb95c0693c2fbe2c9a5844affb3b5e828c914a7ca06d0ccfdaef"
+    }
+  },
+  "measurement_final": {
+    "breadth": {"numerator": 17, "denominator": 17, "value": 1.0},
+    "depth": {
+      "numerator": 8,
+      "denominator": 8,
+      "value": 1.0,
+      "layers": [
+        "DISCOVERY",
+        "SOURCE_BINDING",
+        "SEMANTIC_CONTRACT",
+        "OBSERVED_SOURCE_RUNTIME",
+        "DEFECT_LINEAGE_CLASSIFICATION",
+        "SOURCE_AUTHORITY_CROSSFEED",
+        "REPAIRED_SOURCE_RUNTIME",
+        "AUTHORITATIVE_RETURN"
+      ]
+    },
+    "penetration_formula": "PEN=B*D",
+    "penetration": 1.0,
+    "scope": "BOUNDED_W74_W168_SURFACE_ONLY"
+  },
+  "fleet_sampling": {
+    "accepted_bounded_samples": 2,
+    "known_sample_set_denominator": 2,
+    "global_fleet_denominator": null,
+    "global_fleet_penetration": null,
+    "grand_mission_penetration": null,
+    "rule": "TWO_ACCEPTED_SAMPLES_DO_NOT_DEFINE_THE_GLOBAL_FLEET_DENOMINATOR"
+  },
+  "specialist_repeat": {
+    "accepted_distinct_samples": ["FED-SAMPLE-001-W164-CONTROL", "FED-SAMPLE-002-ABACUS-W74"],
+    "roles": [
+      "CREW-FED-AMBASSADOR",
+      "CREW-FED-GEOGRAPHER",
+      "CREW-FED-GEOLOGIST",
+      "CREW-FED-CALLIGRAPHER",
+      "CREW-FED-NEURON",
+      "CREW-H2-HISTORIAN"
+    ],
+    "maturity": "MEASURED_DISTINCT_REPEAT_ACCEPTED",
+    "CONTROL_eligibility": true,
+    "CONTROL_state": "ELIGIBLE_NOT_AUTOMATICALLY_PROMOTED",
+    "rule": "REPEATABLE_ACCEPTED_OUTPUT_SATISFIES_ELIGIBILITY_BUT_CONTROL_PROMOTION_REMAINS_EXPLICIT"
+  },
+  "cross_surface_analytics": {
+    "rows": 2,
+    "matrix_state": "MEASURED_TWO_ACCEPTED_SURFACES",
+    "pca": "WITHHELD_N_LT_3",
+    "bt": "WITHHELD_NO_OBSERVED_PAIRWISE_OUTCOME_EVIDENCE",
+    "next_admission": "THIRD_DISTINCT_ACCEPTED_SURFACE"
+  },
+  "calligrapher": {
+    "ascii": "ABACUS W74 FAIL -> HISTORIAN/NEURON CLASSIFY -> PR1183 REPAIR PASS -> W168 SOURCE -> NATIVE #923 -> W168F PR PASS -> W168F MAIN PASS -> W168R RETURN",
+    "mermaid": "flowchart LR; A[ABACUS W74 original]-->B[validator PASS]; B-->C[harness FAIL]; C-->D[Historian + Neuron classify]; D-->E[ABACUS PR1183 repair]; E-->F[repair runtime PASS]; F-->G[W168 source]; G-->H[native #923 zero-step]; G-->I[W168F exact PR PASS]; I-->J[W168F main repeat PASS]; J-->K[W168R authoritative return]"
+  },
+  "ambassador": {
+    "round_trip_complete": true,
+    "authority_transfer": false,
+    "source_authority_retained_by": "GBOGEB/ABACUS",
+    "child_disposition_authority_retained_by": "MISSION_H1_QPS_WHERE_APPLICABLE"
+  },
+  "preserved_non_compensating_gates": [
+    "QPS_REPO_LOCAL_RUNNER_923",
+    "G6_CURRENT_RELEASE_IDENTITY_AND_PARITY",
+    "W165_EDGE_K8S_MEASUREMENT_GATE",
+    "W167_VISUAL_N200_RENDER_IDENTITY_HUNT",
+    "EXTERNAL_SOURCE_AND_AUTHORITY_GATES",
+    "VISUAL_N200_INDEPENDENT_COLLECTION"
+  ],
+  "formal_credit_delta": {"engineering": 0, "compliance": 0, "negotiation": 0, "release": 0}
+}
