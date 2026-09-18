@@ -1,0 +1,94 @@
+{
+  "schema": "qps-w280-federation-sample5-control/v0.2",
+  "wave": "W280R",
+  "state": "AUTHORITATIVE_RETURN_ACCEPTED",
+  "sample_id": "FED-SAMPLE-005-W3-15-OBSERVED-INTERVENTION",
+  "prior_candidate_source": {
+    "pr": 1472,
+    "head": "84a44f375b2b6e55c7618c8eb590678b1e3bcdb2",
+    "merge": "b0b968729fee9e8609b0463c31f30ccd49a9dd52",
+    "state": "CANDIDATE_ONLY"
+  },
+  "independent_execution_proof": {
+    "repo": "GBOGEB/Q_engineering_tools",
+    "pr": 48,
+    "head": "ed605473313d69fbc2196f2aca4f790838193125",
+    "pr_head_run": {
+      "run_id": 35341670931,
+      "job_id": 105588742448,
+      "artifact_id": 10545427410,
+      "artifact_digest": "sha256:d7365f9cbb42b45b5b0948fa57787f369f47d625b94baf7ea71d53bbaf6c0c43",
+      "result": "PASS_EXACT_6_OF_6_VALIDATOR_TESTS"
+    },
+    "merge": "107602529e5f31e4efc63e0cbf81a46752bc98f3",
+    "observable_repeat_wrapper_pr": 49,
+    "observable_repeat_wrapper_merge": "1dd6334b8dd0a64c159905605007fe9de7fe4236",
+    "main_repeat": {
+      "run_id": 35342972343,
+      "job_id": 105592900839,
+      "hosted_runner": true,
+      "runner_image": "ubuntu-24.04",
+      "artifact_id": 10546210632,
+      "artifact_digest": "sha256:3a15a0309c3d811d2c763af95745f017fc940d7f63b7be705bcaec9a0e1bcec6",
+      "issue_receipt": 50,
+      "result": "PASS_EXACT_6_OF_6_VALIDATOR_TESTS_DISTINCT_MAIN_REPEAT"
+    }
+  },
+  "measurement": {
+    "breadth": {
+      "numerator": 15,
+      "denominator": 15,
+      "value": 1
+    },
+    "depth": {
+      "numerator": 8,
+      "denominator": 8,
+      "value": 1
+    },
+    "penetration": 1
+  },
+  "accepted_bounded_samples": 5,
+  "known_sample_set_denominator": 5,
+  "pca": {
+    "state": "MEASURED_SMALL_N_N5_PC1_PERSISTS_PC2_UNSTABLE",
+    "explained_variance_ratio": [
+      0.618903181,
+      0.307076472,
+      0.063649856,
+      0.010370492
+    ],
+    "pc1_loading_congruence_abs_n4_to_n5": 0.972259128,
+    "pc2_loading_congruence_abs_n4_to_n5": 0.257532074,
+    "pc12_subspace_principal_angles_deg": [
+      3.40618031,
+      73.70534049
+    ],
+    "guard": "DESCRIPTIVE_SMALL_N_ONLY_NO_CAUSAL_GLOBAL_OR_RESOURCE_OPTIMALITY_CLAIM"
+  },
+  "bt": {
+    "repair_component": "WITHHELD_NO_FINITE_UNREGULARIZED_MLE",
+    "separate_allocation_component": "FINITE_LOCAL_COMPONENT_OBSERVED",
+    "global_state": "WITHHELD_DISCONNECTED_HETEROGENEOUS_COMPARISON_GRAPH"
+  },
+  "fleet_census": {
+    "accessible_repository_universe_total": 83,
+    "governed_surface_denominator": 12,
+    "denominator_scope": "CURRENT_CANONICAL_ROUTING_FUNCTION_SURFACES",
+    "global_fleet_penetration": null
+  },
+  "preserved_non_compensating_gates": [
+    "QPS_REPO_LOCAL_RUNNER_923",
+    "GLOBAL_BT_GRAPH_CONNECTIVITY",
+    "GLOBAL_FLEET_PENETRATION_MAPPING",
+    "VISUAL_CHILD_PROMOTIONS",
+    "EXTERNAL_SOURCE_AND_AUTHORITY_GATES"
+  ],
+  "formal_credit_delta": {
+    "engineering": 0,
+    "compliance": 0,
+    "negotiation": 0,
+    "acceptance": 0,
+    "release": 0
+  },
+  "authority_transfer": false
+}
