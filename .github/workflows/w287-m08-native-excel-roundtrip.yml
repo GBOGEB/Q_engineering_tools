@@ -36,7 +36,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip openpyxl pyyaml
           New-Item -ItemType Directory -Force -Path out | Out-Null
-          python payload/w183/mip2a/qps_w183_generate_offer_eval_workbook.py --doctrine payload/w183/common/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml --control payload/w183/common/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml --output out/OFFER_EVAL_MIP2A.xlsx --receipt out/generator_receipt.json
+          python payload/w183/mip2a/qps_w183_generate_offer_eval_workbook.py --doctrine payload/w183/common/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml --control payload/w183/common/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml --out out/OFFER_EVAL_MIP2A.xlsx --receipt out/generator_receipt.json
 
       - name: Native Microsoft Excel save-close-reopen
         id: excel
