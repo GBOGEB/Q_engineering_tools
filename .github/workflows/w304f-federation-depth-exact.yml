@@ -1,0 +1,100 @@
+name: W304F Federation Depth Exact Reproof
+
+on:
+  pull_request:
+    paths:
+      - federation/w304/**
+      - .github/workflows/w304f-federation-depth-exact.yml
+  push:
+    branches: [main]
+    paths:
+      - federation/w304/**
+      - .github/workflows/w304f-federation-depth-exact.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  exact-w304:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: federation/w285/payload
+    steps:
+      - name: Checkout exact consumer head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Verify exact governed W285 source bytes consumed by W304
+        shell: bash
+        run: |
+          test "$(git hash-object triage/w285/QPS_W285_FEDERATION_FUNCTION_DEPTH_v0.1.json)" = "691680cdf11289142b402a0ae02c95d46a246473"
+          test "$(git hash-object triage/w285/QPS_W285_3PSTAR_MIP_CONTROL_v0.1.json)" = "868861de8da3221a2a9bd934ac960e7798340110"
+          test "$(git hash-object scripts/qps_w285_validate_federation_depth.py)" = "1ae329f7485cd8bc32dd4253dc2c8bc147410d7b"
+          test "$(git hash-object tests/test_qps_w285_federation_depth.py)" = "19ffae87a17198a2a3725be8035db0ccde9e8433"
+          test "$(git hash-object triage/w283/upstream/QPS_REPO_FUNCTION_TOPOLOGY_v1.yaml)" = "df0ee845697578cd644691b81eafb2465249d772"
+          test "$(git hash-object triage/w283/QPS_W283_FEDERATION_SAMPLE_ROUTING_CROSSWALK_v0.1.json)" = "cb3133ec98adb2cdf096376fe5b00ccc606172d1"
+
+      - name: Execute unchanged W285 validator
+        shell: bash
+        run: python scripts/qps_w285_validate_federation_depth.py | tee ../../../federation/w304/w304-validation-receipt.json
+
+      - name: Execute unchanged W285 tests without pytest dependency
+        shell: bash
+        run: |
+          python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+          p=Path("tests/test_qps_w285_federation_depth.py")
+          spec=importlib.util.spec_from_file_location("w285_tests",p)
+          mod=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          tests=[
+              mod.test_w285_depth_contract_passes,
+              mod.test_exact_crosswalk_and_evidence_bindings_are_byte_bound,
+              mod.test_duplicate_covered_function_fails_closed,
+              mod.test_drifted_evidence_binding_fails_closed,
+          ]
+          for t in tests:
+              t()
+              print("PASS", t.__name__)
+          PY
+
+      - name: Verify W304 control receipt
+        working-directory: .
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path("federation/w304/QPS_W304_FEDERATION_DEPTH_EXACT_REPROOF_v0.1.json").read_text())
+          assert d["canonical_wave"]=="W304"
+          assert d["historical_source_wave"]=="W285"
+          assert d["measurement"]["breadth"]["numerator"]==4
+          assert d["measurement"]["breadth"]["denominator"]==12
+          assert abs(d["measurement"]["function_depth"]-0.6)<1e-12
+          assert abs(d["measurement"]["global_fleet_penetration"]-0.2)<1e-12
+          assert d["formal_credit_delta"]==0
+          assert d["authority_transfer"] is False
+          print("PASS W304 control receipt")
+          PY
+
+      - name: Upload W304 exact receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: w304f-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            federation/w304/QPS_W304_FEDERATION_DEPTH_EXACT_REPROOF_v0.1.json
+            federation/w304/w304-validation-receipt.json
+
+      - name: Publish W304 main-repeat receipt
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh issue create --repo "${GITHUB_REPOSITORY}" --title "W304F MAIN REPEAT PASS ${GITHUB_RUN_ID}" --body "W304 renamed federation-depth exact reproof passed unchanged governed W285 bytes and standard-library test execution. B=4/12; D=0.6; PEN=0.2; formal_credit_delta=0; authority_transfer=false; source_qps_pr=1490."
