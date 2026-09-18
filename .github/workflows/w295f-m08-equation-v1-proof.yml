@@ -1,0 +1,168 @@
+name: W295F M08 Equation v1 Post-W295 Exact Proof
+
+on:
+  pull_request:
+    paths:
+      - 'federation/w295/**'
+      - '.github/workflows/w295f-m08-equation-v1-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prove-post-w295-equation-v1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact executor head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install proof dependencies
+        run: python -m pip install --disable-pip-version-check pyyaml openpyxl python-docx pytest
+
+      - name: Prove exact source blob identity 12 of 12
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/w295/payload/controls/QPS_OFFER_EVAL_SCORING_DOCTRINE_v1.yaml)" = "52592fee795bd19d151f0b7612642d28f5a6a88d"
+          test "$(git hash-object federation/w295/payload/controls/QPS_OFFER_EVAL_EQUATION_CURRENT_v1.yaml)" = "eae8578123f2fd9d7dc98b3790e5559f9fe07759"
+          test "$(git hash-object federation/w295/payload/controls/QPS_OFFER_EVAL_WORKBOOK_DELTA_2026-09-14_v1.yaml)" = "2eed4189bef5361bdf25ef79c2e7d1f32a18590e"
+          test "$(git hash-object federation/w295/payload/controls/QPS_OFFER_EVAL_PPT_CURRENT_v1.yaml)" = "0520b49259ddb26b293a6c09f281f28a1aae7ee1"
+          test "$(git hash-object federation/w295/payload/controls/QPS_OFFER_EVAL_METHOD_CURRENT_v1.yaml)" = "495a899abe383fa7f28831ac4fd6f51eb4b31b53"
+          test "$(git hash-object federation/w295/payload/scripts/qps_w183_generate_offer_eval_workbook.py)" = "89ad644bcfd75205c0d520bba4890c90ad4c2495"
+          test "$(git hash-object federation/w295/payload/scripts/qps_w183_generate_offer_eval_narrative.py)" = "2d92d5335abe905d7276b3b105496c3d72e3fdc1"
+          test "$(git hash-object federation/w295/payload/scripts/qps_w183_generate_offer_eval_onepagers.py)" = "0872ac02e89d36ca283f38e6e63dbb17469f7441"
+          test "$(git hash-object federation/w295/payload/scripts/qps_w184_validate_offer_eval_mip2_parity.py)" = "ec3fbec1f2f114df3e61f283e3398b04ddb66c36"
+          test "$(git hash-object federation/w295/payload/scripts/qps_w288_validate_offer_eval_equation_control.py)" = "f2fe704f8c4c8567d3d2b8c84f1e775b026c77ba"
+          test "$(git hash-object federation/w295/payload/tests/test_w183_offer_eval_workbook_adapter.py)" = "270aa5ef47d11944b753c4133ade8a73f7b9a1aa"
+          test "$(git hash-object federation/w295/payload/tests/test_w184_offer_eval_mip2_parity.py)" = "15d9a1c6157537ebfca5b7f539d681571a5735b2"
+
+      - name: Execute static equation-v1 validator
+        shell: bash
+        working-directory: federation/w295/payload
+        run: |
+          set -euo pipefail
+          mkdir -p ../out
+          python scripts/qps_w288_validate_offer_eval_equation_control.py --root . --receipt ../out/static_equation_receipt.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("../out/static_equation_receipt.json").read_text())
+          assert r["status"] == "PASS_CONTROL_AND_IMPLEMENTATION_PARITY_STATIC_NATIVE_EXCEL_GATE_OPEN"
+          assert r["equation_version"] == "OFFER_EVAL_EQ_v1"
+          assert r["missing_defer_fail_preserved"] is True
+          assert r["all_NA_cluster_unscorable"] is True
+          assert r["incomplete_pairwise_totals_withheld"] is True
+          assert r["risk_application_count"] == 1 if "risk_application_count" in r else True
+          assert r["final_system_risk_subtraction"] is False
+          assert r["native_excel_clean_roundtrip"] == "WITHHELD_EXTERNAL_RUNTIME"
+          PY
+
+      - name: Execute exact workbook and parity tests
+        shell: bash
+        working-directory: federation/w295/payload
+        run: |
+          set -euo pipefail
+          pytest -q tests/test_w183_offer_eval_workbook_adapter.py tests/test_w184_offer_eval_mip2_parity.py | tee ../out/pytest-output.txt
+          grep -Eq '[0-9]+ passed' ../out/pytest-output.txt
+
+      - name: Execute generated cross-output equation-v1 parity
+        shell: bash
+        working-directory: federation/w295/payload
+        run: |
+          set -euo pipefail
+          mkdir -p ../out/generated
+          python scripts/qps_w184_validate_offer_eval_mip2_parity.py             --repo-root .             --workdir ../out/generated             --receipt ../out/generated_parity_receipt.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("../out/generated_parity_receipt.json").read_text())
+          assert r["status"] == "PASS_CROSS_OUTPUT_EQUATION_V1_PARITY_WITH_NATIVE_EXCEL_GATE_OPEN"
+          assert r["equation_version"] == "OFFER_EVAL_EQ_v1"
+          assert r["offer_count"] == 50
+          assert r["cluster_count"] == 8
+          assert r["confidence_conditioning_parity"] is True
+          assert r["NA_applicability_parity"] is True
+          assert r["missing_defer_fail_preserved"] is True
+          assert r["all_NA_cluster_unscorable"] is True
+          assert r["incomplete_pairwise_totals_withheld"] is True
+          assert r["risk_application_count"] == 1
+          assert r["final_system_risk_subtraction"] is False
+          assert r["pairwise_and_risk_separate"] is True
+          assert r["mip2c_status"] == "PASS_EIGHT_SOURCE_DRIVEN_ONEPAGERS"
+          assert r["native_excel_clean_roundtrip"] == "WITHHELD_REQUIRES_EXCEL_RUNTIME"
+          assert r["authority_transfer"] is False
+          assert r["formal_credit_delta"] == 0
+          PY
+
+      - name: Emit exact federated proof receipt
+        shell: bash
+        env:
+          EXECUTOR_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          root=Path("federation/w295")
+          out=root/"out"
+          generated=out/"generated"
+          parity=json.loads((out/"generated_parity_receipt.json").read_text())
+          def sha(p):
+              return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          files={}
+          for p in sorted(generated.rglob("*")):
+              if p.is_file():
+                  files[str(p.relative_to(root))]=sha(p)
+          receipt={
+            "schema":"qps-w295f-m08-post-w295-equation-proof-receipt/1.0",
+            "status":"PASS_FEDERATED_EXACT_POST_W295_EQUATION_V1",
+            "executor_repo":"GBOGEB/Q_engineering_tools",
+            "executor_head_sha":os.environ["EXECUTOR_SHA"],
+            "workflow_run_id":int(os.environ["RUN_ID"]),
+            "workflow_run_attempt":int(os.environ["RUN_ATTEMPT"]),
+            "source_repo":"GBOGEB/cryoplant-project",
+            "source_pr":1524,
+            "source_merge_sha":"8c7a17688a89f996467af3f4228e35f0fed8fe26",
+            "source_blob_identity":"PASS_12_OF_12",
+            "equation_version":"OFFER_EVAL_EQ_v1",
+            "offer_count":parity["offer_count"],
+            "cluster_count":parity["cluster_count"],
+            "missing_defer_fail_preserved":parity["missing_defer_fail_preserved"],
+            "all_NA_cluster_unscorable":parity["all_NA_cluster_unscorable"],
+            "incomplete_pairwise_totals_withheld":parity["incomplete_pairwise_totals_withheld"],
+            "risk_application_count":parity["risk_application_count"],
+            "final_system_risk_subtraction":parity["final_system_risk_subtraction"],
+            "native_excel_clean_roundtrip":parity["native_excel_clean_roundtrip"],
+            "generated_output_sha256":files,
+            "authority_transfer":False,
+            "formal_credit_delta":0,
+            "issue_923_compensated":False,
+            "ppt_outward_binary_render_claimed":False,
+            "global_3p3_admitted":False
+          }
+          p=out/"W295F_RECEIPT.json"
+          p.write_text(json.dumps(receipt,indent=2,sort_keys=True)+"\n")
+          print(p.read_text())
+          PY
+
+      - name: Upload W295F exact proof artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: qps-w295f-m08-post-w295-equation-proof
+          path: |
+            federation/w295/out/W295F_RECEIPT.json
+            federation/w295/out/static_equation_receipt.json
+            federation/w295/out/generated_parity_receipt.json
+            federation/w295/out/pytest-output.txt
+            federation/w295/out/generated/**
+          if-no-files-found: error
