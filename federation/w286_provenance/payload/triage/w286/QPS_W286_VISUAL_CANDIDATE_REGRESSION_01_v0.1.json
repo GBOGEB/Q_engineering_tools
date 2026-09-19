@@ -1,0 +1,64 @@
+{
+  "schema": "qps-w286-visual-candidate-regression-receipt/1.0",
+  "id": "W286_VISUAL_CANDIDATE_REGRESSION_01",
+  "classification": "REGRESSION",
+  "disposable_candidate": true,
+  "golden_replaced": false,
+  "candidate_promoted": false,
+  "issue": "GBOGEB/cryoplant-project#1548",
+  "variant": "A_dark_exec",
+  "surface": "pptx_slide_1",
+  "intentional_defect": {
+    "description": "Displace the regression-target card and its text block outside the slide canvas to prove the REGRESSION branch.",
+    "affected_shape_indices": [14, 15, 16]
+  },
+  "hashes": {
+    "golden_pptx_sha256": "a7a9c9a8f93bc308ff5d976c01eacc0f19cd616e4c042b4c0f9c72f204e955a8",
+    "candidate_pptx_sha256": "fb2df303c2febfb63b1eeb1e82a2e11e7e84a5f7b23cb1606ae4f74aa6e1f198",
+    "golden_slide_1_render_sha256": "efc646210debc1bf11e3027255c389b92e2de13883223ab6ff2f518a852b83c7",
+    "candidate_slide_1_render_sha256": "a6414617252f317230f4684c8f6c6ab790d3e9b96ba93f1285c27bc5f9d79131",
+    "comparison_png_sha256": "6b1c1da4b96aa27ba0b1bcc42c1e4f5da4effc01a24d2f476ea207f3a76f84eb"
+  },
+  "semantic_geometry": {
+    "shape_count_golden": 21,
+    "shape_count_candidate": 21,
+    "slide_width_emu": 12192000,
+    "slide_height_emu": 6858000,
+    "geometry_mismatch_count": 3,
+    "text_mismatch_count": 0,
+    "out_of_bounds_shape_count": 3,
+    "geometry_diffs": [
+      {"idx": 14, "name": "Shape 14", "golden": [594360, 2788920, 4572000, 1005840], "candidate": [9509760, 4389120, 3840480, 1005840]},
+      {"idx": 15, "name": "Text 15", "golden": [822960, 2999232, 2194560, 256032], "candidate": [9509760, 4617720, 3108960, 256032]},
+      {"idx": 16, "name": "Text 16", "golden": [822960, 3355848, 3886200, 256032], "candidate": [9509760, 4965192, 3108960, 256032]}
+    ],
+    "text_diffs": [],
+    "out_of_bounds": [
+      {"idx": 14, "name": "Shape 14", "candidate": [9509760, 4389120, 3840480, 1005840], "slide": [12192000, 6858000]},
+      {"idx": 15, "name": "Text 15", "candidate": [9509760, 4617720, 3108960, 256032], "slide": [12192000, 6858000]},
+      {"idx": 16, "name": "Text 16", "candidate": [9509760, 4965192, 3108960, 256032], "slide": [12192000, 6858000]}
+    ]
+  },
+  "render_diff": {
+    "image_size_px": [1601, 900],
+    "total_pixels": 1440900,
+    "changed_pixels": 127905,
+    "changed_pct": 8.876743701853009,
+    "mean_abs_channel_delta": 11.16312166009056,
+    "max_channel_delta": 232,
+    "change_bbox_px": [77, 365, 1600, 709]
+  },
+  "pptx_bounds_overflow": "FAIL_EXPECTED_FOR_REGRESSION",
+  "classification_basis": [
+    "rendered pixels changed",
+    "geometry mismatches were intentional and nonzero",
+    "out-of-bounds shapes detected by slide overflow test",
+    "candidate is disposable and must not be promoted"
+  ],
+  "guardrails": {
+    "authority_transfer": false,
+    "formal_credit_delta": 0,
+    "runtime_gold": "GBOGEB/cryoplant-project#923 remains independent and non-compensating",
+    "N300_method_population": "unchanged"
+  }
+}
