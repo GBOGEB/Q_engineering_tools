@@ -1,0 +1,60 @@
+{
+  "schema": "qps-w286-visual-classifier-evidence-catalog/1.0",
+  "as_of": "2026-09-19",
+  "sample_only": true,
+  "authority_transfer": false,
+  "formal_credit_delta": 0,
+  "entries": {
+    "GOLDEN_REPLAY_A_DARK_EXEC": {
+      "classification": "PASS",
+      "source_path": "triage/w286/QPS_W286_VISUAL_GOLDEN_BASELINE_v0.1.json",
+      "source_git_blob_sha1": "120adf297d231d294cc10c72fb56e20db99f70c0",
+      "candidate_render_sha256": "efc646210debc1bf11e3027255c389b92e2de13883223ab6ff2f518a852b83c7",
+      "semantic_mismatch_count": 0,
+      "text_mismatch_count": 0,
+      "geometry_mismatch_count": 0,
+      "out_of_bounds_shape_count": 0,
+      "bounds_status": "PASS",
+      "declared_property_changes": [],
+      "observed_property_changes": []
+    },
+    "INTENTIONAL_DIFF_01": {
+      "classification": "INTENTIONAL_VISUAL_CHANGE",
+      "source_path": "triage/w286/QPS_W286_VISUAL_CANDIDATE_DIFF_01_v0.1.yaml",
+      "source_git_blob_sha1": "d9642aaeb9b4c2fc0961d7e4b8257ebf83423188",
+      "candidate_render_sha256": "2c08469879fd9d2bc7ad4b470ad95efc1dc7b7a543c090c90d87df55449ee578",
+      "semantic_mismatch_count": 0,
+      "text_mismatch_count": 0,
+      "geometry_mismatch_count": 0,
+      "out_of_bounds_shape_count": 0,
+      "bounds_status": "PASS",
+      "declared_property_changes": [
+        "pptx:slide=1:shape=14:fill_rgb:38BDF8->A855F7"
+      ],
+      "observed_property_changes": [
+        "pptx:slide=1:shape=14:fill_rgb:38BDF8->A855F7"
+      ]
+    },
+    "REGRESSION_01": {
+      "classification": "REGRESSION",
+      "source_path": "triage/w286/QPS_W286_VISUAL_CANDIDATE_REGRESSION_01_v0.1.json",
+      "source_git_blob_sha1": "1e1ecce05a81a461496e5218ba0a343181c20ff2",
+      "candidate_render_sha256": "a6414617252f317230f4684c8f6c6ab790d3e9b96ba93f1285c27bc5f9d79131",
+      "semantic_mismatch_count": 0,
+      "text_mismatch_count": 0,
+      "geometry_mismatch_count": 3,
+      "out_of_bounds_shape_count": 3,
+      "bounds_status": "FAIL",
+      "declared_property_changes": [
+        "pptx:slide=1:shape=14:geometry:in_bounds->out_of_bounds",
+        "pptx:slide=1:shape=15:geometry:in_bounds->out_of_bounds",
+        "pptx:slide=1:shape=16:geometry:in_bounds->out_of_bounds"
+      ],
+      "observed_property_changes": [
+        "pptx:slide=1:shape=14:geometry:in_bounds->out_of_bounds",
+        "pptx:slide=1:shape=15:geometry:in_bounds->out_of_bounds",
+        "pptx:slide=1:shape=16:geometry:in_bounds->out_of_bounds"
+      ]
+    }
+  }
+}
