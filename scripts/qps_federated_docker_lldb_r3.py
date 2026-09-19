@@ -9,8 +9,9 @@ refusal even though the endpoint becomes ready moments later.
 
 R5 never opens a raw TCP health connection. It retries the complete LLDB client
 transaction only when the previous LLDB process explicitly reports
-"connection refused", i.e. before a debugger session was established. Any other
-failure remains first-red and is returned without retry.
+an explicit pre-session refusal diagnostic ("connection refused" or LLDB's
+"Failed to connect port"), i.e. before a debugger session was established. Any
+other failure remains first-red and is returned without retry.
 """
 from __future__ import annotations
 
@@ -32,7 +33,16 @@ def _explicit_connection_refused(result: dict) -> bool:
     combined = (
         f"{result.get('stdout', '')}\n{result.get('stderr', '')}"
     ).lower()
-    return result.get("returncode") != 0 and "connection refused" in combined
+    if result.get("returncode") == 0:
+        return False
+    # LLDB versions differ in how they surface ECONNREFUSED. LLVM LLDB 17/20
+    # commonly emits only "error: Failed to connect port", while other builds
+    # include the OS phrase "Connection refused". Both are pre-session connect
+    # failures; no debugger client has been established in either case.
+    return (
+        "connection refused" in combined
+        or "error: failed to connect port" in combined
+    )
 
 
 def run_with_value_observation(args: list[str], timeout: int = 300) -> dict:

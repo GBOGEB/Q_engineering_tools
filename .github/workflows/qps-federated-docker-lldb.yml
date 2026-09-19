@@ -8,6 +8,7 @@ on:
       - 'scripts/qps_federated_docker_lldb.py'
       - 'scripts/qps_federated_docker_lldb_r2.py'
       - 'scripts/qps_federated_docker_lldb_r3.py'
+      - 'tests/test_qps_federated_docker_lldb_r3.py'
       - '.github/workflows/qps-federated-docker-lldb.yml'
   workflow_dispatch:
 
@@ -29,6 +30,11 @@ jobs:
           fi
           lldb --version
           docker --version
+      - name: Prove bounded LLDB refusal diagnostic matrix
+        env:
+          PYTHONPATH: .
+        run: python3 tests/test_qps_federated_docker_lldb_r3.py
+
       - name: Execute exact QPS Docker + lldb-server + dynamic port proof
         run: python3 scripts/qps_federated_docker_lldb_r3.py
       - name: Enforce Docker primitive victory condition
