@@ -33,23 +33,18 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Fetch exact QPS source head
+      - name: Bind mirrored exact QPS payload
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf qps-source
-          git init qps-source
-          cd qps-source
-          git remote add origin "https://github.com/$SOURCE_REPO.git"
-          git fetch --depth=1 origin "$SOURCE_HEAD"
-          git checkout --detach FETCH_HEAD
-          test "$(git rev-parse HEAD)" = "$SOURCE_HEAD"
+          test -d federation/w286/payload
+          echo "SOURCE_HEAD=$SOURCE_HEAD"
 
       - name: Prove exact four-file payload
         shell: bash
         run: |
           set -euo pipefail
-          cd qps-source
+          cd federation/w286/payload
           test "$(git hash-object scripts/qps_visual_candidate_classifier.py)" = "$CLASSIFIER_BLOB"
           test "$(git hash-object tests/test_qps_visual_candidate_classifier.py)" = "$TEST_BLOB"
           test "$(git hash-object triage/w286/QPS_W286_VISUAL_CLASSIFIER_FOUR_WAY_CONTROL_v0.1.yaml)" = "$RECEIPT_BLOB"
@@ -60,14 +55,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cd qps-source
+          cd federation/w286/payload
           python -m unittest tests/test_qps_visual_candidate_classifier.py -v
 
       - name: Emit four-way execution receipt
         shell: bash
         run: |
           set -euo pipefail
-          cd qps-source
+          cd federation/w286/payload
           python - <<'PY'
           import hashlib
           import importlib.util
@@ -175,5 +170,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: qps-w286f-four-way-${{ github.sha }}
-          path: qps-source/W286F_VISUAL_CLASSIFIER_EXECUTION_RECEIPT.json
+          path: federation/w286/payload/W286F_VISUAL_CLASSIFIER_EXECUTION_RECEIPT.json
           if-no-files-found: error
