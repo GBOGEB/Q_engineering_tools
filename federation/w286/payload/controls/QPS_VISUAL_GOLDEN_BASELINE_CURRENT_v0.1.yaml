@@ -1,0 +1,94 @@
+schema: qps-visual-golden-baseline-current/0.1
+as_of: '2026-09-19'
+repo: GBOGEB/cryoplant-project
+wave: W286
+status: ACTIVE_SAMPLE_ONLY_VISUAL_REGRESSION_BASELINE
+authority_transfer: false
+formal_credit_delta: 0
+issue: GBOGEB/cryoplant-project#1501
+candidate_diff_issue: GBOGEB/cryoplant-project#1545
+candidate_regression_issue: GBOGEB/cryoplant-project#1548
+
+purpose: >-
+  Freeze the v1.3 five-variant visual/rendering corpus as a sample-only golden regression baseline.
+  The same or near-identical QPS/triage content is intentionally rendered through materially different
+  human-facing design systems. The fixture measures outward binary/render behavior, not engineering truth.
+
+parents:
+  outward_rendition: controls/QPS_OUTWARD_RENDITION_CURRENT_v0.1.yaml
+  semantic_ssot: ssot/qps/QPS_CANONICAL_CONTENT_SSOT_v0.1.yaml
+  rendition_policy: docs/presentation/QPS_RENDITION_POLICY_v0.2.yaml
+  human_rendition_kernel: triage/w276/QPS_W276_RTM_OFFER_HUMAN_RENDITION_3P_MIP_CONTROL_v0.1.yaml
+
+registry: triage/w286/QPS_W286_VISUAL_GOLDEN_BASELINE_v0.1.json
+validator: scripts/qps_visual_golden_baseline.py
+tests: tests/test_qps_visual_golden_baseline.py
+external_binary:
+  name: QPS_VISUAL_RENDERING_CORPUS_SAMPLE_ONLY_v1_3.zip
+  sha256: 4aacff3b425f8f2affbc25edbc70fd178cbe465b9504c685f99231b66674dc1e
+  committed_to_git: false
+  reason: repository control binds exact bytes/hashes; binary corpus remains an external sample artifact
+
+variants: [A_dark_exec, B_dense_matrix, C_landscape_appendix, D_cards_dashboard, E_plain_contract]
+human_facing_formats: [html, docx, pdf, pptx, xlsx]
+classification: [PASS, INTENTIONAL_VISUAL_CHANGE, REGRESSION, REVIEW_REQUIRED]
+
+visual_acceptance_dimensions:
+  - geometry_and_overflow
+  - typography_and_minimum_readability
+  - table_column_balance_and_wrapping
+  - visual_hierarchy_and_status_prominence
+  - whitespace_and_density
+  - cross_format_information_priority
+  - print_and_export_robustness
+
+invariants:
+  - SAMPLE_ONLY
+  - FIX_CONTENT_VARY_DESIGN_RENDER_COMPARE
+  - HUMAN_FACING_BINARY_HASHES_DISTINCT_BY_VISUAL_VARIANT
+  - REPRESENTATIVE_GOLDEN_RENDER_HASHES_DISTINCT_BY_VISUAL_VARIANT
+  - IDENTICAL_CSV_PAYLOAD_PERMITTED_AS_CONTENT_STABILITY_SIGNAL
+  - PIXEL_IDENTITY_NOT_REQUIRED_ACROSS_FORMATS
+  - NEW_VARIANTS_REQUIRE_PROVEN_COMPARE_LOOP_AND_SEPARATE_SOURCE_BOUND_TRIGGER
+  - VISUAL_QUALITY_ZERO_AUTOMATIC_FORMAL_CREDIT
+  - L3_GENERATED_VIEWS_ZERO_INDEPENDENT_SEMANTIC_AUTHORITY
+
+independent_noncompensating:
+  runtime_gold: GBOGEB/cryoplant-project#923
+  N300_method_population: STOP_UNTIL_GOVERNED_TRIGGER
+
+candidate_diff_loop:
+  status: PROVEN
+  latest: triage/w286/QPS_W286_VISUAL_CANDIDATE_DIFF_01_v0.1.yaml
+  latest_classification: INTENTIONAL_VISUAL_CHANGE
+  golden_replaced: false
+  candidate_promoted: false
+  new_variant_policy: ALLOWED_ONLY_UNDER_SEPARATE_SOURCE_BOUND_VISUAL_OBJECTIVE
+  authority_transfer: false
+  formal_credit_delta: 0
+
+candidate_regression_loop:
+  status: PROVEN_NEGATIVE_BRANCH
+  latest: triage/w286/QPS_W286_VISUAL_CANDIDATE_REGRESSION_01_v0.1.json
+  latest_classification: REGRESSION
+  defect: layout_geometry_out_of_bounds
+  golden_replaced: false
+  candidate_promoted: false
+  disposable_candidate: true
+  authority_transfer: false
+  formal_credit_delta: 0
+
+candidate_classifier:
+  status: IMPLEMENTED_PENDING_FEDERATED_RUNTIME
+  control_receipt: triage/w286/QPS_W286_VISUAL_CLASSIFIER_FOUR_WAY_CONTROL_v0.1.yaml
+  script: scripts/qps_visual_candidate_classifier.py
+  tests: tests/test_qps_visual_candidate_classifier.py
+  covered_states:
+    PASS: EXACT_GOLDEN_REPLAY_VECTOR
+    INTENTIONAL_VISUAL_CHANGE: OBSERVED_W286_CANDIDATE_DIFF_01
+    REGRESSION: OBSERVED_W286_CANDIDATE_REGRESSION_01
+    REVIEW_REQUIRED: OBSERVED_DIFFERENT_RENDER_WITH_INTENT_DECLARATION_WITHHELD
+  rule: >-
+    Hard defects classify REGRESSION; incomplete or inconsistent evidence classifies REVIEW_REQUIRED;
+    an exact clean replay classifies PASS; and a declared clean render-only change classifies
+    INTENTIONAL_VISUAL_CHANGE. No classifier state grants formal credit or replaces the golden.
