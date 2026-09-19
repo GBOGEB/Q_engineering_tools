@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
-"""W2F-R4: repair the R3 LLDB argv insertion without changing the proof target.
+"""W2F-R5: preserve the single-client LLDB proof while bounding startup races.
 
-R2 proved the exact QPS payload, Docker build, ptrace/seccomp repair, container
-lifetime, dynamic loopback port, symbol copy, gdb-remote attach and real LLDB
-stepping. R3 correctly selected one extra step plus `frame variable observed`,
-but inserted them between the final `-o` and its `thread backtrace` argument.
-That produced `-o -o ...` and LLDB interpreted `thread step-over` as a target.
+R4 repaired the LLDB option/command argv pairs and proved the source-local
+`observed = 42` value. The remaining Historian finding is narrower: Docker can
+report the container running before lldb-server has reached its listen call.
+A single immediate `gdb-remote` can therefore fail with an explicit connection
+refusal even though the endpoint becomes ready moments later.
 
-This repair preserves every prior runtime/security/authority invariant and only
-inserts complete LLDB option-command pairs before the final backtrace pair.
+R5 never opens a raw TCP health connection. It retries the complete LLDB client
+transaction only when the previous LLDB process explicitly reports
+"connection refused", i.e. before a debugger session was established. Any other
+failure remains first-red and is returned without retry.
 """
 from __future__ import annotations
 
 import hashlib
 import json
+import time
 from pathlib import Path
 
 import qps_federated_docker_lldb_r2 as r2
@@ -22,11 +25,23 @@ OUT = Path(__file__).resolve().parents[1] / "artifacts" / "qps_debug"
 RECEIPT = OUT / "qps_federated_docker_lldb_receipt.json"
 
 _original_run = r2._original_run
+_RETRY_DELAYS_S = (0.5, 1.0, 2.0)
+
+
+def _explicit_connection_refused(result: dict) -> bool:
+    combined = (
+        f"{result.get('stdout', '')}\n{result.get('stderr', '')}"
+    ).lower()
+    return result.get("returncode") != 0 and "connection refused" in combined
 
 
 def run_with_value_observation(args: list[str], timeout: int = 300) -> dict:
     patched = list(args)
-    is_lldb = bool(patched) and patched[0].endswith("lldb") and "thread step-over" in patched
+    is_lldb = (
+        bool(patched)
+        and patched[0].endswith("lldb")
+        and "thread step-over" in patched
+    )
     if is_lldb:
         try:
             bt_index = patched.index("thread backtrace")
@@ -35,7 +50,7 @@ def run_with_value_observation(args: list[str], timeout: int = 300) -> dict:
 
         # LLDB batch commands are encoded as complete `-o`, `<command>` pairs.
         # Insert before the existing backtrace pair, never between its two argv
-        # elements. This is the sole R4 repair.
+        # elements. This preserves the R4 repair exactly.
         insert_at = bt_index
         if bt_index > 0 and patched[bt_index - 1] == "-o":
             insert_at = bt_index - 1
@@ -46,8 +61,29 @@ def run_with_value_observation(args: list[str], timeout: int = 300) -> dict:
             "frame variable observed",
         ]
 
+    attempts = 1
+    delays_used: list[float] = []
     result = _original_run(patched, timeout)
+
     if is_lldb:
+        for delay_s in _RETRY_DELAYS_S:
+            if not _explicit_connection_refused(result):
+                break
+            delays_used.append(delay_s)
+            time.sleep(delay_s)
+            attempts += 1
+            result = _original_run(patched, timeout)
+
+        result["readiness_retry"] = {
+            "policy": "EXPLICIT_CONNECTION_REFUSED_ONLY",
+            "attempts": attempts,
+            "max_attempts": 1 + len(_RETRY_DELAYS_S),
+            "retry_delays_s": delays_used,
+            "raw_socket_probe_used": False,
+            "single_client_rule_preserved": True,
+            "final_connection_refused": _explicit_connection_refused(result),
+        }
+
         stdout = result.get("stdout", "")
         # LLDB emits e.g. `(int) observed = 42`. Add the canonical marker only
         # after the debugger itself has proved the source-bound local value.
@@ -69,6 +105,19 @@ def stamp_observation_receipt() -> None:
         "cause": "R3_SPLIT_FINAL_LLD_OPTION_COMMAND_ARGV_PAIR",
         "repair": "INSERT_COMPLETE_OPTION_COMMAND_PAIRS_BEFORE_BACKTRACE_PAIR",
     }
+    retry = (payload.get("debug") or {}).get("readiness_retry")
+    payload["readiness_control"] = retry or {
+        "policy": "EXPLICIT_CONNECTION_REFUSED_ONLY",
+        "attempts": 0,
+        "max_attempts": 1 + len(_RETRY_DELAYS_S),
+        "retry_delays_s": [],
+        "raw_socket_probe_used": False,
+        "single_client_rule_preserved": True,
+        "final_connection_refused": None,
+    }
+    payload["readiness_control"]["historian_issue"] = (
+        "GBOGEB/Q_engineering_tools#83"
+    )
     payload.pop("receipt_sha256", None)
     payload["receipt_sha256"] = hashlib.sha256(
         json.dumps(payload, sort_keys=True).encode()

@@ -53,6 +53,12 @@ jobs:
           assert p['value_observation']['mode'] == \
               'LLDB_FRAME_VARIABLE_AFTER_SECOND_STEP', p
           assert p['value_observation']['expected'] == 42, p
+          retry = p['readiness_control']
+          assert retry['policy'] == 'EXPLICIT_CONNECTION_REFUSED_ONLY', p
+          assert retry['raw_socket_probe_used'] is False, p
+          assert retry['single_client_rule_preserved'] is True, p
+          assert 1 <= retry['attempts'] <= retry['max_attempts'], p
+          assert retry['final_connection_refused'] is False, p
           assert p['authority_guards']['qps_permanent_self_hosted_docker_gate'] \
               == 'WITHHELD_CAPACITY'
           PY
