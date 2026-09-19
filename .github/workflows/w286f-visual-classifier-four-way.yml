@@ -4,10 +4,12 @@ on:
   pull_request:
     paths:
       - '.github/workflows/w286f-visual-classifier-four-way.yml'
+      - 'federation/w286/payload/**'
   push:
     branches: [main]
     paths:
       - '.github/workflows/w286f-visual-classifier-four-way.yml'
+      - 'federation/w286/payload/**'
   workflow_dispatch:
 
 permissions:
@@ -18,11 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SOURCE_REPO: GBOGEB/cryoplant-project
-      SOURCE_HEAD: 74ae27c786bef1c7a7142e345753cd4da7d2b8fb
-      CLASSIFIER_BLOB: a79951f144a5e445b8e1c4a84373c814e4f6734d
-      TEST_BLOB: 975f5821f1774095dfd9e29c8a1573086b568a25
-      RECEIPT_BLOB: 2c6464afe151ae008c19806864f25fbaab6954a6
-      CONTROL_BLOB: 9b6dd32f4402b0ebea364738c89fc4482ba799a7
+      SOURCE_HEAD: 4b904f04e4913e19a3b78b34b5ec0f573e5d0672
+      CLASSIFIER_BLOB: 33595c658b77a1a0d3426f3e5272eabf7de7ddc3
+      TEST_BLOB: 582a02737b1a5e877617236a0a579940757ddaf0
+      RECEIPT_BLOB: 517e152a3cb853552c3423416e5344eb14d9deca
+      CONTROL_BLOB: 7a469909aa6b24511f2ab64ee347c3550aabfe57
 
     steps:
       - name: Checkout executor
@@ -65,11 +67,11 @@ jobs:
           mod = importlib.util.module_from_spec(spec)
           spec.loader.exec_module(mod)
           tests = sorted((name, fn) for name, fn in vars(mod).items() if name.startswith("test_") and callable(fn))
-          assert len(tests) == 8, f"expected 8 tests, found {len(tests)}"
+          assert len(tests) == 13, f"expected 13 tests, found {len(tests)}"
           for name, fn in tests:
               fn()
               print(f"PASS {name}")
-          print("PASS_W286_CLASSIFIER_TESTS_8_OF_8")
+          print("PASS_W286_CLASSIFIER_TESTS_13_OF_13")
           PY
 
       - name: Emit four-way execution receipt
@@ -93,19 +95,27 @@ jobs:
           golden = "efc646210debc1bf11e3027255c389b92e2de13883223ab6ff2f518a852b83c7"
           intentional = "2c08469879fd9d2bc7ad4b470ad95efc1dc7b7a543c090c90d87df55449ee578"
           regression = "a6414617252f317230f4684c8f6c6ab790d3e9b96ba93f1285c27bc5f9d79131"
+          fill_change = "pptx:slide=1:shape=14:fill_rgb:38BDF8->A855F7"
 
           def base():
               return {
-                  "schema": "qps-w286-visual-candidate-classification-input/1.0",
+                  "schema": "qps-w286-visual-candidate-classification-input/1.1",
                   "sample_only": True,
                   "authority_transfer": False,
                   "formal_credit_delta": 0,
                   "golden_replaced": False,
                   "candidate_promoted": False,
+                  "runtime_gold_923": "INDEPENDENT_NON_COMPENSATING",
+                  "N300_method_population": "UNCHANGED",
+                  "project_global_PCA": "WITHHELD",
                   "golden_render_sha256": golden,
                   "candidate_render_sha256": golden,
                   "render_changed": False,
-                  "declared_visual_change": {"present": False, "changed_property_count": 0},
+                  "declared_visual_change": {
+                      "present": False,
+                      "declared_property_changes": [],
+                      "observed_property_changes": [],
+                  },
                   "semantic_mismatch_count": 0,
                   "text_mismatch_count": 0,
                   "geometry_mismatch_count": 0,
@@ -119,22 +129,35 @@ jobs:
           vectors["PASS"] = mod.classify_candidate(d)
 
           d = base()
-          d.update(
-              candidate_render_sha256=intentional,
-              render_changed=True,
-              declared_visual_change={"present": True, "changed_property_count": 1},
-          )
+          d.update(candidate_render_sha256=intentional, render_changed=True)
+          d["declared_visual_change"] = {
+              "present": True,
+              "declared_property_changes": [fill_change],
+              "observed_property_changes": [fill_change],
+          }
           vectors["INTENTIONAL_VISUAL_CHANGE"] = mod.classify_candidate(d)
 
           d = base()
           d.update(
               candidate_render_sha256=regression,
               render_changed=True,
-              declared_visual_change={"present": True, "changed_property_count": 3},
               geometry_mismatch_count=3,
               out_of_bounds_shape_count=3,
               bounds_status="FAIL",
           )
+          d["declared_visual_change"] = {
+              "present": True,
+              "declared_property_changes": [
+                  "pptx:slide=1:shape=14:geometry:in_bounds->out_of_bounds",
+                  "pptx:slide=1:shape=15:geometry:in_bounds->out_of_bounds",
+                  "pptx:slide=1:shape=16:geometry:in_bounds->out_of_bounds",
+              ],
+              "observed_property_changes": [
+                  "pptx:slide=1:shape=14:geometry:in_bounds->out_of_bounds",
+                  "pptx:slide=1:shape=15:geometry:in_bounds->out_of_bounds",
+                  "pptx:slide=1:shape=16:geometry:in_bounds->out_of_bounds",
+              ],
+          }
           vectors["REGRESSION"] = mod.classify_candidate(d)
 
           d = base()
@@ -150,7 +173,7 @@ jobs:
           assert vectors == expected, (vectors, expected)
 
           receipt = {
-              "schema": "qps.w286f.visual_classifier_four_way_execution.v1",
+              "schema": "qps.w286f.visual_classifier_four_way_execution.v2",
               "status": "PASS_EXECUTED_EXACT_PAYLOAD",
               "authority": "FEDERATED_EXECUTION_ONLY_NOT_VISUAL_OR_ENGINEERING_PROMOTION",
               "source_repo": os.environ["SOURCE_REPO"],
@@ -166,6 +189,9 @@ jobs:
                   "current_control": os.environ["CONTROL_BLOB"],
               },
               "classifications": vectors,
+              "regression_tests": "PASS_13_OF_13",
+              "governed_golden_bound": True,
+              "declared_observed_change_match_required": True,
               "sample_only": True,
               "golden_replaced": False,
               "candidate_promoted": False,
@@ -173,6 +199,7 @@ jobs:
               "formal_credit_delta": 0,
               "runtime_gold_923": "INDEPENDENT_NON_COMPENSATING",
               "N300_method_population": "UNCHANGED",
+              "project_global_PCA": "WITHHELD",
           }
           out = root / "W286F_VISUAL_CLASSIFIER_EXECUTION_RECEIPT.json"
           out.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
