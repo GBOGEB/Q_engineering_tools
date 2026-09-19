@@ -1,0 +1,89 @@
+schema: qps-w286-visual-candidate-diff/1.0
+as_of: '2026-09-18'
+repo: GBOGEB/cryoplant-project
+wave: W286
+id: W286_VISUAL_CANDIDATE_DIFF_01
+status: PASS_INTENTIONAL_VISUAL_CHANGE
+issue: GBOGEB/cryoplant-project#1545\nimplementation_pr: GBOGEB/cryoplant-project#1546\nimplementation_merge_sha: f871eb6856c7a95643c9ede8705e815cb813a68c
+authority_transfer: false
+formal_credit_delta: 0
+
+baseline:
+  control: controls/QPS_VISUAL_GOLDEN_BASELINE_CURRENT_v0.1.yaml
+  corpus: QPS_VISUAL_RENDERING_CORPUS_SAMPLE_ONLY_v1_3
+  variant: A_dark_exec
+  artifact: A_dark_exec_QPS_visual_sample.pptx
+  pptx_sha256: a7a9c9a8f93bc308ff5d976c01eacc0f19cd616e4c042b4c0f9c72f204e955a8
+  slide_1_render_sha256: efc646210debc1bf11e3027255c389b92e2de13883223ab6ff2f518a852b83c7
+
+candidate:
+  artifact: A_dark_exec_QPS_visual_sample_CANDIDATE_DIFF_01.pptx
+  pptx_sha256: 7a92e73c21def5d5c9126141638f4a2caad0fcf7f194a94d04788a3159a86ba0
+  slide_1_render_sha256: 2c08469879fd9d2bc7ad4b470ad95efc1dc7b7a543c090c90d87df55449ee578
+  binary_storage: EXTERNAL_SAMPLE_ARTIFACT_NOT_COMMITTED_TO_GIT
+
+intentional_change:
+  slide: 1
+  shape_index: 14
+  role: regression_target_highlight
+  property: fill_rgb
+  before: 38BDF8
+  after: A855F7
+
+semantic_parity:
+  semantic_geometry_mismatch_count: 0
+  fill_diff_count: 1
+  text_changed: false
+  geometry_changed: false
+  slide_count_changed: false
+  shape_count_changed: false
+
+render_diff:
+  image_size_px: [1601, 900]
+  total_pixels: 1440900
+  changed_pixels: 76232
+  changed_pct: 5.290582274967035
+  mean_abs_channel_delta: 3.27801189071645
+  max_channel_delta: 98
+  change_bbox_px: [77, 365, 678, 497]
+
+qa:
+  visual_inspection: PASS_LOCALIZED_TO_INTENDED_HIGHLIGHT
+  pptx_overflow_bounds: PASS
+  baseline_preserved_unchanged: true
+  candidate_promoted_to_golden: false
+
+classification:
+  result: INTENTIONAL_VISUAL_CHANGE
+  basis:
+    - rendered pixels changed
+    - semantic and geometry parity remained exact
+    - exactly one declared visual property changed
+    - no overflow or unintended layout displacement observed
+
+three_p_star_mip:
+  three_pr:
+    Refresh: PASS
+    Probe: PASS
+    Rank: PASS
+  MIP:
+    Modernize: PASS_COMPARE_LOOP_EXECUTED
+    Innovate: PASS_CLASSIFICATION_BOUND_TO_SEMANTIC_PARITY
+    Perpetuate: PASS_RECEIPT_AND_POLICY_UPDATE
+  3PC:
+    Prepare: PASS
+    Prove: PASS
+    Commit: PASS_MERGED
+  3P3:
+    Preserve_or_Pin: PASS_GOLDEN_UNCHANGED
+    Propagate_or_Penetrate: NOT_REQUIRED_FOR_SINGLE_CANDIDATE
+    Prove_or_Promote: PASS_NO_GOLDEN_PROMOTION
+
+independent_noncompensating:
+  runtime_gold: GBOGEB/cryoplant-project#923
+  N300_method_population: STOP_UNTIL_GOVERNED_TRIGGER
+
+next_rule: >-
+  The compare loop is now proven. Additional variants or style experiments are permitted only under
+  a separate source-bound visual objective, must retain SAMPLE_ONLY and zero formal credit, and must
+  not silently replace the frozen v1.3 golden baseline.
