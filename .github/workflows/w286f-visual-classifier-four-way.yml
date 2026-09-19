@@ -56,7 +56,21 @@ jobs:
         run: |
           set -euo pipefail
           cd federation/w286/payload
-          python -m unittest discover -s tests -p 'test_qps_visual_candidate_classifier.py' -v
+          python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+
+          path = Path("tests/test_qps_visual_candidate_classifier.py")
+          spec = importlib.util.spec_from_file_location("w286_tests", path)
+          mod = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          tests = sorted((name, fn) for name, fn in vars(mod).items() if name.startswith("test_") and callable(fn))
+          assert len(tests) == 8, f"expected 8 tests, found {len(tests)}"
+          for name, fn in tests:
+              fn()
+              print(f"PASS {name}")
+          print("PASS_W286_CLASSIFIER_TESTS_8_OF_8")
+          PY
 
       - name: Emit four-way execution receipt
         shell: bash
