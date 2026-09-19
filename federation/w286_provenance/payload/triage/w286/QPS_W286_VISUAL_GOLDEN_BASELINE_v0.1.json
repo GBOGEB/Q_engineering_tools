@@ -1,0 +1,132 @@
+{
+  "schema": "qps-visual-golden-baseline/1.0",
+  "as_of": "2026-09-18",
+  "repo": "GBOGEB/cryoplant-project",
+  "wave": "W286",
+  "status": "SAMPLE_ONLY_GOLDEN_BASELINE_REGISTERED",
+  "sample_only": true,
+  "authority_transfer": false,
+  "formal_credit_delta": 0,
+  "corpus": {
+    "name": "QPS_VISUAL_RENDERING_CORPUS_SAMPLE_ONLY_v1_3",
+    "zip_name": "QPS_VISUAL_RENDERING_CORPUS_SAMPLE_ONLY_v1_3.zip",
+    "zip_sha256": "4aacff3b425f8f2affbc25edbc70fd178cbe465b9504c685f99231b66674dc1e",
+    "binary_storage": "EXTERNAL_USER_FACING_ARTIFACT_NOT_COMMITTED_TO_GIT",
+    "purpose": "visual/rendering/outward binary human-facing QA"
+  },
+  "invariants": {
+    "variant_count": 5,
+    "variants": ["A_dark_exec","B_dense_matrix","C_landscape_appendix","D_cards_dashboard","E_plain_contract"],
+    "required_human_facing_formats": ["html","docx","pdf","pptx","xlsx"],
+    "content_stability": {
+      "csv_sha256_all_variants": "9a01bb6611b4b7c693105d4b5bd5d88a33d54fa7890e9f9a8484f8497d358ecb",
+      "interpretation": "identical CSV payload is permitted and desired; outward binary/render hashes must differ by visual variant"
+    },
+    "visual_divergence": {
+      "binary_hashes_pairwise_distinct_per_format": true,
+      "representative_render_hashes_pairwise_distinct_per_surface": true,
+      "pixel_identity_not_required_across_formats": true
+    }
+  },
+  "qa": {
+    "pptx_rendered_slides": 15,
+    "docx_rendered_pages": 10,
+    "pdf_rendered_pages": 5,
+    "xlsx_rendered_pages": 20,
+    "pptx_bounds": "PASS"
+  },
+  "variants": {
+    "A_dark_exec": {
+      "files": {
+        "html": "7bad476bb09805c17cc6667cc80215b5da04b7a83e85ad0e20aaf3f190a39247",
+        "docx": "403913b9e6023cbb2c4104c6a8630c9f7f43f2b3c68dca2194c10593f8eafaae",
+        "pdf": "010d05c9204bc52ef44f2e89b1e0a00541f17b2c72d8f0b997e9e4538b97fc48",
+        "pptx": "a7a9c9a8f93bc308ff5d976c01eacc0f19cd616e4c042b4c0f9c72f204e955a8",
+        "xlsx": "218bcb61ec807d4ee183dc8295097cdd908687730bc99278a90af8245b245c09"
+      },
+      "golden_renders": {
+        "pptx_slide_1": "efc646210debc1bf11e3027255c389b92e2de13883223ab6ff2f518a852b83c7",
+        "docx_page_1": "2d2a222b10e2605b0fb5b610d185977cb0df9e68156c9103749bca4e512d9802",
+        "pdf_page_1": "23e76e34ace839b0b035bde7f3d0785ca9e5c3f2fa5e8ae30eaf608bd137f10e",
+        "xlsx_page_1": "fa2369c7883484e970b94e401ad3ac20e19784631af2e368dc94ef64c7c01464"
+      }
+    },
+    "B_dense_matrix": {
+      "files": {
+        "html": "d5d16edd6737bf38d9f13ca53bf17cc6a85187c2782d1bebae8242064c54475c",
+        "docx": "7ba9c07c30417654aa2f44048e73fb76916a72265f9cd56cb2481ee7983a183d",
+        "pdf": "33ed476ad9c5200bb90579152080dd5aabf5a674a1df73da3d5fc85c191fb9bd",
+        "pptx": "6c8678141279a453c0c17dde0ee0bd854c17a73ae496b353deab91736c9062af",
+        "xlsx": "f5afc336c83d1f35b9cf6340731064f9a527081ece85e57b6d61e1a6c7dee5ee"
+      },
+      "golden_renders": {
+        "pptx_slide_1": "5ef511fcfc7efc7b76246034eaefd40f470b14f536157ed9d6b4d1dcd3aebb24",
+        "docx_page_1": "e3892682598b848cedf378eca40a82743837713e268b1e5cb4d91cf5226e138d",
+        "pdf_page_1": "cb78ae639c7059b70dbe3a1baa051b2ee8b69adf3bde6381f2a322ded84544b5",
+        "xlsx_page_1": "3aec807c272e7debe519cfe96457fc03e42c3ae307d26019584daa2ef6b65258"
+      }
+    },
+    "C_landscape_appendix": {
+      "files": {
+        "html": "a3e55adfb3375ab96181499f9e618e535ff1f12c8b680bd10c6d3f33e5c225d1",
+        "docx": "7baa51085bea50dde70af8104d1e2a7d9eacb728d4a3470d5191da7d6ab18656",
+        "pdf": "b5a054d008854ddc3cdd853d9d7099b2211347f084e0bb91f7cd67370d7d9905",
+        "pptx": "a0c43f15f3aff5ea137270ffbd33dd589282c23398a442bf5329a8f6322039fe",
+        "xlsx": "cfc8a01a199ca4e80354fa5caea0b55ac2fa4a917d1b6735403e6a65819d1c3d"
+      },
+      "golden_renders": {
+        "pptx_slide_1": "29928ffbd4f0caa7e6ea6885cdc038a16279238915949959cf8b95ea3483b1ca",
+        "docx_page_1": "4ad63c980744bcff9eb55a3fa7d5a681ce9dcc115d6692e7a41bac7a915d979e",
+        "pdf_page_1": "2271d78ec6cbb2c193079221103b7e42b5fc1f8009a1cfaa0780d69b4e349923",
+        "xlsx_page_1": "ecff8e7f5280d9b93095aa8b95c95403aa0af66ca2a499903a2e89c7f7bcf343"
+      }
+    },
+    "D_cards_dashboard": {
+      "files": {
+        "html": "340990fd5d5f500672e24a9301249e479f48607481fb068eb9f670353637b1b8",
+        "docx": "f846d69000cf88a45be6014f34a1c82fc03a65f894773af90aabf0bbb7e3db2f",
+        "pdf": "c47a267c174c0113c2fc62f5aa3191bb27d7672a6e612f4604aca3aad7751012",
+        "pptx": "ff16e126b1b1d56371f504854eb92b83112c707bd85fbb8e51e92c5c567f8051",
+        "xlsx": "1756e6e2d37c6d3352ab4ad56bbf566d176109a004e2ff62d68d1ae11ea341c6"
+      },
+      "golden_renders": {
+        "pptx_slide_1": "e078727a8299b7bd0cfdcad865a7122906ccaa1873b91509777784fbd9769d04",
+        "docx_page_1": "9407d0d8f7bca99493dda50b3ea2abcda9d2e130aabb829d486eee68e35e20ba",
+        "pdf_page_1": "732a81c566a0f021593f266d574f90ae6a4bee65e8852dadda0e23a9a4f269f4",
+        "xlsx_page_1": "87a08a2ffba7220023dbfcc0a793f340166e2560b6afb62d0be2d91dca224ebe"
+      }
+    },
+    "E_plain_contract": {
+      "files": {
+        "html": "e9eefaba0d528de6b72d215f355a186c7d125f0ef89811e0c1e98aed40873ba1",
+        "docx": "ed9b3b896b5059f4c90791a14db5e965878065d4ac4fdae163213dd9791adc72",
+        "pdf": "92fc6b8aa7b79e9c784d35b8406ef009a2e1617bac9244ac831ea250081f6194",
+        "pptx": "59b7dc30da7ad24d3848ea5e77c2c75b475434959331c5d6b9e2891efb697989",
+        "xlsx": "8413572195ffac857dc128b74c5189b413e54f8616634a455a2beb2c8a97efc1"
+      },
+      "golden_renders": {
+        "pptx_slide_1": "96fef3dec9abb2117732b13678f503fc9644c9efebdd7442fe97cfd6723f280b",
+        "docx_page_1": "635394aacbb167ee9cd5f71ddacd418ff283a34ad504b3f4f275f365776bb671",
+        "pdf_page_1": "bcf494b1c945a6056a5510c8323366354cbfa4ef268984265df90c59500cfa3f",
+        "xlsx_page_1": "8dca5f4f0407ae78c7431d9816d05da9a1d8985b053ae0505502c89f62e92004"
+      }
+    }
+  },
+  "classification": {
+    "allowed": ["PASS","INTENTIONAL_VISUAL_CHANGE","REGRESSION","REVIEW_REQUIRED"],
+    "automatic_pass_requires": [
+      "sample_only_preserved",
+      "required_variant_set_preserved",
+      "required_format_set_preserved",
+      "no_missing_hashes",
+      "no_binary_hash_collision_between_visual_variants"
+    ]
+  },
+  "guards": [
+    "VISUAL_QUALITY_ZERO_AUTOMATIC_FORMAL_CREDIT",
+    "L3_GENERATED_VIEW_ZERO_INDEPENDENT_SEMANTIC_AUTHORITY",
+    "ISSUE_923_INDEPENDENT_NONCOMPENSATING",
+    "N300_METHOD_POPULATION_FROZEN_UNLESS_SEPARATELY_GOVERNED",
+    "NO_NEW_VISUAL_VARIANTS_UNTIL_GOLDEN_BASELINE_LOOP_PROVEN"
+  ]
+}
