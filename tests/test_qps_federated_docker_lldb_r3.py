@@ -1,4 +1,10 @@
-from scripts import qps_federated_docker_lldb_r3 as r5
+import sys
+from pathlib import Path
+
+SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
+sys.path.insert(0, str(SCRIPTS))
+
+import qps_federated_docker_lldb_r3 as r5
 
 
 def test_llvms_failed_to_connect_port_is_retryable() -> None:
