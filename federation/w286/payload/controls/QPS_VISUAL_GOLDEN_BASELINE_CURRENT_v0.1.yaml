@@ -79,7 +79,7 @@ candidate_regression_loop:
   formal_credit_delta: 0
 
 candidate_classifier:
-  status: IMPLEMENTED_PENDING_FEDERATED_RUNTIME
+  status: REPAIRED_PENDING_FEDERATED_RUNTIME
   control_receipt: triage/w286/QPS_W286_VISUAL_CLASSIFIER_FOUR_WAY_CONTROL_v0.1.yaml
   script: scripts/qps_visual_candidate_classifier.py
   tests: tests/test_qps_visual_candidate_classifier.py
@@ -89,6 +89,8 @@ candidate_classifier:
     REGRESSION: OBSERVED_W286_CANDIDATE_REGRESSION_01
     REVIEW_REQUIRED: OBSERVED_DIFFERENT_RENDER_WITH_INTENT_DECLARATION_WITHHELD
   rule: >-
-    Hard defects classify REGRESSION; incomplete or inconsistent evidence classifies REVIEW_REQUIRED;
-    an exact clean replay classifies PASS; and a declared clean render-only change classifies
-    INTENTIONAL_VISUAL_CHANGE. No classifier state grants formal credit or replaces the golden.
+    Hard defects classify REGRESSION; incomplete, inconsistent, or source-unbound evidence classifies
+    REVIEW_REQUIRED; PASS requires the exact governed A_dark_exec golden hash; and
+    INTENTIONAL_VISUAL_CHANGE requires exact equality between declared and observed property changes.
+    Every classification requires #923 to remain independent/non-compensating, N300 unchanged,
+    project/global PCA withheld, zero formal credit, and no golden/candidate promotion.
