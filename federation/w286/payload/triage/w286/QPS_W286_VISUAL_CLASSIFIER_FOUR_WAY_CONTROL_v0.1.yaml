@@ -1,0 +1,88 @@
+schema: qps-w286-visual-classifier-four-way-control/0.1
+as_of: '2026-09-19'
+repo: GBOGEB/cryoplant-project
+wave: W286
+id: W286_VISUAL_CLASSIFIER_FOUR_WAY_CONTROL
+status: IMPLEMENTED_PENDING_FEDERATED_RUNTIME
+authority_transfer: false
+formal_credit_delta: 0
+
+purpose: >-
+  Convert the sample-only visual candidate policy from two example receipts into one executable
+  four-way classifier without creating a new visual theme, changing the frozen golden, or mutating
+  N300 governance.
+
+baseline:
+  control: controls/QPS_VISUAL_GOLDEN_BASELINE_CURRENT_v0.1.yaml
+  corpus: QPS_VISUAL_RENDERING_CORPUS_SAMPLE_ONLY_v1_3
+  variant: A_dark_exec
+  golden_slide_1_render_sha256: efc646210debc1bf11e3027255c389b92e2de13883223ab6ff2f518a852b83c7
+
+observed_vectors:
+  INTENTIONAL_VISUAL_CHANGE:
+    source: triage/w286/QPS_W286_VISUAL_CANDIDATE_DIFF_01_v0.1.yaml
+    candidate_render_sha256: 2c08469879fd9d2bc7ad4b470ad95efc1dc7b7a543c090c90d87df55449ee578
+    semantic_mismatch_count: 0
+    geometry_mismatch_count: 0
+    out_of_bounds_shape_count: 0
+    bounds_status: PASS
+  REGRESSION:
+    source: triage/w286/QPS_W286_VISUAL_CANDIDATE_REGRESSION_01_v0.1.json
+    candidate_render_sha256: a6414617252f317230f4684c8f6c6ab790d3e9b96ba93f1285c27bc5f9d79131
+    semantic_mismatch_count: 0
+    geometry_mismatch_count: 3
+    out_of_bounds_shape_count: 3
+    bounds_status: FAIL
+
+control_vectors:
+  PASS:
+    kind: EXACT_GOLDEN_REPLAY
+    candidate_render_sha256: efc646210debc1bf11e3027255c389b92e2de13883223ab6ff2f518a852b83c7
+    render_changed: false
+    declared_visual_change: false
+    expected: PASS
+  REVIEW_REQUIRED:
+    kind: OBSERVED_DIFFERENT_RENDER_WITH_INTENT_DECLARATION_WITHHELD
+    candidate_render_sha256: 2c08469879fd9d2bc7ad4b470ad95efc1dc7b7a543c090c90d87df55449ee578
+    render_changed: true
+    declared_visual_change: false
+    semantic_mismatch_count: 0
+    geometry_mismatch_count: 0
+    out_of_bounds_shape_count: 0
+    bounds_status: PASS
+    expected: REVIEW_REQUIRED
+    note: >-
+      This is an evidence-state vector over already observed bytes, not a new binary candidate.
+
+classifier:
+  script: scripts/qps_visual_candidate_classifier.py
+  tests: tests/test_qps_visual_candidate_classifier.py
+  allowed:
+    - PASS
+    - INTENTIONAL_VISUAL_CHANGE
+    - REGRESSION
+    - REVIEW_REQUIRED
+  precedence:
+    - REGRESSION_ON_HARD_DEFECT
+    - REVIEW_REQUIRED_ON_INCOMPLETE_OR_INCONSISTENT_EVIDENCE
+    - PASS_ON_EXACT_CLEAN_REPLAY
+    - INTENTIONAL_VISUAL_CHANGE_ON_DECLARED_CLEAN_RENDER_CHANGE
+  guards:
+    - SAMPLE_ONLY_TRUE
+    - AUTHORITY_TRANSFER_FALSE
+    - FORMAL_CREDIT_ZERO
+    - GOLDEN_REPLACED_FALSE
+    - CANDIDATE_PROMOTED_FALSE
+    - SHA256_SYNTAX_REQUIRED
+
+independent_noncompensating:
+  runtime_gold: GBOGEB/cryoplant-project#923
+  N300_method_population: UNCHANGED
+  project_global_PCA: WITHHELD
+
+DoD:
+  implementation: PASS
+  local_or_federated_runtime: PENDING
+  exact_payload_repeat: PENDING
+  golden_replacement: false
+  candidate_promotion: false
