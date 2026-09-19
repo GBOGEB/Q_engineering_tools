@@ -1,0 +1,34 @@
+{
+  "as_of": "2026-09-19",
+  "authority_transfer": false,
+  "entries": {
+    "CONTRACT_INTENTIONAL_01": {
+      "baseline_artifact_path": "triage/w286/fixtures/QPS_W286_CLASSIFIER_BASELINE_FIXTURE_v0.1.json",
+      "baseline_artifact_sha256": "038054735c11a71c64d08a398532c4e014766b7ef5efdd5f6b71e61733857c61",
+      "candidate_artifact_path": "triage/w286/fixtures/QPS_W286_CLASSIFIER_INTENTIONAL_FIXTURE_v0.1.json",
+      "candidate_artifact_sha256": "a57bfae661f44bb10e0cc0fd3a3730fc95fa09d5cd06273e1d3c72a14bb6d044",
+      "classification": "INTENTIONAL_VISUAL_CHANGE",
+      "declared_property_changes": [
+        "shape.fill_rgb:38BDF8->A855F7"
+      ]
+    },
+    "CONTRACT_PASS_01": {
+      "baseline_artifact_path": "triage/w286/fixtures/QPS_W286_CLASSIFIER_BASELINE_FIXTURE_v0.1.json",
+      "baseline_artifact_sha256": "038054735c11a71c64d08a398532c4e014766b7ef5efdd5f6b71e61733857c61",
+      "candidate_artifact_path": "triage/w286/fixtures/QPS_W286_CLASSIFIER_BASELINE_FIXTURE_v0.1.json",
+      "candidate_artifact_sha256": "038054735c11a71c64d08a398532c4e014766b7ef5efdd5f6b71e61733857c61",
+      "classification": "PASS",
+      "declared_property_changes": []
+    }
+  },
+  "formal_credit_delta": 0,
+  "historical_visual_evidence": {
+    "W286_VISUAL_CANDIDATE_DIFF_01": {
+      "reason": "binary is external and existing receipt does not independently identify the observed property change",
+      "status": "HISTORICAL_EXTERNAL_BINARY_NOT_ACCEPTING_CONTROL_VECTOR"
+    }
+  },
+  "purpose": "classifier contract fixture only; not visual, engineering, acceptance, or release evidence",
+  "sample_only": true,
+  "schema": "qps-w286-classifier-contract-evidence/1.0"
+}

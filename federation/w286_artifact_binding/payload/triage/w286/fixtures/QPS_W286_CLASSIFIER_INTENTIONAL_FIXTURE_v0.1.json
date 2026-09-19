@@ -1,0 +1,16 @@
+{
+  "fixture_id": "CONTRACT_SURFACE_01",
+  "schema": "qps-w286-classifier-contract-fixture/1.0",
+  "shape": {
+    "fill_rgb": "A855F7",
+    "geometry": [
+      594360,
+      2788920,
+      4572000,
+      1005840
+    ],
+    "index": 14,
+    "text": "stable"
+  },
+  "surface": "contract_fixture_not_visual_authority"
+}
