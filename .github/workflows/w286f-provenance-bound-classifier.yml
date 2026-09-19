@@ -1,0 +1,173 @@
+name: W286F Provenance Bound Visual Classifier
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/w286f-provenance-bound-classifier.yml'
+      - 'federation/w286_provenance/payload/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/w286f-provenance-bound-classifier.yml'
+      - 'federation/w286_provenance/payload/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-proof:
+    runs-on: ubuntu-latest
+    env:
+      SOURCE_REPO: GBOGEB/cryoplant-project
+      SOURCE_HEAD: a0030c05e82329dce8d9d1ab3779eafb01cef2e6
+      CLASSIFIER_BLOB: 6849f641528550008c2f145c15466e58a62fcc69
+      TESTS_BLOB: 04244923dfb7ab31c906ef07634f5c8ee2dfcc9d
+      CATALOG_BLOB: 2635824150544733a518c1b365cff32806db18a2
+      RECEIPT_BLOB: 1aa757accf1de73573b9bed4ed76591d13c4434f
+      CONTROL_BLOB: 21ae720fb2727357f754de011f5ae284ae715377
+      REGISTRY_BLOB: 120adf297d231d294cc10c72fb56e20db99f70c0
+      DIFF_BLOB: d9642aaeb9b4c2fc0961d7e4b8257ebf83423188
+      REGRESSION_BLOB: 1e1ecce05a81a461496e5218ba0a343181c20ff2
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Prove exact eight-file payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd federation/w286_provenance/payload
+          test "$(git hash-object scripts/qps_visual_candidate_classifier.py)" = "$CLASSIFIER_BLOB"
+          test "$(git hash-object tests/test_qps_visual_candidate_classifier.py)" = "$TESTS_BLOB"
+          test "$(git hash-object triage/w286/QPS_W286_VISUAL_CLASSIFIER_EVIDENCE_CATALOG_v0.1.json)" = "$CATALOG_BLOB"
+          test "$(git hash-object triage/w286/QPS_W286_VISUAL_CLASSIFIER_FOUR_WAY_CONTROL_v0.1.yaml)" = "$RECEIPT_BLOB"
+          test "$(git hash-object controls/QPS_VISUAL_GOLDEN_BASELINE_CURRENT_v0.1.yaml)" = "$CONTROL_BLOB"
+          test "$(git hash-object triage/w286/QPS_W286_VISUAL_GOLDEN_BASELINE_v0.1.json)" = "$REGISTRY_BLOB"
+          test "$(git hash-object triage/w286/QPS_W286_VISUAL_CANDIDATE_DIFF_01_v0.1.yaml)" = "$DIFF_BLOB"
+          test "$(git hash-object triage/w286/QPS_W286_VISUAL_CANDIDATE_REGRESSION_01_v0.1.json)" = "$REGRESSION_BLOB"
+          echo PASS_EXACT_W286_PROVENANCE_BLOBS_8_OF_8
+
+      - name: Execute unchanged 15-function regression suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd federation/w286_provenance/payload
+          python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+
+          path = Path("tests/test_qps_visual_candidate_classifier.py")
+          spec = importlib.util.spec_from_file_location("w286_tests", path)
+          mod = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          tests = sorted((name, fn) for name, fn in vars(mod).items() if name.startswith("test_") and callable(fn))
+          assert len(tests) == 15, f"expected 15 tests, found {len(tests)}"
+          for name, fn in tests:
+              fn()
+              print(f"PASS {name}")
+          print("PASS_W286_PROVENANCE_TESTS_15_OF_15")
+          PY
+
+      - name: Emit four classifier states
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd federation/w286_provenance/payload
+          python - <<'PY'
+          import hashlib
+          import importlib.util
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path.cwd()
+          path = root / "scripts/qps_visual_candidate_classifier.py"
+          spec = importlib.util.spec_from_file_location("classifier", path)
+          mod = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+
+          def guards():
+              return {
+                  "schema": "qps-w286-visual-candidate-classification-input/2.0",
+                  "sample_only": True,
+                  "authority_transfer": False,
+                  "formal_credit_delta": 0,
+                  "golden_replaced": False,
+                  "candidate_promoted": False,
+                  "runtime_gold_923": "INDEPENDENT_NON_COMPENSATING",
+                  "N300_method_population": "UNCHANGED",
+                  "project_global_PCA": "WITHHELD",
+              }
+
+          def replay(evidence_id):
+              d = guards()
+              d.update(evidence_mode="GOVERNED_REPLAY", evidence_id=evidence_id)
+              return d
+
+          def external():
+              d = guards()
+              d.update(
+                  evidence_mode="EXTERNAL_UNBOUND",
+                  candidate_render_sha256="2c08469879fd9d2bc7ad4b470ad95efc1dc7b7a543c090c90d87df55449ee578",
+                  semantic_mismatch_count=0,
+                  text_mismatch_count=0,
+                  geometry_mismatch_count=0,
+                  out_of_bounds_shape_count=0,
+                  bounds_status="PASS",
+                  evidence_complete=True,
+              )
+              return d
+
+          results = {
+              "PASS": mod.classify_candidate(replay("GOLDEN_REPLAY_A_DARK_EXEC")),
+              "INTENTIONAL_VISUAL_CHANGE": mod.classify_candidate(replay("INTENTIONAL_DIFF_01")),
+              "REGRESSION": mod.classify_candidate(replay("REGRESSION_01")),
+              "REVIEW_REQUIRED": mod.classify_candidate(external()),
+          }
+          expected = {
+              "PASS": "PASS",
+              "INTENTIONAL_VISUAL_CHANGE": "INTENTIONAL_VISUAL_CHANGE",
+              "REGRESSION": "REGRESSION",
+              "REVIEW_REQUIRED": "REVIEW_REQUIRED",
+          }
+          assert results == expected, (results, expected)
+
+          receipt = {
+              "schema": "qps.w286f.provenance_bound_classifier_execution.v1",
+              "status": "PASS_EXECUTED_EXACT_PAYLOAD",
+              "source_repo": os.environ["SOURCE_REPO"],
+              "source_head_sha": os.environ["SOURCE_HEAD"],
+              "executor_repo": os.environ["GITHUB_REPOSITORY"],
+              "executor_head_sha": os.environ["GITHUB_SHA"],
+              "run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "exact_blob_count": 8,
+              "regression_tests": "PASS_15_OF_15",
+              "classifications": results,
+              "governed_replay_required_for_pass_or_intentional": True,
+              "source_blob_verification": True,
+              "source_fact_rederivation": True,
+              "sample_only": True,
+              "golden_replaced": False,
+              "candidate_promoted": False,
+              "authority_transfer": False,
+              "formal_credit_delta": 0,
+              "runtime_gold_923": "INDEPENDENT_NON_COMPENSATING",
+              "N300_method_population": "UNCHANGED",
+              "project_global_PCA": "WITHHELD",
+          }
+          out = root / "W286F_PROVENANCE_BOUND_EXECUTION_RECEIPT.json"
+          out.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          print(json.dumps(receipt, sort_keys=True))
+          print("RECEIPT_SHA256=" + hashlib.sha256(out.read_bytes()).hexdigest())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w286f-provenance-bound-${{ github.sha }}
+          path: federation/w286_provenance/payload/W286F_PROVENANCE_BOUND_EXECUTION_RECEIPT.json
+          if-no-files-found: error
