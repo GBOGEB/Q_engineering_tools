@@ -35,3 +35,11 @@ def test_success_is_never_classified_retryable() -> None:
         "stderr": "",
     }
     assert r5._explicit_connection_refused(result) is False
+
+
+if __name__ == "__main__":
+    test_llvms_failed_to_connect_port_is_retryable()
+    test_os_connection_refused_is_retryable()
+    test_other_lldb_failure_is_not_retried()
+    test_success_is_never_classified_retryable()
+    print("PASS_LLD_READINESS_DIAGNOSTIC_MATRIX")
