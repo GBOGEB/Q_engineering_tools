@@ -1,9 +1,9 @@
-schema: qps-w286-visual-classifier-four-way-control/0.4
+schema: qps-w286-visual-classifier-four-way-control/0.5
 as_of: '2026-09-19'
 repo: GBOGEB/cryoplant-project
 wave: W286
 id: W286_VISUAL_CLASSIFIER_FOUR_WAY_CONTROL
-status: ARTIFACT_BINDING_REPAIRED_PENDING_REVIEW_AND_RUNTIME
+status: CONTROL
 authority_transfer: false
 formal_credit_delta: 0
 
@@ -100,11 +100,26 @@ independent_noncompensating:
   N300_method_population: UNCHANGED
   project_global_PCA: WITHHELD
 
+runtime_control_proof:
+  return: triage/w286/QPS_W286_VISUAL_CLASSIFIER_CONTROL_RETURN_v1.0.yaml
+  child_pr: GBOGEB/cryoplant-project#1553
+  child_exact_head_sha: aff91921c8d13e21a354fd6679ed4bb563bbb20d
+  child_merge_sha: b101b0bc9d7cec71a94a17a5ec303dcfaabc908e
+  qtools_pr: GBOGEB/Q_engineering_tools#82
+  qtools_merge_sha: 01815d59f28774cb428ad17050b208edf07ca16b
+  proof_1_run: 35426434639
+  proof_1_receipt_sha256: 6180ba562d637d79ddae0273bfcf6ddfbc4661ee347c59b466dbae943342cb42
+  proof_2_run: 35427032226
+  proof_2_receipt_sha256: fb52b597eb90cb0d2af121551b16d7ca523585afa7c5cb0e8afb9efce2081827
+  proof_invariant: 8_OF_8_BLOBS__17_OF_17_TESTS__FOUR_STATES__DISTINCT_REPEAT
+  lifecycle: CONTROL
+  recurse_on: OBSERVED_REGRESSION_OR_GOVERNED_CONTRACT_CHANGE
+
 DoD:
   implementation: PASS_ARTIFACT_BINDING_REPAIRED
-  regression_tests: 17
-  local_or_federated_runtime: PENDING
-  exact_payload_repeat: PENDING
-  clean_repaired_head_review: PENDING
+  regression_tests: PASS_17_OF_17
+  local_or_federated_runtime: PASS
+  exact_payload_repeat: PASS
+  clean_repaired_head_review: PASS
   golden_replacement: false
   candidate_promotion: false
