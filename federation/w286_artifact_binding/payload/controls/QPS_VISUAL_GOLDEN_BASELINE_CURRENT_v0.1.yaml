@@ -79,7 +79,7 @@ candidate_regression_loop:
   formal_credit_delta: 0
 
 candidate_classifier:
-  status: ARTIFACT_BINDING_REPAIRED_PENDING_REVIEW_AND_RUNTIME
+  status: CONTROL
   control_receipt: triage/w286/QPS_W286_VISUAL_CLASSIFIER_FOUR_WAY_CONTROL_v0.1.yaml
   contract_evidence: triage/w286/QPS_W286_VISUAL_CLASSIFIER_CONTRACT_EVIDENCE_v0.1.json
   contract_fixtures:
@@ -88,6 +88,15 @@ candidate_classifier:
   superseded_history_catalog: triage/w286/QPS_W286_VISUAL_CLASSIFIER_EVIDENCE_CATALOG_v0.1.json
   script: scripts/qps_visual_candidate_classifier.py
   tests: tests/test_qps_visual_candidate_classifier.py
+  control_return: triage/w286/QPS_W286_VISUAL_CLASSIFIER_CONTROL_RETURN_v1.0.yaml
+  proof_pair:
+    pr_head_run: 35426434639
+    pr_head_receipt_sha256: 6180ba562d637d79ddae0273bfcf6ddfbc4661ee347c59b466dbae943342cb42
+    main_repeat_run: 35427032226
+    main_repeat_receipt_sha256: fb52b597eb90cb0d2af121551b16d7ca523585afa7c5cb0e8afb9efce2081827
+    qtools_merge_sha: 01815d59f28774cb428ad17050b208edf07ca16b
+    child_exact_head_sha: aff91921c8d13e21a354fd6679ed4bb563bbb20d
+  lifecycle_rule: RECURSE_ONLY_ON_OBSERVED_REGRESSION_OR_GOVERNED_CLASSIFIER_CONTRACT_CHANGE
   covered_states:
     PASS: BYTE_IDENTICAL_COMMITTED_CONTRACT_FIXTURE
     INTENTIONAL_VISUAL_CHANGE: COMMITTED_CONTRACT_FIXTURE_WITH_INDEPENDENTLY_DERIVED_SINGLE_FILL_CHANGE

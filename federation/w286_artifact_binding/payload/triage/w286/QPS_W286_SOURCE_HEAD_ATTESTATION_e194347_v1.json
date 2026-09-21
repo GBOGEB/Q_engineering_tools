@@ -1,0 +1,65 @@
+{
+  "schema": "qps.w286.source_head_attestation.v1",
+  "as_of": "2026-09-21T10:42:00+02:00",
+  "source_repository": "GBOGEB/cryoplant-project",
+  "source_pull_request": 1558,
+  "source_head_sha": "e19434769500090fe859a2a556cc582e41b57294",
+  "source_head_role": "AUTHORITATIVE_REPAIRED_W286_CARRIER_SOURCE",
+  "attestation_scope": "EXACT_EIGHT_PATH_GIT_BLOB_BINDING",
+  "paths": [
+    {
+      "path": "scripts/qps_visual_candidate_classifier.py",
+      "git_blob_sha1": "0f001192a9167409483b142ad2e46f8161f7153e"
+    },
+    {
+      "path": "tests/test_qps_visual_candidate_classifier.py",
+      "git_blob_sha1": "b1b799cdbf323b89b2ad79b1c384cfd26890b54d"
+    },
+    {
+      "path": "triage/w286/QPS_W286_VISUAL_CLASSIFIER_CONTRACT_EVIDENCE_v0.1.json",
+      "git_blob_sha1": "7acc4a863c9024c6ad1fe20f924532862c3b157b"
+    },
+    {
+      "path": "triage/w286/fixtures/QPS_W286_CLASSIFIER_BASELINE_FIXTURE_v0.1.json",
+      "git_blob_sha1": "4fa71a74743c0fda35b5dee8c4e2c39d4164f688"
+    },
+    {
+      "path": "triage/w286/fixtures/QPS_W286_CLASSIFIER_INTENTIONAL_FIXTURE_v0.1.json",
+      "git_blob_sha1": "2bae7293b719ce4319cc4a9ef50172456361bfb5"
+    },
+    {
+      "path": "triage/w286/QPS_W286_VISUAL_CLASSIFIER_EVIDENCE_CATALOG_v0.1.json",
+      "git_blob_sha1": "a6768ec6b60604d56de86e59c1eb4197c53492ad"
+    },
+    {
+      "path": "triage/w286/QPS_W286_VISUAL_CLASSIFIER_FOUR_WAY_CONTROL_v0.1.yaml",
+      "git_blob_sha1": "2eb61018b9ecfa558c26b9485dcd2275c2e9bf02"
+    },
+    {
+      "path": "controls/QPS_VISUAL_GOLDEN_BASELINE_CURRENT_v0.1.yaml",
+      "git_blob_sha1": "31f3aa662932da15d34b21ff244adbace45de06f"
+    }
+  ],
+  "closed_world": {
+    "path_count": 8,
+    "additional_paths_authorized": false,
+    "path_or_blob_mismatch_invalidates_attestation": true
+  },
+  "provenance": {
+    "attestation_repository": "GBOGEB/cryoplant-project",
+    "attestation_path": "triage/w286/QPS_W286_SOURCE_HEAD_ATTESTATION_e194347_v1.json",
+    "attestation_must_be_consumed_from_a_source_repo_commit": true,
+    "public_carrier_may_mirror_attestation_bytes_but_must_not_redefine_them": true
+  },
+  "historian_disposition": {
+    "HIST_BD_019": "SOURCE_REPAIR_AND_PUBLIC_EXECUTION_PROVEN",
+    "HIST_BD_020": "SOURCE_ATTESTATION_CREATED_FOR_PUBLIC_CONSUMER_PROOF"
+  },
+  "non_compensation": {
+    "cryoplant_issue_923": "INDEPENDENT_RED_OWNER_ACTION",
+    "visual_authority": "NONE",
+    "engineering_credit": 0,
+    "formal_credit_delta": 0,
+    "authority_transfer": false
+  }
+}
