@@ -20,9 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SOURCE_REPO: GBOGEB/cryoplant-project
-      SOURCE_HEAD: aff91921c8d13e21a354fd6679ed4bb563bbb20d
-      CLASSIFIER_BLOB: 128fbb7907b9f69519e997a8c9949bfa17b5ae9b
-      TESTS_BLOB: 678e617d5e602513d8cb53b9638e1c9816c7cddd
+      SOURCE_HEAD: e19434769500090fe859a2a556cc582e41b57294
+      CLASSIFIER_BLOB: 0f001192a9167409483b142ad2e46f8161f7153e
+      TESTS_BLOB: b1b799cdbf323b89b2ad79b1c384cfd26890b54d
       CONTRACT_BLOB: 7acc4a863c9024c6ad1fe20f924532862c3b157b
       BASELINE_FIXTURE_BLOB: 4fa71a74743c0fda35b5dee8c4e2c39d4164f688
       INTENTIONAL_FIXTURE_BLOB: 2bae7293b719ce4319cc4a9ef50172456361bfb5
@@ -51,7 +51,7 @@ jobs:
           test "$(git hash-object controls/QPS_VISUAL_GOLDEN_BASELINE_CURRENT_v0.1.yaml)" = "$CURRENT_CONTROL_BLOB"
           echo PASS_EXACT_W286_ARTIFACT_BOUND_BLOBS_8_OF_8
 
-      - name: Execute unchanged 17-function regression suite
+      - name: Execute repaired 19-function regression suite
         shell: bash
         run: |
           set -euo pipefail
@@ -65,11 +65,11 @@ jobs:
           mod = importlib.util.module_from_spec(spec)
           spec.loader.exec_module(mod)
           tests = sorted((name, fn) for name, fn in vars(mod).items() if name.startswith("test_") and callable(fn))
-          assert len(tests) == 17, f"expected 17 tests, found {len(tests)}"
+          assert len(tests) == 19, f"expected 19 tests, found {len(tests)}"
           for name, fn in tests:
               fn()
               print(f"PASS {name}")
-          print("PASS_W286_ARTIFACT_BOUND_TESTS_17_OF_17")
+          print("PASS_W286_ARTIFACT_BOUND_TESTS_19_OF_19")
           PY
 
       - name: Emit four classifier states and receipt
@@ -147,15 +147,19 @@ jobs:
               "schema": "qps.w286f.artifact_bound_classifier_execution.v1",
               "status": "PASS_EXECUTED_EXACT_PAYLOAD",
               "source_repo": os.environ["SOURCE_REPO"],
-              "source_head_sha": os.environ["SOURCE_HEAD"],
+              "source_head_sha_claim": os.environ["SOURCE_HEAD"],
+              "source_head_attribution_verified": False,
+              "source_head_attribution_status": "WITHHELD_NO_SOURCE_REPO_RUNTIME_ACCESS",
               "executor_repo": os.environ["GITHUB_REPOSITORY"],
               "executor_head_sha": os.environ["GITHUB_SHA"],
               "run_id": int(os.environ["GITHUB_RUN_ID"]),
               "run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
               "exact_blob_count": 8,
-              "regression_tests": "PASS_17_OF_17",
+              "regression_tests": "PASS_19_OF_19",
               "classifications": results,
               "actual_candidate_bytes_hashed": True,
+              "closed_world_fixture_contract": True,
+              "unverified_source_head_not_promoted": True,
               "observed_intentional_change_derived_from_artifact_diff": True,
               "historical_external_intentional_candidate_accepting_credit": False,
               "retired_catalog_accepting_authority": False,
