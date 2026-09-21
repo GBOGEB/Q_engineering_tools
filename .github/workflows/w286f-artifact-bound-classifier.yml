@@ -27,8 +27,10 @@ jobs:
       BASELINE_FIXTURE_BLOB: 4fa71a74743c0fda35b5dee8c4e2c39d4164f688
       INTENTIONAL_FIXTURE_BLOB: 2bae7293b719ce4319cc4a9ef50172456361bfb5
       RETIRED_CATALOG_BLOB: a6768ec6b60604d56de86e59c1eb4197c53492ad
-      CONTROL_RECEIPT_BLOB: 429a3a024d6ad9f7775a8eee82faf7b14b1adc37
-      CURRENT_CONTROL_BLOB: 7368a371c9d55697fd94582fb906ac45dad55ec4
+      CONTROL_RECEIPT_BLOB: 2eb61018b9ecfa558c26b9485dcd2275c2e9bf02
+      CURRENT_CONTROL_BLOB: 31f3aa662932da15d34b21ff244adbace45de06f
+      SOURCE_ATTESTATION_REPO_COMMIT: f047257fef96edc7316fd530a8a9339ad78c9f21
+      SOURCE_ATTESTATION_BLOB: e447e0e32c1c909df783211c3f17884d678a9045
 
     steps:
       - uses: actions/checkout@v4
@@ -50,6 +52,58 @@ jobs:
           test "$(git hash-object triage/w286/QPS_W286_VISUAL_CLASSIFIER_FOUR_WAY_CONTROL_v0.1.yaml)" = "$CONTROL_RECEIPT_BLOB"
           test "$(git hash-object controls/QPS_VISUAL_GOLDEN_BASELINE_CURRENT_v0.1.yaml)" = "$CURRENT_CONTROL_BLOB"
           echo PASS_EXACT_W286_ARTIFACT_BOUND_BLOBS_8_OF_8
+
+      - name: Prove source-repo attestation and fail closed forged head
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd federation/w286_artifact_binding/payload
+          test "$(git hash-object triage/w286/QPS_W286_SOURCE_HEAD_ATTESTATION_e194347_v1.json)" = "$SOURCE_ATTESTATION_BLOB"
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          root = Path.cwd()
+          att = json.loads((root / "triage/w286/QPS_W286_SOURCE_HEAD_ATTESTATION_e194347_v1.json").read_text())
+          assert att["schema"] == "qps.w286.source_head_attestation.v1"
+          assert att["source_repository"] == os.environ["SOURCE_REPO"]
+          assert att["source_head_sha"] == os.environ["SOURCE_HEAD"]
+          assert att["closed_world"]["path_count"] == 8
+          assert att["closed_world"]["additional_paths_authorized"] is False
+
+          expected = {
+              "scripts/qps_visual_candidate_classifier.py": os.environ["CLASSIFIER_BLOB"],
+              "tests/test_qps_visual_candidate_classifier.py": os.environ["TESTS_BLOB"],
+              "triage/w286/QPS_W286_VISUAL_CLASSIFIER_CONTRACT_EVIDENCE_v0.1.json": os.environ["CONTRACT_BLOB"],
+              "triage/w286/fixtures/QPS_W286_CLASSIFIER_BASELINE_FIXTURE_v0.1.json": os.environ["BASELINE_FIXTURE_BLOB"],
+              "triage/w286/fixtures/QPS_W286_CLASSIFIER_INTENTIONAL_FIXTURE_v0.1.json": os.environ["INTENTIONAL_FIXTURE_BLOB"],
+              "triage/w286/QPS_W286_VISUAL_CLASSIFIER_EVIDENCE_CATALOG_v0.1.json": os.environ["RETIRED_CATALOG_BLOB"],
+              "triage/w286/QPS_W286_VISUAL_CLASSIFIER_FOUR_WAY_CONTROL_v0.1.yaml": os.environ["CONTROL_RECEIPT_BLOB"],
+              "controls/QPS_VISUAL_GOLDEN_BASELINE_CURRENT_v0.1.yaml": os.environ["CURRENT_CONTROL_BLOB"],
+          }
+          attested = {row["path"]: row["git_blob_sha1"] for row in att["paths"]}
+          assert attested == expected, (attested, expected)
+
+          for path, expected_blob in expected.items():
+              actual = subprocess.check_output(["git", "hash-object", path], text=True).strip()
+              assert actual == expected_blob, (path, actual, expected_blob)
+
+          def verify_source_head(candidate):
+              assert candidate == att["source_head_sha"], (candidate, att["source_head_sha"])
+
+          verify_source_head(os.environ["SOURCE_HEAD"])
+          try:
+              verify_source_head("0" * 40)
+          except AssertionError:
+              print("PASS_FORGED_SOURCE_HEAD_FAILS_CLOSED")
+          else:
+              raise AssertionError("forged source head must fail closed")
+
+          assert os.environ["SOURCE_ATTESTATION_REPO_COMMIT"] == "f047257fef96edc7316fd530a8a9339ad78c9f21"
+          print("PASS_SOURCE_REPO_ATTESTATION_8_OF_8")
+          PY
 
       - name: Execute repaired 19-function regression suite
         shell: bash
@@ -148,8 +202,14 @@ jobs:
               "status": "PASS_EXECUTED_EXACT_PAYLOAD",
               "source_repo": os.environ["SOURCE_REPO"],
               "source_head_sha_claim": os.environ["SOURCE_HEAD"],
-              "source_head_attribution_verified": False,
-              "source_head_attribution_status": "WITHHELD_NO_SOURCE_REPO_RUNTIME_ACCESS",
+              "source_head_attribution_verified": True,
+              "source_head_attribution_status": "VERIFIED_BY_SOURCE_REPO_COMMITTED_ATTESTATION",
+              "source_head_attribution_verification_basis": "SOURCE_REPO_COMMITTED_ATTESTATION",
+              "source_repo_runtime_api_access": False,
+              "source_attestation_repo_commit": os.environ["SOURCE_ATTESTATION_REPO_COMMIT"],
+              "source_attestation_git_blob": os.environ["SOURCE_ATTESTATION_BLOB"],
+              "source_attestation_path": "triage/w286/QPS_W286_SOURCE_HEAD_ATTESTATION_e194347_v1.json",
+              "source_attestation_path_blob_set_verified_against_local_carrier": True,
               "executor_repo": os.environ["GITHUB_REPOSITORY"],
               "executor_head_sha": os.environ["GITHUB_SHA"],
               "run_id": int(os.environ["GITHUB_RUN_ID"]),
@@ -159,7 +219,8 @@ jobs:
               "classifications": results,
               "actual_candidate_bytes_hashed": True,
               "closed_world_fixture_contract": True,
-              "unverified_source_head_not_promoted": True,
+              "unverified_source_head_not_promoted": False,
+              "source_head_verified_without_private_runtime_query": True,
               "observed_intentional_change_derived_from_artifact_diff": True,
               "historical_external_intentional_candidate_accepting_credit": False,
               "retired_catalog_accepting_authority": False,
