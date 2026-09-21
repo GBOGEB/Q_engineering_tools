@@ -1,5 +1,7 @@
 import copy
 import importlib.util
+import json
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -225,3 +227,43 @@ def test_fixture_surface_cannot_claim_visual_authority():
             raise AssertionError("fixture authority promotion must fail")
     finally:
         mod._load_fixture = original
+
+
+def _write_fixture_variant(mutator):
+    baseline = json.loads(
+        (ROOT / "triage" / "w286" / "fixtures" / "QPS_W286_CLASSIFIER_BASELINE_FIXTURE_v0.1.json")
+        .read_text(encoding="utf-8")
+    )
+    mutator(baseline)
+    td = tempfile.TemporaryDirectory()
+    path = Path(td.name) / "fixture.json"
+    path.write_text(json.dumps(baseline), encoding="utf-8")
+    return td, path
+
+
+def test_fixture_rejects_unknown_top_level_field():
+    td, path = _write_fixture_variant(lambda data: data.__setitem__("unmodeled", "drift"))
+    try:
+        try:
+            mod._load_fixture(path)
+        except ValueError as exc:
+            assert "top-level fields outside closed-world contract" in str(exc)
+        else:
+            raise AssertionError("unknown top-level field must fail closed")
+    finally:
+        td.cleanup()
+
+
+def test_fixture_rejects_unknown_nested_shape_field():
+    td, path = _write_fixture_variant(
+        lambda data: data["shape"].__setitem__("shadow", {"blur": 4})
+    )
+    try:
+        try:
+            mod._load_fixture(path)
+        except ValueError as exc:
+            assert "shape fields outside closed-world contract" in str(exc)
+        else:
+            raise AssertionError("unknown nested shape field must fail closed")
+    finally:
+        td.cleanup()
