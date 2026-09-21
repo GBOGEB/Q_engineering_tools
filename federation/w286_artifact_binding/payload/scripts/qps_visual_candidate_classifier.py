@@ -78,6 +78,10 @@ def _load_contract_evidence() -> dict:
 def _load_fixture(path: Path) -> dict:
     data = json.loads(path.read_text(encoding="utf-8"))
     require(
+        set(data) == {"fixture_id", "schema", "shape", "surface"},
+        "fixture top-level fields outside closed-world contract",
+    )
+    require(
         data.get("schema") == "qps-w286-classifier-contract-fixture/1.0",
         "unexpected contract fixture schema",
     )
@@ -87,6 +91,10 @@ def _load_fixture(path: Path) -> dict:
     )
     shape = data.get("shape")
     require(isinstance(shape, dict), "fixture shape missing")
+    require(
+        set(shape) == {"index", "fill_rgb", "geometry", "text"},
+        "fixture shape fields outside closed-world contract",
+    )
     require(isinstance(shape.get("index"), int), "fixture shape.index invalid")
     require(isinstance(shape.get("fill_rgb"), str) and shape["fill_rgb"], "fixture fill_rgb invalid")
     require(
