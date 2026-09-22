@@ -1,0 +1,154 @@
+name: W322-R2 Merged Exact Proof 1618
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/w322r2-merged-exact-proof-1618.yml"
+      - "federation/w322r2_1618/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bind exact merged cryoplant 1618 payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/w322r2_1618/scripts/qplant_hepak_mip_burndown.py)" = "5d21c874c2f6d95fa08f2a86bceb5f51b613e17c"
+          test "$(git hash-object federation/w322r2_1618/tests/test_qplant_hepak_mip_burndown.py)" = "27c3549ec4d10c730d7d74fd03dacf8ebf9d41ff"
+          test "$(git hash-object federation/w322r2_1618/controls/W322_HEPAK_MIP_3PR_CONTROL_v0.1.yaml)" = "3127d7949be42311d108bcd6a059b4dafc45e162"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prove merged unit suite
+        working-directory: federation/w322r2_1618
+        run: python -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove optimized interpreter
+        working-directory: federation/w322r2_1618
+        run: python -O -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove empty-source fail closed
+        working-directory: federation/w322r2_1618
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/w322r2-1618-empty
+          mkdir -p /tmp/w322r2-1618-empty out
+          python scripts/qplant_hepak_mip_burndown.py \
+            --root /tmp/w322r2-1618-empty \
+            --json-out out/burndown.json \
+            --md-out out/burndown.md
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("out/burndown.json").read_text())
+          assert r["physical_conversion"] == {"converted": 0, "fraction": 0.0, "total": 5}
+          assert r["next_blocker"] == "BT0_HEPAK"
+          assert r["formal_engineering_delta"] == 0
+          assert r["strict_numerical_delta"] == 0
+          PY
+
+      - name: MIP probe BT2 against W57 source contract
+        working-directory: federation/w322r2_1618
+        run: |
+          python - <<'PY'
+          import csv, json, tempfile
+          from pathlib import Path
+          from scripts.qplant_hepak_mip_burndown import evaluate
+
+          w57_required = [
+            "qcell_id","installed_or_future","longitudinal_position","mode",
+            "configuration","B_flow_g_s","source_locator","authority_class",
+            "cumulative_segment_flow_g_s","mass_balance_residual"
+          ]
+          controller_required = [
+            "qcell_id","mode","configuration","B_flow_g_s","source_locator"
+          ]
+          with tempfile.TemporaryDirectory() as td:
+              root=Path(td)
+              receipts=root/"receipts"
+              receipts.mkdir()
+              path=receipts/"lineb_qcell_bflow_current.csv"
+              with path.open("w",newline="",encoding="utf-8") as handle:
+                  writer=csv.DictWriter(handle,fieldnames=controller_required)
+                  writer.writeheader()
+                  for mode in ("2K_OP","2K_SB"):
+                      for configuration,count in (("CONFIG24",24),("CONFIG30",30)):
+                          for index in range(1,count+1):
+                              writer.writerow({
+                                  "qcell_id":f"QC{index:02d}",
+                                  "mode":mode,
+                                  "configuration":configuration,
+                                  "B_flow_g_s":"1.8",
+                                  "source_locator":"MIP-PROBE"
+                              })
+              result=evaluate(root)
+              probe={
+                  "schema":"qtools.w322r2.bt2_w57_gap_probe.v1",
+                  "source_head":"6553b13b02a03d8aadb18b20c881b894a92484b8",
+                  "bt2_converted_with_minimal_controller_columns":
+                      result["blockers"]["BT2_BFLOW"]["converted"],
+                  "bt2_reason":result["blockers"]["BT2_BFLOW"]["reason"],
+                  "controller_columns":controller_required,
+                  "w57_required_columns":w57_required,
+                  "missing_w57_columns":
+                      [field for field in w57_required if field not in controller_required],
+                  "authority_transfer":False,
+                  "formal_credit_delta":0
+              }
+              Path("out/mip_bt2_w57_probe.json").write_text(
+                  json.dumps(probe,indent=2,sort_keys=True)+"\n"
+              )
+              print(json.dumps(probe,sort_keys=True))
+          PY
+
+      - name: Emit merged exact proof receipt
+        working-directory: federation/w322r2_1618
+        env:
+          SOURCE_HEAD: 6553b13b02a03d8aadb18b20c881b894a92484b8
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          burndown=json.loads(Path("out/burndown.json").read_text())
+          probe=json.loads(Path("out/mip_bt2_w57_probe.json").read_text())
+          receipt={
+            "schema":"qtools.w322r2.merged_exact_proof.v1",
+            "source_repo":"GBOGEB/cryoplant-project",
+            "source_pr":1618,
+            "source_head":os.environ["SOURCE_HEAD"],
+            "source_blobs":{
+              "script":"5d21c874c2f6d95fa08f2a86bceb5f51b613e17c",
+              "tests":"27c3549ec4d10c730d7d74fd03dacf8ebf9d41ff",
+              "control":"3127d7949be42311d108bcd6a059b4dafc45e162"
+            },
+            "executor_repo":"GBOGEB/Q_engineering_tools",
+            "executor_head":os.environ["GITHUB_SHA"],
+            "normal_unit_suite":"PASS",
+            "optimized_unit_suite":"PASS",
+            "empty_source_fail_closed":"PASS_0_OF_5_BT0_FIRST",
+            "mip_bt2_w57_probe":probe,
+            "authority_transfer":False,
+            "formal_credit_delta":0,
+            "compensates_issue_923":False
+          }
+          p=Path("out/W322R2_1618_MERGED_EXACT_PROOF_RECEIPT.json")
+          p.write_text(json.dumps(receipt,indent=2,sort_keys=True)+"\n")
+          print(p.read_text())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w322r2-1618-merged-exact-proof
+          path: federation/w322r2_1618/out/
+          if-no-files-found: error
