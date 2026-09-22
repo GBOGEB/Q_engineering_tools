@@ -1,0 +1,25 @@
+schema: qps-w334-public-proof-harness-closeout/v1
+as_of: '2026-09-22T15:30:00+02:00'
+repo: GBOGEB/cryoplant-project
+root_issue: 1617
+scope: TEST_HARNESS_ONLY
+observed_public_proof:
+  executor_repo: GBOGEB/Q_engineering_tools
+  pr: 99
+  run: 35733022880
+  job: 106763105783
+  executed_steps: true
+  first_red: normal_unit_suite_message_assertion
+  validator_reason: trusted_HEPAK_source_anchor_missing
+  stale_test_expectation: trust_anchor
+repair:
+  assertion_fragment: source_anchor
+  application_semantics_changed: false
+  BT0_BT1_BT2_BT3_BT4_semantics_changed: false
+proof_boundary:
+  public_execution_ne_private_runtime_gold: true
+  issue_923: INDEPENDENT_NON_COMPENSATING
+authority_transfer: false
+formal_credit_delta: 0
+engineering_credit_delta: 0
+strict_numerical_delta: 0
