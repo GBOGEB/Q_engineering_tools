@@ -1,0 +1,67 @@
+schema: qps-w325-bt2-w57-p09-contract-closeout/v1
+as_of: '2026-09-22T14:54:00+02:00'
+status: CANDIDATE_SINGLE_FIRST_RED_FIX_FORWARD
+parent_pr: 1618
+parent_merge: 6553b13b02a03d8aadb18b20c881b894a92484b8
+authority_transfer: false
+formal_engineering_delta: 0
+formal_credit_delta: 0
+strict_numerical_delta: 0
+
+first_red:
+  id: BT2_W57_P09_SCHEMA_AND_COHORT_DRIFT
+  observed_on_main:
+    configuration_tokens: [CONFIG24, CONFIG30]
+    governing_tokens: [config24, config30]
+    missing_required_columns:
+      - installed_or_future
+      - longitudinal_position
+      - authority_class
+      - cumulative_segment_flow_g_s
+      - mass_balance_residual
+
+3P_star:
+  prepare:
+    result: PASS
+    action: preserve merged 1618 BT1_BT3_BT4 repairs
+  prove:
+    result: PASS_LOCAL_BT2_HARNESS
+    cases:
+      - partial_single_cohort_REJECT
+      - uppercase_configuration_alias_REJECT
+      - complete_four_lowercase_W57_P09_cohorts_with_reverse_cumulative_and_zero_algebraic_residual_ACCEPT
+      - overpopulated_governed_cohort_REJECT
+  perpetuate:
+    result: CANDIDATE
+    action: exact regression tests plus W322 recurrence workflow
+
+MIP:
+  modernize:
+    - replace legacy five-column BT2 acceptance with full W57_P09 per_QCELL contract
+  innovate:
+    - accept finite source-bound per-QCELL flow exactly as returned; recompute reverse-order cumulative flow from farthest user to QRB_QDB and require algebraic mass-balance closure; do not invent a hydraulic acceptance tolerance
+    - require exact 24/30 unique QCELL populations, not minimum-size populations
+    - require cumulative segment flow and mass-balance residual before conversion
+  perpetuate:
+    - preserve BT0 licensed_HEPAK as physical_first_red
+    - no engineering_numerical_release_or_runtime_credit_from_validator_repair
+
+governing_contract: controls/W57_P09_LINEB_REVERSE_PRESSURE_SOURCE_GATE_v0.1.yaml
+runtime_gate: GBOGEB/cryoplant-project#923
+runtime_gate_state: INDEPENDENT_NON_COMPENSATING
+runtime_gate_rule: BT2_VALIDATOR_REPAIR_CANNOT_COMPENSATE_PRIVATE_REPO_RUNNER_ADMISSION
+
+W329_current_code_review_closeout:
+  semantic_root: HIST-BD-034
+  first_red: BT2_AUTHORITY_CLASS_SOURCE_BEARING_ADMISSION
+  admitted_source_bearing_authority_classes:
+    - SOURCE_SUPPORTED
+    - CURRENT_OFFER_SOURCE_BOUND
+    - OWNER_CONFIRMED_PROJECT_INPUT
+    - CONTRACT_REQUIREMENT
+  explicitly_rejected_examples:
+    - OPEN_SOURCE_REQUIRED
+    - CONTROLLED_DERIVED
+    - OWNER_WIP_SENSITIVITY
+  authority_transfer: false
+  formal_credit_delta: 0
