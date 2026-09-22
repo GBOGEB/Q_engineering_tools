@@ -1,0 +1,95 @@
+schema: qps-w326-hist-bd-034-consolidated-closeout/v1
+as_of: '2026-09-22T15:03:00+02:00'
+repo: GBOGEB/cryoplant-project
+root: HIST-BD-034
+issue: 1617
+status: PROVE_CANDIDATE
+authority_transfer: false
+formal_engineering_delta: 0
+strict_numerical_delta: 0
+runtime_gold_delta: 0
+
+lineage:
+  W322_pr: 1608
+  W322_merge: 6109292a29b25bdf8a8e1ed70968b2dda753ded6
+  R1_pr: 1612
+  R2_pr: 1618
+  current_canonical_pr: 1623
+  superseded_parallel_candidates: [1620, 1622]
+
+semantic_root: SOURCE_RECEIPT_SUBSTANTIVE_VALIDATION_INCOMPLETE
+
+3P_star:
+  refresh:
+    result: PASS
+    current_main_before_candidate: 6553b13b02a03d8aadb18b20c881b894a92484b8
+  probe:
+    result: PASS
+    manifestations:
+      - BT0_synthetic_or_extra_state_receipt_can_bypass
+      - BT1_structured_nonengineering_or_boolean_value_can_bypass
+      - BT2_legacy_schema_and_configuration_token_drift
+  rank:
+    result: SINGLE_ROOT_SINGLE_CANONICAL_PR
+    canonical_pr: 1623
+  prepare:
+    result: PASS
+    source_contracts:
+      BT0:
+        - controls/W53_P08C_HEPAK_USER_RUNTIME_AND_GRID_RECEIPT_v0.1.yaml
+        - controls/W58_HEPAK_NUMERIC_EXECUTION_RECEIPT_INTAKE_v0.1.yaml
+      BT1_BT2:
+        - controls/W57_P09_LINEB_REVERSE_PRESSURE_SOURCE_GATE_v0.1.yaml
+        - controls/W57_HEPAK_LINEB_SOURCE_BEARING_VICTORY_v0.1.yaml
+  prove:
+    result: PENDING_EXACT_HEAD_REVIEW_AND_PUBLIC_EXECUTION
+  commit:
+    result: HOLD_UNTIL_PROVE
+
+repair_contract:
+  BT0:
+    - require_exact_governed_eight_state_sequence
+    - require_actual_nonempty_string_workbook_and_runtime_identity
+    - reject_explicit_fixture_synthetic_placeholder_or_test_labelled_provenance
+    - require_manifest_row_workbook_and_runtime_identity_consistency
+    - preserve_positive_production_shaped_fixture_to_guard_against_always_false_validation
+  BT1:
+    - require_full_W57_selected_geometry_contract
+    - reject_null_structured_values
+    - reject_boolean_numeric_values
+    - allow_source_bound_zero_local_loss_or_valve_coefficients
+  BT2:
+    - require_full_W57_P09_per_QCELL_schema
+    - require_exact_governing_configuration_tokens_config24_config30
+    - require_both_2K_OP_and_2K_SB_populations
+    - require_configuration_population_at_least_24_or_30_unique_QCELL_IDs
+    - allow_source_bound_zero_B_flow
+    - allow_explicit_future_rows_beyond_configuration_minimum
+    - require_finite_longitudinal_cumulative_flow_and_mass_balance_fields
+
+MIP:
+  modernize:
+    - converge_parallel_BT0_BT1_BT2_repairs_into_one_root_and_one_PR
+    - replace_shape_presence_with_source_contract_semantics
+  innovate:
+    - distinguish_zero_engineering_outcome_from_missing_evidence
+    - closed_world_BT0_state_identity_with_open_future_row_BT2_population_semantics
+  perpetuate:
+    - negative_controls_for_each_original_bypass
+    - positive_controls_for_production_shaped_BT0_zero_BT1_zero_BT2_and_future_row_BT2
+    - exact_head_review_required
+    - public_exact_payload_execution_required
+
+non_compensation:
+  private_qps_runner_gate: GBOGEB/cryoplant-project#923
+  zero_step_ne_application_fail: true
+  public_sibling_pass_ne_runtime_gold: true
+  validator_repair_ne_physical_blocker_conversion: true
+
+done_when:
+  - exact_head_semantic_review_clean
+  - exact_payload_public_execution_normal_and_python_O_pass
+  - empty_source_remains_0_of_5_with_BT0_first
+  - superseded_parallel_candidates_dispositioned
+  - merge_to_current_main
+  - post_merge_recensus_shows_no_current_HIST_BD_034_manifestation
