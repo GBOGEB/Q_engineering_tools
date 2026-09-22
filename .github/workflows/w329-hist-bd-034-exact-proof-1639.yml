@@ -1,0 +1,77 @@
+name: W329 HIST-BD-034 Exact Proof 1639
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/w329-hist-bd-034-exact-proof-1639.yml"
+      - "federation/w329_1639/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bind exact cryoplant #1639 payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/w329_1639/scripts/qplant_hepak_mip_burndown.py)" = "e4709c7feb2c54bd739226b0a19feaaf74d0bb6e"
+          test "$(git hash-object federation/w329_1639/tests/test_qplant_hepak_mip_burndown.py)" = "1490d45263f61b7ded6ae0b179190bff41abd011"
+          test "$(git hash-object federation/w329_1639/controls/W322_HEPAK_MIP_3PR_CONTROL_v0.1.yaml)" = "2025271db7d84e55dfd3601d48a6a5bea3bb4ec0"
+          test "$(git hash-object federation/w329_1639/controls/W325_BT2_W57_P09_CONTRACT_CLOSEOUT_v0.1.yaml)" = "84c32c9f2d2b90cf25fa9e8350c949ff5d0ec769"
+          test "$(git hash-object federation/w329_1639/controls/W326_HEPAK_SOURCE_TRUST_ANCHOR_v0.1.json)" = "728a4c7f1b28c97427368eac36f2e37b481eaa84"
+          test "$(git hash-object federation/w329_1639/controls/W57_P09_LINEB_REVERSE_PRESSURE_SOURCE_GATE_v0.1.yaml)" = "6e897be1d8e7420b0fda59cc89009f8d85849b13"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prove normal interpreter
+        shell: bash
+        run: |
+          cd federation/w329_1639
+          python -m unittest tests.test_qplant_hepak_mip_burndown
+
+      - name: Prove optimized interpreter
+        shell: bash
+        run: |
+          cd federation/w329_1639
+          python -O -m unittest tests.test_qplant_hepak_mip_burndown
+
+      - name: Emit exact proof receipt
+        shell: bash
+        env:
+          SOURCE_HEAD: d2d6beec2b62eff19c5ddb3a60f6c60f2b854b74
+        run: |
+          mkdir -p out
+          python - <<'PY'
+          import json, os, pathlib
+          receipt = {
+            "schema": "qtools.w329.hist_bd_034.exact_proof.v1",
+            "source_repo": "GBOGEB/cryoplant-project",
+            "source_pr": 1639,
+            "source_head": os.environ["SOURCE_HEAD"],
+            "executor_repo": "GBOGEB/Q_engineering_tools",
+            "executor_head": os.environ["GITHUB_SHA"],
+            "normal_unit_suite": "PASS",
+            "python_O_unit_suite": "PASS",
+            "authority_transfer": False,
+            "formal_credit_delta": 0,
+            "compensates_issue_923": False
+          }
+          p=pathlib.Path("out/W329_1639_HIST_BD_034_EXACT_PROOF_RECEIPT.json")
+          p.write_text(json.dumps(receipt, indent=2, sort_keys=True)+"\n")
+          print(p.read_text())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w329-1639-hist-bd-034-exact-proof
+          path: out/W329_1639_HIST_BD_034_EXACT_PROOF_RECEIPT.json
+          if-no-files-found: error

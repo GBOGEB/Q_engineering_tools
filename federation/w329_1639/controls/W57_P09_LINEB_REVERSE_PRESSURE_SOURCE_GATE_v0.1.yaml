@@ -1,0 +1,54 @@
+schema_version: "0.1"
+document_id: W57_P09_LINEB_REVERSE_PRESSURE_SOURCE_GATE
+status: FAIL_CLOSED_SOURCE_BEARING_INPUTS_REQUIRED
+parent_stack: W57_3PR_EXECUTION_STACK_POST_653
+lane: W57_3PR_B_LINEB_REVERSE_PRESSURE_INPUTS
+snapshot_date: 2026-09-08
+purpose: >-
+  Execute the Line-B/reverse-pressure lane after #654 by separating the source classes that must return before
+  any governed reverse-pressure calculation can be executed.
+
+required_source_classes:
+  selected_current_LineB_geometry:
+    required: [segment_id, drawing_or_offer_locator, revision, material, DN_or_OD, wall_or_schedule, ID_mm,
+      segment_length_m, elevation_delta_m, roughness_basis, fittings_and_branch_local_losses, valve_K_or_Cv,
+      QCELL_branch_position]
+    current_state: DEFER_CURRENT_SELECTED_SOURCE_RETURN_REQUIRED
+  per_QCELL_B_flow_population:
+    required_modes: [2K_OP, 2K_SB]
+    required_configurations: [config24, config30]
+    required: [qcell_id, installed_or_future, longitudinal_position, B_flow_g_s, source_locator,
+      authority_class, cumulative_segment_flow_g_s, mass_balance_residual]
+    current_state: DEFER_PER_QCELL_SOURCE_RETURN_REQUIRED
+  spatial_thermal_property_field:
+    required: [heat_leak_W_m_or_discrete_W, inlet_T_K, inlet_h_J_kg, outlet_T_K, outlet_h_J_kg,
+      phase, rho_kg_m3, mu_Pa_s, provider_version, HEPAK_anchor_or_validation_identity]
+    current_state: DEFER_SOURCE_BOUND_THERMAL_PROFILE_REQUIRED
+
+execution_result_now:
+  selected_current_geometry_complete: false
+  per_QCELL_B_flow_complete: false
+  spatial_property_field_complete: false
+  reverse_pressure_solver_executable: false
+  disposition: DEFER
+  formal_engineering_delta: 0
+  negotiation_delta: 0
+
+accepted_historic_diagnostic_only:
+  DN: 150
+  OD_mm: 168.3
+  wall_mm: 2.77
+  ID_mm: 162.76
+  authority: HISTORIC_PRESTUDY_DIAGNOSTIC_ONLY
+  promotion_to_current_selected_design_allowed: false
+
+solver_release_rule: >-
+  Execute reverse pressure only when selected current geometry, per-QCELL B-flow population and spatial thermal
+  property field are all source-bound and share a governed operating-state/boundary basis.
+
+anti_overclaim:
+  - no_historic_geometry_promotion
+  - no_aggregate_B_flow_split_without_source
+  - no_JT_flash_counted_as_external_B_stream
+  - no_reverse_pressure_execution_with_missing_source_class
+  - no_score_movement_from_source_gate_file_alone
