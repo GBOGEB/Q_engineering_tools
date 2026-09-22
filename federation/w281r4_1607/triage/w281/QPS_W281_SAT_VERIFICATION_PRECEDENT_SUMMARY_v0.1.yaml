@@ -1,0 +1,182 @@
+schema_version: "0.1"
+document_id: QPS_W281_SAT_VERIFICATION_PRECEDENT_COLLAPSE_SUMMARY
+status: SOURCE_REENTERED_DERIVED_REVIEW_OVERLAY_ZERO_AUTHORITY_DELTA
+snapshot_date: 2026-09-22
+repo: GBOGEB/cryoplant-project
+branch: w281-sat-verification-precedent-collapse
+
+purpose: >-
+  Narrow the RTM-499..RTM-556 SAT spine from 58 equivalent review rows into one
+  governance/evidence meta-precedent plus twelve technical verification precedents,
+  while preserving every canonical RTM and every leaf acceptance criterion.
+
+population:
+  SAT_total_rows: 58
+  governance_rows_RTM_499_509: 11
+  technical_rows_RTM_510_556: 47
+  canonical_rows_preserved: 58
+  missing_rows: 0
+  duplicate_primary_membership: 0
+
+review_narrowing:
+  governance_meta_precedents: 1
+  technical_verification_precedents: 12
+  total_review_nodes: 13
+  technical_reduction:
+    from_rows: 47
+    to_precedents: 12
+    reduction_rows: 35
+    reduction_pct: 74.47
+  full_SAT_reduction:
+    from_rows: 58
+    to_review_nodes: 13
+    reduction_rows: 45
+    reduction_pct: 77.59
+  interpretation: >-
+    This is a review/traceability reduction, not a contractual denominator reduction.
+    All 58 source RTMs remain mandatory and independently traceable underneath the
+    precedent nodes.
+
+governance:
+  precedent: VP-SAT-00
+  member_scope: RTM-499..RTM-509
+  role: >-
+    Controls prerequisites, SAT conditions, monitoring, measured/derived quantities,
+    uncertainty, representative setup and prior-test reuse for all technical precedents.
+
+technical_precedents:
+  - {id: VP-SAT-01, title: Operational transitions and sequence operability, members: [RTM-510, RTM-511], count: 2}
+  - {id: VP-SAT-02, title: Abnormal LOOP stress and safety response, members: [RTM-512, RTM-513, RTM-514, RTM-517], count: 4}
+  - {id: VP-SAT-03, title: WCS and QRB subsystem functional readiness, members: [RTM-515, RTM-516], count: 2}
+  - {id: VP-SAT-04, title: Cooling capacity and stable performance, member_scope: RTM-518..RTM-525, count: 8}
+  - {id: VP-SAT-05, title: 2 K operating envelope and controllability, member_scope: RTM-526..RTM-529, count: 4}
+  - {id: VP-SAT-06, title: QPLANT Maximal Point characterization, members: [RTM-530], count: 1}
+  - {id: VP-SAT-07, title: Process integrity helium purity and QRB line performance, members: [RTM-531, RTM-532, RTM-533], count: 3}
+  - {id: VP-SAT-08, title: Rotating and compression equipment performance, member_scope: RTM-534..RTM-538, count: 5}
+  - {id: VP-SAT-09, title: Storage withdrawal recovery and dewar filling, member_scope: RTM-539..RTM-541, count: 3}
+  - {id: VP-SAT-10, title: Energy efficiency invCOP and electrical measurement, member_scope: RTM-542..RTM-544, count: 3}
+  - {id: VP-SAT-11, title: Operating procedures and gas-treatment recovery, member_scope: RTM-545..RTM-549, count: 5}
+  - {id: VP-SAT-12, title: QPS:CIS controls interlocks data and external interfaces, member_scope: RTM-550..RTM-556, count: 7}
+
+closure_spine:
+  evidence_before_test:
+    - approved_SAT_Programme_RTM_491_493
+    - applicable_Engineering_Manufacturing_Installation_and_AsBuilt_evidence
+    - calibrated_measurement_and_configuration_baseline
+  executed_verification: VP-SAT-01..VP-SAT-12
+  report:
+    rtm: RTM-586
+    evidence_object_id: EO-SAT-REPORT
+  lifecycle:
+    phase: L6_SITE_ACCEPTANCE_TESTING
+    report_gate: M44_SAT_REPORT_SUBMISSION
+    acceptance_gate: M45_PROVISIONAL_ACCEPTANCE_AND_HANDOVER
+  acceptance:
+    rtm: RTM-624
+    principal: SCK_CEN
+    written_confirmation_required: true
+
+technical_parent_binding:
+  exact_or_item_verified_examples:
+    VP-SAT-01: RTM-012..RTM-024_operational_scenarios
+    VP-SAT-02: RTM-048..RTM-054_abnormal_event_plus_source_bound_utility_control_safety_parents
+    VP-SAT-04: RTM-030..RTM-034_design_and_standby_capacity
+    VP-SAT-06: RTM-035_and_RTM-044_QPLANT_Maximal_Point
+    VP-SAT-09: RTM-239..248_WSH_RTM-249..251_QSN_conditional_RTM-252..262_inventory_recovery_RTM-263..272_dewar
+    VP-SAT-10: RTM-069..RTM-077_energy_efficiency
+    VP-SAT-12: RTM-298..RTM-309_QPS_CIS_plus_source_bound_external_interface_anchors
+  section_or_family_bound_pending_leaf_crosswalk:
+    - VP-SAT-03_WCS_QRB
+    - VP-SAT-07_process_integrity_QRB_lines
+    - VP-SAT-08_rotating_compression_equipment
+    - VP-SAT-11_gas_treatment_procedures
+  rule: >-
+    Family or section bindings are not silently promoted to exact leaf-to-leaf parent
+    edges. Exact technical-parent leaf mapping remains a controlled source-reentry task.
+
+source_section_partition:
+  VP-SAT-01: [4.13.3.1, 4.13.3.2]
+  VP-SAT-02: [4.13.3.2]
+  VP-SAT-11: [4.13.3.4]
+  VP-SAT-12: [4.13.3.5]
+  primary_membership_rule: >-
+    RTM-548 and RTM-549 remain primary members of VP-SAT-11 because W280 source
+    re-entry binds them to §4.13.3.4; VP-SAT-12 begins at RTM-550 under §4.13.3.5.
+
+STAR:
+  Specific:
+    result: IMPROVED
+    effect: >-
+      SAT review is organized around explicit project verification outcomes rather than
+      a flat list of test clauses.
+  Timeous:
+    result: STRONG
+    effect: >-
+      All precedents close through L6, RTM-586/M44 and M45, with RTM-624 written
+      SCK CEN acceptance retained.
+  Achievable:
+    result: IMPROVED
+    effect: >-
+      Preconditions, evidence, test resources, measurement boundaries and accepted
+      equivalent methods can be addressed at precedent level while leaf criteria remain explicit.
+  Realistic:
+    result: TARGETED_REVIEW
+    review_candidates:
+      - precedent: VP-SAT-01
+        issue: combinatorial_transition_test_burden
+        permissible_review: representative_matrix_with_complete_predicate_trace
+        preserve: every_required_state_transition_and_control_outcome
+      - precedent: VP-SAT-02
+        issue: destructive_or_impractical_abnormal_event_reproduction
+        permissible_review: approved_simulation_injection_or_bounded_equivalent
+        preserve: deterministic_response_installed_interlocks_and_recovery
+      - precedent: VP-SAT-04
+        issue: long_duration_and_multiple_performance_points
+        permissible_review: only_source_or_owner_approved_equivalence
+        preserve: cooling_capacity_stability_duration_and_measurement_acceptance
+      - precedent: VP-SAT-05
+        issue: operating_envelope_point_count
+        permissible_review: representative_points_only_if_envelope_and_independent_step_response_remain_proven
+        preserve: 2K_operating_envelope_and_controllability
+      - precedent: VP-SAT-08
+        issue: individual_machine_vs_train_level_testing
+        permissible_review: accepted_equivalence_with_OEM_and_FAT_evidence
+        preserve: per_equipment_performance_stability_noise_vibration_and_margin_predicates_where_required
+      - precedent: VP-SAT-09
+        issue: commissioning_evidence_reuse_for_storage_or_dewar_tests
+        permissible_review: contract_prior_test_reuse_rule_only
+        preserve: SAT_predicate_and_SCK_explicit_agreement
+      - precedent: VP-SAT-10
+        issue: electrical_meter_ownership
+        permissible_review: ownership_may_vary
+        preserve: matched_measurement_boundary_accuracy_calibration_uncertainty_and_access
+      - precedent: VP-SAT-11
+        issue: repeated_procedure_demonstrations
+        permissible_review: one_representative_execution_where_mechanics_are_identical_and_applicability_is_proven
+        preserve: safe_entry_exit_recovery_and_operating_disturbance_limits
+      - precedent: VP-SAT-12
+        issue: unavailable_external_systems_or_interfaces_at_test_time
+        permissible_review: approved_emulation_for_unavailable_external_endpoint
+        preserve: installed_QPS_side_path_fail_safe_behavior_and_final_end_to_end_site_proof
+
+non_relaxation_invariants:
+  - no_RTM_499_556_deleted
+  - no_acceptance_criterion_removed
+  - no_test_duration_changed_by_hierarchy
+  - no_measurement_boundary_changed_by_hierarchy
+  - no_deemed_acceptance_created
+  - no_bidder_method_becomes_contract_authority
+  - prior_test_reuse_only_under_contract_conditions
+  - RTM_586_report_presence_ne_test_execution
+  - test_execution_ne_RTM_624_written_acceptance
+  - conditional_QSN_applicability_state_preserved
+
+next_narrowing:
+  - exact_leaf_crosswalk_VP_SAT_03_WCS_QRB_to_subsystem_RTM
+  - exact_leaf_crosswalk_VP_SAT_07_process_integrity_to_leak_purity_interface_RTM
+  - exact_leaf_crosswalk_VP_SAT_08_rotating_equipment_to_WCS_CC_turbine_RTM
+  - exact_leaf_crosswalk_VP_SAT_11_procedures_to_dryer_adsorber_operational_RTM
+  - build_parent_centric_peer_review_view_showing_bidder_deviation_by_precedent_then_expand_to_leaf_only_when_needed
+
+formal_credit_delta: 0
+authority_delta: 0
