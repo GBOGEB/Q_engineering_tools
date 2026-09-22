@@ -1,0 +1,103 @@
+name: W322-R4 Exact Proof 1625
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/w322r4-exact-proof-1625.yml"
+      - "federation/w322r4_1625/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bind exact cryoplant 1625 payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/w322r4_1625/scripts/qplant_hepak_mip_burndown.py)" = "e0797a5d25f713588f60bdd5b9ebca072b2a8052"
+          test "$(git hash-object federation/w322r4_1625/tests/test_qplant_hepak_mip_burndown.py)" = "46806ca525ec52a897457ffe85dd1948ed015d68"
+          test "$(git hash-object federation/w322r4_1625/controls/W322_HEPAK_MIP_3PR_CONTROL_v0.1.yaml)" = "0267690eeb75636f05910026888825e877e23880"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prove R4 suite
+        working-directory: federation/w322r4_1625
+        run: python -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove R4 optimized interpreter
+        working-directory: federation/w322r4_1625
+        run: python -O -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove empty-source fail closed
+        working-directory: federation/w322r4_1625
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/w322r4-empty
+          mkdir -p /tmp/w322r4-empty out
+          python scripts/qplant_hepak_mip_burndown.py \
+            --root /tmp/w322r4-empty \
+            --json-out out/burndown.json \
+            --md-out out/burndown.md
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("out/burndown.json").read_text())
+          assert r["physical_conversion"]["converted"] == 0
+          assert r["physical_conversion"]["total"] == 5
+          assert r["next_blocker"] == "BT0_HEPAK"
+          assert r["formal_engineering_delta"] == 0
+          assert r["strict_numerical_delta"] == 0
+          PY
+
+      - name: Emit exact R4 receipt
+        working-directory: federation/w322r4_1625
+        env:
+          SOURCE_HEAD: 3242e19219773f8a913005772827159a4aea3af1
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          burndown=json.loads(Path("out/burndown.json").read_text())
+          receipt={
+            "schema":"qtools.w322r4.exact_proof.v1",
+            "source_repo":"GBOGEB/cryoplant-project",
+            "source_pr":1625,
+            "source_head":os.environ["SOURCE_HEAD"],
+            "source_blobs":{
+              "script":"e0797a5d25f713588f60bdd5b9ebca072b2a8052",
+              "tests":"46806ca525ec52a897457ffe85dd1948ed015d68",
+              "control":"0267690eeb75636f05910026888825e877e23880"
+            },
+            "executor_repo":"GBOGEB/Q_engineering_tools",
+            "executor_head":os.environ["GITHUB_SHA"],
+            "normal_unit_suite":"PASS",
+            "optimized_unit_suite":"PASS",
+            "bt2_w57_provenance_regression":"PASS",
+            "preserves_bt1_r3_parent":True,
+            "empty_source_fail_closed":"PASS_0_OF_5_BT0_FIRST",
+            "physical_conversion_observed":burndown["physical_conversion"],
+            "next_blocker":burndown["next_blocker"],
+            "authority_transfer":False,
+            "formal_credit_delta":0,
+            "compensates_issue_923":False
+          }
+          p=Path("out/W322R4_1625_EXACT_PROOF_RECEIPT.json")
+          p.write_text(json.dumps(receipt,indent=2,sort_keys=True)+"\n")
+          print(p.read_text())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w322r4-1625-exact-proof
+          path: federation/w322r4_1625/out/
+          if-no-files-found: error
