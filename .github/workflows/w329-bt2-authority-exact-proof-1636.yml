@@ -1,0 +1,138 @@
+name: W329 BT2 Authority Exact Proof 1636
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/w329-bt2-authority-exact-proof-1636.yml"
+      - "federation/w329_bt2_authority_1636/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bind exact cryoplant 1636 payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/w329_bt2_authority_1636/scripts/qplant_hepak_mip_burndown.py)" = "96ee50cc917df34e748ab160b489ebb0b6fa8100"
+          test "$(git hash-object federation/w329_bt2_authority_1636/tests/test_qplant_hepak_mip_burndown.py)" = "7175893ff2960cb57967ead0e4d796b994fd21e5"
+          test "$(git hash-object federation/w329_bt2_authority_1636/controls/W325_BT2_W57_P09_CONTRACT_CLOSEOUT_v0.1.yaml)" = "fce8e193d539acea100a6a8d15a491084f525ec6"
+          test "$(git hash-object federation/w329_bt2_authority_1636/controls/W329_BT2_AUTHORITY_CLASS_3PSTAR_MIP_CONTROL_v0.1.yaml)" = "538aedddef6b3c9a3b1a1788053e90feb4ff733a"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prove full normal unit suite
+        working-directory: federation/w329_bt2_authority_1636
+        run: python -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove full optimized-interpreter suite
+        working-directory: federation/w329_bt2_authority_1636
+        run: python -O -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove exact BT2 authority boundary
+        working-directory: federation/w329_bt2_authority_1636
+        run: |
+          python - <<'PY'
+          import tempfile
+          from pathlib import Path
+          from tests.test_qplant_hepak_mip_burndown import HepakMIPBurndownTests
+          from scripts.qplant_hepak_mip_burndown import evaluate
+
+          helper = HepakMIPBurndownTests()
+          with tempfile.TemporaryDirectory() as td:
+              root = Path(td)
+              receipts = root / "receipts"
+              receipts.mkdir()
+              path = receipts / "lineb_qcell_bflow_current.csv"
+
+              helper._write_w57_bflow(
+                  path,
+                  complete=True,
+                  authority_class="OPEN_SOURCE_REQUIRED",
+              )
+              rejected = evaluate(root)["blockers"]["BT2_BFLOW"]
+              assert rejected["converted"] is False
+              assert "not an admitted source-bearing class" in rejected["reason"]
+
+              helper._write_w57_bflow(
+                  path,
+                  complete=True,
+                  authority_class="CURRENT_OFFER_SOURCE_BOUND",
+              )
+              accepted = evaluate(root)["blockers"]["BT2_BFLOW"]
+              assert accepted["converted"] is True
+
+          print("W329_BT2_AUTHORITY_BOUNDARY=PASS")
+          PY
+
+      - name: Prove empty-source non-compensation boundary
+        working-directory: federation/w329_bt2_authority_1636
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/w329-1636-empty
+          mkdir -p /tmp/w329-1636-empty out
+          python scripts/qplant_hepak_mip_burndown.py             --root /tmp/w329-1636-empty             --json-out out/burndown.json             --md-out out/burndown.md
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("out/burndown.json").read_text())
+          assert r["physical_conversion"] == {"converted": 0, "fraction": 0.0, "total": 5}
+          assert r["next_blocker"] == "BT0_HEPAK"
+          assert r["formal_engineering_delta"] == 0
+          assert r["formal_credit_delta"] == 0
+          assert r["strict_numerical_delta"] == 0
+          print("W329_EMPTY_SOURCE_NONCOMPENSATION=PASS")
+          PY
+
+      - name: Emit exact proof receipt
+        working-directory: federation/w329_bt2_authority_1636
+        env:
+          SOURCE_HEAD: 767834e6eedb8d136e5f6c2b13b92b5a66218ae1
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          burndown=json.loads(Path("out/burndown.json").read_text())
+          receipt={
+            "schema":"qtools.w329.bt2_authority_exact_proof.v1",
+            "source_repo":"GBOGEB/cryoplant-project",
+            "source_pr":1636,
+            "source_head":os.environ["SOURCE_HEAD"],
+            "source_blobs":{
+              "script":"96ee50cc917df34e748ab160b489ebb0b6fa8100",
+              "tests":"7175893ff2960cb57967ead0e4d796b994fd21e5",
+              "closeout":"fce8e193d539acea100a6a8d15a491084f525ec6",
+              "control":"538aedddef6b3c9a3b1a1788053e90feb4ff733a"
+            },
+            "executor_repo":"GBOGEB/Q_engineering_tools",
+            "executor_head":os.environ["GITHUB_SHA"],
+            "normal_unit_suite":"PASS",
+            "optimized_unit_suite":"PASS",
+            "unresolved_authority_reject":"PASS",
+            "source_bound_authority_accept":"PASS",
+            "empty_source_fail_closed":burndown["physical_conversion"],
+            "next_blocker":burndown["next_blocker"],
+            "authority_transfer":False,
+            "formal_credit_delta":0,
+            "compensates_issue_923":False
+          }
+          p=Path("out/W329_1636_EXACT_PROOF_RECEIPT.json")
+          p.write_text(json.dumps(receipt,indent=2,sort_keys=True)+"\n")
+          print(p.read_text())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w329-1636-exact-proof
+          path: federation/w329_bt2_authority_1636/out/
+          if-no-files-found: error
