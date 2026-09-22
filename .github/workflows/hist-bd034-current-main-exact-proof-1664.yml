@@ -1,0 +1,98 @@
+name: HIST-BD-034 Current Main Exact Proof 1664
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/hist-bd034-current-main-exact-proof-1664.yml"
+      - "federation/hist_bd034_current_main_1664/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bind exact cryoplant 1664 payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/hist_bd034_current_main_1664/scripts/qplant_hepak_mip_burndown.py)" = "18300af7d3b1329cb9f9087a8f319dc6b257af53"
+          test "$(git hash-object federation/hist_bd034_current_main_1664/tests/test_qplant_hepak_mip_burndown.py)" = "1fb204d15b1846c8f6a9c7bf63181e31b009c2cb"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prove full normal unit suite
+        working-directory: federation/hist_bd034_current_main_1664
+        run: python -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove full optimized-interpreter suite
+        working-directory: federation/hist_bd034_current_main_1664
+        run: python -O -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove empty-source non-compensation
+        working-directory: federation/hist_bd034_current_main_1664
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/hist-bd034-empty
+          mkdir -p /tmp/hist-bd034-empty out
+          python scripts/qplant_hepak_mip_burndown.py \
+            --root /tmp/hist-bd034-empty \
+            --json-out out/burndown.json \
+            --md-out out/burndown.md
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("out/burndown.json").read_text())
+          assert r["physical_conversion"]["converted"] == 0
+          assert r["physical_conversion"]["total"] == 5
+          assert r["next_blocker"] == "BT0_HEPAK"
+          assert r["formal_engineering_delta"] == 0
+          assert r["formal_credit_delta"] == 0
+          assert r["strict_numerical_delta"] == 0
+          print("HIST_BD034_EMPTY_SOURCE_NONCOMPENSATION=PASS")
+          PY
+
+      - name: Emit exact proof receipt
+        working-directory: federation/hist_bd034_current_main_1664
+        env:
+          SOURCE_HEAD: 85dadfc4fa190ca6978d7d30e83217d09c5a3a7e
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          receipt={
+            "schema":"qtools.hist_bd034.current_main_exact_proof.v1",
+            "source_repo":"GBOGEB/cryoplant-project",
+            "source_pr":1664,
+            "source_head":os.environ["SOURCE_HEAD"],
+            "source_blobs":{
+              "script":"18300af7d3b1329cb9f9087a8f319dc6b257af53",
+              "tests":"1fb204d15b1846c8f6a9c7bf63181e31b009c2cb"
+            },
+            "executor_repo":"GBOGEB/Q_engineering_tools",
+            "executor_head":os.environ["GITHUB_SHA"],
+            "normal_unit_suite":"PASS",
+            "optimized_unit_suite":"PASS",
+            "empty_source_noncompensation":"PASS",
+            "authority_transfer":False,
+            "formal_credit_delta":0,
+            "compensates_issue_923":False
+          }
+          p=Path("out/HIST_BD034_CURRENT_MAIN_EXACT_PROOF_RECEIPT.json")
+          p.write_text(json.dumps(receipt,indent=2,sort_keys=True)+"\n")
+          print(p.read_text())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hist-bd034-current-main-exact-proof-1664
+          path: federation/hist_bd034_current_main_1664/out/
+          if-no-files-found: error
