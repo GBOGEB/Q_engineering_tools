@@ -3,7 +3,7 @@ name: HIST-BD-034 Current Main Exact Proof 1663
 on:
   pull_request:
     paths:
-      - ".github/workflows/hist-bd034-current-main-exact-proof-1663.yml"
+      - ".github/workflows/hist-bd034-current-main-exact-proof-1664.yml"
       - "federation/hist_bd034_current_main_1663/**"
   workflow_dispatch:
 
