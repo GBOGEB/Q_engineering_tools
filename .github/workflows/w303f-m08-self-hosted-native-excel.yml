@@ -31,7 +31,7 @@ jobs:
           $expected = '${{ github.sha }}'
           $actual = (git rev-parse HEAD).Trim()
           if ($actual -ne $expected) { throw "checkout mismatch $actual != $expected" }
-          if ((git hash-object 'federation/w303/payload/scripts/qps_m08_native_excel_roundtrip.ps1').Trim() -ne '0323123732a3b5897881f5c41654bf74fc15069f') { throw 'roundtrip tool blob drift' }
+          if ((git hash-object 'federation/w303/payload/scripts/qps_m08_native_excel_roundtrip.ps1').Trim() -ne 'f75ddf7eee50575e772f81b5dc713ac171d6638b') { throw 'roundtrip tool blob drift' }
           if ((git hash-object 'federation/w303/payload/scripts/qps_m08_validate_native_excel_receipt.py').Trim() -ne '2c5996546725e629f612f54205e867fa8a4f40a8') { throw 'validator blob drift' }
 
       - name: Download exact W302 governed owner input
