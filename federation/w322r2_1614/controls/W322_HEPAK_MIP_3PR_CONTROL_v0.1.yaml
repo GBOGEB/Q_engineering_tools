@@ -1,0 +1,114 @@
+schema: qps-w322-hepak-mip-3pr/v1
+status: MIP_P1_REPAIR_EXACT_HEAD_PROOF_PENDING
+authority: CHILD_QPS
+base_main_sha: 6109292a29b25bdf8a8e1ed70968b2dda753ded6
+merged_child_pr: 1608
+merged_child_head: b4cd8fcaf4bb5b6e89fc925b8bbe1b259ee88845
+merged_child_merge: 6109292a29b25bdf8a8e1ed70968b2dda753ded6
+purpose: >-
+  Convert the persistent W58 HEPAK/Line-B/S-line blocker set through measured source-bearing receipts.
+  This is control instrumentation, not engineering closure.
+
+MIP:
+  Modernize:
+    - replace narrative-only blocker status with deterministic receipt validation
+    - preserve fail-closed HEPAK 2.0-4.5 K rule
+    - bind BT1/BT2/BT3 validators to existing W57 source-bearing contracts instead of key-presence checks
+    - validate BT0 against the existing governed HEPAK exporter/receipt contract rather than provider label alone
+  Innovate:
+    - calculate observed BT0-BT4 conversion from repository evidence on every relevant PR
+    - expose machine-readable JSON and human Markdown receipts
+    - classify source-class-specific substantive values, population completeness and HEPAK provider provenance
+    - require exact low-T state population, row/file hashes and finite governing properties before BT0 converts
+  Perpetuate:
+    - run negative tests preventing missing/non-HEPAK/label-only/corrupt-row evidence from converting BT0
+    - rerun automatically whenever governed receipt inputs or the controller change
+
+blockers:
+  BT0: licensed_HEPAK_CSV_manifest
+  BT1: current_selected_LineB_geometry
+  BT2: per_QCELL_B_flow_population
+  BT3: spatial_thermal_property_field
+  BT4: applicant_specific_S_line_recovery_and_PSV
+
+BT0_contract:
+  source_controls:
+    - controls/W53_P08C_HEPAK_USER_RUNTIME_AND_GRID_RECEIPT_v0.1.yaml
+    - controls/W58_HEPAK_NUMERIC_EXECUTION_RECEIPT_INTAKE_v0.1.yaml
+    - controls/W58_B_DOV_BURNDOWN_REENTRY_v0.1.yaml
+  generator: tools/hepak_bridge/export_hepak_lowt_grid_excel.py
+  manifest_schema: qps-hepak-lowt-grid-receipt/v1
+  required_provider: HEPAK
+  required_manifest:
+    - provider_version
+    - execution_utc
+    - unit_set_1
+    - pressure_basis_ABSOLUTE_PA
+    - solve_policy_H_FIRST_S_SECOND_TP_SOURCE_BOUND_DENSITY_LAST
+    - source_workbook_sha256
+    - csv_sha256
+    - row_count
+    - state_ids
+  required_states:
+    - A_CONTRACT
+    - A_LKT_SELECTED
+    - B_OWNER_EXACT_GATE
+    - B_CONTRACT_LKT
+    - B_LOCAL_2K_26MBAR
+    - B_LOCAL_2K_31MBAR
+    - LAMBDA_NEAR
+    - NORMAL_BOILING_VALIDATION
+  required_numeric_properties:
+    - enthalpy_J_kg
+    - entropy_J_kgK
+    - density_kg_m3
+    - cp_J_kgK
+    - cv_J_kgK
+    - viscosity_Pa_s
+    - thermal_conductivity_W_mK
+  required_integrity:
+    - exact_state_T_P_pairs
+    - provider_and_version_consistency
+    - source_workbook_SHA_consistency
+    - finite_required_properties
+    - row_SHA256_valid
+    - CSV_SHA256_matches_manifest
+    - manifest_row_count_and_state_order_match_CSV
+  conversion_rule: >-
+    BT0 converts only when the governed HEPAK CSV plus manifest satisfy all source, state,
+    provenance, numerical and hash checks. A file labelled HEPAK is insufficient.
+
+guards:
+  - HEPAK_MISSING_NEVER_BECOMES_COOLPROP_OR_NIST_ACCEPTANCE
+  - HEPAK_LABEL_ONLY_NEVER_CONVERTS_BT0
+  - HEPAK_CORRUPT_ROW_OR_FILE_HASH_NEVER_CONVERTS_BT0
+  - HISTORIC_DN150_NEVER_BECOMES_CURRENT_GEOMETRY
+  - HISTORIC_3x120_M3_NEVER_BECOMES_CURRENT_WSH
+  - CONTROL_COMPLETION_NEVER_BECOMES_FORMAL_ENGINEERING_CREDIT
+
+formal_engineering_delta: 0
+strict_numerical_delta: 0
+
+3PR:
+  child: THIS_EXACT_HEAD_AFTER_BT0_HARDENING
+  CODEX: SEMANTIC_PROVENANCE_CHALLENGE_AFTER_CHILD_HEAD_FREEZE
+  ABACUS: QUANTIFIED_DOW_CHALLENGE_AFTER_CHILD_HEAD_FREEZE
+
+done_when:
+  control: exact_head_tests_and_review_clean_plus_burndown_artifact
+  physical: BT0_through_BT4_each_source_bound_and_independently_challenged
+
+p1_repair_scope_20260922:
+  original_review_head: f4b9e15f512029453773e246cbc561da7c4b32b9
+  findings:
+    - arbitrary_bytes_plus_self_consistent_HEPAK_manifest
+    - presence_only_null_or_empty_JSON_receipts
+    - blank_or_non_HEPAK_CSV_rows
+  repair_rule: REPAIR_ONLY_THESE_VALIDATION_INVARIANTS
+  W57_contract_sources:
+    - controls/W57_P09_LINEB_REVERSE_PRESSURE_SOURCE_GATE_v0.1.yaml
+    - controls/W57_HEPAK_LINEB_SOURCE_BEARING_VICTORY_v0.1.yaml
+    - controls/W57_P11_SOURCE_RETURN_INTAKE_PACK_v0.1.yaml
+  issue_923_compensation: false
+  authority_transfer: false
+  formal_credit_delta: 0
