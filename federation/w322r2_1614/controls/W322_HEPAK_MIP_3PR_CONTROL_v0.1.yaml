@@ -1,7 +1,10 @@
 schema: qps-w322-hepak-mip-3pr/v1
 status: MIP_P1_REPAIR_EXACT_HEAD_PROOF_PENDING
 authority: CHILD_QPS
-base_main_sha: 27c301680f1a64489a5a13630f4531cdb3db697d
+base_main_sha: 6109292a29b25bdf8a8e1ed70968b2dda753ded6
+merged_child_pr: 1608
+merged_child_head: b4cd8fcaf4bb5b6e89fc925b8bbe1b259ee88845
+merged_child_merge: 6109292a29b25bdf8a8e1ed70968b2dda753ded6
 purpose: >-
   Convert the persistent W58 HEPAK/Line-B/S-line blocker set through measured source-bearing receipts.
   This is control instrumentation, not engineering closure.
