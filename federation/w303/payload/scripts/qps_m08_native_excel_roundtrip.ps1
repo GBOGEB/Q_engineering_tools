@@ -8,14 +8,14 @@ param(
 
     [switch]$Visible,
 
-    [switch]$OperatorConfirmedNoRepairDialog
+    [switch]$NonInteractive
 )
 
 $ErrorActionPreference = 'Stop'
 
 function Write-ReceiptAndExit {
     param(
-        [hashtable]$Receipt,
+        [System.Collections.IDictionary]$Receipt,
         [int]$ExitCode
     )
     $Receipt.timestamp_utc = (Get-Date).ToUniversalTime().ToString('o')
@@ -54,7 +54,7 @@ $receipt = [ordered]@{
     host = $env:COMPUTERNAME
     user = $env:USERNAME
     visible_mode = [bool]$Visible
-    operator_confirmed_no_repair_dialog = [bool]$OperatorConfirmedNoRepairDialog
+    operator_confirmed_no_repair_dialog = $false
     repair_mode_observed = $null
     table1_recovery_log_observed = $null
     open_save_close_reopen = $false
@@ -128,13 +128,20 @@ try {
         Write-ReceiptAndExit -Receipt $receipt -ExitCode 4
     }
 
-    if (-not $receipt.operator_confirmed_no_repair_dialog) {
-        $receipt.status = 'PASS_NATIVE_EXCEL_TECHNICAL_ROUNDTRIP_OPERATOR_DIALOG_CONFIRMATION_REQUIRED'
-        Write-ReceiptAndExit -Receipt $receipt -ExitCode 3
+    if ($Visible -and -not $NonInteractive) {
+        Write-Host ''
+        $answer = Read-Host 'If NO Excel repair/recovery dialog appeared during either open in THIS transaction, type exactly NO_REPAIR'
+        if ($answer -ceq 'NO_REPAIR') {
+            $receipt.operator_confirmed_no_repair_dialog = $true
+            $receipt.status = 'PASS_NATIVE_EXCEL_CLEAN_ROUNDTRIP'
+            Write-ReceiptAndExit -Receipt $receipt -ExitCode 0
+        }
+        $receipt.status = 'RED_OPERATOR_CONFIRMATION_WITHHELD'
+        Write-ReceiptAndExit -Receipt $receipt -ExitCode 5
     }
 
-    $receipt.status = 'PASS_NATIVE_EXCEL_CLEAN_ROUNDTRIP'
-    Write-ReceiptAndExit -Receipt $receipt -ExitCode 0
+    $receipt.status = 'PASS_NATIVE_EXCEL_TECHNICAL_ROUNDTRIP_OPERATOR_DIALOG_CONFIRMATION_REQUIRED'
+    Write-ReceiptAndExit -Receipt $receipt -ExitCode 3
 
 } finally {
     if ($wb -ne $null) {

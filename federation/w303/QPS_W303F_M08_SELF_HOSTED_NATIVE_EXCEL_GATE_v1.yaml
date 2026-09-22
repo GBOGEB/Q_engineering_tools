@@ -1,5 +1,5 @@
 schema: qps-w303f-m08-self-hosted-native-excel-owner-gate/1.0
-as_of: '2026-09-18T18:47:00+02:00'
+as_of: '2026-09-22T18:58:00+02:00'
 executor_repo: GBOGEB/Q_engineering_tools
 mission: M08_OFFER_EVAL_METHOD
 classification: MATERIAL_ENVIRONMENT_CHANGE_NATIVE_EXCEL_OWNER_GATE
@@ -19,7 +19,7 @@ upstream:
   owner_input_artifact_digest: sha256:7537c3c0ed5f96d5e3749fb4f7e881dcc8bc1093b16f5b29ff1a5d6f1e6aa0d3
   governed_input_raw_sha256: a01b53014681f8c154c349b273c9db9686abe6f7d00b0e03d9b10f6f685f226a
   governed_input_normalized_release_sha256: de54d5ccf3da1afcf8d517d7c22244765073798e0572ee1beef14cd0d8b9b18e
-  canonical_roundtrip_tool_blob: 0323123732a3b5897881f5c41654bf74fc15069f
+  canonical_roundtrip_tool_blob: f75ddf7eee50575e772f81b5dc713ac171d6638b
   canonical_receipt_validator_blob: 2c5996546725e629f612f54205e867fa8a4f40a8
 
 execution:
@@ -28,17 +28,19 @@ execution:
   hosted_retry_consumed: false
   materially_different_from_prior_hosted_attempts: true
   operator_confirmation:
-    source: SELF_HOSTED_RUNNER_ENV_M08_OPERATOR_CONFIRMED_NO_REPAIR_DIALOG
-    truthy_values: [true, 1, yes]
+    source: ATTENDED_OWNER_WRAPPER_AFTER_CURRENT_TRANSACTION
     rule: >-
-      The workflow never fabricates operator confirmation. Without an attended operator setting
-      the runner-local confirmation after observing the visible Excel transaction, a clean technical
-      transaction remains TECHNICAL_PASS_OPERATOR_CONFIRMATION_REQUIRED and does not admit 3P3.
+      Self-hosted automation is technical proof only and runs NonInteractive. It never sets the human observation.
+      The attended owner wrapper captures NO_REPAIR only after the current visible Excel transaction has completed cleanly.
+  trust_boundary:
+    workflow_trigger: MANUAL_WORKFLOW_DISPATCH_ONLY
+    required_ref: refs/heads/main
+    pull_request_self_hosted_execution: PROHIBITED
 
 pass_contract:
   receipt_schema: qps.m08.native_excel_roundtrip.v1
-  required_status: PASS_NATIVE_EXCEL_CLEAN_ROUNDTRIP
-  validator_status: PASS_VALIDATED_NATIVE_EXCEL_CLEAN_ROUNDTRIP_RECEIPT
+  required_status: PASS_OWNER_NATIVE_EXCEL_CLEAN_ROUNDTRIP
+  validator_status: PASS_VALIDATED_OWNER_NATIVE_EXCEL_CLEAN_ROUNDTRIP
   required:
     - real_Excel_version_present
     - open_save_close_reopen_true
@@ -59,6 +61,7 @@ on_not_pass:
   no_third_github_hosted_retry: true
   no_openpyxl_or_LibreOffice_substitution: true
   no_global_3p3: true
+  ci_technical_pass_ne_owner_admission: true
   recurse_only_on_first_real_native_excel_or_workbook_red: true
 
 noncompensating:
