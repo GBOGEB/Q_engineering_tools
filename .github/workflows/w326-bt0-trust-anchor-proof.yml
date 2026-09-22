@@ -1,0 +1,91 @@
+name: W326 BT0 Trust Anchor Exact Proof
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/w326-bt0-trust-anchor-proof.yml"
+      - "federation/w326_1629/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bind exact cryoplant PR 1629 payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/w326_1629/scripts/qplant_hepak_mip_burndown.py)" = "a485b5454b318f3c0cca9510c5a716de6edb74b8"
+          test "$(git hash-object federation/w326_1629/tests/test_qplant_hepak_mip_burndown.py)" = "8645e981b4c4cbeb247bc01ff8a56b0a15796ebb"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prove exact unit suite
+        working-directory: federation/w326_1629
+        run: python -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove optimized interpreter
+        working-directory: federation/w326_1629
+        run: python -O -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove project state remains BT0 blocked without owner digest
+        working-directory: federation/w326_1629
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/w326-empty
+          mkdir -p /tmp/w326-empty out
+          python scripts/qplant_hepak_mip_burndown.py             --root /tmp/w326-empty             --json-out out/burndown.json             --md-out out/burndown.md
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("out/burndown.json").read_text())
+          assert r["physical_conversion"] == {"converted": 0, "fraction": 0.0, "total": 5}
+          assert r["next_blocker"] == "BT0_HEPAK"
+          assert r["formal_engineering_delta"] == 0
+          assert r["strict_numerical_delta"] == 0
+          PY
+
+      - name: Emit exact proof receipt
+        working-directory: federation/w326_1629
+        env:
+          SOURCE_HEAD: 2ac63c0b867a80810d76e2de9220e77d0bdaa1db
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          result=json.loads(Path("out/burndown.json").read_text())
+          receipt={
+            "schema":"qtools.w326.bt0_trust_anchor_exact_proof.v1",
+            "source_repo":"GBOGEB/cryoplant-project",
+            "source_pr":1629,
+            "source_head":os.environ["SOURCE_HEAD"],
+            "source_blobs":{
+              "script":"a485b5454b318f3c0cca9510c5a716de6edb74b8",
+              "tests":"8645e981b4c4cbeb247bc01ff8a56b0a15796ebb"
+            },
+            "normal_unit_suite":"PASS",
+            "optimized_unit_suite":"PASS",
+            "empty_source_fail_closed":result,
+            "authority_transfer":False,
+            "formal_credit_delta":0,
+            "compensates_issue_923":False
+          }
+          p=Path("out/W326_BT0_TRUST_ANCHOR_EXACT_PROOF_RECEIPT.json")
+          p.write_text(json.dumps(receipt,indent=2,sort_keys=True)+"\n")
+          print(p.read_text())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w326-bt0-trust-anchor-exact-proof
+          path: federation/w326_1629/out/
+          if-no-files-found: error
