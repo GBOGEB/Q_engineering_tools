@@ -1,0 +1,66 @@
+schema: qps.w329.bt2_authority_class.3pstar_mip.v1
+as_of: "2026-09-22T15:11:00+02:00"
+parent_issue: 1617
+semantic_root: HIST-BD-034
+base_main: df84ddc293efd3c9fdb2e8cb098c745d26bdac3a
+authority_transfer: false
+formal_credit_delta: 0
+engineering_credit_delta: 0
+acceptance_credit_delta: 0
+
+three_pr:
+  refresh:
+    result: PASS
+    evidence:
+      - "S4 checkpoint-2 and post-checkpoint current-code census refreshed from pipeline-automation-hub#372/#85/#76"
+      - "BT0 trust lane remains separate PROVE work in cryoplant PR #1633"
+      - "current main validator inspected directly"
+  probe:
+    result: PASS
+    first_red: BT2_AUTHORITY_CLASS_SOURCE_BEARING_ADMISSION
+    observed_escape: "complete governed BT2 populations with authority_class=OPEN_SOURCE_REQUIRED can convert"
+    source_review: "Codex P1 on merged PR #1622"
+  rank:
+    result: EXECUTE_NOW
+    reason: "genuine current-code fail-open source-authority defect; same HIST-BD-034 root; normal WIP permits one coding lane plus #1633 PROVE"
+
+mip:
+  modernize:
+    result: IMPLEMENTED
+    change: "explicit source-bearing authority allowlist at BT2 admission"
+  innovate:
+    result: IMPLEMENTED
+    change: "negative-control rejection of unresolved authority plus positive source-bound preservation"
+  perpetuate:
+    result: IMPLEMENTED_PENDING_PROOF
+    controls:
+      - "unit regression for OPEN_SOURCE_REQUIRED rejection"
+      - "unit regression for CURRENT_OFFER_SOURCE_BOUND acceptance"
+      - "explicit runtime_gate_state=INDEPENDENT_NON_COMPENSATING"
+      - "formal_credit_delta=0 in machine-readable closeout"
+
+admitted_source_bearing_authority_classes:
+  - SOURCE_SUPPORTED
+  - CURRENT_OFFER_SOURCE_BOUND
+  - OWNER_CONFIRMED_PROJECT_INPUT
+  - CONTRACT_REQUIREMENT
+
+explicit_non_source_examples:
+  - OPEN_SOURCE_REQUIRED
+  - CONTROLLED_DERIVED
+  - OWNER_WIP_SENSITIVITY
+
+queue_execute_boundary:
+  private_runtime_gate: "GBOGEB/cryoplant-project#923"
+  rule: "zero-step/private runner admission cannot compensate semantic proof and is not application failure"
+  execute_duration_when_steps_null: MISSING_NOT_ZERO
+
+s4:
+  checkpoint_1: PASS_ZERO_ACTIVE
+  checkpoint_2: FAIL_NET_BD_DELTA_POSITIVE
+  post_checkpoint_rearm: NONPOSITIVE_BUT_PROVE_BACKLOG_PRESENT
+  current_stabilization_promotion: WITHHELD
+  promotion_requires:
+    - "HIST-BD-034 current-code first-red census none"
+    - "proof backlog drained"
+    - "fresh later S4 pulse net_BD_delta <= 0"
