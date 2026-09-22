@@ -1,0 +1,80 @@
+schema_version: "0.1"
+document_id: QPS_W281_SAT_VERIFICATION_PRECEDENT_VALIDATION
+status: PASS
+snapshot_date: 2026-09-22
+branch: w281-sat-verification-precedent-collapse
+
+coverage:
+  expected_first_rtm: RTM-499
+  expected_last_rtm: RTM-556
+  expected_rows: 58
+  observed_rows: 58
+  unique_rows: 58
+  missing: []
+  duplicate_primary_memberships: []
+  result: PASS
+
+partition:
+  governance:
+    precedent: VP-SAT-00
+    expected_scope: RTM-499..RTM-509
+    observed_count: 11
+    result: PASS
+  technical:
+    precedent_count: 12
+    expected_scope: RTM-510..RTM-556
+    observed_count: 47
+    sum_member_counts: 47
+    result: PASS
+
+reduction:
+  technical_rows_to_precedents: "47 -> 12"
+  technical_review_reduction_pct: 74.47
+  full_SAT_rows_to_review_nodes: "58 -> 13"
+  full_SAT_review_reduction_pct: 77.59
+  contractual_denominator_delta: 0
+
+source_section_consistency:
+  source_register: triage/w280/QPS_W280_VV_EXECUTION_SOURCE_REENTRY_v0.1.csv
+  predicates:
+    VP-SAT-01:
+      members: [RTM-510, RTM-511]
+      expected_sections: [4.13.3.1, 4.13.3.2]
+      result: PASS
+    VP-SAT-02:
+      members: [RTM-512, RTM-513, RTM-514, RTM-517]
+      expected_sections: [4.13.3.2]
+      result: PASS
+    VP-SAT-11:
+      member_scope: RTM-545..RTM-549
+      expected_sections: [4.13.3.4]
+      result: PASS
+    VP-SAT-12:
+      member_scope: RTM-550..RTM-556
+      expected_sections: [4.13.3.5]
+      result: PASS
+  known_bad_partition_rejected:
+    move_RTM_548_549_to_VP_SAT_12: true
+    label_VP_SAT_01_as_4_13_3_1_only: true
+    label_VP_SAT_02_as_spanning_4_13_3_1_and_4_13_3_2: true
+  result: PASS
+
+closure_consistency:
+  closure_report_rtm: RTM-586
+  lifecycle_phase: L6
+  report_gate: M44
+  provisional_acceptance_gate: M45
+  acceptance_authority_rtm: RTM-624
+  written_acceptance_required: true
+  result: PASS
+
+guards:
+  every_member_criterion_status: MANDATORY_LEAF_ACCEPTANCE_CRITERION_PRESERVED
+  source_RTM_rewrite: false
+  hierarchy_compliance_credit: 0
+  range_precedent_promoted_to_atomic_RTM_edge: false
+  QSN_conditional_applicability_overridden: false
+  result: PASS
+
+formal_credit_delta: 0
+authority_delta: 0
