@@ -1,0 +1,105 @@
+name: W322-R2 Exact Proof 1614
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/w322r2-exact-proof-1614.yml"
+      - "federation/w322r2_1614/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bind exact cryoplant 1614 payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/w322r2_1614/scripts/qplant_hepak_mip_burndown.py)" = "4c06b53cdd309abfa5dba19789d6c53ecc537c9c"
+          test "$(git hash-object federation/w322r2_1614/tests/test_qplant_hepak_mip_burndown.py)" = "eb343150ea5e60bf376315246bf56e2482cdbac0"
+          test "$(git hash-object federation/w322r2_1614/controls/W322_HEPAK_MIP_3PR_CONTROL_v0.1.yaml)" = "99a3e1e3502e1ad48b8d60c8c6ad81ded60f5c6a"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prove negative controls
+        working-directory: federation/w322r2_1614
+        run: python -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove optimized interpreter
+        working-directory: federation/w322r2_1614
+        run: python -O -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove empty-source fail closed
+        working-directory: federation/w322r2_1614
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/w322r2-empty
+          mkdir -p /tmp/w322r2-empty out
+          python scripts/qplant_hepak_mip_burndown.py \
+            --root /tmp/w322r2-empty \
+            --json-out out/burndown.json \
+            --md-out out/burndown.md
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("out/burndown.json").read_text())
+          assert r["physical_conversion"]["converted"] == 0
+          assert r["physical_conversion"]["total"] == 5
+          assert r["next_blocker"] == "BT0_HEPAK"
+          assert r["formal_engineering_delta"] == 0
+          assert r["strict_numerical_delta"] == 0
+          PY
+
+      - name: Emit exact proof receipt
+        working-directory: federation/w322r2_1614
+        env:
+          SOURCE_HEAD: 28e63556204f7b4afdd24c561dd397cc5d4c0fcc
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          burndown=json.loads(Path("out/burndown.json").read_text())
+          receipt={
+            "schema":"qtools.w322r2.exact_proof.v1",
+            "source_repo":"GBOGEB/cryoplant-project",
+            "source_pr":1614,
+            "source_head":os.environ["SOURCE_HEAD"],
+            "source_blobs":{
+              "script":"4c06b53cdd309abfa5dba19789d6c53ecc537c9c",
+              "tests":"eb343150ea5e60bf376315246bf56e2482cdbac0",
+              "control":"99a3e1e3502e1ad48b8d60c8c6ad81ded60f5c6a"
+            },
+            "executor_repo":"GBOGEB/Q_engineering_tools",
+            "executor_head":os.environ["GITHUB_SHA"],
+            "normal_unit_tests":"PASS",
+            "optimized_unit_tests":"PASS",
+            "negative_controls":9,
+            "empty_source_fail_closed":"PASS_0_OF_5_BT0_FIRST",
+            "physical_conversion_observed":burndown["physical_conversion"],
+            "next_blocker":burndown["next_blocker"],
+            "authority_transfer":False,
+            "formal_credit_delta":0,
+            "compensates_issue_923":False
+          }
+          p=Path("out/W322R2_1614_EXACT_PROOF_RECEIPT.json")
+          p.write_text(json.dumps(receipt,indent=2,sort_keys=True)+"\n")
+          print(p.read_text())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w322r2-1614-exact-proof
+          path: |
+            federation/w322r2_1614/out/W322R2_1614_EXACT_PROOF_RECEIPT.json
+            federation/w322r2_1614/out/burndown.json
+            federation/w322r2_1614/out/burndown.md
+          if-no-files-found: error
