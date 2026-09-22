@@ -1,10 +1,6 @@
 name: W303F M08 Self-Hosted Windows Native Excel Owner Gate
 
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/w303f-m08-self-hosted-native-excel.yml'
-      - 'federation/w303/**'
   workflow_dispatch:
 
 permissions:
@@ -20,18 +16,19 @@ env:
 
 jobs:
   native_excel_owner_gate:
+    if: github.ref == 'refs/heads/main'
     runs-on: [self-hosted, Windows, X64]
     steps:
       - name: Checkout exact executor head
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.sha }}
 
       - name: Assert exact checkout and W291 tool identities
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $expected = '${{ github.event.pull_request.head.sha || github.sha }}'
+          $expected = '${{ github.sha }}'
           $actual = (git rev-parse HEAD).Trim()
           if ($actual -ne $expected) { throw "checkout mismatch $actual != $expected" }
           if ((git hash-object 'federation/w303/payload/scripts/qps_m08_native_excel_roundtrip.ps1').Trim() -ne '0323123732a3b5897881f5c41654bf74fc15069f') { throw 'roundtrip tool blob drift' }
@@ -66,33 +63,30 @@ jobs:
         continue-on-error: true
         run: |
           $ErrorActionPreference = 'Continue'
-          $operator = $false
-          if ($env:M08_OPERATOR_CONFIRMED_NO_REPAIR_DIALOG -match '^(?i:true|1|yes)$') { $operator = $true }
           $args = @(
             '-InputXlsx', (Resolve-Path 'evidence\w302\OFFER_EVAL_MIP2A_OWNER_INPUT.xlsx').Path,
             '-OutputXlsx', (Join-Path (Resolve-Path 'evidence').Path 'OFFER_EVAL_MIP2A_OWNER_NATIVE.xlsx'),
             '-ReceiptPath', (Join-Path (Resolve-Path 'evidence').Path 'QPS_M08_NATIVE_EXCEL_RECEIPT.json'),
-            '-Visible'
+            '-Visible',
+            '-NonInteractive'
           )
-          if ($operator) { $args += '-OperatorConfirmedNoRepairDialog' }
           & .\federation\w303\payload\scripts\qps_m08_native_excel_roundtrip.ps1 @args
           $code = $LASTEXITCODE
           "roundtrip_exit_code=$code" >> $env:GITHUB_OUTPUT
           if (Test-Path evidence\QPS_M08_NATIVE_EXCEL_RECEIPT.json) { Get-Content evidence\QPS_M08_NATIVE_EXCEL_RECEIPT.json -Raw }
           exit 0
 
-      - name: Validate full W291 receipt if admitted
-        id: validate
+      - name: Classify technical W291 receipt only
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           if (-not (Test-Path evidence\QPS_M08_NATIVE_EXCEL_RECEIPT.json)) { throw 'native Excel receipt missing' }
           $receipt = Get-Content evidence\QPS_M08_NATIVE_EXCEL_RECEIPT.json -Raw | ConvertFrom-Json
           $disposition = [ordered]@{
-            schema = 'qps.m08.w303.self_hosted_native_excel_gate.v1'
+            schema = 'qps.m08.w303.self_hosted_native_excel_technical_gate.v2'
             status = $receipt.status
             executor_repo = 'GBOGEB/Q_engineering_tools'
-            executor_head = '${{ github.event.pull_request.head.sha || github.sha }}'
+            executor_head = '${{ github.sha }}'
             runner_name = $env:RUNNER_NAME
             runner_arch = $env:RUNNER_ARCH
             governed_input_sha256 = $receipt.governed_input_sha256
@@ -101,24 +95,17 @@ jobs:
             host = $receipt.host
             user = $receipt.user
             timestamp_utc = $receipt.timestamp_utc
-            operator_confirmation = $receipt.operator_confirmed_no_repair_dialog
-            native_excel_validated = $false
-            mip3_3p3_admission = 'HOLD'
+            native_excel_technical_pass = $false
+            operator_confirmation = $false
+            mip3_3p3_admission = 'HOLD_OWNER_POST_TRANSACTION_CONFIRMATION'
             authority_transfer = $false
             formal_credit_delta = 0
           }
-          if ($receipt.status -eq 'PASS_NATIVE_EXCEL_CLEAN_ROUNDTRIP') {
-            python federation\w303\payload\scripts\qps_m08_validate_native_excel_receipt.py evidence\QPS_M08_NATIVE_EXCEL_RECEIPT.json | Tee-Object -FilePath evidence\W303_VALIDATED_RECEIPT.json
-            if ($LASTEXITCODE -ne 0) { throw 'canonical validator rejected PASS receipt' }
-            $disposition.native_excel_validated = $true
-            $disposition.mip3_3p3_admission = 'ADMITTED_NATIVE_EXCEL_GATE'
-            $disposition.status = 'PASS_VALIDATED_NATIVE_EXCEL_CLEAN_ROUNDTRIP_RECEIPT'
-          } elseif ($receipt.status -eq 'PASS_NATIVE_EXCEL_TECHNICAL_ROUNDTRIP_OPERATOR_DIALOG_CONFIRMATION_REQUIRED') {
-            $disposition.status = 'TECHNICAL_PASS_OPERATOR_CONFIRMATION_REQUIRED'
+          if ($receipt.status -eq 'PASS_NATIVE_EXCEL_TECHNICAL_ROUNDTRIP_OPERATOR_DIALOG_CONFIRMATION_REQUIRED') {
+            $disposition.native_excel_technical_pass = $true
           }
-          $disposition | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 evidence\W303_GATE_DISPOSITION.json
+          $disposition | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 evidence\W303_TECHNICAL_GATE_DISPOSITION.json
           $disposition | ConvertTo-Json -Depth 8
-
       - name: Upload W303 native Excel evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -130,7 +117,8 @@ jobs:
       - name: Enforce final gate
         shell: pwsh
         run: |
-          $d = Get-Content evidence\W303_GATE_DISPOSITION.json -Raw | ConvertFrom-Json
-          if ($d.status -ne 'PASS_VALIDATED_NATIVE_EXCEL_CLEAN_ROUNDTRIP_RECEIPT') {
-            throw "W303 native Excel gate not fully admitted: $($d.status)"
+          $d = Get-Content evidence\W303_TECHNICAL_GATE_DISPOSITION.json -Raw | ConvertFrom-Json
+          if ($d.native_excel_technical_pass -ne $true) {
+            throw "W303 native Excel technical gate not clean: $($d.status)"
           }
+          Write-Host 'Technical native Excel transaction is clean. Global MIP3/3P3 remains HOLD until the attended owner wrapper produces and validates the post-transaction NO_REPAIR confirmation.'
