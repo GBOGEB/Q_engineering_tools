@@ -1,0 +1,113 @@
+name: W325 Exact Proof 1622
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/w325-exact-proof-1622.yml"
+      - "federation/w325_1622/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bind exact cryoplant 1622 payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/w325_1622/scripts/qplant_hepak_mip_burndown.py)" = "f313c7e35de84ce9ceb8cb1adabe219c5e47e9d9"
+          test "$(git hash-object federation/w325_1622/tests/test_qplant_hepak_mip_burndown.py)" = "a24fd591f8a610687341025c36db7c85d93fcbc1"
+          test "$(git hash-object federation/w325_1622/controls/W325_BT2_W57_P09_CONTRACT_CLOSEOUT_v0.1.yaml)" = "d12923be5d8b92d6f3b482c0b3d548419d4dd61b"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prove W325 suite
+        working-directory: federation/w325_1622
+        run: python -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove W325 optimized interpreter
+        working-directory: federation/w325_1622
+        run: python -O -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove focused BT2 algebraic integrity regressions
+        working-directory: federation/w325_1622
+        run: |
+          python -m unittest -v \
+            tests.test_qplant_hepak_mip_burndown.HepakMIPBurndownTests.test_complete_w57_p09_bflow_population_converts_bt2 \
+            tests.test_qplant_hepak_mip_burndown.HepakMIPBurndownTests.test_overpopulated_bflow_cohort_does_not_convert_bt2 \
+            tests.test_qplant_hepak_mip_burndown.HepakMIPBurndownTests.test_inconsistent_reverse_cumulative_flow_does_not_convert_bt2 \
+            tests.test_qplant_hepak_mip_burndown.HepakMIPBurndownTests.test_nonzero_mass_balance_residual_does_not_convert_bt2
+
+      - name: Prove empty-source fail closed
+        working-directory: federation/w325_1622
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/w325-empty
+          mkdir -p /tmp/w325-empty out
+          python scripts/qplant_hepak_mip_burndown.py \
+            --root /tmp/w325-empty \
+            --json-out out/burndown.json \
+            --md-out out/burndown.md
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("out/burndown.json").read_text())
+          assert r["physical_conversion"]["converted"] == 0
+          assert r["physical_conversion"]["total"] == 5
+          assert r["next_blocker"] == "BT0_HEPAK"
+          assert r["formal_engineering_delta"] == 0
+          assert r["strict_numerical_delta"] == 0
+          PY
+
+      - name: Emit exact W325 receipt
+        working-directory: federation/w325_1622
+        env:
+          SOURCE_HEAD: 94cf8cbc75a9af6acbf7f96bcb54e8aa3c67335e
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          burndown=json.loads(Path("out/burndown.json").read_text())
+          receipt={
+            "schema":"qtools.w325.exact_proof.v1",
+            "source_repo":"GBOGEB/cryoplant-project",
+            "source_pr":1622,
+            "source_head":os.environ["SOURCE_HEAD"],
+            "source_blobs":{
+              "script":"f313c7e35de84ce9ceb8cb1adabe219c5e47e9d9",
+              "tests":"a24fd591f8a610687341025c36db7c85d93fcbc1",
+              "closeout":"d12923be5d8b92d6f3b482c0b3d548419d4dd61b"
+            },
+            "executor_repo":"GBOGEB/Q_engineering_tools",
+            "executor_head":os.environ["GITHUB_SHA"],
+            "normal_unit_suite":"PASS",
+            "optimized_unit_suite":"PASS",
+            "focused_bt2_integrity_suite":"PASS",
+            "reverse_cumulative_recomputed":"PASS",
+            "mass_balance_residual_algebraic_closure":"PASS",
+            "empty_source_fail_closed":"PASS_0_OF_5_BT0_FIRST",
+            "physical_conversion_observed":burndown["physical_conversion"],
+            "next_blocker":burndown["next_blocker"],
+            "authority_transfer":False,
+            "formal_credit_delta":0,
+            "compensates_issue_923":False
+          }
+          p=Path("out/W325_1622_EXACT_PROOF_RECEIPT.json")
+          p.write_text(json.dumps(receipt,indent=2,sort_keys=True)+"\n")
+          print(p.read_text())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w325-1622-exact-proof
+          path: federation/w325_1622/out/
+          if-no-files-found: error
