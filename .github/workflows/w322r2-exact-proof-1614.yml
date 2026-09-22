@@ -22,8 +22,8 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git hash-object federation/w322r2_1614/scripts/qplant_hepak_mip_burndown.py)" = "4c06b53cdd309abfa5dba19789d6c53ecc537c9c"
-          test "$(git hash-object federation/w322r2_1614/tests/test_qplant_hepak_mip_burndown.py)" = "eb343150ea5e60bf376315246bf56e2482cdbac0"
-          test "$(git hash-object federation/w322r2_1614/controls/W322_HEPAK_MIP_3PR_CONTROL_v0.1.yaml)" = "99a3e1e3502e1ad48b8d60c8c6ad81ded60f5c6a"
+          test "$(git hash-object federation/w322r2_1614/tests/test_qplant_hepak_mip_burndown.py)" = "13960fce960af2a308e52596d237a22a89acd666"
+          test "$(git hash-object federation/w322r2_1614/controls/W322_HEPAK_MIP_3PR_CONTROL_v0.1.yaml)" = "3c448499a49e2a8a06e8e8553eda071a1d52b12d"
 
       - uses: actions/setup-python@v5
         with:
@@ -62,27 +62,27 @@ jobs:
       - name: Emit exact proof receipt
         working-directory: federation/w322r2_1614
         env:
-          SOURCE_HEAD: 28e63556204f7b4afdd24c561dd397cc5d4c0fcc
+          SOURCE_HEAD: 0cf3850589d437e02144c8996d972849a7442c36
         run: |
           python - <<'PY'
           import json, os
           from pathlib import Path
           burndown=json.loads(Path("out/burndown.json").read_text())
           receipt={
-            "schema":"qtools.w322r2.exact_proof.v1",
+            "schema":"qtools.w322r2.exact_proof.v2",
             "source_repo":"GBOGEB/cryoplant-project",
             "source_pr":1614,
             "source_head":os.environ["SOURCE_HEAD"],
             "source_blobs":{
               "script":"4c06b53cdd309abfa5dba19789d6c53ecc537c9c",
-              "tests":"eb343150ea5e60bf376315246bf56e2482cdbac0",
-              "control":"99a3e1e3502e1ad48b8d60c8c6ad81ded60f5c6a"
+              "tests":"13960fce960af2a308e52596d237a22a89acd666",
+              "control":"3c448499a49e2a8a06e8e8553eda071a1d52b12d"
             },
             "executor_repo":"GBOGEB/Q_engineering_tools",
             "executor_head":os.environ["GITHUB_SHA"],
             "normal_unit_tests":"PASS",
             "optimized_unit_tests":"PASS",
-            "negative_controls":9,
+            "unit_tests_declared":17,
             "empty_source_fail_closed":"PASS_0_OF_5_BT0_FIRST",
             "physical_conversion_observed":burndown["physical_conversion"],
             "next_blocker":burndown["next_blocker"],
