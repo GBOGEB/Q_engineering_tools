@@ -1,0 +1,100 @@
+name: W334 Current Main Exact Proof 1663
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/w334-current-main-exact-proof-1663.yml"
+      - "federation/w334_current_main_1663/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bind exact cryoplant current-main payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/w334_current_main_1663/scripts/qplant_hepak_mip_burndown.py)" = "18300af7d3b1329cb9f9087a8f319dc6b257af53"
+          test "$(git hash-object federation/w334_current_main_1663/tests/test_qplant_hepak_mip_burndown.py)" = "1fb204d15b1846c8f6a9c7bf63181e31b009c2cb"
+          test "$(git hash-object federation/w334_current_main_1663/controls/W325_BT2_W57_P09_CONTRACT_CLOSEOUT_v0.1.yaml)" = "661111694c29a43de7bb8821bc50020abef9ee87"
+          test "$(git hash-object federation/w334_current_main_1663/controls/W334_PUBLIC_PROOF_HARNESS_CLOSEOUT_v0.1.yaml)" = "958d00dc54d806f271b1906f297435b14b66191c"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prove full normal unit suite
+        working-directory: federation/w334_current_main_1663
+        run: python -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove full optimized-interpreter suite
+        working-directory: federation/w334_current_main_1663
+        run: python -O -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
+
+      - name: Prove empty-source non-compensation boundary
+        working-directory: federation/w334_current_main_1663
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/w334-1663-empty
+          mkdir -p /tmp/w334-1663-empty out
+          python scripts/qplant_hepak_mip_burndown.py --root /tmp/w334-1663-empty --json-out out/burndown.json --md-out out/burndown.md
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("out/burndown.json").read_text())
+          assert r["physical_conversion"] == {"converted": 0, "fraction": 0.0, "total": 5}
+          assert r["next_blocker"] == "BT0_HEPAK"
+          assert r["formal_engineering_delta"] == 0
+          assert r["formal_credit_delta"] == 0
+          assert r["strict_numerical_delta"] == 0
+          print("W334_EMPTY_SOURCE_NONCOMPENSATION=PASS")
+          PY
+
+      - name: Emit exact proof receipt
+        working-directory: federation/w334_current_main_1663
+        env:
+          SOURCE_HEAD: 9f6b38c951d25e09eca5c6f90bc0d086ba86e2b8
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          burndown=json.loads(Path("out/burndown.json").read_text())
+          receipt={
+            "schema":"qtools.w334.current_main_exact_proof.v1",
+            "source_repo":"GBOGEB/cryoplant-project",
+            "source_merge_pr":1663,
+            "source_head":os.environ["SOURCE_HEAD"],
+            "source_blobs":{
+              "script":"18300af7d3b1329cb9f9087a8f319dc6b257af53",
+              "tests":"1fb204d15b1846c8f6a9c7bf63181e31b009c2cb",
+              "bt2_closeout":"661111694c29a43de7bb8821bc50020abef9ee87",
+              "w334_closeout":"958d00dc54d806f271b1906f297435b14b66191c"
+            },
+            "executor_repo":"GBOGEB/Q_engineering_tools",
+            "executor_head":os.environ["GITHUB_SHA"],
+            "normal_unit_suite":"PASS",
+            "optimized_unit_suite":"PASS",
+            "empty_source_fail_closed":burndown["physical_conversion"],
+            "next_blocker":burndown["next_blocker"],
+            "authority_transfer":False,
+            "formal_credit_delta":0,
+            "compensates_issue_923":False
+          }
+          p=Path("out/W334_1663_CURRENT_MAIN_EXACT_PROOF_RECEIPT.json")
+          p.write_text(json.dumps(receipt,indent=2,sort_keys=True)+"\n")
+          print(p.read_text())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w334-1663-current-main-exact-proof
+          path: federation/w334_current_main_1663/out/
+          if-no-files-found: error
