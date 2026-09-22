@@ -1,10 +1,10 @@
-name: HIST-BD-034 Current Main Exact Proof 1664
+name: HIST-BD-034 Current Main Exact Proof 1663
 
 on:
   pull_request:
     paths:
-      - ".github/workflows/hist-bd034-current-main-exact-proof-1664.yml"
-      - "federation/hist_bd034_current_main_1664/**"
+      - ".github/workflows/hist-bd034-current-main-exact-proof-1663.yml"
+      - "federation/hist_bd034_current_main_1663/**"
   workflow_dispatch:
 
 permissions:
@@ -17,27 +17,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Bind exact cryoplant 1664 payload
+      - name: Bind exact cryoplant 1663 payload
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git hash-object federation/hist_bd034_current_main_1664/scripts/qplant_hepak_mip_burndown.py)" = "18300af7d3b1329cb9f9087a8f319dc6b257af53"
-          test "$(git hash-object federation/hist_bd034_current_main_1664/tests/test_qplant_hepak_mip_burndown.py)" = "1fb204d15b1846c8f6a9c7bf63181e31b009c2cb"
+          test "$(git hash-object federation/hist_bd034_current_main_1663/scripts/qplant_hepak_mip_burndown.py)" = "18300af7d3b1329cb9f9087a8f319dc6b257af53"
+          test "$(git hash-object federation/hist_bd034_current_main_1663/tests/test_qplant_hepak_mip_burndown.py)" = "1fb204d15b1846c8f6a9c7bf63181e31b009c2cb"
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Prove full normal unit suite
-        working-directory: federation/hist_bd034_current_main_1664
+        working-directory: federation/hist_bd034_current_main_1663
         run: python -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
 
       - name: Prove full optimized-interpreter suite
-        working-directory: federation/hist_bd034_current_main_1664
+        working-directory: federation/hist_bd034_current_main_1663
         run: python -O -m unittest discover -s tests -p 'test_qplant_hepak_mip_burndown.py' -v
 
       - name: Prove empty-source non-compensation
-        working-directory: federation/hist_bd034_current_main_1664
+        working-directory: federation/hist_bd034_current_main_1663
         shell: bash
         run: |
           set -euo pipefail
@@ -61,9 +61,9 @@ jobs:
           PY
 
       - name: Emit exact proof receipt
-        working-directory: federation/hist_bd034_current_main_1664
+        working-directory: federation/hist_bd034_current_main_1663
         env:
-          SOURCE_HEAD: 85dadfc4fa190ca6978d7d30e83217d09c5a3a7e
+          SOURCE_HEAD: ffe279cf2483c94e208b37ae11264bbdca293f8e
         run: |
           python - <<'PY'
           import json, os
@@ -71,7 +71,7 @@ jobs:
           receipt={
             "schema":"qtools.hist_bd034.current_main_exact_proof.v1",
             "source_repo":"GBOGEB/cryoplant-project",
-            "source_pr":1664,
+            "source_pr":1663,
             "source_head":os.environ["SOURCE_HEAD"],
             "source_blobs":{
               "script":"18300af7d3b1329cb9f9087a8f319dc6b257af53",
@@ -93,6 +93,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: hist-bd034-current-main-exact-proof-1664
-          path: federation/hist_bd034_current_main_1664/out/
+          name: hist-bd034-current-main-exact-proof-1663
+          path: federation/hist_bd034_current_main_1663/out/
           if-no-files-found: error
