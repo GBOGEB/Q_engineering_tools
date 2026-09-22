@@ -1,0 +1,15 @@
+{
+  "schema": "qps-hepak-source-trust-anchor/v1",
+  "status": "PENDING_TRUSTED_DIGEST",
+  "authority": "OWNER_SOURCE_ATTESTATION_PENDING",
+  "source_workbook": "CH15_HEPAK_QPLANT_Runtime_v0_1.xlsx",
+  "source_workbook_sha256": null,
+  "source_reference": {
+    "kind": "chatgpt_file_library",
+    "id": "file_000000009ba471f49f0e1242ddfa867c"
+  },
+  "attestation_rule": "BT0 may convert only after explicit promotion to ACTIVE_TRUST_ANCHOR with OWNER_SOURCE_ATTESTATION and the exact source workbook SHA-256, or after direct source bytes are supplied and independently hashed against that attestation.",
+  "current_effect": "BT0_BLOCKED",
+  "formal_credit_delta": 0,
+  "authority_transfer": false
+}
