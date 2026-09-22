@@ -1,0 +1,75 @@
+name: W281-R4 HIST-BD-033 Exact Proof
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/w281r4-hist-bd-033-exact-proof.yml"
+      - "federation/w281r4/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bind exact cryoplant payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/w281r4/triage/w280/QPS_W280_VV_EXECUTION_SOURCE_REENTRY_v0.1.csv)" = "8f91f3e97539d5048232b8b6e4a7ca62ca6d6ad4"
+          test "$(git hash-object federation/w281r4/triage/w281/QPS_W281_SAT_VERIFICATION_PRECEDENT_REGISTER_v0.1.csv)" = "9804eeec85330ebd6da9aa872bcd8d0a0cd21af9"
+          test "$(git hash-object federation/w281r4/triage/w281/QPS_W281_SAT_PRECEDENT_MEMBERSHIP_v0.1.csv)" = "4f121b0dd61505e8aaa79aafcafb61acfe071816"
+          test "$(git hash-object federation/w281r4/triage/w281/QPS_W281_SAT_VERIFICATION_PRECEDENT_SUMMARY_v0.1.yaml)" = "14a6bf856637cc6cf8e8e432d3d6e0832b60786e"
+          test "$(git hash-object federation/w281r4/triage/w281/QPS_W281_SAT_VERIFICATION_PRECEDENT_VALIDATION_v0.1.yaml)" = "14c3d85a9c083e0130a281e7abb766f088cfeda0"
+          test "$(git hash-object federation/w281r4/triage/w281/validate_sat_precedent_source_sections.py)" = "302b78149476e19632619f88596695d40e5db8f5"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install exact proof dependency
+        run: python -m pip install --disable-pip-version-check pyyaml
+
+      - name: Prove validator normal interpreter
+        run: python federation/w281r4/triage/w281/validate_sat_precedent_source_sections.py --self-test
+
+      - name: Prove validator under python -O
+        run: python -O federation/w281r4/triage/w281/validate_sat_precedent_source_sections.py --self-test
+
+      - name: Emit exact proof receipt
+        shell: bash
+        env:
+          SOURCE_HEAD: fe64562d272c048e52eb04a579d23977680ce42d
+        run: |
+          mkdir -p out
+          python - <<'PY'
+          import json, os, pathlib
+          receipt = {
+            "schema": "qtools.w281r4.hist_bd_033.exact_proof.v1",
+            "source_repo": "GBOGEB/cryoplant-project",
+            "source_pr": 1606,
+            "source_head": os.environ["SOURCE_HEAD"],
+            "executor_repo": "GBOGEB/Q_engineering_tools",
+            "executor_head": os.environ["GITHUB_SHA"],
+            "normal_self_test": "PASS",
+            "python_O_self_test": "PASS",
+            "yaml_duplicate_key_guard": "PASS",
+            "authority_transfer": False,
+            "formal_credit_delta": 0,
+            "compensates_issue_923": False,
+          }
+          p=pathlib.Path("out/W281R4_HIST_BD_033_EXACT_PROOF_RECEIPT.json")
+          p.write_text(json.dumps(receipt, indent=2, sort_keys=True)+"\n")
+          print(p.read_text())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w281r4-hist-bd-033-exact-proof
+          path: out/W281R4_HIST_BD_033_EXACT_PROOF_RECEIPT.json
+          if-no-files-found: error
