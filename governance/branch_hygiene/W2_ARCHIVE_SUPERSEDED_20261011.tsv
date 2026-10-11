@@ -1,0 +1,10 @@
+# W2_ARCHIVE_SUPERSEDED (8 branches, mode archive). Census 2026-10-11 against main.
+# Changed files already identical on main, docs/evidence snapshots, or unrelated history. Tagged archive/<branch> first.
+copilot/add-cryo-dashboard-v0-3-0	cfa67ad6d768c594d4cd713597f7eed4d749628e	archive
+copilot/create-standalone-dashboard-repo-again	66077fab826b47437b3026b0f0a8db38ee011a08	archive
+copilot/create-standalone-dashboard-repo-one-more-time	52c430c0ebf6c635cc807e6337c6611534d10035	archive
+copilot/create-standalone-dashboard-repo-please-work	203e3727e243c30ba8899147319f9cbf65c8ee6f	archive
+copilot/cryo-dashboard-and-federation	697428a44c3586e750693f62d9b2a1b095720217	archive
+w184f/n200-carrier-hardening-20260914	2fcc1843dde617341e7c4e2b1f08735d5443ace7	archive
+w184f/n200-exact-mirror-r2-20260914	9251bc710d4b4d5a94d06ab17e37bda50f40a8e2	archive
+w184f/visual-n200-checkpoint-20260914	b8be230eee5151703b8ea443f0f04cfbd3b5e270	archive
