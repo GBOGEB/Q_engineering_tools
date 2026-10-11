@@ -1,0 +1,12 @@
+# W4_ARCHIVE_NEVER_LANDED (10 branches, mode archive). Census 2026-10-11 against main.
+# Executable files that never reached main. Run only after the known-fix backlog review. Tagged archive/<branch> first.
+control/m02a-pages-repeat-84ec	a7d883efcb97f67ac8d78dcf7c90813388e2da10	archive
+copilot/bridge-abacus-codex-integration	08aa77da320c4ca7afb9686bce0d9221ecc43f1e	archive
+copilot/create-standalone-dashboard-repo-another-one	fb8377eec37ea6dff0590bad6f07e1dcf8817a0f	archive
+w281r4/hist-bd-033-exact-proof-20260922	9bfd3966d214cbbdc81b4354d9afd786f875d524	archive
+w287/m08-native-excel-gate-3pstar-mip-20260918	f9604e4791b02f32f3964f4a3d45b3d9a448132f	archive
+w288/offer-eval-equation-v1-proof-20260918	45a32f9590b89f77e3f1716082a4abb4a9fc8cc9	archive
+w292/m08-equation-v1-exact-proof-20260918	6d0a09718e2fdeb1e4e26d3528d32321f55f7bdb	archive
+w295f/m08-equation-state-preservation-proof-20260918	9c8637e4200d76e62814aac8891b01deadce0e31	archive
+w326/final-postmerge-proof-20260922	f74def37a94e98a8b2dd89a2894349002855920f	archive
+w334-current-main-exact-proof-1663	9632152c0523c79748f615e9bd0bd860eb15417b	archive

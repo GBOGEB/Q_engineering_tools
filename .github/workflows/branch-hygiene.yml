@@ -1,0 +1,97 @@
+name: Branch hygiene (lossless)
+
+# Removes stale branches listed in governance/branch_hygiene/*.tsv, only
+# when the removal is provably lossless at run time (see
+# scripts/branch_hygiene_delete.py). Default is a dry run; deletion needs
+# execute=true on a manual dispatch. Pull requests only run the unit tests
+# and the list linter: a live dry run of every list would exceed the
+# GITHUB_TOKEN rate limit, so dry runs are dispatched.
+on:
+  workflow_dispatch:
+    inputs:
+      list:
+        description: Branch list (TSV) under governance/branch_hygiene/
+        required: true
+        default: governance/branch_hygiene/W1_DELETE_MERGED_20261011.tsv
+      execute:
+        description: Delete (true) or dry run (false)
+        type: boolean
+        default: false
+  pull_request:
+    paths:
+      - scripts/branch_hygiene_delete.py
+      - tests/test_branch_hygiene_delete.py
+      - governance/branch_hygiene/**
+      - .github/workflows/branch-hygiene.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: branch-hygiene
+  cancel-in-progress: false
+
+# Actions are pinned by commit SHA: checkout v7.0.1, setup-python v7.0.0,
+# upload-artifact v7.0.1 (the same pins as the other ABACUS workflows).
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest
+      - run: >-
+          python -m pytest -q --noconftest -p no:cacheprovider -o addopts=""
+          tests/test_branch_hygiene_delete.py
+
+  apply:
+    if: github.event_name == 'workflow_dispatch'
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12'
+      - name: Apply list
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LIST: ${{ inputs.list }}
+          EXECUTE: ${{ inputs.execute }}
+        run: |
+          set -euo pipefail
+          case "$LIST" in
+            governance/branch_hygiene/*.tsv) ;;
+            *) echo "list must be under governance/branch_hygiene/"; exit 1;;
+          esac
+          flag=""; [ "$EXECUTE" = "true" ] && flag="--execute"
+          receipt="$RUNNER_TEMP/branch-hygiene-receipt.json"
+          status=0
+          python scripts/branch_hygiene_delete.py "$LIST" $flag \
+            --receipt "$receipt" > /dev/null || status=$?
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json, os
+          tmp = os.environ["RUNNER_TEMP"]
+          d = json.load(open(tmp + "/branch-hygiene-receipt.json"))
+          print(f"## Branch hygiene: {d['mode']}\n")
+          print(f"Listed {d['listed']}, lossless {d['eligible']}, "
+                f"deleted {d['deleted']}, skipped {d['skipped']}, "
+                f"errors {d['errors']}.\n")
+          for r in d["results"]:
+              if r["action"] in ("skip", "error"):
+                  print(f"- {r['action']} `{r['branch']}`: {r['reason']}")
+          PY
+          exit "$status"
+      - if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: branch-hygiene-receipt-${{ github.run_id }}
+          path: ${{ runner.temp }}/branch-hygiene-receipt.json
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,8 @@
+# W3_ARCHIVE_EVOLVED (6 branches, mode archive). Census 2026-10-11 against main.
+# Executable files exist on main but evolved past the branch. Tagged archive/<branch> first.
+copilot/create-standalone-dashboard-repo-yet-again	cba16b72e25c3d88d379e45eb052e8f7f6ce16fd	archive
+m08-native-excel-gate-20260918	94cab0e3abec7d0c79e381a82b19be07c9978062	archive
+m08-native-excel-harden-20260918	4d49dd45f03d623d5f3ff758be965a574676d3e0	archive
+w282f/visual-lineage-proof	2e217843c950e478051de8da227b41b27d72ace6	archive
+w285/federation-depth-exact-proof	488d5796834f1fa4f3a44ec545804bf3cd965c97	archive
+w295f/m08-equation-v1-w294-reproof-20260918	a248ebf3cf6d52d930ad3235eff5a1c77fe3a042	archive
