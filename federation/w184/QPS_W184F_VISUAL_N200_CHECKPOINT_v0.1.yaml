@@ -1,7 +1,7 @@
-schema: q-engineering-tools-w184f-visual-n200-checkpoint/0.2
+schema: q-engineering-tools-w184f-visual-n200-checkpoint/0.3
 as_of: '2026-09-14T18:18:00+02:00'
 repo: GBOGEB/Q_engineering_tools
-state: SELF_CONTAINED_EXACT_HASH_MIRROR_ARMED_WAIT_RUNTIME
+state: PASS_SELF_CONTAINED_EXACT_HASH_MIRROR_RUNTIME
 authority: FEDERATED_REPRODUCIBILITY_EXECUTION_CARRIER_ONLY
 
 source:
@@ -60,3 +60,26 @@ PC3:
   if_N200_eigen_le_PA95: MONITOR_NOT_RETAINED
   if_N200_eigen_gt_PA95: CANDIDATE_EVIDENCE_ONLY_NOT_CONTROL_OR_RETAINED
   no_single_checkpoint_retention: true
+
+runtime_receipt:
+  # Bound 2026-10-12 from the GitHub Actions API; replaces the unmerged
+  # post-merge commit 2fcc1843 on w184f/n200-carrier-hardening-20260914,
+  # whose manifest/aggregate/artifact digests did not match reality.
+  evaluated_carrier_sha: 766f064e561c28e41cc70dd1a17a29cd71343da5
+  workflow: W184F Visual N200 Checkpoint
+  workflow_run_id: 34868622367
+  workflow_job_id: 104058671463
+  conclusion: success
+  runner_id: 1000278450
+  runner_name: GitHub Actions 1000278450
+  successful_steps: 18
+  retained_artifact:
+    name: w184f-visual-n200-checkpoint
+    artifact_id: 10358281452
+    digest: sha256:4861d40ac0a1ee626e3c541714b8310e18486f5cfc6d98839c1ffbbde0e16e39
+  mirror_recomputed_locally:
+    manifest_sha256: d52091929e4475ff1ae796da39e70b2efbc43a1b5b87112ce635ff0f60ee8c24
+    aggregate_payload_sha256: dbb4cfce5cab9c2573d057314cb4db466f28a5e64b651b2c2aba110faaa0e6f4
+    verified_file_count: 18
+    post_n100_verified_rows: 100
+  not_bound_here: N200 statistics and in-artifact receipt hashes (artifact not readable from the consolidation environment)
