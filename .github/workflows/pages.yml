@@ -1,91 +1,108 @@
 name: Deploy traceable Engineering Outpost to GitHub Pages
 
+# JADE deploy contract (option A): the hub reusable CI tests, builds the source-bound Pages
+# artifact once and hashes it; the hub reusable deploy promotes that exact artifact to the
+# `production` environment, then reads the served files back (PARITY). Deploys are serialised
+# per environment inside the reusable deploy.
+
 on:
   push:
     branches: ["main"]
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
-env:
-  RECOVERED_SOURCE_SHA: cea7bfb533c246c797ef43652579fe00a39dcd4d
-  RECOVERED_SOURCE_SUBTREE: cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0
 
 jobs:
-  deploy:
+  ci:
     if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[repeat-control]') }}
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    uses: GBOGEB/pipeline-automation-hub/.github/workflows/jade-reusable-ci.yml@77bac410de6b34afa5df665608611ad9e8db5c84
+    with:
+      python-version: '3.12'
+      install: python -m pip install --disable-pip-version-check pytest
+      test-runner: pytest
+      test-args: -q -p no:cacheprovider tests/test_pages_bundle.py
+      min-tests: 3
+      artifact-path: _site
+      artifact-name: qps-pages-build
+      build-command: |
+        RECOVERED_SOURCE_SHA=cea7bfb533c246c797ef43652579fe00a39dcd4d
+        RECOVERED_SOURCE_SUBTREE=cryo_dashboard_v0_3_0/cryo_dashboard_v0_3_0
+        if [ "$GITHUB_EVENT_NAME" != pull_request ]; then
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+        fi
+
+        # Exact recovered dashboard authority (public), sparse to the dashboard subtree.
+        rm -rf .qps-source
+        git init -q .qps-source
+        git -C .qps-source remote add origin https://github.com/GBOGEB/document-organization-system
+        git -C .qps-source sparse-checkout set "$RECOVERED_SOURCE_SUBTREE"
+        git -C .qps-source fetch -q --depth 1 --filter=blob:none origin "$RECOVERED_SOURCE_SHA"
+        git -C .qps-source -c advice.detachedHead=false checkout -q FETCH_HEAD
+        test "$(git -C .qps-source rev-parse HEAD)" = "$RECOVERED_SOURCE_SHA"
+        echo "recovered_source_sha=$RECOVERED_SOURCE_SHA"
+
+        # Deterministic source-bound Pages artifact.
+        python scripts/build_cryo_pages.py \
+          --repo-root . \
+          --source-root ".qps-source/${RECOVERED_SOURCE_SUBTREE}" \
+          --out _site \
+          --target-sha "$GITHUB_SHA"
+
+        # Traceable engineering calculation on the built artifact; the receipt ships in the bundle
+        # next to artifact_manifest.json and qps-pages-build-receipt.json.
+        LOCAL_SITE_ROOT=_site EXPECTED_TARGET_SHA="$GITHUB_SHA" \
+          RECEIPT_PATH=_site/qps-local-calculation-receipt.json \
+          node scripts/exercise_engineering_calc.mjs
+
+        # Hidden files never reach Pages (upload-pages-artifact drops them).
+        test -z "$(find _site -name '.*' -print -quit)"
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: ci
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: GBOGEB/pipeline-automation-hub/.github/workflows/jade-reusable-deploy.yml@77bac410de6b34afa5df665608611ad9e8db5c84
+    with:
+      environment: production
+      target: pages
+      artifact-name: ${{ needs.ci.outputs.artifact-name }}
+      manifest-sha256: ${{ needs.ci.outputs.manifest-sha256 }}
+      tests-ran: ${{ fromJSON(needs.ci.outputs.tests-ran) }}
+
+  public-calc:
+    name: Exercise calculation using assets fetched from public Pages URL
+    needs: deploy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - name: Checkout exact Engineering Outpost source
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
-
-      - name: Checkout exact recovered dashboard authority
-        uses: actions/checkout@v4
-        with:
-          repository: GBOGEB/document-organization-system
-          ref: ${{ env.RECOVERED_SOURCE_SHA }}
-          path: .qps-source
           persist-credentials: false
 
-      - name: Build deterministic source-bound Pages artifact
-        run: |
-          python scripts/build_cryo_pages.py \
-            --repo-root . \
-            --source-root ".qps-source/${RECOVERED_SOURCE_SUBTREE}" \
-            --out _site \
-            --target-sha "${GITHUB_SHA}"
-
-      - name: Exercise traceable engineering calculation on built artifact
-        env:
-          LOCAL_SITE_ROOT: _site
-          EXPECTED_TARGET_SHA: ${{ github.sha }}
-          RECEIPT_PATH: qps-local-calculation-receipt.json
-        run: node scripts/exercise_engineering_calc.mjs
-
-      - name: Upload deterministic build evidence
-        uses: actions/upload-artifact@v4
-        with:
-          name: qps-pages-build-${{ github.sha }}
-          path: |
-            _site/artifact_manifest.json
-            _site/qps-pages-build-receipt.json
-            qps-local-calculation-receipt.json
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "_site"
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Assert exact checkout
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
 
       - name: Exercise calculation using assets fetched from public Pages URL
         env:
-          PUBLIC_BASE_URL: ${{ steps.deployment.outputs.page_url }}
+          PUBLIC_BASE_URL: ${{ needs.deploy.outputs.page-url }}
           EXPECTED_TARGET_SHA: ${{ github.sha }}
           RECEIPT_PATH: qps-public-calculation-receipt.json
-        run: node scripts/exercise_engineering_calc.mjs
+        run: |
+          test -n "$PUBLIC_BASE_URL"
+          node scripts/exercise_engineering_calc.mjs
 
       - name: Upload public calculation receipt
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: qps-pages-public-calc-${{ github.sha }}
           path: qps-public-calculation-receipt.json
+          if-no-files-found: error
