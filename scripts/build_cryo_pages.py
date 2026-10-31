@@ -59,13 +59,15 @@ def verify_source(source: Path) -> None:
 
 
 def copy_portal(repo_root: Path, out: Path) -> None:
-    ignored = {".git", ".github", ".qps-source", "_site", "mission", "scripts", "cryo_dashboard_v0_3_0"}
-    for item in repo_root.iterdir():
-        if item.name in ignored:
+    # Hidden names (.git, .github, .qps-source, .nojekyll, nested .github payloads) never enter the
+    # artifact: actions/upload-pages-artifact drops them, so listing them would break readback parity.
+    ignored = {"_site", "mission", "scripts", "cryo_dashboard_v0_3_0"}
+    for item in sorted(repo_root.iterdir()):
+        if item.name in ignored or item.name.startswith("."):
             continue
         target = out / item.name
         if item.is_dir():
-            shutil.copytree(item, target)
+            shutil.copytree(item, target, ignore=shutil.ignore_patterns(".*"))
         else:
             shutil.copy2(item, target)
 
