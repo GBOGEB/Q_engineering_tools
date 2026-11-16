@@ -95,7 +95,7 @@ flowchart LR
 Python **3.12** is the CI runtime.
 
 ```bash
-python -m pip install pytest
+python -m pip install pytest pyyaml
 python -m pytest tests -q
 python scripts/build_cryo_pages.py --help   # needs a checkout of document-organization-system at the pinned SHA
 ```
