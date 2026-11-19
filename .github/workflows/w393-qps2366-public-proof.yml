@@ -1,0 +1,83 @@
+name: W393 QPS2366 Public Exact Proof
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/w393-qps2366-public-proof.yml"
+      - "federation/w393/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bind exact QPS source blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object federation/w393/triage/w364/qpsdeck_pack/src/layered_sld_review.py)" = "cf2458af0ca443d52bd0fa2d327014fee8b4e2f7"
+          test "$(git hash-object federation/w393/triage/w364/qpsdeck_pack/tests/test_w384_ocg_rotation_preflight.py)" = "012a7f108c5ce9936924862af31fff019a1f47bb"
+          test "$(git hash-object federation/w393/triage/w384/three_family/five_original_score.py)" = "76b9bba16c3491e6d8b1a777c199fd86328bbc37"
+          test "$(git hash-object federation/w393/triage/w384/three_family/test_five_original_score.py)" = "3386cb8c34cf073e5137387e4dbd0e052a0185fc"
+          test "$(git hash-object federation/w393/triage/w384/three_family/qualify.py)" = "afa1692318d344f825512ccdd15d51c932252134"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install targeted dependency
+        run: python -m pip install --disable-pip-version-check pymupdf
+
+      - name: Prove OCG / rotation suite
+        run: python -m unittest federation/w393/triage/w364/qpsdeck_pack/tests/test_w384_ocg_rotation_preflight.py -v
+
+      - name: Prove five-original fail-closed score suite
+        run: python -m unittest federation/w393/triage/w384/three_family/test_five_original_score.py -v
+
+      - name: Prove T-s reverse invariant
+        run: python -m unittest federation/w393/test_w393_targeted.py -v
+
+      - name: Repeat optimized interpreter
+        shell: bash
+        run: |
+          python -O -m unittest federation/w393/triage/w364/qpsdeck_pack/tests/test_w384_ocg_rotation_preflight.py -v
+          python -O -m unittest federation/w393/triage/w384/three_family/test_five_original_score.py -v
+          python -O -m unittest federation/w393/test_w393_targeted.py -v
+
+      - name: Emit proof receipt
+        shell: bash
+        run: |
+          mkdir -p out
+          python - <<'PY'
+          import json, os, pathlib
+          receipt = {
+            "schema": "qtools.w393.qps2366.public-exact-proof.v1",
+            "source_repo": "GBOGEB/cryoplant-project",
+            "source_pr": 2366,
+            "source_head": "1e4bd5edb26ca6d9e28d675b78ff16d7f5df5c52",
+            "executor_repo": "GBOGEB/Q_engineering_tools",
+            "executor_head": os.environ["GITHUB_SHA"],
+            "ocg_rotation_suite": "PASS",
+            "five_original_fail_closed_suite": "PASS",
+            "ts_reverse_invariant": "PASS",
+            "python_O_replay": "PASS",
+            "native_qps_runner_admission": "NOT_CONFERRED",
+            "authority_transfer": False,
+            "formal_credit_delta": 0
+          }
+          p = pathlib.Path("out/W393_QPS2366_PUBLIC_EXACT_PROOF.json")
+          p.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n")
+          print(p.read_text())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w393-qps2366-public-exact-proof
+          path: out/W393_QPS2366_PUBLIC_EXACT_PROOF.json
+          if-no-files-found: error
