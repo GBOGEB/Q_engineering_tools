@@ -21,7 +21,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git hash-object federation/w393/triage/w364/qpsdeck_pack/src/layered_sld_review.py)" = "75eb8cf6ca07273306c98c10e2de0351b2dfc494"
+          test "$(git hash-object federation/w393/triage/w364/qpsdeck_pack/src/layered_sld_review.py)" = "cf2458af0ca443d52bd0fa2d327014fee8b4e2f7"
           test "$(git hash-object federation/w393/triage/w364/qpsdeck_pack/tests/test_w384_ocg_rotation_preflight.py)" = "012a7f108c5ce9936924862af31fff019a1f47bb"
           test "$(git hash-object federation/w393/triage/w384/three_family/five_original_score.py)" = "76b9bba16c3491e6d8b1a777c199fd86328bbc37"
           test "$(git hash-object federation/w393/triage/w384/three_family/test_five_original_score.py)" = "82b396f74618358b080950d94ffd2bf288ee4daa"
@@ -60,7 +60,7 @@ jobs:
             "schema": "qtools.w393.qps2366.public-exact-proof.v1",
             "source_repo": "GBOGEB/cryoplant-project",
             "source_pr": 2366,
-            "source_head": "930f08869d207c9a1955118c999750db385684f8",
+            "source_head": "441d2fedb57b679d829ea460e699f4ce4c6ba2f4",
             "executor_repo": "GBOGEB/Q_engineering_tools",
             "executor_head": os.environ["GITHUB_SHA"],
             "ocg_rotation_suite": "PASS",
