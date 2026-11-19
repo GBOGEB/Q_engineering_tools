@@ -2,6 +2,7 @@ from __future__ import annotations
 import importlib.util
 import json
 from pathlib import Path
+import tempfile
 import unittest
 
 HERE = Path(__file__).resolve().parent
@@ -37,6 +38,39 @@ class ReverseInvariant(unittest.TestCase):
         data["cases"][0]["ports"]["B"]["status"] = "UNATTRIBUTED"
         with self.assertRaisesRegex(ValueError, "TS_BBOX_ON_UNATTRIBUTED_PORT"):
             mod.check_ts(json.dumps(data).encode())
+
+
+    def test_swapped_path_and_pin_uses_single_canonical_guard(self):
+        documents = []
+        for ident, (family, fmt, classification) in mod.COHORT_ROLES.items():
+            path, pin = mod.COHORT_SOURCE_PINS[ident]
+            documents.append({
+                "id": ident,
+                "family": family,
+                "format": fmt,
+                "classification": classification,
+                "path": path,
+                "git_blob_sha1": pin,
+            })
+        documents[1]["path"], documents[2]["path"] = (
+            documents[2]["path"], documents[1]["path"])
+        documents[1]["git_blob_sha1"], documents[2]["git_blob_sha1"] = (
+            documents[2]["git_blob_sha1"], documents[1]["git_blob_sha1"])
+        manifest = {
+            "schema": "qps-three-family-provenance/1",
+            "review_only": True,
+            "engineering_approval": False,
+            "publication_approval": False,
+            "owner_source_verified": False,
+            "documents": documents,
+        }
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "sources.json"
+            path.write_text(json.dumps(manifest), encoding="utf-8")
+            with self.assertRaisesRegex(
+                ValueError, "SOURCE_PATH_AND_PIN_ROLE_DRIFT"
+            ):
+                mod.read_manifest(path)
 
 
 if __name__ == "__main__":
