@@ -10,7 +10,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
+import shutil
+import tempfile
 from collections import Counter
 from itertools import combinations
 from pathlib import Path
@@ -392,36 +395,49 @@ def run(general: Path, detailed: Path, annex: Path | None, pins_path: Path,
     entries = validated_map(spec)
     sources = {"general": general, "detailed": detailed}
     hashes = check_pins(pins, sources, annex)
-    # Check source page numbers before creating any output bytes.
+
+    # Check source page numbers and preflight both source roles before creating
+    # any outward bytes. A second-document collision must not strand the first.
     for kind, source in sources.items():
         with fitz.open(source) as doc:
             require(all(e["page"] <= doc.page_count for e in entries
                         if e["document"] == kind), "REVIEW_PAGE_OUT_OF_BOUNDS")
-    # Both PDFs must admit review overlays BEFORE either output is written.
-    # A collision HOLD in the second drawing must not leave a first PDF orphan.
     prepared = {
         kind: preflight_anchors(source, [e for e in entries if e["document"] == kind])
         for kind, source in sources.items()
     }
     require(all(digest(source) == hashes[kind] for kind, source in sources.items()),
             "SOURCE_DRIFT_AFTER_PREFLIGHT")
-    out_dir.mkdir(parents=True, exist_ok=True)
-    pdfs = {}
-    for kind, source in sources.items():
-        out = out_dir / ("EDB700_GENERAL" if kind == "general" else "EDB701_BFA31-32-33")
-        out = out.with_name(out.name + "_LAYERED_REVIEW_ONLY.pdf")
-        pdfs[kind] = build_copy(source, out, kind, entries, prepared=prepared[kind])
-    result = {"schema": RECEIPT, "source_map_sha256": digest(spec_path),
-              "pin_manifest_sha256": digest(pins_path), "sources_sha256": hashes,
-              "pdfs": pdfs, "review_ids": [x["id"] for x in entries],
-              "source_authority": "OWNER_PDF_BYTES_UNCHANGED",
-              "engineering_approval": False, "authority_transfer": False,
-              "owner_dispositions": "OPEN", "publisher_approval": False,
-              "test_level": "LOCAL_REPRODUCIBILITY",
-              "ocg_explanation": "Three switchable REVIEW layers are OFF by default; all original layer names retained"}
-    receipt = out_dir / "W382_LAYERED_PDF_RECEIPT.json"
-    receipt.write_text(json.dumps(result, sort_keys=True, indent=2) + "\n", encoding="utf-8")
-    return result
+
+    out_dir.parent.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix=".w393-icd-stage-", dir=out_dir.parent))
+    try:
+        pdfs = {}
+        for kind, source in sources.items():
+            out = staging / ("EDB700_GENERAL" if kind == "general" else "EDB701_BFA31-32-33")
+            out = out.with_name(out.name + "_LAYERED_REVIEW_ONLY.pdf")
+            pdfs[kind] = build_copy(source, out, kind, entries, prepared=prepared[kind])
+
+        result = {"schema": RECEIPT, "source_map_sha256": digest(spec_path),
+                  "pin_manifest_sha256": digest(pins_path), "sources_sha256": hashes,
+                  "pdfs": pdfs, "review_ids": [x["id"] for x in entries],
+                  "source_authority": "OWNER_PDF_BYTES_UNCHANGED",
+                  "engineering_approval": False, "authority_transfer": False,
+                  "owner_dispositions": "OPEN", "publisher_approval": False,
+                  "test_level": "LOCAL_REPRODUCIBILITY",
+                  "ocg_explanation": "Three switchable REVIEW layers are OFF by default; all original layer names retained"}
+        receipt = staging / "W382_LAYERED_PDF_RECEIPT.json"
+        receipt.write_text(json.dumps(result, sort_keys=True, indent=2) + "\n",
+                           encoding="utf-8")
+
+        require(not out_dir.exists() or not any(out_dir.iterdir()), "OUTPUT_NOT_EMPTY")
+        if out_dir.exists():
+            out_dir.rmdir()
+        os.replace(staging, out_dir)
+        return result
+    finally:
+        if staging.exists():
+            shutil.rmtree(staging)
 
 
 def main():
