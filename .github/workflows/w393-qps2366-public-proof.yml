@@ -1,4 +1,5 @@
 name: W393 QPS2366 Public Exact Proof
+# W395 adapter revision 2
 
 on:
   pull_request:
