@@ -59,7 +59,7 @@ def _document_has_ocmd(doc: "fitz.Document") -> bool:
             obj = doc.xref_object(xref, compressed=False)
         except Exception as exc:
             raise ValueError("SOURCE_OCMD_OBJECT_SCAN_FAILED") from exc
-        if re.search(r"/Type\\s*/OCMD\\b", obj):
+        if re.search(r"/Type\s*/OCMD\b", obj):
             return True
     return False
 
