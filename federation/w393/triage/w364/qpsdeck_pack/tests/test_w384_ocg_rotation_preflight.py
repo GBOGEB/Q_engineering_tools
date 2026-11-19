@@ -8,6 +8,7 @@ import importlib.util
 import json
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 import pymupdf as fitz
@@ -195,6 +196,38 @@ class W384OcgsAndRotation(unittest.TestCase):
             mod.build_copy(source, self.root / "forged.pdf", "general",
                            [item("general")], prepared=positions)
         self.assertFalse((self.root / "forged.pdf").exists())
+
+    def test_second_writer_failure_does_not_publish_first_pdf(self):
+        general = self.root / "atomic_general.pdf"
+        detailed = self.root / "atomic_detailed.pdf"
+        annex = self.root / "atomic_annex.xlsx"
+        create_pdf(general)
+        create_pdf(detailed)
+        annex.write_bytes(b"SYNTHETIC ANNEX")
+        pins = self.root / "atomic_pins.json"
+        pins.write_text(json.dumps({"sources": {
+            role: {"sha256": mod.digest(path)}
+            for role, path in (("general", general), ("detailed", detailed), ("annex", annex))
+        }}))
+        review = self.root / "atomic_review.json"
+        review.write_text(json.dumps({"schema": mod.SCHEMA, "review_only": True,
+            "engineering_approval": False, "authority_transfer": False,
+            "items": [item("general"), item("detailed")]}))
+        output = self.root / "atomic_no_partial"
+
+        original = mod.build_copy
+        sequence = []
+        def failing_writer(source_path, dest, kind, items, **kwargs):
+            sequence.append(kind)
+            if kind == "detailed":
+                raise RuntimeError("SYNTHETIC_DETAILED_WRITE_FAILED")
+            return original(source_path, dest, kind, items, **kwargs)
+
+        with mock.patch.object(mod, "build_copy", side_effect=failing_writer):
+            with self.assertRaisesRegex(RuntimeError, "SYNTHETIC_DETAILED_WRITE_FAILED"):
+                mod.run(general, detailed, annex, pins, review, output)
+        self.assertEqual(sequence, ["general", "detailed"])
+        self.assertFalse(output.exists(), "No partial outward review issue may survive")
 
     def test_second_pdf_collision_is_preflight_before_any_output(self):
         general = self.root / "general.pdf"
