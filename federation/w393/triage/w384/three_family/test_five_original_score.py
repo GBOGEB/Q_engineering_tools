@@ -148,7 +148,10 @@ class FiveOriginal(unittest.TestCase):
         self.data["documents"][0]["native_qa"].pop("receipt_path")
         x = gate.analyze(trials(self.data))
         self.assertEqual(x["native_qa_receipts_declared"], 5)
-        self.assertEqual(x["native_qa_receipt_bytes_verified"], 4)
+        # No owner source/native-QA contract is configured in synthetic tests,
+        # so self-authored receipt bytes never become trusted verification.
+        self.assertEqual(x["native_qa_receipt_bytes_verified"], 0)
+        self.assertFalse(x["owner_source_contract_complete"])
         self.assertIsNone(x["p50_seconds"]["1"])
 
     def test_qa_receipt_source_context_swap_fails_closed(self):
