@@ -115,10 +115,10 @@ class W384OcgsAndRotation(unittest.TestCase):
         receipt = mod.preflight_anchors(source, [item("general")])[1]
         self.assertEqual(
             receipt["source_ocg_probe_policy"],
-            "DEFAULT_ALL_ON_SINGLE_ON_SINGLE_OFF_PAIR_ON",
+            "EXHAUSTIVE_ALL_VISIBILITY_SUBSETS_MAX_8_OCGS",
         )
-        # all-ON base + default + 3 single-ON + 3 single-OFF + 3 pair-ON
-        self.assertEqual(receipt["source_view_state_count"], 11)
+        # Exactly all 2^3 visibility states are represented.
+        self.assertEqual(receipt["source_view_state_count"], 8)
 
     def test_parsed_ocmd_dictionary_fails_closed_even_without_raw_marker(self):
         class FakeDoc:
@@ -132,6 +132,20 @@ class W384OcgsAndRotation(unittest.TestCase):
         doc = FakeDoc()
         self.assertTrue(mod._document_has_ocmd(doc))
         self.assertFalse(doc.last_compressed)
+
+    def test_more_than_eight_ocgs_fails_closed_before_sampling(self):
+        source = self.root / "too_many_ocgs.pdf"
+        with fitz.open() as doc:
+            page = doc.new_page(width=600, height=360)
+            groups = [doc.add_ocg(f"OCG-{i}", on=1) for i in range(9)]
+            for i, ocg in enumerate(groups):
+                page.draw_rect(fitz.Rect(10 + i, 10 + i, 20 + i, 20 + i),
+                               color=(0, 0, 0), fill=(0, 0, 0), oc=ocg)
+            doc.save(source)
+        with self.assertRaisesRegex(
+            ValueError, "SOURCE_OCG_COMBINATIONS_EXCEED_EXHAUSTIVE_PROBE"
+        ):
+            mod.preflight_anchors(source, [item("general")])
 
     def test_page_rotation_preserved_and_default_view_is_source_identical(self):
         for rotation in (90, 270):
