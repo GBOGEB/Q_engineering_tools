@@ -52,10 +52,12 @@ class ReverseInvariant(unittest.TestCase):
                 "path": path,
                 "git_blob_sha1": pin,
             })
-        documents[1]["path"], documents[2]["path"] = (
-            documents[2]["path"], documents[1]["path"])
-        documents[1]["git_blob_sha1"], documents[2]["git_blob_sha1"] = (
-            documents[2]["git_blob_sha1"], documents[1]["git_blob_sha1"])
+        # Swap the first manifest row so the canonical pin guard fires
+        # before this public proof adapter reaches private-source existence checks.
+        documents[0]["path"], documents[1]["path"] = (
+            documents[1]["path"], documents[0]["path"])
+        documents[0]["git_blob_sha1"], documents[1]["git_blob_sha1"] = (
+            documents[1]["git_blob_sha1"], documents[0]["git_blob_sha1"])
         manifest = {
             "schema": "qps-three-family-provenance/1",
             "review_only": True,
