@@ -21,8 +21,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git hash-object federation/w393/triage/w364/qpsdeck_pack/src/layered_sld_review.py)" = "cf2458af0ca443d52bd0fa2d327014fee8b4e2f7"
-          test "$(git hash-object federation/w393/triage/w364/qpsdeck_pack/tests/test_w384_ocg_rotation_preflight.py)" = "012a7f108c5ce9936924862af31fff019a1f47bb"
+          test "$(git hash-object federation/w393/triage/w364/qpsdeck_pack/src/layered_sld_review.py)" = "619646310522f7ec2b8195b7d26c8cea7af85bf3"
+          test "$(git hash-object federation/w393/triage/w364/qpsdeck_pack/tests/test_w384_ocg_rotation_preflight.py)" = "675c0e59fcd9941888be3bae8291e8f2d9b6cced"
           test "$(git hash-object federation/w393/triage/w384/three_family/five_original_score.py)" = "76b9bba16c3491e6d8b1a777c199fd86328bbc37"
           test "$(git hash-object federation/w393/triage/w384/three_family/test_five_original_score.py)" = "3386cb8c34cf073e5137387e4dbd0e052a0185fc"
           test "$(git hash-object federation/w393/triage/w384/three_family/qualify.py)" = "afa1692318d344f825512ccdd15d51c932252134"
@@ -60,7 +60,7 @@ jobs:
             "schema": "qtools.w393.qps2366.public-exact-proof.v1",
             "source_repo": "GBOGEB/cryoplant-project",
             "source_pr": 2366,
-            "source_head": "1e4bd5edb26ca6d9e28d675b78ff16d7f5df5c52",
+            "source_head": "36b0242b5423cd17b43d9a2ec568ee4e1249295d",
             "executor_repo": "GBOGEB/Q_engineering_tools",
             "executor_head": os.environ["GITHUB_SHA"],
             "ocg_rotation_suite": "PASS",
