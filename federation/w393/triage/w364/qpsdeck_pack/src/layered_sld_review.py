@@ -209,7 +209,9 @@ def preflight_anchors(source: Path, relevant: list[dict]) -> dict[int, dict]:
     with fitz.open(stream=original_bytes, filetype="pdf") as source_copy:
         require(source_copy.is_pdf and not source_copy.needs_pass, "UNSUPPORTED_SOURCE_PDF")
         ocgs = source_copy.get_ocgs()
-        require(len(ocgs) <= 32, "SOURCE_OCG_STATES_EXCEED_BOUNDED_PROBE")
+        # Exhaustive visibility-state proof grows as 2^N. Keep the bound small
+        # and fail closed rather than sample an unsafe subset of larger OCG sets.
+        require(len(ocgs) <= 8, "SOURCE_OCG_COMBINATIONS_EXCEED_EXHAUSTIVE_PROBE")
         # Optional-content membership dictionaries can encode arbitrary boolean
         # visibility expressions. Inspect parsed PDF objects rather than raw
         # bytes so OCMDs inside compressed object streams cannot bypass the hold.
@@ -218,11 +220,11 @@ def preflight_anchors(source: Path, relevant: list[dict]) -> dict[int, dict]:
         if ocgs:
             source_copy.set_layer(-1, on=list(ocgs), off=[])
         preview_bytes = source_copy.tobytes(no_new_id=True)
-    # A composed all-ON view is insufficient: a hidden white OCG can mask
-    # original black ink. Probe default, every single-ON state, every
-    # single-OFF-from-all-ON state, and every pair-ON state. The pair probe
-    # closes the nested/two-layer artwork + white-mask false-blank family.
-    state_bytes = [original_bytes] if ocgs else []
+    # A composed all-ON view is insufficient: hidden white OCGs can mask
+    # source ink. For the bounded cohort, enumerate every visibility subset.
+    # The all-ON state is preview_bytes, so state_bytes contains all remaining
+    # 2^N - 1 states, including all-OFF and higher-order combinations.
+    state_bytes = []
     ordered_ocgs = sorted(ocgs)
 
     def add_state(on_ids):
@@ -232,12 +234,12 @@ def preflight_anchors(source: Path, relevant: list[dict]) -> dict[int, dict]:
             layer_copy.set_layer(-1, on=on_ids, off=off_ids)
             state_bytes.append(layer_copy.tobytes(no_new_id=True))
 
-    for ocg in ordered_ocgs:
-        add_state([ocg])
-    for ocg in ordered_ocgs:
-        add_state([i for i in ordered_ocgs if i != ocg])
-    for pair in combinations(ordered_ocgs, 2):
-        add_state(pair)
+    if ordered_ocgs:
+        for size in range(0, len(ordered_ocgs) + 1):
+            for subset in combinations(ordered_ocgs, size):
+                if size == len(ordered_ocgs):
+                    continue  # preview_bytes already represents all-ON.
+                add_state(subset)
     result: dict[int, dict] = {}
     with fitz.open(stream=preview_bytes, filetype="pdf") as all_on:
         if ocgs:
@@ -263,7 +265,7 @@ def preflight_anchors(source: Path, relevant: list[dict]) -> dict[int, dict]:
             record["census_rotation"] = 0
             record["source_ocg_union"] = len(ocgs)
             record["source_ocg_probe_policy"] = (
-                "DEFAULT_ALL_ON_SINGLE_ON_SINGLE_OFF_PAIR_ON"
+                "EXHAUSTIVE_ALL_VISIBILITY_SUBSETS_MAX_8_OCGS"
             )
             result[pageno] = record
     return result
