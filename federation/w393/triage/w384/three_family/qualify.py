@@ -85,22 +85,6 @@ def read_manifest(path: Path = DEFAULT_MANIFEST) -> list[dict]:
         require(e.get("classification") in CLASSES, "BAD_SOURCE_CLASSIFICATION")
         require((e.get("family"), e.get("format"), e.get("classification"))
                 == COHORT_ROLES[e["id"]], "SOURCE_ROLE_OR_FORMAT_DRIFT")
-        expected_sources = {
-            "EDB-SLD-OWNER": (
-                "triage/w364/qpsdeck_pack/inputs/icd_el_001_rev1_2/ICD-EL-001_Drawing_1_Owner_Baseline.svg",
-                "5d1f42291beb5ec248aa2f668de9660e9ff4afec"),
-            "MINERVA-QCELL-ASDRAWN": (
-                "assets/minerva_pid/data/svg/PFD-PID MINERVA QCELL-LB.svg",
-                "8dbaa94e57213cde45916879802eb403dfaadfff"),
-            "MINERVA-QCELL-MAINLINES": (
-                "assets/minerva_pid/output_v5/QCELL/QCELL-MAINLINES_VIEW.svg",
-                "fe325ba2b9430a6b2640306f878c8917a21066c0"),
-            "LKT-E07-TS": (
-                "triage/w375/e07_ts_digitise/case_stream.json",
-                "206385eb53dc2b47d9315d875039c016829c793f"),
-        }
-        require((e.get("path"), e.get("git_blob_sha1")) == expected_sources[e["id"]],
-                "SOURCE_ARTIFACT_IDENTITY_DRIFT")
         require(e.get("format") in ("svg", "json"), "UNKNOWN_SOURCE_FORMAT")
         require((e.get("path"), e.get("git_blob_sha1")) == COHORT_SOURCE_PINS[e["id"]],
                 "SOURCE_PATH_AND_PIN_ROLE_DRIFT")
