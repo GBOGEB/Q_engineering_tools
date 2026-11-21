@@ -1,0 +1,89 @@
+{
+ "schema": "offer-math-inputs/v1",
+ "status": "CURRENT_APPLICANT_OFFER_FIGURES_NOT_SCK_SELECTED_DESIGN",
+ "note": "Numbers and page locators only; no source paragraphs. Pages are combined-PDF pages of the bookmarked offer files.",
+ "sources": {
+  "LKT": {"filename": "LKT - Offer 1 (bookmarked).pdf", "sha256": "8d074db4d07bf6d904635d7666664ebd54a2d0d7fc80d53b8f256be9e48911d0", "pages": 433},
+  "ALAT": {"filename": "ALAT - Offer 1 (bookmarked).pdf", "sha256": "bd7922ce5c946e84701ba87655330ed194c59d080dd91810123415b27f5b2831", "pages": 610}
+ },
+ "alat_exergy": {
+  "locator": "ALAT p176-177",
+  "T0_K": 300.0,
+  "T_eq_K": 4.5,
+  "loads": {
+   "Qcav+QB": {"Q_W": 851.0, "h_in": 11781, "h_out": 34859, "s_in": 3621, "s_out": 16483, "stated_Q45_W": 2154},
+   "QTS": {"Q_W": 8200.0, "h_in": 196438, "h_out": 302915, "s_in": 14861, "s_out": 17428, "stated_Q45_W": 778},
+   "mCPRL": {"m_kg_s": 0.0023, "h_in": 11781, "h_out": 1573611, "s_in": 3621, "s_out": 31067, "stated_Q45_W": 234}
+  },
+  "stated_total_Q45_W": 3166,
+  "w_elec_kW": {"screw_compressors": 1155, "pvps": 103, "cold_compressors": 45, "others": 37},
+  "invcop_contract": 444,
+  "assumed_U_rel": 0.05,
+  "expected_U_rel": 0.025
+ },
+ "interface_2k": {
+  "locator": "ALAT p177 / LKT p105",
+  "A": {"P_Pa": 300000.0, "T_K": 4.5},
+  "B": {"P_Pa": 2600.0, "T_K": 3.8},
+  "Q_W": 851.0,
+  "stated_dh_J_kg": 23078,
+  "stated_ds_J_kgK": 12862,
+  "lkt_stated_B_min_g_s": 39.0
+ },
+ "cooling_water": {
+  "lkt_recovery_per_unit": {"locator": "LKT p113", "kW": 229, "m3_h": 7.9, "dT_K": 25, "units": 4},
+  "alat_rcw": {"locator": "ALAT p179", "kW": 764, "m3_h": 26, "dT_K": 25, "glycol_cp_J_kgK": 3700, "glycol_rho_kg_m3": 1040, "glycol_locator": "ALAT p178 (20-40 % glycol)"},
+  "alat_pcw_wcs": {"locator": "ALAT p178-179", "m3_h_without_recovery": 100, "m3_h_with_full_recovery": 37, "dT_max_K": 11},
+  "lkt_arithmetic": [
+   {"locator": "LKT p107", "label": "Consumption of Compressors m3/h", "factor": 4, "unit_value": 18.5, "stated": 78},
+   {"locator": "LKT p106", "label": "PVPS motor rated power kW", "factor": 4, "unit_value": 18.5, "stated": 78}
+  ]
+ },
+ "noise": {
+  "limit_dBA_at_1m": 80.0,
+  "limit_locator": "Addendum II RTM-147",
+  "cases": [
+   {"label": "LKT Kaeser nominal", "locator": "LKT p113", "dBA": 75.0},
+   {"label": "LKT Kaeser +3 dB tolerance", "locator": "LKT p113", "dBA": 78.0},
+   {"label": "ALAT Kaeser", "locator": "ALAT p132", "dBA": 74.0}
+  ],
+  "pvps_upper_dBA": 85.0,
+  "pvps_locator": "LKT p115"
+ },
+ "efficiency_2k": {
+  "note": "2K-OP nominal. invCOP boundary 'HP+PVPS' = electrical of warm HP compressors + process vacuum pumps over the isothermal 4.5 K equivalent load.",
+  "T0_K": 300.0,
+  "T_eq_K": 4.5,
+  "loads": {"Qcav+QB_W": 851.0, "QTS_W": 8200.0, "mCPRL_kg_s": 0.0023},
+  "common_qeq_kW": {"value": 3.43, "locator": "OFFERS_ITT/QPS_Cost_Estimate/build_qps_cost_estimate_master_v1.py 'Common duty Qeq' (CONTROLLED, derivation not in repo)"},
+  "rtm_common_states": {"A": [4.5, 300000.0], "B": [3.6, 3000.0], "D": [40.0, 1400000.0], "E": [60.0, 1300000.0], "W": [300.0, 105000.0], "locator": "tools/property_router/coolprop_independent_check.py POINTS (A, B, D, W); E = D + 20 K, -1 bar"},
+  "bidders": {
+   "ALAT": {
+    "locator": "ALAT p128 p132 p172-177 p180-182",
+    "states": {"A": [4.5, 300000.0], "B": [3.8, 2600.0], "D": [35.0, 1412000.0], "E": [55.0, 1312000.0], "W": [300.0, 130000.0]},
+    "stated_qeq_kW": 3.166,
+    "kWe": {"HP": 1155, "PVPS": 103, "CC": 45, "others": 37},
+    "invcop_contract": 444,
+    "hp": {"m_kg_s": 0.337, "p1_bar_a": 1.05, "p2_bar_a": 15.0, "m_basis": "ESTIMATE: 80 g/s at 275 kW per unit (p156) scaled to 290 kW expected per unit (p180) x 4"},
+    "pvps": {"p_suction_bar_a": 0.25, "p_discharge_bar_a": 1.05, "basis": "CC discharge 150-400 mbar (p132); 250 mbar used"}
+   },
+   "LKT": {
+    "locator": "LKT p105-107; qps/engineering_hub/bridge/b04c4_energy.py MODES 2KOP",
+    "states": {"A": [4.5, 300000.0], "B": [3.8, 2600.0], "D": [40.0, 1260000.0], "E": [60.0, 1160000.0], "W": [300.0, 110000.0]},
+    "stated_qeq_kW": 3.35,
+    "kWe": {"HP": 814, "PVPS": 83, "CC": 5, "dryer": 3, "IVP": 3},
+    "printed_total_kWe": 1038,
+    "invcop_contract": 310,
+    "hp": {"m_kg_s": 0.326, "p1_bar_a": 1.05, "p2_bar_a": 14.0, "m_basis": "LKT energy table 2KOP 326 g/s (b04c4)"},
+    "pvps": {"p_suction_bar_a": 0.25, "p_discharge_bar_a": 1.05, "basis": "not stated by LKT; ALAT range midpoint used"}
+   }
+  },
+  "user_reference_invcop": 370
+ },
+ "guard_band": {
+  "locator": "Addendum II RTM-507 vs LKT p105 note 2 / ALAT p173",
+  "target_W": 851.0,
+  "U_rel": 0.025,
+  "measured_W": [870, 860, 851]
+ }
+}
