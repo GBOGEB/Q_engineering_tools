@@ -1,0 +1,101 @@
+name: W397 QPS OFFER rereview exact proof
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/w397-qps-offer-rereview-proof.yml"
+      - "federation/w397/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble W397 exact overlay on W396 proven baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=federation/w396/cryoplant-project
+          over=federation/w397/overrides
+          work=/tmp/qps-w397
+          cp -a "$base" "$work"
+          while IFS= read -r -d '' f; do
+            rel="${f#$over/}"
+            mkdir -p "$work/$(dirname "$rel")"
+            cp "$f" "$work/$rel"
+          done < <(find "$over" -type f -print0)
+          echo "W397_WORK=$work" >> "$GITHUB_ENV"
+
+      - name: Bind exact QPS overlay blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          root=federation/w397/overrides
+          test "$(git hash-object "$root/triage/jade_temple_qps/bb_lkt_offer_v1/scoped_decision_gate.py")" = "9f727d3fccb80df5ac0704d99611178a9390c0d5"
+          test "$(git hash-object "$root/triage/jade_temple_qps/bb_lkt_offer_v1/tests/test_scoped_decision_gate.py")" = "88a9f08c0388f6e95b2a64be98839992e640043f"
+          test "$(git hash-object "$root/tools/offer_pdf_engine/offer_pdf_engine.py")" = "7978e0582049d8ca252c36b745a3ecb7c8582e73"
+          test "$(git hash-object "$root/tools/offer_pdf_engine/tests/test_offer_pdf_engine.py")" = "d3ea98546872e5e22ac3b5c42bacb5e8f34cacb8"
+          test "$(git hash-object "$root/.github/workflows/qps-offer-pdf-engine.yml")" = "e53f44d2bbce01ac7b91e02183272021a868efbf"
+          grep -F "PyMuPDF==1.26.4" "$root/.github/workflows/qps-offer-pdf-engine.yml"
+          grep -F "CoolProp==6.8.0" "$root/.github/workflows/qps-offer-pdf-engine.yml"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install qualified proof providers
+        run: python -m pip install --disable-pip-version-check pytest pymupdf==1.26.4 CoolProp==6.8.0 plotly
+
+      - name: Compile exact assembled payload
+        working-directory: ${{ env.W397_WORK }}
+        run: python -m compileall -q triage/jade_temple_qps/bb_lkt_offer_v1 tools/offer_pdf_engine scripts/qps_w142_invcop_thermo_return_cold.py tools/property_router/router.py
+
+      - name: Prove rereviewed scoped DOCX/PDF lane
+        working-directory: ${{ env.W397_WORK }}
+        run: |
+          python -m pytest -q             triage/jade_temple_qps/bb_lkt_offer_v1/tests/test_scoped_decision_gate.py             triage/jade_temple_qps/bb_lkt_offer_v1/tests/test_identifier_representation_binding.py
+
+      - name: Prove rereviewed OFFER PDF/math lane
+        working-directory: ${{ env.W397_WORK }}
+        run: |
+          python -m pytest -q             tools/offer_pdf_engine/tests/test_offer_pdf_engine.py             tools/offer_pdf_engine/tests/test_offer_math_repro.py
+
+      - name: Emit proof receipt
+        shell: bash
+        run: |
+          mkdir -p out
+          python - <<'PY'
+          import json, os, pathlib
+          receipt={
+            "schema":"qtools.w397.qps-offer-rereview-proof.v1",
+            "source_repo":"GBOGEB/cryoplant-project",
+            "qps_pr_2382_head":"d729894fec2b274b38e151757184ab03931a5d90",
+            "qps_pr_2383_head":"bfc940bc869b3078f2e88cbcf829400b6252633b",
+            "baseline":"W396_GREEN",
+            "executor_repo":"GBOGEB/Q_engineering_tools",
+            "executor_head":os.environ["GITHUB_SHA"],
+            "word_visible_controls":"PASS",
+            "ancestor_drawing_context":"PASS",
+            "processing_cache_identity":"PASS",
+            "qualified_provider_pins":"PASS",
+            "affected_suites":"PASS",
+            "private_qps_runner_admission":"NOT_CONFERRED",
+            "authority_transfer":False,
+            "formal_credit_delta":0
+          }
+          p=pathlib.Path("out/W397_QPS_OFFER_REREVIEW_PROOF.json")
+          p.write_text(json.dumps(receipt,indent=2,sort_keys=True)+"\n")
+          print(p.read_text())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w397-qps-offer-rereview-proof
+          path: out/W397_QPS_OFFER_REREVIEW_PROOF.json
+          if-no-files-found: error
