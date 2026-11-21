@@ -1,0 +1,88 @@
+name: W396 QPS OFFER dual-lane exact proof
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/w396-qps-offer-dual-lane-proof.yml"
+      - "federation/w396/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bind exact QPS blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          root=federation/w396/cryoplant-project
+          test "$(git hash-object "$root/triage/jade_temple_qps/bb_lkt_offer_v1/scoped_decision_gate.py")" = "528c6241612f5f9538dba8895c24a1abfd113b0f"
+          test "$(git hash-object "$root/triage/jade_temple_qps/bb_lkt_offer_v1/native_pdf_source_binding.py")" = "bae5d1d15693f406c97f924d802a0c213053ffe2"
+          test "$(git hash-object "$root/triage/jade_temple_qps/bb_lkt_offer_v1/tests/test_scoped_decision_gate.py")" = "a322bfb8f302e5f899f1d07c20b4c64e60687de3"
+          test "$(git hash-object "$root/triage/jade_temple_qps/bb_lkt_offer_v1/tests/test_identifier_representation_binding.py")" = "7de7bceb2da5e037c4b69d6f6ada6110cc386e7a"
+          test "$(git hash-object "$root/tools/offer_pdf_engine/offer_pdf_engine.py")" = "ad16939cb8afe9cd685bc5d4b5b5f3ec709fd5c8"
+          test "$(git hash-object "$root/tools/offer_pdf_engine/page_reader.py")" = "36393b338991134df3c0d71eaa27cb30beee0c8f"
+          test "$(git hash-object "$root/tools/offer_pdf_engine/offer_math_repro.py")" = "d60aa018d4d5137ab24a598b3c2e236159652ef1"
+          test "$(git hash-object "$root/tools/offer_pdf_engine/offer_math_inputs.json")" = "2e9eaa98f3438f0e764c2764ae81882563dc2c56"
+          test "$(git hash-object "$root/tools/offer_pdf_engine/tests/test_offer_pdf_engine.py")" = "24ca034969099549c7f862752fea6fc586e36919"
+          test "$(git hash-object "$root/tools/offer_pdf_engine/tests/test_offer_math_repro.py")" = "4abc1430628ce310edd342a0fa85612f38f89302"
+          test "$(git hash-object "$root/scripts/qps_w142_invcop_thermo_return_cold.py")" = "38e4ef05ca961fcd6d6c5684569ae7b26f0eaf51"
+          test "$(git hash-object "$root/tools/property_router/router.py")" = "5bc659b4ba98d1a0df1ea9a1816ca840aeb5693c"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install proof dependencies
+        run: python -m pip install --disable-pip-version-check pytest pymupdf CoolProp plotly
+
+      - name: Compile exact payload
+        working-directory: federation/w396/cryoplant-project
+        run: python -m compileall -q triage/jade_temple_qps/bb_lkt_offer_v1 tools/offer_pdf_engine scripts/qps_w142_invcop_thermo_return_cold.py tools/property_router/router.py
+
+      - name: Prove scoped DOCX/PDF binding lane
+        working-directory: federation/w396/cryoplant-project
+        run: |
+          python -m pytest -q             triage/jade_temple_qps/bb_lkt_offer_v1/tests/test_scoped_decision_gate.py             triage/jade_temple_qps/bb_lkt_offer_v1/tests/test_identifier_representation_binding.py
+
+      - name: Prove OFFER PDF/math lane
+        working-directory: federation/w396/cryoplant-project
+        run: |
+          python -m pytest -q             tools/offer_pdf_engine/tests/test_offer_pdf_engine.py             tools/offer_pdf_engine/tests/test_offer_math_repro.py
+
+      - name: Emit proof receipt
+        shell: bash
+        run: |
+          mkdir -p out
+          python - <<'PY'
+          import json, os, pathlib
+          receipt={
+            "schema":"qtools.w396.qps-offer-dual-lane-proof.v1",
+            "source_repo":"GBOGEB/cryoplant-project",
+            "qps_pr_2382_head":"fb8ee5f85c12ff29559398f8d1da01b82a47b021",
+            "qps_pr_2383_head":"3d33bbba2b911e2073d41e40a80b5c36038a1520",
+            "executor_repo":"GBOGEB/Q_engineering_tools",
+            "executor_head":os.environ["GITHUB_SHA"],
+            "scoped_docx_pdf_binding":"PASS",
+            "offer_pdf_math":"PASS",
+            "cross_boundary_native_pdf_projection":"PASS",
+            "private_qps_runner_admission":"NOT_CONFERRED",
+            "authority_transfer":False,
+            "formal_credit_delta":0
+          }
+          p=pathlib.Path("out/W396_QPS_OFFER_DUAL_LANE_PROOF.json")
+          p.write_text(json.dumps(receipt,indent=2,sort_keys=True)+"\n")
+          print(p.read_text())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w396-qps-offer-dual-lane-proof
+          path: out/W396_QPS_OFFER_DUAL_LANE_PROOF.json
+          if-no-files-found: error
